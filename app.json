@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "BioCelular Quiz",
+    "slug": "biotrainer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#6366f1"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.biocelular.quiz"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#6366f1"
+      },
+      "package": "com.biocelular.quiz"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-sqlite"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "9fe59b4d-d6c1-4981-a64a-57a0b5b3fd79"
+      }
+    },
+    "owner": "agustinfrusto"
+  }
+}
