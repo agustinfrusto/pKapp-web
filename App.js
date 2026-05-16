@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import HomeScreen from './src/screens/HomeScreen';
 import TopicSelectScreen from './src/screens/TopicSelectScreen';
@@ -22,21 +23,22 @@ export default function App() {
   }, []);
 
   return (
+    <SafeAreaProvider>
     <NavigationContainer>
       <StatusBar style="light" />
       <Stack.Navigator
         initialRouteName="Home"
         screenOptions={{
-          headerStyle: { backgroundColor: '#6366f1' },
+          headerStyle: { backgroundColor: '#1a3f6f' },
           headerTintColor: '#fff',
           headerTitleStyle: { fontWeight: 'bold' },
-          contentStyle: { backgroundColor: '#f8fafc' },
+          contentStyle: { backgroundColor: '#f1f5f9' },
         }}
       >
         <Stack.Screen
           name="Home"
           component={HomeScreen}
-          options={{ title: 'BioCelular Quiz' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="TopicSelect"
@@ -70,5 +72,6 @@ export default function App() {
         />
       </Stack.Navigator>
     </NavigationContainer>
+    </SafeAreaProvider>
   );
 }

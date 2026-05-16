@@ -30,6 +30,14 @@ export async function initDatabase() {
       created_at INTEGER NOT NULL
     );
   `);
+
+  // Tabla de ajustes clave-valor
+  await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
+  `);
   
   return db;
 }
@@ -119,6 +127,23 @@ export async function getUserQuestions() {
 export async function deleteUserQuestion(id) {
   const database = await initDatabase();
   await database.runAsync('DELETE FROM user_questions WHERE id = ?', [id]);
+}
+
+// Leer un ajuste (devuelve defaultValue si no existe)
+export async function getSetting(key, defaultValue = null) {
+  const database = await initDatabase();
+  const row = await database.getFirstAsync('SELECT value FROM settings WHERE key = ?', [key]);
+  return row ? row.value : defaultValue;
+}
+
+// Guardar un ajuste
+export async function saveSetting(key, value) {
+  const database = await initDatabase();
+  await database.runAsync(
+    `INSERT INTO settings (key, value) VALUES (?, ?)
+     ON CONFLICT(key) DO UPDATE SET value = ?`,
+    [key, String(value), String(value)]
+  );
 }
 
 // Resetear todas las estadísticas

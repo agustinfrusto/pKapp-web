@@ -1,27 +1,36 @@
 // Pantalla de ajustes: gestión de preguntas custom, reseteo de stats, info.
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { QUESTIONS, TOPICS } from '../data/questions';
 import {
   resetStats, getUserQuestions, deleteUserQuestion,
+  getSetting, saveSetting,
 } from '../db/database';
 
 export default function SettingsScreen() {
   const [userQuestions, setUserQuestions] = useState([]);
+  const [hideFeedback, setHideFeedback] = useState(false);
 
-  const loadUserQuestions = useCallback(async () => {
+  const loadData = useCallback(async () => {
     const qs = await getUserQuestions();
     setUserQuestions(qs);
+    const hf = await getSetting('hide_feedback', 'false');
+    setHideFeedback(hf === 'true');
   }, []);
 
   useFocusEffect(
     useCallback(() => {
-      loadUserQuestions();
-    }, [loadUserQuestions])
+      loadData();
+    }, [loadData])
   );
+
+  async function handleToggleHideFeedback(value) {
+    setHideFeedback(value);
+    await saveSetting('hide_feedback', value);
+  }
 
   function handleResetStats() {
     Alert.alert(
@@ -123,6 +132,25 @@ export default function SettingsScreen() {
         )}
       </View>
 
+      {/* Comportamiento del quiz */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Cuestionario</Text>
+        <View style={styles.settingRow}>
+          <View style={styles.settingInfo}>
+            <Text style={styles.settingLabel}>Ocultar resultado hasta el final</Text>
+            <Text style={styles.settingDescription}>
+              Respondé sin ver si acertás. Al terminar, revisás todo junto.
+            </Text>
+          </View>
+          <Switch
+            value={hideFeedback}
+            onValueChange={handleToggleHideFeedback}
+            trackColor={{ false: '#ccd9e6', true: '#0d7a8a' }}
+            thumbColor="#fff"
+          />
+        </View>
+      </View>
+
       {/* Acciones peligrosas */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Datos</Text>
@@ -139,7 +167,7 @@ export default function SettingsScreen() {
         <Text style={styles.sectionTitle}>Acerca de</Text>
         <View style={styles.aboutCard}>
           <Text style={styles.aboutText}>
-            <Text style={styles.aboutBold}>BioCelular Quiz</Text>
+            <Text style={styles.aboutBold}>aPK</Text>
             {'\n'}Preparación para el 2do parcial de Biología Celular y Tisular.
             {'\n\n'}Preguntas reales extraídas de los parciales 2024 (T1 y T2) y 2025 (T1 y T2),
             más preguntas adicionales generadas a partir del material de estudio.
@@ -278,5 +306,27 @@ const styles = StyleSheet.create({
   aboutBold: {
     fontWeight: 'bold',
     color: '#1e293b',
+  },
+  settingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+  },
+  settingInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
+  settingLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0f1f33',
+  },
+  settingDescription: {
+    fontSize: 12,
+    color: '#607d99',
+    marginTop: 3,
+    lineHeight: 16,
   },
 });

@@ -5,11 +5,13 @@ import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TOPICS } from '../data/questions';
 import { recordAnswer } from '../db/database';
 
 export default function QuizScreen({ route, navigation }) {
-  const { questions, mode, topic } = route.params;
+  const { questions, mode, topic, hideFeedback } = route.params;
+  const insets = useSafeAreaInsets();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [answered, setAnswered] = useState(false);
@@ -125,16 +127,24 @@ export default function QuizScreen({ route, navigation }) {
             let icon = null;
             
             if (showResult) {
-              if (isCorrect) {
-                optionStyle.push(styles.optionCorrect);
-                textStyle.push(styles.optionTextCorrect);
-                icon = '✓';
-              } else if (isSelected && !isCorrect) {
-                optionStyle.push(styles.optionWrong);
-                textStyle.push(styles.optionTextWrong);
-                icon = '✗';
+              if (hideFeedback) {
+                if (isSelected) {
+                  optionStyle.push(styles.optionSelected);
+                } else {
+                  optionStyle.push(styles.optionDimmed);
+                }
               } else {
-                optionStyle.push(styles.optionDimmed);
+                if (isCorrect) {
+                  optionStyle.push(styles.optionCorrect);
+                  textStyle.push(styles.optionTextCorrect);
+                  icon = '✓';
+                } else if (isSelected && !isCorrect) {
+                  optionStyle.push(styles.optionWrong);
+                  textStyle.push(styles.optionTextWrong);
+                  icon = '✗';
+                } else {
+                  optionStyle.push(styles.optionDimmed);
+                }
               }
             } else if (isSelected) {
               optionStyle.push(styles.optionSelected);
@@ -159,7 +169,7 @@ export default function QuizScreen({ route, navigation }) {
         </View>
 
         {/* Explicación después de responder */}
-        {answered && currentQuestion.explanation ? (
+        {answered && !hideFeedback && currentQuestion.explanation ? (
           <View style={styles.explanationCard}>
             <Text style={styles.explanationTitle}>💡 Explicación</Text>
             <Text style={styles.explanationText}>{currentQuestion.explanation}</Text>
@@ -169,7 +179,7 @@ export default function QuizScreen({ route, navigation }) {
 
       {/* Botón siguiente */}
       {answered && (
-        <View style={styles.footer}>
+        <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
           <TouchableOpacity
             style={styles.nextButton}
             onPress={handleNext}
@@ -188,12 +198,12 @@ export default function QuizScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f1f5f9',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#6366f1',
+    backgroundColor: '#1a3f6f',
     paddingHorizontal: 12,
     paddingVertical: 12,
   },
@@ -242,13 +252,13 @@ const styles = StyleSheet.create({
   },
   topicLabel: {
     fontSize: 12,
-    color: '#6366f1',
+    color: '#0d7a8a',
     fontWeight: '600',
     textTransform: 'uppercase',
   },
   sourceLabel: {
     fontSize: 11,
-    color: '#64748b',
+    color: '#607d99',
   },
   questionCard: {
     backgroundColor: '#fff',
@@ -263,7 +273,7 @@ const styles = StyleSheet.create({
   },
   questionText: {
     fontSize: 16,
-    color: '#1e293b',
+    color: '#0f1f33',
     lineHeight: 24,
   },
   optionsContainer: {
@@ -276,19 +286,19 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 14,
     borderWidth: 2,
-    borderColor: '#e2e8f0',
+    borderColor: '#ccd9e6',
   },
   optionSelected: {
-    borderColor: '#6366f1',
-    backgroundColor: '#eef2ff',
+    borderColor: '#1a3f6f',
+    backgroundColor: '#dce8f5',
   },
   optionCorrect: {
-    borderColor: '#22c55e',
-    backgroundColor: '#dcfce7',
+    borderColor: '#276221',
+    backgroundColor: '#e8f5e7',
   },
   optionWrong: {
-    borderColor: '#ef4444',
-    backgroundColor: '#fee2e2',
+    borderColor: '#b52828',
+    backgroundColor: '#fceaea',
   },
   optionDimmed: {
     opacity: 0.5,
@@ -296,22 +306,22 @@ const styles = StyleSheet.create({
   optionLetter: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#64748b',
+    color: '#607d99',
     marginRight: 12,
     minWidth: 20,
   },
   optionText: {
     flex: 1,
     fontSize: 14,
-    color: '#1e293b',
+    color: '#0f1f33',
     lineHeight: 20,
   },
   optionTextCorrect: {
-    color: '#15803d',
+    color: '#1a5216',
     fontWeight: '600',
   },
   optionTextWrong: {
-    color: '#b91c1c',
+    color: '#8b1c1c',
   },
   optionIcon: {
     fontSize: 18,
@@ -319,32 +329,33 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   explanationCard: {
-    backgroundColor: '#fef3c7',
+    backgroundColor: '#ddf2f5',
     borderRadius: 10,
     padding: 14,
     marginTop: 16,
     borderLeftWidth: 4,
-    borderLeftColor: '#f59e0b',
+    borderLeftColor: '#0d7a8a',
   },
   explanationTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#92400e',
+    color: '#095c6b',
     marginBottom: 6,
   },
   explanationText: {
     fontSize: 14,
-    color: '#78350f',
+    color: '#095c6b',
     lineHeight: 20,
   },
   footer: {
-    padding: 16,
+    paddingTop: 16,
+    paddingHorizontal: 16,
     backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: '#e2e8f0',
+    borderTopColor: '#ccd9e6',
   },
   nextButton: {
-    backgroundColor: '#6366f1',
+    backgroundColor: '#1a3f6f',
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: 'center',

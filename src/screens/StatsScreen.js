@@ -181,9 +181,9 @@ export default function StatsScreen() {
 }
 
 function getAccuracyColor(percentage) {
-  if (percentage >= 80) return '#22c55e';
-  if (percentage >= 60) return '#f59e0b';
-  return '#ef4444';
+  if (percentage >= 80) return '#276221';
+  if (percentage >= 60) return '#c67c00';
+  return '#b52828';
 }
 
 const styles = StyleSheet.create({

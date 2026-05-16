@@ -6,7 +6,9 @@ import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert,
 } from 'react-native';
 import { QUESTIONS, TOPICS } from '../data/questions';
-import { getUserQuestions, getFailedQuestions } from '../db/database';
+import { getUserQuestions, getFailedQuestions, getSetting } from '../db/database';
+
+const EXAM_SIZE = 40;
 
 const SOURCE_FILTERS = {
   all: 'Todas',
@@ -57,7 +59,7 @@ export default function TopicSelectScreen({ route, navigation }) {
     return filtered;
   }
 
-  function startQuiz(topic = null) {
+  async function startQuiz(topic = null) {
     let questions = getFilteredQuestions(topic);
 
     if (questions.length === 0) {
@@ -67,15 +69,18 @@ export default function TopicSelectScreen({ route, navigation }) {
 
     // Modo examen: tomar 40 al azar (o las que haya si son menos)
     if (mode === 'exam') {
-      questions = shuffleArray(questions).slice(0, Math.min(40, questions.length));
+      questions = shuffleArray(questions).slice(0, Math.min(EXAM_SIZE, questions.length));
     } else {
       questions = shuffleArray(questions);
     }
 
-    navigation.navigate('Quiz', { 
-      questions, 
+    const hf = await getSetting('hide_feedback', 'false');
+
+    navigation.navigate('Quiz', {
+      questions,
       mode,
       topic: topic || 'Todos los temas',
+      hideFeedback: hf === 'true',
     });
   }
 
@@ -88,7 +93,7 @@ export default function TopicSelectScreen({ route, navigation }) {
         <View style={styles.examInfoCard}>
           <Text style={styles.examInfoTitle}>📝 Modo Examen</Text>
           <Text style={styles.examInfoText}>
-            Se sortean 40 preguntas al azar de todos los temas, como en el parcial real.
+            Se sortean {Math.min(EXAM_SIZE, getFilteredQuestions().length)} preguntas al azar de todos los temas, como en el parcial real.
           </Text>
           <Text style={styles.examInfoCount}>
             Disponibles: {getFilteredQuestions().length} preguntas
@@ -199,7 +204,7 @@ function shuffleArray(array) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f1f5f9',
   },
   scrollContent: {
     padding: 16,
@@ -214,7 +219,7 @@ const styles = StyleSheet.create({
   filterLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#475569',
+    color: '#354d66',
     marginBottom: 10,
   },
   filterButtons: {
@@ -228,15 +233,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#f1f5f9',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#ccd9e6',
   },
   filterButtonActive: {
-    backgroundColor: '#6366f1',
-    borderColor: '#6366f1',
+    backgroundColor: '#1a3f6f',
+    borderColor: '#1a3f6f',
   },
   filterButtonText: {
     fontSize: 13,
-    color: '#475569',
+    color: '#354d66',
     fontWeight: '500',
   },
   filterButtonTextActive: {
@@ -254,24 +259,24 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   allTopicsCard: {
-    backgroundColor: '#fef3c7',
+    backgroundColor: '#ddf2f5',
     borderWidth: 2,
-    borderColor: '#fbbf24',
+    borderColor: '#0d7a8a',
   },
   topicCardTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#1e293b',
+    color: '#0f1f33',
   },
   topicCardCount: {
     fontSize: 12,
-    color: '#64748b',
+    color: '#607d99',
     marginTop: 3,
   },
   sectionLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#64748b',
+    color: '#607d99',
     marginTop: 8,
     marginBottom: 10,
     marginLeft: 4,
@@ -285,24 +290,24 @@ const styles = StyleSheet.create({
   examInfoTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#1e293b',
+    color: '#0f1f33',
     marginBottom: 10,
   },
   examInfoText: {
     fontSize: 15,
-    color: '#475569',
+    color: '#354d66',
     textAlign: 'center',
     marginBottom: 14,
     lineHeight: 22,
   },
   examInfoCount: {
     fontSize: 13,
-    color: '#6366f1',
+    color: '#1a3f6f',
     fontWeight: '600',
     marginBottom: 20,
   },
   startButton: {
-    backgroundColor: '#6366f1',
+    backgroundColor: '#1a3f6f',
     paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 10,
@@ -325,12 +330,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1e293b',
+    color: '#0f1f33',
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 14,
-    color: '#64748b',
+    color: '#607d99',
     textAlign: 'center',
     lineHeight: 22,
   },

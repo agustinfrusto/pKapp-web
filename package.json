@@ -1,6 +1,6 @@
 {
-  "name": "biocelular-quiz",
-  "version": "0.1.0",
+  "name": "apk",
+  "version": "0.2.0",
   "main": "index.js",
   "scripts": {
     "start": "expo start",

@@ -34,8 +34,8 @@ export default function ResultsScreen({ route, navigation }) {
         </View>
 
         {answers.map((answer, idx) => (
-          <View 
-            key={idx} 
+          <View
+            key={idx}
             style={[
               styles.reviewCard,
               answer.isCorrect ? styles.reviewCardCorrect : styles.reviewCardWrong,
@@ -50,32 +50,46 @@ export default function ResultsScreen({ route, navigation }) {
                 {answer.isCorrect ? '✓ Correcta' : '✗ Incorrecta'}
               </Text>
             </View>
-            
+
             <Text style={styles.reviewQuestion}>{answer.question.question}</Text>
-            
-            {!answer.isCorrect && (
-              <View style={styles.reviewYourAnswer}>
-                <Text style={styles.reviewLabel}>Tu respuesta:</Text>
-                <Text style={styles.reviewWrongText}>
-                  {answer.question.options[answer.selectedIndex]}
-                </Text>
-              </View>
-            )}
-            
-            <View style={styles.reviewCorrectAnswer}>
-              <Text style={styles.reviewLabel}>Respuesta correcta:</Text>
-              <Text style={styles.reviewCorrectText}>
-                {answer.question.options[answer.question.correctIndex]}
-              </Text>
+
+            <View style={styles.reviewOptionsContainer}>
+              {answer.question.options.map((option, optIdx) => {
+                const isCorrect = optIdx === answer.question.correctIndex;
+                const isWrong = optIdx === answer.selectedIndex && !answer.isCorrect;
+                return (
+                  <View
+                    key={optIdx}
+                    style={[
+                      styles.reviewOption,
+                      isCorrect && styles.reviewOptionCorrect,
+                      isWrong && styles.reviewOptionWrong,
+                    ]}
+                  >
+                    <Text style={styles.reviewOptionLetter}>
+                      {String.fromCharCode(65 + optIdx)}
+                    </Text>
+                    <Text style={[
+                      styles.reviewOptionText,
+                      isCorrect && styles.reviewOptionTextCorrect,
+                      isWrong && styles.reviewOptionTextWrong,
+                    ]}>
+                      {option}
+                    </Text>
+                    {isCorrect && <Text style={styles.reviewOptionIcon}>✓</Text>}
+                    {isWrong && <Text style={styles.reviewOptionIcon}>✗</Text>}
+                  </View>
+                );
+              })}
             </View>
-            
-            {answer.question.explanation && (
+
+            {answer.question.explanation ? (
               <View style={styles.reviewExplanation}>
                 <Text style={styles.reviewExplanationText}>
                   💡 {answer.question.explanation}
                 </Text>
               </View>
-            )}
+            ) : null}
           </View>
         ))}
 
@@ -159,24 +173,24 @@ export default function ResultsScreen({ route, navigation }) {
 
 function getResultFeedback(percentage) {
   if (percentage >= 90) {
-    return { message: '¡Excelente! Listísima para el parcial.', emoji: '🏆', color: '#22c55e' };
+    return { message: '¡Excelente! Listísima para el parcial.', emoji: '🏆', color: '#276221' };
   }
   if (percentage >= 75) {
-    return { message: '¡Muy bien! Vas por buen camino.', emoji: '🎉', color: '#22c55e' };
+    return { message: '¡Muy bien! Vas por buen camino.', emoji: '🎉', color: '#276221' };
   }
   if (percentage >= 60) {
-    return { message: 'Bien, pero hay espacio para mejorar.', emoji: '👍', color: '#f59e0b' };
+    return { message: 'Bien, pero hay espacio para mejorar.', emoji: '👍', color: '#c67c00' };
   }
   if (percentage >= 50) {
-    return { message: 'Justito. Repasá los temas que fallaste.', emoji: '😬', color: '#f59e0b' };
+    return { message: 'Justito. Repasá los temas que fallaste.', emoji: '😬', color: '#c67c00' };
   }
-  return { message: 'A repasar más fuerte. Vos podés.', emoji: '💪', color: '#ef4444' };
+  return { message: 'A repasar más fuerte. Vos podés.', emoji: '💪', color: '#b52828' };
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f1f5f9',
   },
   scrollContent: {
     padding: 16,
@@ -204,17 +218,17 @@ const styles = StyleSheet.create({
   },
   scoreText: {
     fontSize: 18,
-    color: '#475569',
+    color: '#354d66',
     marginTop: 4,
   },
   message: {
     fontSize: 15,
-    color: '#64748b',
+    color: '#607d99',
     marginTop: 12,
     textAlign: 'center',
   },
   topicBadge: {
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#dce8f5',
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 16,
@@ -222,7 +236,7 @@ const styles = StyleSheet.create({
   },
   topicBadgeText: {
     fontSize: 12,
-    color: '#6366f1',
+    color: '#1a3f6f',
     fontWeight: '600',
   },
   statsRow: {
@@ -240,11 +254,11 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#22c55e',
+    color: '#276221',
   },
   statLabel: {
     fontSize: 12,
-    color: '#64748b',
+    color: '#607d99',
     marginTop: 2,
   },
   button: {
@@ -254,7 +268,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   primaryButton: {
-    backgroundColor: '#6366f1',
+    backgroundColor: '#1a3f6f',
   },
   primaryButtonText: {
     color: '#fff',
@@ -264,20 +278,20 @@ const styles = StyleSheet.create({
   secondaryButton: {
     backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#cbd5e1',
+    borderColor: '#ccd9e6',
   },
   secondaryButtonText: {
-    color: '#475569',
+    color: '#354d66',
     fontSize: 16,
     fontWeight: '600',
   },
   reviewButton: {
-    backgroundColor: '#fef3c7',
+    backgroundColor: '#ddf2f5',
     borderWidth: 1,
-    borderColor: '#fbbf24',
+    borderColor: '#0d7a8a',
   },
   reviewButtonText: {
-    color: '#92400e',
+    color: '#095c6b',
     fontSize: 15,
     fontWeight: '600',
   },
@@ -290,11 +304,11 @@ const styles = StyleSheet.create({
   reviewTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#1e293b',
+    color: '#0f1f33',
   },
   reviewSubtitle: {
     fontSize: 14,
-    color: '#64748b',
+    color: '#607d99',
     marginTop: 4,
   },
   reviewCard: {
@@ -305,10 +319,10 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
   },
   reviewCardCorrect: {
-    borderLeftColor: '#22c55e',
+    borderLeftColor: '#276221',
   },
   reviewCardWrong: {
-    borderLeftColor: '#ef4444',
+    borderLeftColor: '#b52828',
   },
   reviewCardHeader: {
     flexDirection: 'row',
@@ -317,7 +331,7 @@ const styles = StyleSheet.create({
   },
   reviewCardNumber: {
     fontSize: 12,
-    color: '#94a3b8',
+    color: '#9ab0c4',
     fontWeight: '600',
   },
   reviewCardStatus: {
@@ -325,49 +339,74 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   statusCorrect: {
-    color: '#15803d',
+    color: '#1a5216',
   },
   statusWrong: {
-    color: '#b91c1c',
+    color: '#8b1c1c',
   },
   reviewQuestion: {
     fontSize: 14,
-    color: '#1e293b',
+    color: '#0f1f33',
     marginBottom: 10,
     lineHeight: 20,
   },
-  reviewYourAnswer: {
-    marginBottom: 6,
+  reviewOptionsContainer: {
+    gap: 6,
+    marginBottom: 4,
   },
-  reviewCorrectAnswer: {
-    marginBottom: 6,
+  reviewOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccd9e6',
+    backgroundColor: '#f8fafc',
   },
-  reviewLabel: {
-    fontSize: 11,
-    color: '#94a3b8',
-    fontWeight: '600',
-    textTransform: 'uppercase',
+  reviewOptionCorrect: {
+    borderColor: '#276221',
+    backgroundColor: '#e8f5e7',
   },
-  reviewWrongText: {
+  reviewOptionWrong: {
+    borderColor: '#b52828',
+    backgroundColor: '#fceaea',
+  },
+  reviewOptionLetter: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#607d99',
+    marginRight: 10,
+    minWidth: 18,
+  },
+  reviewOptionText: {
+    flex: 1,
     fontSize: 13,
-    color: '#b91c1c',
-    marginTop: 2,
+    color: '#354d66',
+    lineHeight: 18,
   },
-  reviewCorrectText: {
-    fontSize: 13,
-    color: '#15803d',
+  reviewOptionTextCorrect: {
+    color: '#1a5216',
     fontWeight: '600',
-    marginTop: 2,
+  },
+  reviewOptionTextWrong: {
+    color: '#8b1c1c',
+  },
+  reviewOptionIcon: {
+    fontSize: 14,
+    marginLeft: 6,
+    fontWeight: 'bold',
   },
   reviewExplanation: {
-    backgroundColor: '#fef3c7',
+    backgroundColor: '#ddf2f5',
     padding: 10,
-    borderRadius: 6,
+    borderRadius: 8,
     marginTop: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#0d7a8a',
   },
   reviewExplanationText: {
     fontSize: 12,
-    color: '#78350f',
+    color: '#095c6b',
     lineHeight: 18,
   },
   bottomButtonsRow: {

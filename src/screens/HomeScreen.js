@@ -1,17 +1,28 @@
 // Pantalla principal: muestra los modos de uso disponibles.
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { QUESTIONS } from '../data/questions';
 
+const logo = require('../assets/logo.png');
+
+const EXAM_SIZE = 40;
+
 export default function HomeScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const examCount = QUESTIONS.filter(q => q.source === 'exam').length;
   const generatedCount = QUESTIONS.filter(q => q.source === 'generated').length;
+  const examModeCount = Math.min(EXAM_SIZE, QUESTIONS.length);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Biología Celular y Tisular</Text>
-        <Text style={styles.subtitle}>Preparación para el 2do parcial</Text>
+      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+        <Image
+          source={logo}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Text style={styles.subtitle}>Biología Celular y Tisular</Text>
         <Text style={styles.stats}>
           {examCount} preguntas reales · {generatedCount} preguntas extra
         </Text>
@@ -28,7 +39,7 @@ export default function HomeScreen({ navigation }) {
         <ModeCard
           icon="📝"
           title="Modo examen"
-          description="40 preguntas al azar como en el parcial real"
+          description={`${examModeCount} preguntas al azar como en el parcial real`}
           onPress={() => navigation.navigate('TopicSelect', { mode: 'exam' })}
         />
 
@@ -80,31 +91,32 @@ function ModeCard({ icon, title, description, onPress }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f1f5f9',
   },
   scrollContent: {
     paddingBottom: 30,
   },
   header: {
-    padding: 24,
-    backgroundColor: '#6366f1',
+    paddingBottom: 20,
+    paddingHorizontal: 24,
+    backgroundColor: '#1a3f6f',
     alignItems: 'center',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
+  logo: {
+    width: 140,
+    height: 56,
+    tintColor: '#fff',
+    marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#e0e7ff',
+    color: '#c5d9f0',
     marginTop: 4,
     textAlign: 'center',
   },
   stats: {
     fontSize: 13,
-    color: '#c7d2fe',
+    color: '#a8c8e0',
     marginTop: 8,
   },
   modesContainer: {
@@ -133,15 +145,15 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1e293b',
+    color: '#0f1f33',
   },
   cardDescription: {
     fontSize: 13,
-    color: '#64748b',
+    color: '#607d99',
     marginTop: 2,
   },
   cardArrow: {
     fontSize: 28,
-    color: '#cbd5e1',
+    color: '#b8cfe0',
   },
 });

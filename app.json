@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "BioCelular Quiz",
+    "name": "aPK",
     "slug": "biotrainer",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -11,13 +11,16 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.biocelular.quiz"
+      "bundleIdentifier": "com.agustinfrusto.apk",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#6366f1"
       },
-      "package": "com.biocelular.quiz"
+      "package": "com.agustinfrusto.apk"
     },
     "web": {
       "favicon": "./assets/favicon.png"
