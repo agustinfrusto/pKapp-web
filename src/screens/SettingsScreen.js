@@ -78,15 +78,15 @@ export default function SettingsScreen() {
         <Text style={styles.sectionTitle}>Banco de preguntas</Text>
         <View style={styles.infoCard}>
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>📄 Exámenes reales</Text>
+            <Text style={styles.infoLabel}>Exámenes reales</Text>
             <Text style={styles.infoValue}>{examCount}</Text>
           </View>
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>✨ Generadas (práctica)</Text>
+            <Text style={styles.infoLabel}>Generadas (práctica)</Text>
             <Text style={styles.infoValue}>{generatedCount}</Text>
           </View>
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>👤 Tuyas</Text>
+            <Text style={styles.infoLabel}>Tuyas</Text>
             <Text style={styles.infoValue}>{userQuestions.length}</Text>
           </View>
           <View style={[styles.infoRow, styles.totalRow]}>
@@ -118,14 +118,14 @@ export default function SettingsScreen() {
                   onPress={() => handleDeleteUserQuestion(q.id)}
                   style={styles.deleteButton}
                 >
-                  <Text style={styles.deleteButtonText}>🗑</Text>
+                  <Text style={styles.deleteButtonText}>×</Text>
                 </TouchableOpacity>
               </View>
               <Text style={styles.questionText} numberOfLines={2}>
                 {q.question}
               </Text>
               <Text style={styles.questionCorrect}>
-                ✓ {q.options[q.correctIndex]}
+                {q.options[q.correctIndex]}
               </Text>
             </View>
           ))
@@ -158,7 +158,7 @@ export default function SettingsScreen() {
           style={styles.dangerButton}
           onPress={handleResetStats}
         >
-          <Text style={styles.dangerButtonText}>🗑 Resetear estadísticas</Text>
+          <Text style={styles.dangerButtonText}>Resetear estadísticas</Text>
         </TouchableOpacity>
       </View>
 

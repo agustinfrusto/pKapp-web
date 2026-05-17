@@ -6,6 +6,15 @@ import { QUESTIONS } from '../data/questions';
 
 const logo = require('../assets/logo.png');
 
+const icons = {
+  practicar:   require('../assets/practicar.png'),
+  examen:      require('../assets/examen.png'),
+  repasar:     require('../assets/repasar.png'),
+  estadisticas: require('../assets/estadisticas.png'),
+  agregar:     require('../assets/agregar.png'),
+  ajustes:     require('../assets/ajustes.png'),
+};
+
 const EXAM_SIZE = 40;
 
 export default function HomeScreen({ navigation }) {
@@ -30,55 +39,59 @@ export default function HomeScreen({ navigation }) {
 
       <View style={styles.modesContainer}>
         <ModeCard
-          icon="📚"
+          icon={icons.practicar}
           title="Practicar por tema"
           description="Elegí un tema específico y respondé a tu ritmo"
           onPress={() => navigation.navigate('TopicSelect', { mode: 'practice' })}
         />
 
         <ModeCard
-          icon="📝"
+          icon={icons.examen}
           title="Modo examen"
           description={`${examModeCount} preguntas al azar como en el parcial real`}
           onPress={() => navigation.navigate('TopicSelect', { mode: 'exam' })}
         />
 
         <ModeCard
-          icon="🎯"
+          icon={icons.repasar}
           title="Repasar fallos"
           description="Preguntas que te costaron antes"
           onPress={() => navigation.navigate('TopicSelect', { mode: 'failed' })}
         />
 
         <ModeCard
-          icon="📊"
+          icon={icons.estadisticas}
           title="Mis estadísticas"
           description="% de aciertos por tema, preguntas falladas"
           onPress={() => navigation.navigate('Stats')}
+          iconSize={64}
         />
 
         <ModeCard
-          icon="➕"
+          icon={icons.agregar}
           title="Agregar pregunta"
           description="Agregá tus propias preguntas al banco"
           onPress={() => navigation.navigate('AddQuestion')}
         />
 
         <ModeCard
-          icon="⚙️"
+          icon={icons.ajustes}
           title="Ajustes"
           description="Filtrar fuente, resetear estadísticas"
           onPress={() => navigation.navigate('Settings')}
+          iconSize={38}
         />
       </View>
     </ScrollView>
   );
 }
 
-function ModeCard({ icon, title, description, onPress }) {
+function ModeCard({ icon, title, description, onPress, iconSize = 50 }) {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
-      <Text style={styles.cardIcon}>{icon}</Text>
+      <View style={styles.cardIconContainer}>
+        <Image source={icon} style={{ width: iconSize, height: iconSize }} resizeMode="contain" />
+      </View>
       <View style={styles.cardContent}>
         <Text style={styles.cardTitle}>{title}</Text>
         <Text style={styles.cardDescription}>{description}</Text>
@@ -135,8 +148,11 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
-  cardIcon: {
-    fontSize: 32,
+  cardIconContainer: {
+    width: 64,
+    height: 64,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 16,
   },
   cardContent: {
