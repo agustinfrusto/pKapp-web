@@ -13,7 +13,7 @@ Construido con **Expo / React Native**. Funciona offline.
   - **Práctica por tema:** elegís un tema específico.
   - **Examen:** 40 preguntas al azar (formato del parcial real).
   - **Repaso de fallos:** las que respondiste mal antes.
-- **Explicaciones** tras cada respuesta.
+- **Explicaciones** tras cada respuesta o al final del cuestionario
 - **Estadísticas** por tema y lista de preguntas más falladas.
 - **Agregar tus propias preguntas** al banco (se guardan en SQLite local).
 
@@ -41,7 +41,7 @@ aPK/
 │       ├── HomeScreen.js           # Menú principal
 │       ├── TopicSelectScreen.js    # Selector de tema + filtro de fuente
 │       ├── QuizScreen.js           # Quiz en sí
-│       ├── ResultsScreen.js        # Resultados + revisión
+│       ├── ResultsScreen.js        # Resultados + revisión Ho
 │       ├── AddQuestionScreen.js    # Formulario para agregar Qs
 │       ├── StatsScreen.js          # Estadísticas
 │       └── SettingsScreen.js       # Ajustes
@@ -99,7 +99,6 @@ Si el usuario borra los datos de la app, se pierde todo. No hay sincronización 
 
 ## Próximos pasos posibles
 
-- Agregar opción para ver las respuestas tambien al final del cuestionario u omitirlas. 
 - Posibilidad de setear un timer en los cuestionarios
 - Agregar preguntas del primer parcial y examenes.
 - Exportar las preguntas del usuario a JSON para hacer backup.
