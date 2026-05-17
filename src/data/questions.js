@@ -1,3 +1,18 @@
+/**
+ * pKapp - Banco de preguntas
+ *
+ * SPDX-License-Identifier: CC-BY-NC-SA-4.0
+ * Copyright (c) 2026 Agustín Frusto
+ *
+ * Este contenido está licenciado bajo Creative Commons
+ * Attribution-NonCommercial-ShareAlike 4.0 International.
+ *
+ * USO COMERCIAL PROHIBIDO. Para licencia comercial,
+ * contactar a: agustinfrusto@gmail.com
+ *
+ * Texto completo de la licencia: ../LICENSE-CONTENT
+ * https://creativecommons.org/licenses/by-nc-sa/4.0/
+ */
 // Banco de preguntas - Biología Celular y Tisular
 // "source": "exam" = pregunta real de examen anterior
 // "source": "generated" = pregunta generada a partir de los apuntes

@@ -1,4 +1,4 @@
-# aPK
+# pKapp
 
 App para ayudar a los estudiantes de Medicina y Escuela Técnica de Medicina.
 

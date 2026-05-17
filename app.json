@@ -1,17 +1,18 @@
 {
   "expo": {
-    "name": "aPK",
-    "slug": "biotrainer",
-    "version": "1.0.0",
+    "name": "pKapp",
+    "slug": "pkapp",
+    "version": "0.4.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "splash": {
+      "image": "./src/assets/logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#6366f1"
+      "backgroundColor": "#1a3f6f"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.agustinfrusto.apk",
+      "bundleIdentifier": "com.agustinfrusto.pkapp",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -20,7 +21,7 @@
       "adaptiveIcon": {
         "backgroundColor": "#6366f1"
       },
-      "package": "com.agustinfrusto.apk"
+      "package": "com.agustinfrusto.pkapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"

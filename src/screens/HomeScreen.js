@@ -116,9 +116,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: 140,
-    height: 56,
-    tintColor: '#fff',
+    width: 300,
+    height: 120,
     marginBottom: 8,
   },
   subtitle: {

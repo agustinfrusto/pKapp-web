@@ -20,3 +20,6 @@ web-build/
 .vscode/
 .idea/
 *.swp
+
+# Archives
+*.zip
