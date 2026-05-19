@@ -6,20 +6,22 @@ Construido con **Expo / React Native**. Funciona offline.
 
 ## Características
 
-- **160 preguntas reales** extraídas de los parciales 2024 T1, 2024 T2, 2025 T1 y 2025 T2 (Hasta el momento)
-- **~35 preguntas adicionales** generadas con Claude a partir de los apuntes para cubrir temas que no salieron mucho en exámenes.
-- **Filtro de fuente:** podés practicar solo con preguntas reales, solo con las generadas, o con todas.
+- **404 preguntas reales** extraídas de 7 exámenes: 2022 T1 y T2 (prototipos), 2024 T1, T2 y T3 (recuperatorio feb. 2025), 2025 T1 y T2.
+- **34 preguntas adicionales** generadas con Claude a partir de los apuntes para cubrir temas con menor presencia en exámenes.
+- **Filtros:** por fuente (examen real / generada) y por parcial (1er / 2do), combinables.
 - **Tres modos:**
   - **Práctica por tema:** elegís un tema específico.
-  - **Examen:** 40 preguntas al azar (formato del parcial real).
+  - **Examen:** 75 preguntas al azar (igual que el parcial real).
   - **Repaso de fallos:** las que respondiste mal antes.
-- **Explicaciones** tras cada respuesta o al final del cuestionario
+- **Explicaciones** tras cada respuesta o al final del cuestionario.
 - **Estadísticas** por tema y lista de preguntas más falladas.
 - **Agregar tus propias preguntas** al banco (se guardan en SQLite local).
 
 ## Temas cubiertos
 
-Genética, ADN/ARN y síntesis proteica, tejidos (epitelial, conjuntivo, cartilaginoso, óseo, muscular, linfoideo), sangre y hemopoyesis, ciclo celular y reparación del ADN, contracción muscular, palancas, radioprotección, hemostasis y sistema inmune.
+**1er parcial:** Química del agua / pH / tampones · Aminoácidos y proteínas · Lípidos e hidratos de carbono · Enzimas y cinética · Metabolismo celular (glucólisis, Krebs, fosforilación oxidativa) · Membrana biológica · Organelos celulares · Microscopía · Transporte a través de membranas · Potencial de acción · División celular y cromosomas · Reparación del ADN y radiobiología.
+
+**2do parcial:** Genética y herencia · ADN, ARN y síntesis proteica · Tejido epitelial · Tejido conjuntivo · Tejido cartilaginoso · Tejido óseo · Tejido muscular (histología) · Sangre y hemopoyesis · Tejido linfoideo · Ciclo celular y cáncer · Contracción muscular · Palancas y biomecánica · Radioprotección · Hemostasis y coagulación · Sistema inmune.
 
 ---
 
@@ -81,12 +83,19 @@ Cada pregunta tiene un campo `source`:
 - `"generated"` → pregunta generada a partir de los apuntes.
 - `"user"` → pregunta agregada por el usuario.
 
-En `TopicSelectScreen` se ofrece un segmented control con 3 opciones:
+En `TopicSelectScreen` hay dos filtros combinables:
+
+**Filtro de fuente** (3 opciones):
 - **Todas** (default).
-- **Solo exámenes reales** → filtra `source === 'exam'`.
+- **Solo preguntas reales** → filtra `source === 'exam'`.
 - **Solo generadas** → filtra `source === 'generated' || source === 'user'`.
 
-El filtrado se hace antes de pasar el array a `QuizScreen`.
+**Filtro de parcial** (3 opciones):
+- **Ambos** (default).
+- **1er Parcial** → filtra `parcial === 'primero'`.
+- **2do Parcial** → filtra `parcial === 'segundo'`.
+
+El filtrado se aplica antes de pasar el array a `QuizScreen`. En `QuizScreen` cada pregunta muestra un badge indicando a qué parcial pertenece.
 
 ## Persistencia
 
@@ -99,10 +108,10 @@ Si el usuario borra los datos de la app, se pierde todo. No hay sincronización 
 
 ## Próximos pasos posibles
 
-- Posibilidad de setear un timer en los cuestionarios
-- Agregar preguntas del primer parcial y examenes.
+- Posibilidad de setear un timer en los cuestionarios.
 - Exportar las preguntas del usuario a JSON para hacer backup.
 - Imágenes en las preguntas (las genealogías, los gráficos tensión-longitud, las palancas).
+- Agregar las preguntas de 2022 que dependen de imágenes (4 por turno), una vez que se incorporen las imágenes al proyecto.
 
 Si hay uso de la app que lo justifique extraeré imagenes de los materiales y los incluiré en las preguntas que asi lo requieran.
 Abierto a feedback y sugerencias

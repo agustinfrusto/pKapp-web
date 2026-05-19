@@ -96,18 +96,32 @@ export default function QuizScreen({ route, navigation }) {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {/* Tema y fuente */}
         <View style={styles.metaContainer}>
-          <Text style={styles.topicLabel}>
-            {TOPICS[currentQuestion.topic] || currentQuestion.topic}
-          </Text>
-          {currentQuestion.source === 'exam' && currentQuestion.exam && (
-            <Text style={styles.sourceLabel}>📄 {currentQuestion.exam}</Text>
-          )}
-          {currentQuestion.source === 'generated' && (
-            <Text style={styles.sourceLabel}>✨ Práctica</Text>
-          )}
-          {currentQuestion.source === 'user' && (
-            <Text style={styles.sourceLabel}>👤 Tuya</Text>
-          )}
+          <View style={styles.metaLeft}>
+            {currentQuestion.parcial && (
+              <View style={[
+                styles.parcialBadge,
+                currentQuestion.parcial === 'primero' ? styles.parcialBadgePrimero : styles.parcialBadgeSegundo,
+              ]}>
+                <Text style={styles.parcialBadgeText}>
+                  {currentQuestion.parcial === 'primero' ? '1er Parcial' : '2do Parcial'}
+                </Text>
+              </View>
+            )}
+            <Text style={styles.topicLabel}>
+              {TOPICS[currentQuestion.topic] || currentQuestion.topic}
+            </Text>
+          </View>
+          <View style={styles.metaRight}>
+            {currentQuestion.source === 'exam' && currentQuestion.exam && (
+              <Text style={styles.sourceLabel}>📄 {currentQuestion.exam}</Text>
+            )}
+            {currentQuestion.source === 'generated' && (
+              <Text style={styles.sourceLabel}>✨ Práctica</Text>
+            )}
+            {currentQuestion.source === 'user' && (
+              <Text style={styles.sourceLabel}>👤 Tuya</Text>
+            )}
+          </View>
         </View>
 
         {/* Pregunta */}
@@ -246,9 +260,36 @@ const styles = StyleSheet.create({
   metaContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 8,
     paddingHorizontal: 4,
+  },
+  metaLeft: {
+    flex: 1,
+    marginRight: 8,
+  },
+  metaRight: {
+    alignItems: 'flex-end',
+  },
+  parcialBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginBottom: 4,
+  },
+  parcialBadgePrimero: {
+    backgroundColor: '#e0f2fe',
+  },
+  parcialBadgeSegundo: {
+    backgroundColor: '#ede9fe',
+  },
+  parcialBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#334155',
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
   },
   topicLabel: {
     fontSize: 12,

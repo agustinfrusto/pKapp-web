@@ -168,9 +168,8 @@ export default function SettingsScreen() {
         <View style={styles.aboutCard}>
           <Text style={styles.aboutText}>
             <Text style={styles.aboutBold}>pKapp</Text>
-            {'\n'}Preparación para el 2do parcial de Biología Celular y Tisular.
-            {'\n\n'}Preguntas reales extraídas de los parciales 2024 (T1 y T2) y 2025 (T1 y T2),
-            más preguntas adicionales generadas a partir del material de estudio.
+            {'\n'}Preparación para Biología Celular y Tisular (1er y 2do parcial).
+            {'\n\n'}438 preguntas en total: 404 reales extraidas de examenes y parciales y 34 generadas a partir del material de estudio.
           </Text>
         </View>
       </View>

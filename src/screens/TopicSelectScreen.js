@@ -8,17 +8,24 @@ import {
 import { QUESTIONS, TOPICS } from '../data/questions';
 import { getUserQuestions, getFailedQuestions, getSetting } from '../db/database';
 
-const EXAM_SIZE = 40;
+const EXAM_SIZE = 75;
 
 const SOURCE_FILTERS = {
   all: 'Todas',
-  exam: 'Solo exámenes reales',
+  exam: 'Solo preguntas reales',
   generated: 'Solo generadas',
+};
+
+const PARCIAL_FILTERS = {
+  all: 'Ambos',
+  primero: '1er Parcial',
+  segundo: '2do Parcial',
 };
 
 export default function TopicSelectScreen({ route, navigation }) {
   const { mode } = route.params; // 'practice' | 'exam' | 'failed'
   const [sourceFilter, setSourceFilter] = useState('all');
+  const [parcialFilter, setParcialFilter] = useState('all');
   const [userQuestions, setUserQuestions] = useState([]);
   const [failedIds, setFailedIds] = useState(new Set());
 
@@ -47,7 +54,11 @@ export default function TopicSelectScreen({ route, navigation }) {
     } else if (sourceFilter === 'generated') {
       filtered = filtered.filter(q => q.source === 'generated' || q.source === 'user');
     }
-    
+
+    if (parcialFilter !== 'all') {
+      filtered = filtered.filter(q => q.parcial === parcialFilter);
+    }
+
     if (mode === 'failed') {
       filtered = filtered.filter(q => failedIds.has(q.id));
     }
@@ -88,7 +99,10 @@ export default function TopicSelectScreen({ route, navigation }) {
   if (mode === 'exam') {
     return (
       <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-        <SourceFilter sourceFilter={sourceFilter} setSourceFilter={setSourceFilter} />
+        <Filters
+          sourceFilter={sourceFilter} setSourceFilter={setSourceFilter}
+          parcialFilter={parcialFilter} setParcialFilter={setParcialFilter}
+        />
         
         <View style={styles.examInfoCard}>
           <Text style={styles.examInfoTitle}>📝 Modo Examen</Text>
@@ -127,7 +141,10 @@ export default function TopicSelectScreen({ route, navigation }) {
   // Modo practice o failed con preguntas: lista de temas
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      <SourceFilter sourceFilter={sourceFilter} setSourceFilter={setSourceFilter} />
+      <Filters
+        sourceFilter={sourceFilter} setSourceFilter={setSourceFilter}
+        parcialFilter={parcialFilter} setParcialFilter={setParcialFilter}
+      />
 
       <TouchableOpacity
         style={[styles.topicCard, styles.allTopicsCard]}
@@ -164,29 +181,52 @@ export default function TopicSelectScreen({ route, navigation }) {
 // Componente para el filtro de fuente (segmented control)
 function SourceFilter({ sourceFilter, setSourceFilter }) {
   return (
-    <View style={styles.filterContainer}>
-      <Text style={styles.filterLabel}>Fuente de preguntas:</Text>
+    <View style={styles.filterInner}>
+      <Text style={styles.filterLabel}>Fuente:</Text>
       <View style={styles.filterButtons}>
         {Object.entries(SOURCE_FILTERS).map(([key, label]) => (
           <TouchableOpacity
             key={key}
-            style={[
-              styles.filterButton,
-              sourceFilter === key && styles.filterButtonActive,
-            ]}
+            style={[styles.filterButton, sourceFilter === key && styles.filterButtonActive]}
             onPress={() => setSourceFilter(key)}
           >
-            <Text
-              style={[
-                styles.filterButtonText,
-                sourceFilter === key && styles.filterButtonTextActive,
-              ]}
-            >
+            <Text style={[styles.filterButtonText, sourceFilter === key && styles.filterButtonTextActive]}>
               {label}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
+    </View>
+  );
+}
+
+function ParcialFilter({ parcialFilter, setParcialFilter }) {
+  return (
+    <View style={styles.filterInner}>
+      <Text style={styles.filterLabel}>Parcial:</Text>
+      <View style={styles.filterButtons}>
+        {Object.entries(PARCIAL_FILTERS).map(([key, label]) => (
+          <TouchableOpacity
+            key={key}
+            style={[styles.filterButton, parcialFilter === key && styles.filterButtonActiveParcial]}
+            onPress={() => setParcialFilter(key)}
+          >
+            <Text style={[styles.filterButtonText, parcialFilter === key && styles.filterButtonTextActive]}>
+              {label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function Filters({ sourceFilter, setSourceFilter, parcialFilter, setParcialFilter }) {
+  return (
+    <View style={styles.filterContainer}>
+      <SourceFilter sourceFilter={sourceFilter} setSourceFilter={setSourceFilter} />
+      <View style={styles.filterDivider} />
+      <ParcialFilter parcialFilter={parcialFilter} setParcialFilter={setParcialFilter} />
     </View>
   );
 }
@@ -213,14 +253,25 @@ const styles = StyleSheet.create({
   filterContainer: {
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     marginBottom: 16,
   },
+  filterInner: {
+    paddingVertical: 6,
+  },
+  filterDivider: {
+    height: 1,
+    backgroundColor: '#e2e8f0',
+    marginVertical: 4,
+  },
   filterLabel: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
-    color: '#354d66',
-    marginBottom: 10,
+    color: '#607d99',
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
   },
   filterButtons: {
     flexDirection: 'row',
@@ -229,7 +280,7 @@ const styles = StyleSheet.create({
   },
   filterButton: {
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 7,
     borderRadius: 8,
     backgroundColor: '#f1f5f9',
     borderWidth: 1,
@@ -238,6 +289,10 @@ const styles = StyleSheet.create({
   filterButtonActive: {
     backgroundColor: '#1a3f6f',
     borderColor: '#1a3f6f',
+  },
+  filterButtonActiveParcial: {
+    backgroundColor: '#0d7a8a',
+    borderColor: '#0d7a8a',
   },
   filterButtonText: {
     fontSize: 13,

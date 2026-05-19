@@ -173,18 +173,18 @@ export default function ResultsScreen({ route, navigation }) {
 
 function getResultFeedback(percentage) {
   if (percentage >= 90) {
-    return { message: '¡Excelente! Listísima para el parcial.', emoji: '🏆', color: '#276221' };
+    return { message: '¡Excelente!.', emoji: '🏆', color: '#276221' };
   }
   if (percentage >= 75) {
     return { message: '¡Muy bien! Vas por buen camino.', emoji: '🎉', color: '#276221' };
   }
   if (percentage >= 60) {
-    return { message: 'Bien, pero hay espacio para mejorar.', emoji: '👍', color: '#c67c00' };
+    return { message: 'A repasar solo un poco más.', emoji: '👍', color: '#c67c00' };
   }
   if (percentage >= 50) {
-    return { message: 'Justito. Repasá los temas que fallaste.', emoji: '😬', color: '#c67c00' };
+    return { message: 'Seguí mejorando.', emoji: '😬', color: '#c67c00' };
   }
-  return { message: 'A repasar más fuerte. Vos podés.', emoji: '💪', color: '#b52828' };
+  return { message: 'A estudiar fuerte. Vos podés.', emoji: '💪', color: '#b52828' };
 }
 
 const styles = StyleSheet.create({

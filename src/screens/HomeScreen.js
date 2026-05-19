@@ -15,7 +15,7 @@ const icons = {
   ajustes:     require('../assets/ajustes.png'),
 };
 
-const EXAM_SIZE = 40;
+const EXAM_SIZE = 75;
 
 export default function HomeScreen({ navigation }) {
   const insets = useSafeAreaInsets();
@@ -40,8 +40,8 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.modesContainer}>
         <ModeCard
           icon={icons.practicar}
-          title="Practicar por tema"
-          description="Elegí un tema específico y respondé a tu ritmo"
+          title="Entrena Temas/Parciales"
+          description="Crea tu propio test eligiendo temas o practica para los parciales"
           onPress={() => navigation.navigate('TopicSelect', { mode: 'practice' })}
         />
 
