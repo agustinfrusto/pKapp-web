@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "pKapp",
-    "slug": "pkapp",
-    "version": "0.4.0",
+    "slug": "pKapp",
+    "version": "0.5.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "splash": {
