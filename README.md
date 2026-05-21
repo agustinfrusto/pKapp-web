@@ -10,7 +10,7 @@ Construido con **Expo / React Native**. Funciona offline.
 - **34 preguntas adicionales** generadas con Claude a partir de los apuntes para cubrir temas con menor presencia en exámenes.
 - **Filtros:** por fuente (examen real / generada) y por parcial (1er / 2do), combinables.
 - **Tres modos:**
-  - **Práctica por tema:**  podes practicar por tema o por parcial (40 preguntas).
+  - **Práctica por tema:** elegís un tema específico o practicás por parcial (1er o 2do, 40 preguntas).
   - **Examen:** 75 preguntas al azar (igual que el examen real).
   - **Repaso de fallos:** las que respondiste mal antes.
 - **Explicaciones** tras cada respuesta o al final del cuestionario.
