@@ -10,8 +10,8 @@ Construido con **Expo / React Native**. Funciona offline.
 - **34 preguntas adicionales** generadas con Claude a partir de los apuntes para cubrir temas con menor presencia en exámenes.
 - **Filtros:** por fuente (examen real / generada) y por parcial (1er / 2do), combinables.
 - **Tres modos:**
-  - **Práctica por tema:** elegís un tema específico.
-  - **Examen:** 75 preguntas al azar (igual que el parcial real).
+  - **Práctica por tema:**  podes practicar por tema o por parcial (40 preguntas).
+  - **Examen:** 75 preguntas al azar (igual que el examen real).
   - **Repaso de fallos:** las que respondiste mal antes.
 - **Explicaciones** tras cada respuesta o al final del cuestionario.
 - **Estadísticas** por tema y lista de preguntas más falladas.
@@ -109,9 +109,5 @@ Si el usuario borra los datos de la app, se pierde todo. No hay sincronización 
 ## Próximos pasos posibles
 
 - Posibilidad de setear un timer en los cuestionarios.
-- Exportar las preguntas del usuario a JSON para hacer backup.
 - Imágenes en las preguntas (las genealogías, los gráficos tensión-longitud, las palancas).
 - Agregar las preguntas de 2022 que dependen de imágenes (4 por turno), una vez que se incorporen las imágenes al proyecto.
-
-Si hay uso de la app que lo justifique extraeré imagenes de los materiales y los incluiré en las preguntas que asi lo requieran.
-Abierto a feedback y sugerencias
