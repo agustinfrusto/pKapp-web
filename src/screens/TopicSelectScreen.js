@@ -8,7 +8,8 @@ import {
 import { QUESTIONS, TOPICS } from '../data/questions';
 import { getUserQuestions, getFailedQuestions, getSetting } from '../db/database';
 
-const EXAM_SIZE = 75;
+const EXAM_SIZE_FULL = 75;
+const EXAM_SIZE_PARCIAL = 40;
 
 const SOURCE_FILTERS = {
   all: 'Todas',
@@ -17,7 +18,7 @@ const SOURCE_FILTERS = {
 };
 
 const PARCIAL_FILTERS = {
-  all: 'Ambos',
+  all: 'Examen',
   primero: '1er Parcial',
   segundo: '2do Parcial',
 };
@@ -78,9 +79,10 @@ export default function TopicSelectScreen({ route, navigation }) {
       return;
     }
 
-    // Modo examen: tomar 40 al azar (o las que haya si son menos)
+    // Modo examen: 75 si es examen completo, 40 si filtra por parcial
     if (mode === 'exam') {
-      questions = shuffleArray(questions).slice(0, Math.min(EXAM_SIZE, questions.length));
+      const examSize = parcialFilter === 'all' ? EXAM_SIZE_FULL : EXAM_SIZE_PARCIAL;
+      questions = shuffleArray(questions).slice(0, Math.min(examSize, questions.length));
     } else {
       questions = shuffleArray(questions);
     }
@@ -107,7 +109,9 @@ export default function TopicSelectScreen({ route, navigation }) {
         <View style={styles.examInfoCard}>
           <Text style={styles.examInfoTitle}>📝 Modo Examen</Text>
           <Text style={styles.examInfoText}>
-            Se sortean {Math.min(EXAM_SIZE, getFilteredQuestions().length)} preguntas al azar de todos los temas, como en el parcial real.
+            {parcialFilter === 'all'
+              ? `Se sortean ${Math.min(EXAM_SIZE_FULL, getFilteredQuestions().length)} preguntas al azar de todos los temas, como en el parcial real.`
+              : `Se sortean ${Math.min(EXAM_SIZE_PARCIAL, getFilteredQuestions().length)} preguntas al azar del ${parcialFilter === 'primero' ? '1er' : '2do'} parcial.`}
           </Text>
           <Text style={styles.examInfoCount}>
             Disponibles: {getFilteredQuestions().length} preguntas
