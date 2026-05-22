@@ -16,6 +16,7 @@ Construido con **Expo / React Native**. Funciona offline.
 - **Explicaciones** tras cada respuesta o al final del cuestionario.
 - **Estadísticas** por tema y lista de preguntas más falladas.
 - **Agregar tus propias preguntas** al banco (se guardan en SQLite local).
+- **Timer** opción para poner un timer a los cuestionarios (hasta dos horas)
 
 ## Temas cubiertos
 
@@ -108,6 +109,5 @@ Si el usuario borra los datos de la app, se pierde todo. No hay sincronización 
 
 ## Próximos pasos posibles
 
-- Posibilidad de setear un timer en los cuestionarios.
 - Imágenes en las preguntas (las genealogías, los gráficos tensión-longitud, las palancas).
 - Agregar las preguntas de 2022 que dependen de imágenes (4 por turno), una vez que se incorporen las imágenes al proyecto.
