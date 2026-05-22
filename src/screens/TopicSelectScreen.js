@@ -23,10 +23,13 @@ const PARCIAL_FILTERS = {
   segundo: '2do Parcial',
 };
 
+const TIMER_OPTIONS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]; // 0 = sin límite
+
 export default function TopicSelectScreen({ route, navigation }) {
   const { mode } = route.params; // 'practice' | 'exam' | 'failed'
   const [sourceFilter, setSourceFilter] = useState('all');
   const [parcialFilter, setParcialFilter] = useState('all');
+  const [timerMinutes, setTimerMinutes] = useState(0);
   const [userQuestions, setUserQuestions] = useState([]);
   const [failedIds, setFailedIds] = useState(new Set());
 
@@ -94,6 +97,7 @@ export default function TopicSelectScreen({ route, navigation }) {
       mode,
       topic: topic || 'Todos los temas',
       hideFeedback: hf === 'true',
+      timerMinutes,
     });
   }
 
@@ -104,6 +108,7 @@ export default function TopicSelectScreen({ route, navigation }) {
         <Filters
           sourceFilter={sourceFilter} setSourceFilter={setSourceFilter}
           parcialFilter={parcialFilter} setParcialFilter={setParcialFilter}
+          timerMinutes={timerMinutes} setTimerMinutes={setTimerMinutes}
         />
         
         <View style={styles.examInfoCard}>
@@ -148,6 +153,7 @@ export default function TopicSelectScreen({ route, navigation }) {
       <Filters
         sourceFilter={sourceFilter} setSourceFilter={setSourceFilter}
         parcialFilter={parcialFilter} setParcialFilter={setParcialFilter}
+        timerMinutes={timerMinutes} setTimerMinutes={setTimerMinutes}
       />
 
       <TouchableOpacity
@@ -225,12 +231,50 @@ function ParcialFilter({ parcialFilter, setParcialFilter }) {
   );
 }
 
-function Filters({ sourceFilter, setSourceFilter, parcialFilter, setParcialFilter }) {
+function TimerPicker({ timerMinutes, setTimerMinutes }) {
+  const currentIdx = TIMER_OPTIONS.indexOf(timerMinutes);
+
+  function decrement() {
+    if (currentIdx > 0) setTimerMinutes(TIMER_OPTIONS[currentIdx - 1]);
+  }
+  function increment() {
+    if (currentIdx < TIMER_OPTIONS.length - 1) setTimerMinutes(TIMER_OPTIONS[currentIdx + 1]);
+  }
+
+  return (
+    <View style={styles.filterInner}>
+      <Text style={styles.filterLabel}>Temporizador:</Text>
+      <View style={styles.timerRow}>
+        <TouchableOpacity
+          onPress={decrement}
+          style={[styles.timerBtn, currentIdx === 0 && styles.timerBtnDisabled]}
+          disabled={currentIdx === 0}
+        >
+          <Text style={styles.timerBtnText}>−</Text>
+        </TouchableOpacity>
+        <Text style={styles.timerValue}>
+          {timerMinutes === 0 ? 'Sin límite' : `${timerMinutes} min`}
+        </Text>
+        <TouchableOpacity
+          onPress={increment}
+          style={[styles.timerBtn, currentIdx === TIMER_OPTIONS.length - 1 && styles.timerBtnDisabled]}
+          disabled={currentIdx === TIMER_OPTIONS.length - 1}
+        >
+          <Text style={styles.timerBtnText}>+</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+function Filters({ sourceFilter, setSourceFilter, parcialFilter, setParcialFilter, timerMinutes, setTimerMinutes }) {
   return (
     <View style={styles.filterContainer}>
       <SourceFilter sourceFilter={sourceFilter} setSourceFilter={setSourceFilter} />
       <View style={styles.filterDivider} />
       <ParcialFilter parcialFilter={parcialFilter} setParcialFilter={setParcialFilter} />
+      <View style={styles.filterDivider} />
+      <TimerPicker timerMinutes={timerMinutes} setTimerMinutes={setTimerMinutes} />
     </View>
   );
 }
@@ -305,6 +349,35 @@ const styles = StyleSheet.create({
   },
   filterButtonTextActive: {
     color: '#fff',
+  },
+  timerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  timerBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 8,
+    backgroundColor: '#1a3f6f',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timerBtnDisabled: {
+    backgroundColor: '#ccd9e6',
+  },
+  timerBtnText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    lineHeight: 22,
+  },
+  timerValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0f1f33',
+    minWidth: 80,
+    textAlign: 'center',
   },
   topicCard: {
     backgroundColor: '#fff',

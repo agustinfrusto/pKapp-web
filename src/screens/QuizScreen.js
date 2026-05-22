@@ -1,7 +1,7 @@
 // Pantalla central del quiz: muestra una pregunta a la vez,
 // permite seleccionar respuesta, muestra explicación tras responder,
 // y guarda el resultado en la base de datos.
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert,
 } from 'react-native';
@@ -9,17 +9,51 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TOPICS } from '../data/questions';
 import { recordAnswer } from '../db/database';
 
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
 export default function QuizScreen({ route, navigation }) {
-  const { questions, mode, topic, hideFeedback } = route.params;
+  const { questions, mode, topic, hideFeedback, timerMinutes } = route.params;
   const insets = useSafeAreaInsets();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [answered, setAnswered] = useState(false);
   const [answers, setAnswers] = useState([]); // historial para mostrar al final
+  const [timeLeft, setTimeLeft] = useState(timerMinutes ? timerMinutes * 60 : null);
+  const answersRef = useRef([]);
+  const timerRef = useRef(null);
 
   const currentQuestion = questions[currentIndex];
   const isLast = currentIndex === questions.length - 1;
   const progress = ((currentIndex + 1) / questions.length) * 100;
+
+  // Countdown timer
+  useEffect(() => {
+    if (!timerMinutes) return;
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          navigation.replace('Results', {
+            answers: answersRef.current,
+            mode,
+            topic,
+          });
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, []);
+
+  // Mantener ref sincronizada con el estado de answers
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
 
   async function handleSelectOption(index) {
     if (answered) return; // ya respondió, no hacer nada
@@ -91,6 +125,11 @@ export default function QuizScreen({ route, navigation }) {
             {currentIndex + 1} / {questions.length}
           </Text>
         </View>
+        {timeLeft !== null && (
+          <Text style={[styles.timerText, timeLeft < 120 && styles.timerTextUrgent]}>
+            ⏱ {formatTime(timeLeft)}
+          </Text>
+        )}
       </View>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
@@ -249,6 +288,15 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     minWidth: 50,
+  },
+  timerText: {
+    color: '#fff',
+    marginLeft: 10,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  timerTextUrgent: {
+    color: '#ff6b6b',
   },
   scrollView: {
     flex: 1,
