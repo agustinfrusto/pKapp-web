@@ -24,8 +24,19 @@
       "package": "com.agustinfrusto.pkapp"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./src/assets/favicon.png",
+      "bundler": "metro",
+      "name": "pKapp",
+      "shortName": "pKapp",
+      "description": "Preparación para Biología Celular y Tisular - 1er y 2do parcial",
+      "lang": "es",
+      "themeColor": "#1a3f6f",
+      "backgroundColor": "#1a3f6f",
+      "display": "standalone",
+      "orientation": "portrait",
+      "startUrl": "/"
     },
+    "icon": "./src/assets/icon.png",
     "plugins": [
       "expo-sqlite"
     ],
