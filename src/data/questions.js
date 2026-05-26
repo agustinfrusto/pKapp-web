@@ -80,7 +80,7 @@ export const QUESTIONS = [
     question: 'La capacidad para catar el sabor de la sustancia amarga feniltiocarbamida (PTC) se debe a un alelo dominante (A). Si un hombre catador homocigota tiene descendencia con una mujer no catadora ¿qué probabilidad existe de que un hijo de ambos sea catador?',
     options: ['0 %', '50 %', '100 %'],
     correctIndex: 2,
-    explanation: 'AA x aa = todos Aa (heterocigotas). Como A es dominante, el 100% de los hijos será catador.',
+    explanation: 'AA (catador homocigota) × aa (no catador) → todos los hijos Aa (heterocigotos). Como A es dominante completo, el 100% expresa el fenotipo catador.',
   },
   {
     id: '2024-T1-Q3',
@@ -148,7 +148,7 @@ export const QUESTIONS = [
     question: 'Si la mujer IV-4 (afectada por una patología autosómica dominante) tiene una hija con un hombre sano, ¿cuál es la probabilidad que su hija esté afectada?',
     options: ['0%', '50%', '100%'],
     correctIndex: 1,
-    explanation: 'Si la madre es heterocigota Aa y el padre aa, los hijos serán 50% Aa (afectados) y 50% aa (sanos).',
+    explanation: 'En herencia autosómica dominante el afectado suele ser heterocigota (Aa). Aa × aa (sano) → 50% Aa (afectados) y 50% aa (sanos), sin diferencias por sexo.',
   },
   {
     id: '2024-T1-Q8',
@@ -268,7 +268,7 @@ export const QUESTIONS = [
       'sus adenómeros son tubulares o acinares'
     ],
     correctIndex: 1,
-    explanation: 'Simple/compuesta se refiere a la ramificación del conducto excretor: simple = sin ramificación, compuesta = ramificado.',
+    explanation: 'En glándulas exocrinas, simple/compuesta depende del conducto excretor: sin ramificar = simple, ramificado = compuesta. La forma del adenómero (tubular/acinar) clasifica aparte.',
   },
   {
     id: '2024-T1-Q17',
@@ -452,7 +452,7 @@ export const QUESTIONS = [
       'la obtención de imágenes de alta resolución con la menor exposición posible'
     ],
     correctIndex: 2,
-    explanation: 'ALARA = utilizar la mínima dosis razonablemente posible para obtener la información diagnóstica necesaria.',
+    explanation: 'ALARA es el principio de optimización de la radioprotección (ICRP): usar la dosis tan baja como razonablemente sea posible manteniendo la calidad diagnóstica. Junto con justificación y limitación de dosis forman la doctrina.',
   },
   {
     id: '2024-T1-Q31',
@@ -600,7 +600,7 @@ export const QUESTIONS = [
     question: '¿Cuál de los siguientes mecanismos efectores celulares es realizado por los macrófagos?',
     options: ['Liberación de anticuerpos', 'Fagocitosis', 'Netosis'],
     correctIndex: 1,
-    explanation: 'Los macrófagos son fagocitos profesionales. Los anticuerpos los liberan los plasmocitos; la NETosis es de neutrófilos.',
+    explanation: 'Los macrófagos son fagocitos profesionales (junto con neutrófilos y monocitos). Los anticuerpos los secretan los plasmocitos (linfocitos B activados); la NETosis es exclusiva de neutrófilos.',
   },
 
   // ============== EXAMEN 2024 TURNO 2 ==============
@@ -626,7 +626,7 @@ export const QUESTIONS = [
     question: 'La fenilcetonuria es una enfermedad debida a la presencia en homocigosis del alelo recesivo (a). Un hombre con fenilcetonuria y una mujer sana homocigota, ¿qué probabilidad tienen de tener un hijo con esta enfermedad?',
     options: ['0%', '25%', '50%'],
     correctIndex: 0,
-    explanation: 'aa (afectado) x AA (sana homocigota) → todos los hijos Aa (portadores sanos). 0% de afectados.',
+    explanation: 'La fenilcetonuria es autosómica recesiva: solo aa enferma. aa (afectado) × AA (sana homocigota) → 100% Aa, todos portadores sanos. 0% de afectados.',
   },
   {
     id: '2024-T2-Q3',
@@ -678,7 +678,7 @@ export const QUESTIONS = [
     question: 'Los genotipos más probables de la pareja III-2 y III-3 (que tuvieron hijos afectados con AR) son:',
     options: ['Aa / aa', 'Aa / Aa', 'AA / AA'],
     correctIndex: 1,
-    explanation: 'Si tienen hijos afectados (aa) y ellos son sanos, ambos deben ser portadores heterocigotas (Aa/Aa).',
+    explanation: 'En autosómica recesiva con padres sanos e hijo afectado (aa), ambos progenitores deben ser portadores heterocigotos Aa/Aa. Cada uno aporta un alelo recesivo a.',
   },
   {
     id: '2024-T2-Q7',
@@ -690,7 +690,7 @@ export const QUESTIONS = [
     question: 'La probabilidad de que la pareja Aa/Aa vuelva a tener otro/a hijo/a afectado es:',
     options: ['25%', '50%', '75%'],
     correctIndex: 0,
-    explanation: 'En el cruce Aa x Aa: 25% AA, 50% Aa, 25% aa (afectado).',
+    explanation: 'Aa × Aa da razón genotípica 1:2:1 (25% AA, 50% Aa, 25% aa). El 25% aa es el afectado y cada embarazo es independiente, así que el riesgo se mantiene en cada uno.',
   },
   {
     id: '2024-T2-Q8',
@@ -746,7 +746,7 @@ export const QUESTIONS = [
       '5´ del ARNm independientemente de la presencia de un AUG'
     ],
     correctIndex: 0,
-    explanation: 'La traducción comienza en el codón de inicio AUG y se lee desde el extremo 5\' hacia el 3\' del ARNm.',
+    explanation: 'El ribosoma reconoce el codón de inicio AUG (metionina) y lee el ARNm en tripletes desde 5\' hacia 3\' hasta encontrar un codón stop (UAA, UAG o UGA).',
   },
   {
     id: '2024-T2-Q12',
@@ -1259,7 +1259,7 @@ export const QUESTIONS = [
       'Transmite el alelo defectuoso al 50% de sus hijos varones'
     ],
     correctIndex: 2,
-    explanation: 'XX heterocigota transmite el X normal o el X afectado a cada hijo varón con probabilidad 50/50.',
+    explanation: 'Una madre portadora (XᴬXᵃ) transmite Xᴬ o Xᵃ con probabilidad 50/50 a cada descendiente. Los varones (XY) que reciben Xᵃ son afectados; las hijas que lo reciben quedan portadoras.',
   },
   {
     id: '2025-T1-Q6',
@@ -1816,7 +1816,7 @@ export const QUESTIONS = [
       'En cromátidas no hermanas de cromosomas no homólogos'
     ],
     correctIndex: 2,
-    explanation: 'Los dos alelos de un mismo gen ocupan el mismo locus en los cromosomas homólogos (uno de cada padre).',
+    explanation: 'Cada gen ocupa una posición fija (locus) en un cromosoma. En diploides hay dos alelos por gen, uno en cada cromosoma homólogo (uno aportado por cada progenitor).',
   },
   {
     id: '2025-T2-Q3',
@@ -1945,7 +1945,7 @@ export const QUESTIONS = [
     question: 'Si la cadena codificante tiene la siguiente secuencia: 5´GGCCCAGTA 3´ ¿cuál es la secuencia del ARNm?',
     options: ['5´GGCCCAGUA 3´', '5´UACUGGGCC 3´', '5´GGCCCAGTA 3´'],
     correctIndex: 0,
-    explanation: 'El ARNm tiene exactamente la misma secuencia que la cadena codificante, simplemente T se reemplaza por U.',
+    explanation: 'El ARNm se sintetiza complementario a la cadena molde, por lo que coincide con la cadena codificante (sentido) en dirección 5\'→3\', reemplazando T por U.',
   },
   {
     id: '2025-T2-Q11',
@@ -4675,7 +4675,7 @@ export const QUESTIONS = [
     question: '¿Cuál es la vida media aproximada de un eritrocito en sangre periférica?',
     options: ['10 días', '120 días', '1 año'],
     correctIndex: 1,
-    explanation: 'Los eritrocitos viven ~120 días, tras lo cual son destruidos principalmente en bazo, hígado y médula ósea.',
+    explanation: 'Los eritrocitos circulan ~120 días en sangre periférica. Sin núcleo ni organelos para renovar proteínas, envejecen y son fagocitados por macrófagos del sistema mononuclear fagocítico (bazo, hígado, médula).',
   },
   {
     id: 'SAN-002',
@@ -4701,7 +4701,7 @@ export const QUESTIONS = [
       'Anticuerpos anti-A y anti-B'
     ],
     correctIndex: 0,
-    explanation: 'AB+ tiene antígenos A, B y D (Rh+). Por eso es "receptor universal": no tiene anticuerpos anti-A, anti-B ni anti-Rh.',
+    explanation: 'AB+ expresa antígenos A, B y D (Rh+) en la membrana del eritrocito. Al tenerlos todos, no produce anti-A, anti-B ni anti-Rh, por lo que es receptor universal. El opuesto es O- (donante universal).',
   },
   {
     id: 'LIN-001',
