@@ -184,11 +184,3 @@ Este proyecto usa licencias separadas:
 - Incluir el contenido en cursos pagos sin autorización
 - Usar las preguntas en productos comerciales
 
----
-
-## Próximos pasos posibles
-
-- **Service worker** para que la PWA funcione 100% offline.
-- **Exportar / importar JSON** para backup de stats y preguntas custom (útil para mover datos entre navegadores o dispositivos).
-- Imágenes en las preguntas (las genealogías, los gráficos tensión-longitud, las palancas).
-- Agregar las preguntas de 2022 que dependen de imágenes (4 por turno), una vez que se incorporen las imágenes al proyecto.
