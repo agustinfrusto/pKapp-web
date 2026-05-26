@@ -158,7 +158,7 @@ export default function SettingsScreen() {
           <Text style={styles.aboutText}>
             <Text style={styles.aboutBold}>pKapp</Text>
             {'\n'}Preparación para Biología Celular y Tisular (1er y 2do parcial).
-            {'\n\n'}424 preguntas en total: 390 reales extraidas de examenes y parciales y 34 generadas a partir del material de estudio.
+            {'\n\n'}422 preguntas en total: 388 reales extraidas de examenes y parciales y 34 generadas a partir del material de estudio.
           </Text>
         </View>
       </View>

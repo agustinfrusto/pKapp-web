@@ -1526,22 +1526,6 @@ export const QUESTIONS = [
     explanation: 'En músculo esquelético, todo el Ca²⁺ contráctil proviene del retículo sarcoplásmico (a diferencia del músculo cardíaco que también usa Ca²⁺ extracelular).',
   },
   {
-    id: '2025-T1-Q29',
-    source: 'exam',
-    exam: '2025 Turno 1',
-    topic: 'contraccion',
-    materia: 'bct',
-    parcial: 'segundo',
-    question: 'En un diagrama longitud-tensión, si el trayecto A→B es vertical (cambia T pero no L):',
-    options: [
-      'El trayecto A B corresponde a una contracción isométrica.',
-      'El trayecto A C corresponde a una contracción a post carga.',
-      'El trayecto B C corresponde a una contracción auxotónica.'
-    ],
-    correctIndex: 0,
-    explanation: 'Contracción isométrica: aumenta la tensión sin cambio de longitud. Isotónica: cambio de longitud a tensión constante. Auxotónica: ambas cambian.',
-  },
-  {
     id: '2025-T1-Q30',
     source: 'exam',
     exam: '2025 Turno 1',
@@ -2085,22 +2069,6 @@ export const QUESTIONS = [
     ],
     correctIndex: 0,
     explanation: 'El ATP se une a la cabeza de miosina, lo que disminuye su afinidad por actina y permite el desacople (relajación). Sin ATP queda en rigor mortis. El Ca²⁺ en esquelético viene del RS.',
-  },
-  {
-    id: '2025-T2-Q28',
-    source: 'exam',
-    exam: '2025 Turno 2',
-    topic: 'contraccion',
-    materia: 'bct',
-    parcial: 'segundo',
-    question: 'En un diagrama longitud-tensión, ¿qué tipo de contracción es el trayecto A→C donde cambian tanto longitud como tensión?',
-    options: [
-      'El trayecto A B es corresponde a una contracción isotónica.',
-      'El trayecto A C corresponde a una contracción auxotónica.',
-      'El trayecto B C corresponde a una contracción isométrica.'
-    ],
-    correctIndex: 1,
-    explanation: 'Auxotónica: cambian tanto la longitud como la tensión simultáneamente. Isométrica: solo cambia tensión. Isotónica: solo cambia longitud.',
   },
   {
     id: '2025-T2-Q29',
