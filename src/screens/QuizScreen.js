@@ -3,11 +3,12 @@
 // y guarda el resultado en la base de datos.
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TOPICS } from '../data/questions';
 import { recordAnswer } from '../db/database';
+import { confirm } from '../utils/confirm';
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
@@ -100,13 +101,11 @@ export default function QuizScreen({ route, navigation }) {
   }
 
   function handleQuit() {
-    Alert.alert(
+    confirm(
       'Salir del quiz',
       '¿Seguro que querés salir? Se perderá el progreso de este quiz.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Salir', style: 'destructive', onPress: () => navigation.navigate('Home') },
-      ]
+      () => navigation.navigate('Home'),
+      { confirmLabel: 'Salir', destructive: true }
     );
   }
 

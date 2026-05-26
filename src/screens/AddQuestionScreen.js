@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { TOPICS } from '../data/questions';
 import { addUserQuestion } from '../db/database';
+import { confirm } from '../utils/confirm';
 
 export default function AddQuestionScreen({ navigation }) {
   const [questionText, setQuestionText] = useState('');
@@ -89,26 +90,21 @@ export default function AddQuestionScreen({ navigation }) {
         explanation: explanation.trim(),
       });
       
-      Alert.alert(
-        '¡Listo!',
-        'Pregunta guardada correctamente.',
-        [
-          {
-            text: 'Agregar otra',
-            onPress: () => {
-              // Limpiar formulario
-              setQuestionText('');
-              setOptions(['', '', '', '']);
-              setCorrectIndex(null);
-              setExplanation('');
-            },
-          },
-          {
-            text: 'Volver',
-            onPress: () => navigation.goBack(),
-            style: 'cancel',
-          },
-        ]
+      confirm(
+        '¡Pregunta guardada!',
+        '¿Querés agregar otra?',
+        () => {
+          // OK / Agregar otra: limpiar formulario
+          setQuestionText('');
+          setOptions(['', '', '', '']);
+          setCorrectIndex(null);
+          setExplanation('');
+        },
+        {
+          confirmLabel: 'Agregar otra',
+          cancelLabel: 'Volver',
+          onCancel: () => navigation.goBack(),
+        }
       );
     } catch (err) {
       console.error(err);

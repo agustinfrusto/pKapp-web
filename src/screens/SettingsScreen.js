@@ -9,6 +9,7 @@ import {
   resetStats, getUserQuestions, deleteUserQuestion,
   getSetting, saveSetting,
 } from '../db/database';
+import { confirm } from '../utils/confirm';
 
 export default function SettingsScreen() {
   const [userQuestions, setUserQuestions] = useState([]);
@@ -33,38 +34,26 @@ export default function SettingsScreen() {
   }
 
   function handleResetStats() {
-    Alert.alert(
+    confirm(
       'Resetear estadísticas',
       '¿Seguro que querés borrar todas las estadísticas? Esto no se puede deshacer.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Borrar',
-          style: 'destructive',
-          onPress: async () => {
-            await resetStats();
-            Alert.alert('Listo', 'Estadísticas borradas.');
-          },
-        },
-      ]
+      async () => {
+        await resetStats();
+        Alert.alert('Listo', 'Estadísticas borradas.');
+      },
+      { confirmLabel: 'Borrar', destructive: true }
     );
   }
 
   function handleDeleteUserQuestion(id) {
-    Alert.alert(
+    confirm(
       'Eliminar pregunta',
       '¿Seguro? Esta acción no se puede deshacer.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            await deleteUserQuestion(id);
-            loadUserQuestions();
-          },
-        },
-      ]
+      async () => {
+        await deleteUserQuestion(id);
+        loadData();
+      },
+      { confirmLabel: 'Eliminar', destructive: true }
     );
   }
 
