@@ -1,6 +1,7 @@
 # pKapp · versión web
 
 App para ayudar a los estudiantes de Medicina y Escuela Técnica de Medicina.
+La construí para ayudar a mi pareja, le ha sido util y espero que ayude a más personas
 
 Construido con **Expo / React Native**. Esta es la **versión web** del proyecto: corre en cualquier navegador moderno y se puede instalar como **PWA** (Progressive Web App) en escritorio, Android e iOS.
 
