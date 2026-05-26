@@ -88,7 +88,7 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.privacyText}>
             Tus estadísticas y preguntas se guardan localmente en tu navegador.
             {'\n'}
-            Usamos analíticas anónimas (sin cookies ni datos personales).
+            Se usan analíticas anónimas (sin cookies ni datos personales).
           </Text>
         </View>
       )}
