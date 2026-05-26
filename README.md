@@ -1,6 +1,7 @@
 # pKapp · versión web
 
 App para ayudar a los estudiantes de Medicina y Escuela Técnica de Medicina.
+La construí para ayudar a mi pareja, le ha sido util y espero que ayude a más personas
 
 Construido con **Expo / React Native**. Esta es la **versión web** del proyecto: corre en cualquier navegador moderno y se puede instalar como **PWA** (Progressive Web App) en escritorio, Android e iOS.
 
@@ -183,11 +184,3 @@ Este proyecto usa licencias separadas:
 - Incluir el contenido en cursos pagos sin autorización
 - Usar las preguntas en productos comerciales
 
----
-
-## Próximos pasos posibles
-
-- **Service worker** para que la PWA funcione 100% offline.
-- **Exportar / importar JSON** para backup de stats y preguntas custom (útil para mover datos entre navegadores o dispositivos).
-- Imágenes en las preguntas (las genealogías, los gráficos tensión-longitud, las palancas).
-- Agregar las preguntas de 2022 que dependen de imágenes (4 por turno), una vez que se incorporen las imágenes al proyecto.
