@@ -123,22 +123,6 @@ export const QUESTIONS = [
     explanation: 'En herencia AR los padres suelen ser portadores sanos heterocigotas (Aa) y tienen 25% de probabilidad de hijos afectados aa.',
   },
   {
-    id: '2024-T1-Q6',
-    source: 'exam',
-    exam: '2024 Turno 1',
-    topic: 'genetica',
-    materia: 'bct',
-    parcial: 'segundo',
-    question: 'El modo de herencia más probable de esta patología (genealogía mostrada en el parcial) es:',
-    options: [
-      'Herencia ligada al X dominante',
-      'Herencia autosómica dominante',
-      'Herencia autosómica dominante con penetrancia incompleta'
-    ],
-    correctIndex: 1,
-    explanation: 'La patología aparece en todas las generaciones, los afectados tienen al menos un progenitor afectado, hombres y mujeres están afectados por igual: típico de AD.',
-  },
-  {
     id: '2024-T1-Q7',
     source: 'exam',
     exam: '2024 Turno 1',
