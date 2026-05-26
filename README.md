@@ -158,6 +158,18 @@ En `TopicSelectScreen` hay tres controles combinables:
 
 ---
 
+## Uso de IA en el proyecto
+
+Por transparencia, dejo registro de en qué partes del proyecto utilicé asistencia de IA (principalmente **Claude**):
+
+- **Contenido educativo:** 34 de las 438 preguntas fueron generadas a partir del material de estudio (están marcadas con `source: "generated"` y se pueden filtrar desde la app). Las explicaciones de varias preguntas también fueron refinadas con apoyo de IA tomando como referencia los resúmenes oficiales.
+- **Código:** asistencia para refactors, debugging, configuración del soporte web (PWA, separación `database.native.js` / `database.web.js`), deploy en Vercel y revisión de patrones.
+- **Decisiones de diseño, arquitectura y revisión final:** mías.
+
+Esto no reemplaza ni invalida el trabajo de los autores académicos del material original (las preguntas reales de examen están claramente identificadas y atribuidas a sus respectivos parciales).
+
+---
+
 ## ⚖️ Licencia
 
 > **El contenido de estudio (preguntas, explicaciones, material didáctico)
