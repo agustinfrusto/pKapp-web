@@ -1,6 +1,6 @@
 // Pantalla principal: muestra los modos de uso disponibles.
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { QUESTIONS } from '../data/questions';
 
@@ -82,6 +82,16 @@ export default function HomeScreen({ navigation }) {
           iconSize={38}
         />
       </View>
+
+      {Platform.OS === 'web' && (
+        <View style={styles.privacyFooter}>
+          <Text style={styles.privacyText}>
+            Tus estadísticas y preguntas se guardan localmente en tu navegador.
+            {'\n'}
+            Usamos analíticas anónimas (sin cookies ni datos personales).
+          </Text>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -170,5 +180,17 @@ const styles = StyleSheet.create({
   cardArrow: {
     fontSize: 28,
     color: '#b8cfe0',
+  },
+  privacyFooter: {
+    paddingHorizontal: 24,
+    paddingTop: 8,
+    paddingBottom: 16,
+    alignItems: 'center',
+  },
+  privacyText: {
+    fontSize: 11,
+    color: '#8aa0b8',
+    textAlign: 'center',
+    lineHeight: 16,
   },
 });
