@@ -14,6 +14,7 @@ import StatsScreen from './src/screens/StatsScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 
 import { initDatabase } from './src/db/database';
+import Analytics from './src/components/Analytics';
 
 const Stack = createNativeStackNavigator();
 
@@ -118,6 +119,7 @@ export default function App() {
         />
       </Stack.Navigator>
     </NavigationContainer>
+    <Analytics />
     </SafeAreaProvider>
   );
 }
