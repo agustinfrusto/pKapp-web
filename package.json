@@ -1,6 +1,6 @@
 {
   "name": "pkapp",
-  "version": "0.8.6",
+  "version": "0.8.7",
   "main": "index.js",
   "scripts": {
     "start": "expo start",

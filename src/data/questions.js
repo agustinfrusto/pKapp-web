@@ -439,18 +439,6 @@ export const QUESTIONS = [
     explanation: 'Alfa (núcleos de He) y beta (electrones) son partículas con masa, por eso son corpusculares. Tienen energía suficiente para ionizar.',
   },
   {
-    id: '2024-T1-Q32',
-    source: 'exam',
-    exam: '2024 Turno 1',
-    topic: 'radioproteccion',
-    materia: 'bct',
-    parcial: 'segundo',
-    question: '¿Cuál de las siguientes opciones es una característica de los efectos estocásticos de las radiaciones ionizantes?',
-    options: ['Se manifiestan a largo plazo', 'Tienen umbral de dosis', 'Son al azar'],
-    correctIndex: 2,
-    explanation: 'Los efectos estocásticos son aleatorios (sin umbral de dosis), su probabilidad aumenta con la dosis pero no su severidad. Los determinísticos sí tienen umbral.',
-  },
-  {
     id: '2024-T1-Q33',
     source: 'exam',
     exam: '2024 Turno 1',
