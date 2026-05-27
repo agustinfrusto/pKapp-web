@@ -2,7 +2,7 @@
   "expo": {
     "name": "pKapp",
     "slug": "pkapp",
-    "version": "0.8.1",
+    "version": "0.8.2",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "splash": {
