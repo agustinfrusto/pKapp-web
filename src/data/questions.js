@@ -1420,22 +1420,6 @@ export const QUESTIONS = [
     explanation: 'La placa epifisaria (cartílago) se osifica por osificación endocondral, lo que permite el crecimiento en longitud hasta el cierre de la placa.',
   },
   {
-    id: '2025-T1-Q22',
-    source: 'exam',
-    exam: '2025 Turno 1',
-    topic: 'muscular',
-    materia: 'bct',
-    parcial: 'segundo',
-    question: 'Es correcto afirmar que las células del músculo estriado esquelético:',
-    options: [
-      'Presentan núcleo central y único.',
-      'Carecen de estriaciones longitudinales.',
-      'Se encuentran rodeadas por endomisio.'
-    ],
-    correctIndex: 2,
-    explanation: 'Cada fibra muscular esquelética está rodeada por endomisio. Tienen múltiples núcleos periféricos y estriaciones transversales (no longitudinales).',
-  },
-  {
     id: '2025-T1-Q23',
     source: 'exam',
     exam: '2025 Turno 1',
