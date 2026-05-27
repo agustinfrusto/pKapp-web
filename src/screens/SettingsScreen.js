@@ -1,7 +1,7 @@
 // Pantalla de ajustes: gestión de preguntas custom, reseteo de stats, info.
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch, Linking,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Constants from 'expo-constants';
@@ -164,6 +164,13 @@ export default function SettingsScreen() {
             {'\n'}Preparación para Biología Celular y Tisular (1er y 2do parcial).
             {'\n\n'}{examCount + generatedCount} preguntas en total: {examCount} reales extraidas de exámenes y parciales y {generatedCount} generadas a partir del material de estudio.
           </Text>
+          <TouchableOpacity
+            onPress={() => Linking.openURL('https://github.com/agustinfrusto/pKapp-web')}
+            style={styles.aboutLinkRow}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.aboutLinkText}>Código fuente en GitHub ↗</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>
@@ -303,6 +310,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#94a3b8',
     fontWeight: '500',
+  },
+  aboutLinkRow: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
+  },
+  aboutLinkText: {
+    fontSize: 13,
+    color: '#0d7a8a',
+    fontWeight: '600',
   },
   settingRow: {
     flexDirection: 'row',
