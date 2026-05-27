@@ -9,7 +9,7 @@ Construido con **Expo / React Native**. Esta es la **versión web** del proyecto
 
 ## Características
 
-- **387 preguntas reales** extraídas de 7 exámenes: 2022 T1 y T2 (prototipos), 2024 T1, T2 y T3 (recuperatorio feb. 2025), 2025 T1 y T2.
+- **385 preguntas reales** extraídas de 7 exámenes: 2022 T1 y T2 (prototipos), 2024 T1, T2 y T3 (recuperatorio feb. 2025), 2025 T1 y T2.
 - **34 preguntas adicionales** generadas con Claude a partir de los apuntes para cubrir temas con menor presencia en exámenes.
 - **Filtros:** por fuente (examen real / generada) y por parcial (1er / 2do), combinables.
 - **Tres modos:**
@@ -162,7 +162,7 @@ En `TopicSelectScreen` hay tres controles combinables:
 
 Por transparencia, dejo registro de en qué partes del proyecto utilicé asistencia de IA (principalmente **Claude**):
 
-- **Contenido educativo:** 34 de las 421 preguntas fueron generadas a partir del material de estudio (están marcadas con `source: "generated"` y se pueden filtrar desde la app). Las explicaciones de varias preguntas también fueron refinadas con apoyo de IA tomando como referencia los resúmenes oficiales.
+- **Contenido educativo:** 34 de las 419 preguntas fueron generadas a partir del material de estudio (están marcadas con `source: "generated"` y se pueden filtrar desde la app). Las explicaciones de varias preguntas también fueron refinadas con apoyo de IA tomando como referencia los resúmenes oficiales.
 - **Código:** asistencia para refactors, debugging, configuración del soporte web (PWA, separación `database.native.js` / `database.web.js`), deploy en Vercel y revisión de patrones.
 - **Decisiones de diseño, arquitectura y revisión final:** mías.
 
