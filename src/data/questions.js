@@ -1526,18 +1526,6 @@ export const QUESTIONS = [
     explanation: 'En músculo esquelético, todo el Ca²⁺ contráctil proviene del retículo sarcoplásmico (a diferencia del músculo cardíaco que también usa Ca²⁺ extracelular).',
   },
   {
-    id: '2025-T1-Q30',
-    source: 'exam',
-    exam: '2025 Turno 1',
-    topic: 'palancas',
-    materia: 'bct',
-    parcial: 'segundo',
-    question: 'Una palanca con el fulcro F en un extremo, la resistencia R en el medio y la fuerza E en el otro extremo:',
-    options: ['Es una palanca de fuerza.', 'Se encuentra en equilibrio.', 'Es una palanca de velocidad.'],
-    correctIndex: 2,
-    explanation: 'Si la fuerza está entre el fulcro y la resistencia (3er género, fuerza más cerca del fulcro que la resistencia), funciona en desventaja mecánica → magnifica la velocidad.',
-  },
-  {
     id: '2025-T1-Q31',
     source: 'exam',
     exam: '2025 Turno 1',
