@@ -4,7 +4,11 @@ import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import Constants from 'expo-constants';
 import { QUESTIONS, TOPICS } from '../data/questions';
+
+// La version se lee desde app.json; al bumpearla ahi se actualiza acá automáticamente
+const APP_VERSION = Constants.expoConfig?.version || '?';
 import {
   resetStats, getUserQuestions, deleteUserQuestion,
   getSetting, saveSetting,
@@ -156,9 +160,9 @@ export default function SettingsScreen() {
         <Text style={styles.sectionTitle}>Acerca de</Text>
         <View style={styles.aboutCard}>
           <Text style={styles.aboutText}>
-            <Text style={styles.aboutBold}>pKapp</Text>
+            <Text style={styles.aboutBold}>pKapp</Text> <Text style={styles.aboutVersion}>v{APP_VERSION}</Text>
             {'\n'}Preparación para Biología Celular y Tisular (1er y 2do parcial).
-            {'\n\n'}422 preguntas en total: 388 reales extraidas de examenes y parciales y 34 generadas a partir del material de estudio.
+            {'\n\n'}{examCount + generatedCount} preguntas en total: {examCount} reales extraidas de exámenes y parciales y {generatedCount} generadas a partir del material de estudio.
           </Text>
         </View>
       </View>
@@ -294,6 +298,11 @@ const styles = StyleSheet.create({
   aboutBold: {
     fontWeight: 'bold',
     color: '#1e293b',
+  },
+  aboutVersion: {
+    fontSize: 12,
+    color: '#94a3b8',
+    fontWeight: '500',
   },
   settingRow: {
     flexDirection: 'row',
