@@ -27,3 +27,6 @@ web-build/
 # Native folders generadas por expo prebuild (no usamos, web-only)
 android/
 ios/
+
+# No commitear zips
+*.zip
