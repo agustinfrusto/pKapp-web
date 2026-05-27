@@ -23,3 +23,7 @@ web-build/
 
 # Archives
 *.zip
+
+# Native folders generadas por expo prebuild (no usamos, web-only)
+android/
+ios/
