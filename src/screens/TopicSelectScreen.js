@@ -119,7 +119,7 @@ export default function TopicSelectScreen({ route, navigation }) {
           <Text style={styles.examInfoTitle}>📝 Modo Examen</Text>
           <Text style={styles.examInfoText}>
             {parcialFilter === 'all'
-              ? `Se sortean ${Math.min(EXAM_SIZE_FULL, getFilteredQuestions().length)} preguntas al azar de todos los temas, como en el parcial real.`
+              ? `Se sortean ${Math.min(EXAM_SIZE_FULL, getFilteredQuestions().length)} preguntas al azar de todos los temas, como en el examen real.`
               : `Se sortean ${Math.min(EXAM_SIZE_PARCIAL, getFilteredQuestions().length)} preguntas al azar de ${(PARCIAL_FILTERS && PARCIAL_FILTERS[parcialFilter]) || 'este parcial'}.`}
           </Text>
           <Text style={styles.examInfoCount}>
