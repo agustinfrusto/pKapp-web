@@ -28,13 +28,20 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.navigate('MateriaSelect')}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.backButtonText}>← Cambiar materia</Text>
+        </TouchableOpacity>
         <Image
           source={logo}
           style={styles.logo}
           resizeMode="contain"
         />
-        <Text style={styles.subtitle}>Biología Celular y Tisular</Text>
+        <Text style={styles.subtitle}>{materia.name}</Text>
         <Text style={styles.stats}>
           {examCount} preguntas reales · {generatedCount} preguntas extra
         </Text>
@@ -127,6 +134,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     backgroundColor: '#1a3f6f',
     alignItems: 'center',
+  },
+  backButton: {
+    alignSelf: 'flex-start',
+    paddingVertical: 6,
+    paddingHorizontal: 4,
+    marginBottom: 4,
+  },
+  backButtonText: {
+    color: '#c5d9f0',
+    fontSize: 13,
+    fontWeight: '500',
   },
   logo: {
     width: 300,

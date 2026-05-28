@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import MateriaSelectScreen from './src/screens/MateriaSelectScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import TopicSelectScreen from './src/screens/TopicSelectScreen';
 import QuizScreen from './src/screens/QuizScreen';
@@ -15,7 +16,7 @@ import SettingsScreen from './src/screens/SettingsScreen';
 
 import { initDatabase } from './src/db/database';
 import Analytics from './src/components/Analytics';
-import { MateriaProvider, useMateria } from './src/materia/MateriaContext';
+import { MateriaProvider } from './src/materia/MateriaContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -54,13 +55,9 @@ export default function App() {
 function AppContent() {
   const [splashDone, setSplashDone] = useState(false);
   const opacity = useRef(new Animated.Value(0)).current;
-  const { setMateriaId } = useMateria();
 
   useEffect(() => {
     initDatabase().catch((err) => console.error('Error iniciando DB:', err));
-
-    // FASE 1: hardcodear bcyt como materia activa (Fase 2 trae MateriaSelectScreen)
-    setMateriaId('bcyt');
 
     Animated.sequence([
       Animated.timing(opacity, { toValue: 1, duration: 900, useNativeDriver: true }),
@@ -89,7 +86,7 @@ function AppContent() {
     <NavigationContainer>
       <StatusBar style="light" />
       <Stack.Navigator
-        initialRouteName="Home"
+        initialRouteName="MateriaSelect"
         screenOptions={{
           headerStyle: { backgroundColor: '#1a3f6f' },
           headerTintColor: '#fff',
@@ -97,6 +94,11 @@ function AppContent() {
           contentStyle: { backgroundColor: '#f1f5f9' },
         }}
       >
+        <Stack.Screen
+          name="MateriaSelect"
+          component={MateriaSelectScreen}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="Home"
           component={HomeScreen}
