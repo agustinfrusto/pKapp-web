@@ -10,8 +10,7 @@ import { useMateria } from '../materia/MateriaContext';
 
 const logo = require('../assets/logo.png');
 
-// TODO: reemplazar con el link real de Mercado Pago cuando esté listo
-const MERCADOPAGO_URL = 'https://mpago.la/REEMPLAZAR-CON-TU-LINK';
+const MERCADOPAGO_URL = 'https://link.mercadopago.com.uy/pkapp';
 
 export default function MateriaSelectScreen({ navigation }) {
   const insets = useSafeAreaInsets();
