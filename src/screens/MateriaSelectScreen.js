@@ -28,7 +28,7 @@ export default function MateriaSelectScreen({ navigation }) {
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       <View style={[styles.header, { paddingTop: insets.top + 24 }]}>
         <Image source={logo} style={styles.logo} resizeMode="contain" />
-        <Text style={styles.subtitle}>Tus materias de medicina</Text>
+        <Text style={styles.subtitle}>Tus materias de ESFUNO</Text>
         <Text style={styles.hint}>Elegí una para empezar</Text>
       </View>
 
