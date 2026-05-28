@@ -1,7 +1,7 @@
 // Config específica de Anatomía.
-// Cada parcial de esta materia es de 25 preguntas (a diferencia de BCYT que tiene 75/40).
+// El examen completo es de 50 preguntas; cada parcial es de 25.
 export const config = {
-  examSize:        25,
+  examSize:        50,
   examSizeParcial: 25,
   parciales: [
     { id: 'primero', label: '1er Parcial' },
