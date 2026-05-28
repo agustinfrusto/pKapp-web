@@ -49,7 +49,11 @@ function MateriaCard({ materia, onPress }) {
       activeOpacity={0.7}
     >
       <View style={[styles.iconBox, { backgroundColor: materia.color }]}>
-        <Text style={styles.iconEmoji}>{materia.icon}</Text>
+        {materia.image ? (
+          <Image source={materia.image} style={styles.iconImage} resizeMode="contain" />
+        ) : (
+          <Text style={styles.iconEmoji}>{materia.icon}</Text>
+        )}
       </View>
       <Text style={[styles.cardTitle, !materia.available && styles.textDisabled]}>
         {materia.name}
@@ -114,12 +118,17 @@ const styles = StyleSheet.create({
     opacity: 0.55,
   },
   iconBox: {
-    width: 72,
-    height: 72,
+    width: 110,
+    height: 110,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 14,
+    overflow: 'hidden',
+  },
+  iconImage: {
+    width: '100%',
+    height: '100%',
   },
   iconEmoji: {
     fontSize: 36,
