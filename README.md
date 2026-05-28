@@ -1,7 +1,9 @@
 # pKapp · versión web
 
+🌐 **En vivo:** [pkapp.uy](https://pkapp.uy)
+
 App para ayudar a los estudiantes de Medicina y Escuela Técnica de Medicina.
-La construí para ayudar a mi pareja, le ha sido util y espero que ayude a más personas
+La construí para ayudar a mi pareja, le ha sido útil y espero que ayude a más personas.
 
 Construido con **Expo / React Native**. Esta es la **versión web** del proyecto: corre en cualquier navegador moderno y se puede instalar como **PWA** (Progressive Web App) en escritorio, Android e iOS.
 
@@ -9,8 +11,9 @@ Construido con **Expo / React Native**. Esta es la **versión web** del proyecto
 
 ## Características
 
-- **385 preguntas reales** extraídas de 7 exámenes: 2022 T1 y T2 (prototipos), 2024 T1, T2 y T3 (recuperatorio feb. 2025), 2025 T1 y T2.
-- **34 preguntas adicionales** generadas con Claude a partir de los apuntes para cubrir temas con menor presencia en exámenes.
+- **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** y **Anatomía**, con estructura preparada para sumar los demás módulos.
+- **~840 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025 + Anatomía 2018-2025).
+- **34 preguntas adicionales** generadas con Claude a partir de los apuntes para cubrir temas con menor presencia en exámenes (solo BCYT).
 - **Filtros:** por fuente (examen real / generada) y por parcial (1er / 2do), combinables.
 - **Tres modos:**
   - **Práctica por tema:** elegís un tema específico o practicás por parcial (1er o 2do, 40 preguntas).
