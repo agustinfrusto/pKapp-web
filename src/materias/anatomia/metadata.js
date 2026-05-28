@@ -7,5 +7,5 @@ export const metadata = {
   icon:        '🩻',
   image:       require('../../assets/materias/anatomia.png'),
   color:       '#1a3f6f',
-  available:   false, // TODO: cambiar a true cuando haya preguntas
+  available:   true,
 };
