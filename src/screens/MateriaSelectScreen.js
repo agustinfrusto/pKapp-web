@@ -51,19 +51,16 @@ function MateriaCard({ materia, onPress }) {
       <View style={[styles.iconBox, { backgroundColor: materia.color }]}>
         <Text style={styles.iconEmoji}>{materia.icon}</Text>
       </View>
-      <View style={styles.cardContent}>
-        <Text style={[styles.cardTitle, !materia.available && styles.textDisabled]}>
-          {materia.name}
+      <Text style={[styles.cardTitle, !materia.available && styles.textDisabled]}>
+        {materia.name}
+      </Text>
+      {materia.available ? (
+        <Text style={styles.cardMeta}>
+          {totalQs} preguntas{parciales ? ` · ${parciales} parcial${parciales === 1 ? '' : 'es'}` : ''}
         </Text>
-        {materia.available ? (
-          <Text style={styles.cardMeta}>
-            {totalQs} preguntas{parciales ? ` · ${parciales} parcial${parciales === 1 ? '' : 'es'}` : ''}
-          </Text>
-        ) : (
-          <Text style={styles.cardComingSoon}>Próximamente</Text>
-        )}
-      </View>
-      {materia.available && <Text style={styles.cardArrow}>›</Text>}
+      ) : (
+        <Text style={styles.cardComingSoon}>Próximamente</Text>
+      )}
     </TouchableOpacity>
   );
 }
@@ -101,11 +98,11 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 16,
+    paddingVertical: 24,
+    paddingHorizontal: 16,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -117,40 +114,36 @@ const styles = StyleSheet.create({
     opacity: 0.55,
   },
   iconBox: {
-    width: 56,
-    height: 56,
-    borderRadius: 12,
+    width: 72,
+    height: 72,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 14,
+    marginBottom: 14,
   },
   iconEmoji: {
-    fontSize: 28,
-  },
-  cardContent: {
-    flex: 1,
+    fontSize: 36,
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
     color: '#0f1f33',
+    textAlign: 'center',
   },
   cardMeta: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#607d99',
-    marginTop: 3,
+    marginTop: 6,
+    textAlign: 'center',
   },
   cardComingSoon: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#94a3b8',
     fontStyle: 'italic',
-    marginTop: 3,
+    marginTop: 6,
+    textAlign: 'center',
   },
   textDisabled: {
     color: '#64748b',
-  },
-  cardArrow: {
-    fontSize: 28,
-    color: '#b8cfe0',
   },
 });
