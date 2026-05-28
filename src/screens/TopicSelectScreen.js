@@ -14,12 +14,6 @@ const SOURCE_FILTERS = {
   generated: 'Solo generadas',
 };
 
-const PARCIAL_FILTERS = {
-  all: 'Examen',
-  primero: '1er Parcial',
-  segundo: '2do Parcial',
-};
-
 const TIMER_OPTIONS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]; // 0 = sin límite
 
 export default function TopicSelectScreen({ route, navigation }) {
@@ -30,6 +24,13 @@ export default function TopicSelectScreen({ route, navigation }) {
   const TOPICS = materia.TOPICS;
   const EXAM_SIZE_FULL = materia.config.examSize;
   const EXAM_SIZE_PARCIAL = materia.config.examSizeParcial;
+
+  // Materias sin parciales: PARCIAL_FILTERS queda en null y se omite el filtro
+  const parcialesConfig = materia.config.parciales;
+  const hasParciales = Array.isArray(parcialesConfig) && parcialesConfig.length > 0;
+  const PARCIAL_FILTERS = hasParciales
+    ? { all: 'Examen', ...Object.fromEntries(parcialesConfig.map(p => [p.id, p.label])) }
+    : null;
   const [sourceFilter, setSourceFilter] = useState('all');
   const [parcialFilter, setParcialFilter] = useState('all');
   const [timerMinutes, setTimerMinutes] = useState(0);
@@ -110,6 +111,7 @@ export default function TopicSelectScreen({ route, navigation }) {
         <Filters
           sourceFilter={sourceFilter} setSourceFilter={setSourceFilter}
           parcialFilter={parcialFilter} setParcialFilter={setParcialFilter}
+          parcialFilters={PARCIAL_FILTERS}
           timerMinutes={timerMinutes} setTimerMinutes={setTimerMinutes}
         />
         
@@ -118,7 +120,7 @@ export default function TopicSelectScreen({ route, navigation }) {
           <Text style={styles.examInfoText}>
             {parcialFilter === 'all'
               ? `Se sortean ${Math.min(EXAM_SIZE_FULL, getFilteredQuestions().length)} preguntas al azar de todos los temas, como en el parcial real.`
-              : `Se sortean ${Math.min(EXAM_SIZE_PARCIAL, getFilteredQuestions().length)} preguntas al azar del ${parcialFilter === 'primero' ? '1er' : '2do'} parcial.`}
+              : `Se sortean ${Math.min(EXAM_SIZE_PARCIAL, getFilteredQuestions().length)} preguntas al azar de ${(PARCIAL_FILTERS && PARCIAL_FILTERS[parcialFilter]) || 'este parcial'}.`}
           </Text>
           <Text style={styles.examInfoCount}>
             Disponibles: {getFilteredQuestions().length} preguntas
@@ -155,6 +157,7 @@ export default function TopicSelectScreen({ route, navigation }) {
       <Filters
         sourceFilter={sourceFilter} setSourceFilter={setSourceFilter}
         parcialFilter={parcialFilter} setParcialFilter={setParcialFilter}
+        parcialFilters={PARCIAL_FILTERS}
         timerMinutes={timerMinutes} setTimerMinutes={setTimerMinutes}
       />
 
@@ -212,12 +215,13 @@ function SourceFilter({ sourceFilter, setSourceFilter }) {
   );
 }
 
-function ParcialFilter({ parcialFilter, setParcialFilter }) {
+function ParcialFilter({ parcialFilter, setParcialFilter, parcialFilters }) {
+  if (!parcialFilters) return null;
   return (
     <View style={styles.filterInner}>
       <Text style={styles.filterLabel}>Parcial:</Text>
       <View style={styles.filterButtons}>
-        {Object.entries(PARCIAL_FILTERS).map(([key, label]) => (
+        {Object.entries(parcialFilters).map(([key, label]) => (
           <TouchableOpacity
             key={key}
             style={[styles.filterButton, parcialFilter === key && styles.filterButtonActiveParcial]}
@@ -269,12 +273,16 @@ function TimerPicker({ timerMinutes, setTimerMinutes }) {
   );
 }
 
-function Filters({ sourceFilter, setSourceFilter, parcialFilter, setParcialFilter, timerMinutes, setTimerMinutes }) {
+function Filters({ sourceFilter, setSourceFilter, parcialFilter, setParcialFilter, parcialFilters, timerMinutes, setTimerMinutes }) {
   return (
     <View style={styles.filterContainer}>
       <SourceFilter sourceFilter={sourceFilter} setSourceFilter={setSourceFilter} />
-      <View style={styles.filterDivider} />
-      <ParcialFilter parcialFilter={parcialFilter} setParcialFilter={setParcialFilter} />
+      {parcialFilters && (
+        <>
+          <View style={styles.filterDivider} />
+          <ParcialFilter parcialFilter={parcialFilter} setParcialFilter={setParcialFilter} parcialFilters={parcialFilters} />
+        </>
+      )}
       <View style={styles.filterDivider} />
       <TimerPicker timerMinutes={timerMinutes} setTimerMinutes={setTimerMinutes} />
     </View>
