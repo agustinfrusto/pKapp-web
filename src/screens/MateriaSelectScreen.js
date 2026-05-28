@@ -7,10 +7,12 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MATERIA_LIST } from '../materias';
 import { useMateria } from '../materia/MateriaContext';
+import { isLegacyDomain, downloadBackup } from '../utils/migration';
 
 const logo = require('../assets/logo.png');
 
 const MERCADOPAGO_URL = 'https://link.mercadopago.com.uy/pkapp';
+const NEW_DOMAIN_URL = 'https://pkapp.uy';
 
 export default function MateriaSelectScreen({ navigation }) {
   const insets = useSafeAreaInsets();
@@ -30,6 +32,8 @@ export default function MateriaSelectScreen({ navigation }) {
         <Text style={styles.hint}>Elegí una para empezar</Text>
       </View>
 
+      {isLegacyDomain() && <MigrationBanner />}
+
       <View style={styles.list}>
         {MATERIA_LIST.map((m) => (
           <MateriaCard key={m.id} materia={m} onPress={() => handlePick(m)} />
@@ -38,6 +42,34 @@ export default function MateriaSelectScreen({ navigation }) {
 
       <DonationCard />
     </ScrollView>
+  );
+}
+
+function MigrationBanner() {
+  function handleExport() {
+    const ok = downloadBackup();
+    if (ok) {
+      setTimeout(() => Linking.openURL(NEW_DOMAIN_URL), 600);
+    }
+  }
+  function handleGoToNew() {
+    Linking.openURL(NEW_DOMAIN_URL);
+  }
+  return (
+    <View style={styles.migrationWrap}>
+      <Text style={styles.migrationTitle}>🎉 Nos mudamos a pkapp.uy</Text>
+      <Text style={styles.migrationBody}>
+        Para no perder tu progreso, descargá un respaldo y subilo en el nuevo sitio (Ajustes → Importar progreso).
+      </Text>
+      <View style={styles.migrationButtons}>
+        <TouchableOpacity style={styles.migrationBtnPrimary} onPress={handleExport} activeOpacity={0.85}>
+          <Text style={styles.migrationBtnPrimaryText}>Descargar progreso y abrir pkapp.uy</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.migrationBtnSecondary} onPress={handleGoToNew} activeOpacity={0.85}>
+          <Text style={styles.migrationBtnSecondaryText}>Ir sin migrar →</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
@@ -191,6 +223,52 @@ const styles = StyleSheet.create({
   },
   textDisabled: {
     color: '#64748b',
+  },
+
+  // Migration banner
+  migrationWrap: {
+    marginHorizontal: 16,
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: '#dbeafe',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#93c5fd',
+  },
+  migrationTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1e3a8a',
+    marginBottom: 6,
+  },
+  migrationBody: {
+    fontSize: 12,
+    color: '#1e40af',
+    lineHeight: 17,
+    marginBottom: 12,
+  },
+  migrationButtons: {
+    gap: 8,
+  },
+  migrationBtnPrimary: {
+    backgroundColor: '#1d4ed8',
+    paddingVertical: 11,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  migrationBtnPrimaryText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 13,
+  },
+  migrationBtnSecondary: {
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  migrationBtnSecondaryText: {
+    color: '#1e3a8a',
+    fontSize: 12,
+    textDecorationLine: 'underline',
   },
 
   // Donation

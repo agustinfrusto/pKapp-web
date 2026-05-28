@@ -14,6 +14,8 @@ import {
   getSetting, saveSetting,
 } from '../db/database';
 import { confirm } from '../utils/confirm';
+import { pickAndImportBackup, downloadBackup } from '../utils/migration';
+import { Platform } from 'react-native';
 
 export default function SettingsScreen() {
   const { materiaId, materia } = useMateria();
@@ -147,6 +149,36 @@ export default function SettingsScreen() {
           />
         </View>
       </View>
+
+      {/* Migración entre dominios (solo web) */}
+      {Platform.OS === 'web' && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Importar / Exportar progreso</Text>
+          <View style={styles.migrationBox}>
+            <Text style={styles.migrationHint}>
+              Si venís de la versión vieja (pkapp-web.vercel.app) y descargaste tu respaldo, podés cargarlo acá.
+            </Text>
+            <TouchableOpacity
+              style={styles.importBtn}
+              onPress={() => pickAndImportBackup((r) => {
+                Alert.alert(r.ok ? 'Listo' : 'Error', r.message);
+                if (r.ok) loadData();
+              })}
+            >
+              <Text style={styles.importBtnText}>📂 Importar progreso desde archivo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.exportBtn}
+              onPress={() => {
+                const ok = downloadBackup();
+                if (!ok) Alert.alert('Error', 'No se pudo generar el respaldo.');
+              }}
+            >
+              <Text style={styles.exportBtnText}>💾 Descargar respaldo</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
 
       {/* Acciones peligrosas */}
       <View style={styles.section}>
@@ -282,6 +314,44 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#15803d',
     fontWeight: '500',
+  },
+  migrationBox: {
+    backgroundColor: '#eff6ff',
+    borderRadius: 12,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#bfdbfe',
+  },
+  migrationHint: {
+    fontSize: 12,
+    color: '#1e3a8a',
+    lineHeight: 17,
+    marginBottom: 10,
+  },
+  importBtn: {
+    backgroundColor: '#1d4ed8',
+    paddingVertical: 11,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  importBtnText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 13,
+  },
+  exportBtn: {
+    backgroundColor: '#dbeafe',
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#93c5fd',
+  },
+  exportBtnText: {
+    color: '#1e3a8a',
+    fontWeight: '600',
+    fontSize: 12,
   },
   dangerButton: {
     backgroundColor: '#fee2e2',
