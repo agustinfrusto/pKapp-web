@@ -36,10 +36,24 @@ const pwaTags = `
 
 if (!html.includes('rel="manifest"')) {
   html = html.replace('</head>', `${pwaTags}\n  </head>`);
-  fs.writeFileSync(indexHtml, html);
   console.log('  PWA tags inyectados en index.html');
 } else {
   console.log('  PWA tags ya presentes, skip.');
 }
+
+// 3. (Opcional) Cloudflare Web Analytics
+// Para activarlo en Cloudflare Pages: settings → environment variables →
+// agregar CF_ANALYTICS_TOKEN con el token del beacon.
+const cfToken = process.env.CF_ANALYTICS_TOKEN;
+if (cfToken && !html.includes('static.cloudflareinsights.com')) {
+  const cfBeacon = `
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "${cfToken}"}'></script>`;
+  html = html.replace('</body>', `${cfBeacon}\n  </body>`);
+  console.log('  Cloudflare Analytics beacon inyectado.');
+} else if (cfToken) {
+  console.log('  Cloudflare Analytics beacon ya presente, skip.');
+}
+
+fs.writeFileSync(indexHtml, html);
 
 console.log('PWA post-build OK');
