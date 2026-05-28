@@ -2,13 +2,16 @@
 // Se presenta SIEMPRE al abrir la app (no se persiste la última).
 import React from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, Image,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Linking,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MATERIA_LIST } from '../materias';
 import { useMateria } from '../materia/MateriaContext';
 
 const logo = require('../assets/logo.png');
+
+// TODO: reemplazar con el link real de Mercado Pago cuando esté listo
+const MERCADOPAGO_URL = 'https://mpago.la/REEMPLAZAR-CON-TU-LINK';
 
 export default function MateriaSelectScreen({ navigation }) {
   const insets = useSafeAreaInsets();
@@ -33,7 +36,42 @@ export default function MateriaSelectScreen({ navigation }) {
           <MateriaCard key={m.id} materia={m} onPress={() => handlePick(m)} />
         ))}
       </View>
+
+      <DonationCard />
     </ScrollView>
+  );
+}
+
+function DonationCard() {
+  function handleDonate() {
+    Linking.openURL(MERCADOPAGO_URL).catch(() => {});
+  }
+
+  return (
+    <View style={styles.donationWrap}>
+      <View style={styles.donationDivider} />
+      <TouchableOpacity
+        style={styles.donationCard}
+        onPress={handleDonate}
+        activeOpacity={0.85}
+      >
+        <View style={styles.donationIconBox}>
+          <Text style={styles.donationIcon}>♥</Text>
+        </View>
+        <View style={styles.donationContent}>
+          <Text style={styles.donationTitle}>Apoya el proyecto</Text>
+          <Text style={styles.donationDescription}>
+            Dona para ayudar a mantener esta herramienta gratuita
+          </Text>
+        </View>
+        <View style={styles.donationCta}>
+          <Text style={styles.donationCtaText}>Donar →</Text>
+        </View>
+      </TouchableOpacity>
+      <Text style={styles.donationFooter}>
+        Vía Mercado Pago · monto libre
+      </Text>
+    </View>
   );
 }
 
@@ -154,5 +192,77 @@ const styles = StyleSheet.create({
   },
   textDisabled: {
     color: '#64748b',
+  },
+
+  // Donation
+  donationWrap: {
+    paddingHorizontal: 16,
+    paddingTop: 6,
+    paddingBottom: 16,
+    alignItems: 'center',
+  },
+  donationDivider: {
+    height: 1,
+    width: '40%',
+    backgroundColor: '#cbd5e1',
+    marginBottom: 18,
+    marginTop: 4,
+  },
+  donationCard: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fef3c7', // amber-100 (tono cálido)
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#fde68a',     // amber-200
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+  },
+  donationIconBox: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#f59e0b', // amber-500
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  donationIcon: {
+    color: '#fff',
+    fontSize: 22,
+    lineHeight: 24,
+  },
+  donationContent: {
+    flex: 1,
+  },
+  donationTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#78350f', // amber-900
+    marginBottom: 2,
+  },
+  donationDescription: {
+    fontSize: 12,
+    color: '#92400e', // amber-800
+    lineHeight: 16,
+  },
+  donationCta: {
+    marginLeft: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    backgroundColor: '#b45309', // amber-700
+    borderRadius: 8,
+  },
+  donationCtaText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  donationFooter: {
+    fontSize: 10,
+    color: '#94a3b8',
+    marginTop: 10,
+    textAlign: 'center',
   },
 });
