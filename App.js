@@ -76,7 +76,7 @@ function AppContent() {
           resizeMode="contain"
         />
         <Animated.Text style={[splashStyles.tagline, { opacity }]}>
-          Biología Celular y Tisular
+          Entrena y aprueba ESFUNO
         </Animated.Text>
       </View>
     );
