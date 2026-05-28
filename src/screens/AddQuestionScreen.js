@@ -4,15 +4,18 @@ import {
   View, Text, StyleSheet, TextInput, TouchableOpacity,
   ScrollView, Alert, KeyboardAvoidingView, Platform,
 } from 'react-native';
-import { TOPICS } from '../data/questions';
 import { addUserQuestion } from '../db/database';
 import { confirm } from '../utils/confirm';
+import { useMateria } from '../materia/MateriaContext';
 
 export default function AddQuestionScreen({ navigation }) {
+  const { materiaId, materia } = useMateria();
+  const TOPICS = materia?.TOPICS || {};
+  const firstTopic = Object.keys(TOPICS)[0];
   const [questionText, setQuestionText] = useState('');
   const [options, setOptions] = useState(['', '', '', '']);
   const [correctIndex, setCorrectIndex] = useState(null);
-  const [topic, setTopic] = useState('genetica');
+  const [topic, setTopic] = useState(firstTopic);
   const [explanation, setExplanation] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -82,7 +85,7 @@ export default function AddQuestionScreen({ navigation }) {
 
     setSaving(true);
     try {
-      await addUserQuestion({
+      await addUserQuestion(materiaId, {
         topic,
         question: questionText.trim(),
         options: finalOptions,

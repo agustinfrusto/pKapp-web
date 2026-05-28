@@ -6,9 +6,9 @@ import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { TOPICS } from '../data/questions';
 import { recordAnswer } from '../db/database';
 import { confirm } from '../utils/confirm';
+import { useMateria } from '../materia/MateriaContext';
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
@@ -19,6 +19,8 @@ function formatTime(seconds) {
 export default function QuizScreen({ route, navigation }) {
   const { questions, mode, topic, hideFeedback, timerMinutes } = route.params;
   const insets = useSafeAreaInsets();
+  const { materiaId, materia } = useMateria();
+  const TOPICS = materia?.TOPICS || {};
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [answered, setAnswered] = useState(false);
@@ -66,7 +68,7 @@ export default function QuizScreen({ route, navigation }) {
     
     // Guardar en DB
     try {
-      await recordAnswer(currentQuestion.id, isCorrect);
+      await recordAnswer(materiaId, currentQuestion.id, isCorrect);
     } catch (err) {
       console.error('Error guardando respuesta:', err);
     }

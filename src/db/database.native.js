@@ -1,4 +1,6 @@
-// SQLite wrapper para persistir estadísticas y preguntas del usuario
+// SQLite wrapper para persistir estadísticas y preguntas del usuario.
+// Las funciones que dependen de la materia reciben materiaId como primer argumento.
+// Settings (tema, hide_feedback) NO se namespacean: son globales cross-materia.
 import * as SQLite from 'expo-sqlite';
 
 let db = null;
@@ -8,20 +10,21 @@ export async function initDatabase() {
 
   db = await SQLite.openDatabaseAsync('biocelular.db');
 
-  // Tabla de estadísticas por pregunta: cuántas veces se respondió y cuántas se acertó
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS question_stats (
-      question_id TEXT PRIMARY KEY,
+      materia_id TEXT NOT NULL DEFAULT 'bcyt',
+      question_id TEXT NOT NULL,
       times_answered INTEGER DEFAULT 0,
       times_correct INTEGER DEFAULT 0,
-      last_answered_at INTEGER
+      last_answered_at INTEGER,
+      PRIMARY KEY (materia_id, question_id)
     );
   `);
 
-  // Tabla de preguntas custom agregadas por el usuario
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS user_questions (
       id TEXT PRIMARY KEY,
+      materia_id TEXT NOT NULL DEFAULT 'bcyt',
       topic TEXT NOT NULL,
       question TEXT NOT NULL,
       options TEXT NOT NULL,
@@ -31,7 +34,6 @@ export async function initDatabase() {
     );
   `);
 
-  // Tabla de ajustes clave-valor
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS settings (
       key TEXT PRIMARY KEY,
@@ -39,64 +41,64 @@ export async function initDatabase() {
     );
   `);
 
+  // Migración: asignar bcyt a filas sin materia_id (compat con datos previos)
+  await db.execAsync(`UPDATE question_stats SET materia_id = 'bcyt' WHERE materia_id IS NULL OR materia_id = '';`);
+  await db.execAsync(`UPDATE user_questions SET materia_id = 'bcyt' WHERE materia_id IS NULL OR materia_id = '';`);
+
   return db;
 }
 
-// Registrar una respuesta
-export async function recordAnswer(questionId, isCorrect) {
+export async function recordAnswer(materiaId, questionId, isCorrect) {
   const database = await initDatabase();
   const now = Date.now();
-
   await database.runAsync(
-    `INSERT INTO question_stats (question_id, times_answered, times_correct, last_answered_at)
-     VALUES (?, 1, ?, ?)
-     ON CONFLICT(question_id) DO UPDATE SET
+    `INSERT INTO question_stats (materia_id, question_id, times_answered, times_correct, last_answered_at)
+     VALUES (?, ?, 1, ?, ?)
+     ON CONFLICT(materia_id, question_id) DO UPDATE SET
        times_answered = times_answered + 1,
        times_correct = times_correct + ?,
        last_answered_at = ?`,
-    [questionId, isCorrect ? 1 : 0, now, isCorrect ? 1 : 0, now]
+    [materiaId, questionId, isCorrect ? 1 : 0, now, isCorrect ? 1 : 0, now]
   );
 }
 
-// Obtener estadísticas de una pregunta
-export async function getQuestionStats(questionId) {
+export async function getQuestionStats(materiaId, questionId) {
   const database = await initDatabase();
-  const result = await database.getFirstAsync(
-    'SELECT * FROM question_stats WHERE question_id = ?',
-    [questionId]
+  return await database.getFirstAsync(
+    'SELECT * FROM question_stats WHERE materia_id = ? AND question_id = ?',
+    [materiaId, questionId]
   );
-  return result;
 }
 
-// Obtener todas las estadísticas
-export async function getAllStats() {
+export async function getAllStats(materiaId) {
   const database = await initDatabase();
-  const results = await database.getAllAsync('SELECT * FROM question_stats');
-  return results;
+  return await database.getAllAsync(
+    'SELECT * FROM question_stats WHERE materia_id = ?',
+    [materiaId]
+  );
 }
 
-// Obtener preguntas más falladas (al menos 1 fallo, ordenadas por % de error)
-export async function getFailedQuestions() {
+export async function getFailedQuestions(materiaId) {
   const database = await initDatabase();
-  const results = await database.getAllAsync(
+  return await database.getAllAsync(
     `SELECT question_id, times_answered, times_correct,
             CAST(times_correct AS REAL) / times_answered AS accuracy
      FROM question_stats
-     WHERE times_answered > 0 AND times_correct < times_answered
-     ORDER BY accuracy ASC, times_answered DESC`
+     WHERE materia_id = ? AND times_answered > 0 AND times_correct < times_answered
+     ORDER BY accuracy ASC, times_answered DESC`,
+    [materiaId]
   );
-  return results;
 }
 
-// Agregar pregunta del usuario
-export async function addUserQuestion(question) {
+export async function addUserQuestion(materiaId, question) {
   const database = await initDatabase();
   const id = 'USER-' + Date.now();
   await database.runAsync(
-    `INSERT INTO user_questions (id, topic, question, options, correct_index, explanation, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO user_questions (id, materia_id, topic, question, options, correct_index, explanation, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       id,
+      materiaId,
       question.topic,
       question.question,
       JSON.stringify(question.options),
@@ -108,10 +110,12 @@ export async function addUserQuestion(question) {
   return id;
 }
 
-// Listar preguntas del usuario
-export async function getUserQuestions() {
+export async function getUserQuestions(materiaId) {
   const database = await initDatabase();
-  const rows = await database.getAllAsync('SELECT * FROM user_questions ORDER BY created_at DESC');
+  const rows = await database.getAllAsync(
+    'SELECT * FROM user_questions WHERE materia_id = ? ORDER BY created_at DESC',
+    [materiaId]
+  );
   return rows.map((row) => ({
     id: row.id,
     source: 'user',
@@ -123,20 +127,27 @@ export async function getUserQuestions() {
   }));
 }
 
-// Eliminar pregunta del usuario
-export async function deleteUserQuestion(id) {
+export async function deleteUserQuestion(materiaId, id) {
   const database = await initDatabase();
-  await database.runAsync('DELETE FROM user_questions WHERE id = ?', [id]);
+  await database.runAsync(
+    'DELETE FROM user_questions WHERE materia_id = ? AND id = ?',
+    [materiaId, id]
+  );
 }
 
-// Leer un ajuste (devuelve defaultValue si no existe)
+export async function resetStats(materiaId) {
+  const database = await initDatabase();
+  await database.runAsync('DELETE FROM question_stats WHERE materia_id = ?', [materiaId]);
+}
+
+// ── Settings: globales, no namespaceados ──────────────────────────────────
+
 export async function getSetting(key, defaultValue = null) {
   const database = await initDatabase();
   const row = await database.getFirstAsync('SELECT value FROM settings WHERE key = ?', [key]);
   return row ? row.value : defaultValue;
 }
 
-// Guardar un ajuste
 export async function saveSetting(key, value) {
   const database = await initDatabase();
   await database.runAsync(
@@ -144,10 +155,4 @@ export async function saveSetting(key, value) {
      ON CONFLICT(key) DO UPDATE SET value = ?`,
     [key, String(value), String(value)]
   );
-}
-
-// Resetear todas las estadísticas
-export async function resetStats() {
-  const database = await initDatabase();
-  await database.execAsync('DELETE FROM question_stats');
 }

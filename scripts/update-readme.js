@@ -10,7 +10,8 @@ const fs = require('fs');
 const path = require('path');
 
 const READMEPATH = path.resolve(__dirname, '..', 'README.md');
-const QUESTIONSPATH = path.resolve(__dirname, '..', 'src', 'data', 'questions.js');
+// Lee las preguntas de bcyt. Si se agregan más materias, sumar a `MATERIAS_PATHS`.
+const QUESTIONSPATH = path.resolve(__dirname, '..', 'src', 'materias', 'bcyt', 'questions.js');
 
 // Cargar QUESTIONS (es un módulo CommonJS export)
 const { QUESTIONS } = require(QUESTIONSPATH);

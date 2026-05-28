@@ -20,41 +20,6 @@
 // "parcial": "primero" | "segundo"
 // Topics 1er parcial: quimica-agua, aminoacidos, lipidos-glucidos, enzimas, metabolismo,
 //         membrana-celular, organelos, microscopio, transporte-membrana, potencial-accion,
-//         division-celular, reparacion-adn
-// Topics 2do parcial: genetica, adn-arn, epitelial, conjuntivo, cartilaginoso, oseo, muscular,
-//         sangre, linfoideo, ciclo-celular, contraccion, palancas, radioproteccion, hemostasis, inmunidad
-
-export const TOPICS = {
-  // --- 1er Parcial ---
-  'quimica-agua':       'Química del agua, pH y tampones',
-  'aminoacidos':        'Aminoácidos y proteínas',
-  'lipidos-glucidos':   'Lípidos e hidratos de carbono',
-  'enzimas':            'Enzimas y cinética enzimática',
-  'metabolismo':        'Metabolismo celular',
-  'membrana-celular':   'Membrana biológica',
-  'organelos':          'Organelos celulares',
-  'microscopio':        'Microscopía',
-  'transporte-membrana':'Transporte a través de membranas',
-  'potencial-accion':   'Potencial de acción',
-  'division-celular':   'División celular y cromosomas',
-  'reparacion-adn':     'Reparación del ADN y radiobiología',
-  // --- 2do Parcial ---
-  'genetica':        'Genética y herencia',
-  'adn-arn':         'ADN, ARN y síntesis proteica',
-  'epitelial':       'Tejido epitelial',
-  'conjuntivo':      'Tejido conjuntivo',
-  'cartilaginoso':   'Tejido cartilaginoso',
-  'oseo':            'Tejido óseo',
-  'muscular':        'Tejido muscular (histología)',
-  'sangre':          'Sangre y hemopoyesis',
-  'linfoideo':       'Tejido linfoideo',
-  'ciclo-celular':   'Ciclo celular y reparación ADN',
-  'contraccion':     'Contracción muscular',
-  'palancas':        'Palancas y biomecánica',
-  'radioproteccion': 'Radioprotección',
-  'hemostasis':      'Hemostasis y coagulación',
-  'inmunidad':       'Sistema inmune',
-};
 
 export const QUESTIONS = [
   // ============== EXAMEN 2024 TURNO 1 ==============

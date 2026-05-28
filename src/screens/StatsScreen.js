@@ -4,19 +4,23 @@ import {
   View, Text, StyleSheet, ScrollView, RefreshControl,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { QUESTIONS, TOPICS } from '../data/questions';
 import { getAllStats, getUserQuestions } from '../db/database';
+import { useMateria } from '../materia/MateriaContext';
 
 export default function StatsScreen() {
+  const { materiaId, materia } = useMateria();
+  const QUESTIONS = materia?.QUESTIONS || [];
+  const TOPICS = materia?.TOPICS || {};
   const [stats, setStats] = useState([]);
   const [userQuestions, setUserQuestions] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadStats = useCallback(async () => {
+    if (!materiaId) return;
     setRefreshing(true);
     try {
-      const allStats = await getAllStats();
-      const userQs = await getUserQuestions();
+      const allStats = await getAllStats(materiaId);
+      const userQs = await getUserQuestions(materiaId);
       setStats(allStats);
       setUserQuestions(userQs);
     } catch (err) {
@@ -24,7 +28,7 @@ export default function StatsScreen() {
     } finally {
       setRefreshing(false);
     }
-  }, []);
+  }, [materiaId]);
 
   // Recargar al entrar a la pantalla
   useFocusEffect(

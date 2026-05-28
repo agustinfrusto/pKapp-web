@@ -5,11 +5,8 @@ import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert,
 } from 'react-native';
-import { QUESTIONS, TOPICS } from '../data/questions';
 import { getUserQuestions, getFailedQuestions, getSetting } from '../db/database';
-
-const EXAM_SIZE_FULL = 75;
-const EXAM_SIZE_PARCIAL = 40;
+import { useMateria } from '../materia/MateriaContext';
 
 const SOURCE_FILTERS = {
   all: 'Todas',
@@ -27,6 +24,12 @@ const TIMER_OPTIONS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]; //
 
 export default function TopicSelectScreen({ route, navigation }) {
   const { mode } = route.params; // 'practice' | 'exam' | 'failed'
+  const { materiaId, materia } = useMateria();
+  if (!materia) return null;
+  const QUESTIONS = materia.QUESTIONS;
+  const TOPICS = materia.TOPICS;
+  const EXAM_SIZE_FULL = materia.config.examSize;
+  const EXAM_SIZE_PARCIAL = materia.config.examSizeParcial;
   const [sourceFilter, setSourceFilter] = useState('all');
   const [parcialFilter, setParcialFilter] = useState('all');
   const [timerMinutes, setTimerMinutes] = useState(0);
@@ -34,17 +37,16 @@ export default function TopicSelectScreen({ route, navigation }) {
   const [failedIds, setFailedIds] = useState(new Set());
 
   useEffect(() => {
-    // Cargar preguntas del usuario y fallos al entrar
     (async () => {
-      const userQs = await getUserQuestions();
+      const userQs = await getUserQuestions(materiaId);
       setUserQuestions(userQs);
-      
+
       if (mode === 'failed') {
-        const failed = await getFailedQuestions();
+        const failed = await getFailedQuestions(materiaId);
         setFailedIds(new Set(failed.map(f => f.question_id)));
       }
     })();
-  }, [mode]);
+  }, [mode, materiaId]);
 
   // Combinamos preguntas hardcodeadas con las del usuario
   const allQuestions = [...QUESTIONS, ...userQuestions];

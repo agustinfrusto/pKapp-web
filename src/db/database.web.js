@@ -1,11 +1,12 @@
 // Implementación web de la capa de datos: usa localStorage en lugar de SQLite.
-// Misma API que database.native.js para que el resto del código no cambie.
+// Las funciones que dependen de la materia reciben materiaId como primer argumento.
+// Settings (tema, hide_feedback) NO se namespacean: son globales cross-materia.
 
-const KEYS = {
-  stats:     'pkapp_question_stats',    // { [questionId]: { times_answered, times_correct, last_answered_at } }
-  questions: 'pkapp_user_questions',    // [{ id, topic, question, options, correct_index, explanation, created_at }]
-  settings:  'pkapp_settings',          // { [key]: value }
-};
+const MIGRATED_FLAG = 'pkapp_migrated_v0.10';
+
+function statsKey(materiaId)     { return `pkapp_question_stats:${materiaId}`; }
+function questionsKey(materiaId) { return `pkapp_user_questions:${materiaId}`; }
+const SETTINGS_KEY = 'pkapp_settings';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -22,39 +23,69 @@ function save(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
+// ── Migración: stats/preguntas existentes pertenecen a bcyt ────────────────
+
+function migrateIfNeeded() {
+  try {
+    if (localStorage.getItem(MIGRATED_FLAG)) return;
+
+    const OLD_STATS = 'pkapp_question_stats';
+    const OLD_QUESTIONS = 'pkapp_user_questions';
+
+    const oldStats = localStorage.getItem(OLD_STATS);
+    if (oldStats !== null) {
+      // Solo migrar si no hay datos nuevos ya en bcyt (evitar pisar)
+      if (!localStorage.getItem(statsKey('bcyt'))) {
+        localStorage.setItem(statsKey('bcyt'), oldStats);
+      }
+      localStorage.removeItem(OLD_STATS);
+    }
+
+    const oldQs = localStorage.getItem(OLD_QUESTIONS);
+    if (oldQs !== null) {
+      if (!localStorage.getItem(questionsKey('bcyt'))) {
+        localStorage.setItem(questionsKey('bcyt'), oldQs);
+      }
+      localStorage.removeItem(OLD_QUESTIONS);
+    }
+
+    localStorage.setItem(MIGRATED_FLAG, 'true');
+  } catch {}
+}
+
 // ── API ────────────────────────────────────────────────────────────────────
 
 export async function initDatabase() {
-  // No-op en web: localStorage no necesita inicialización
+  migrateIfNeeded();
 }
 
-export async function recordAnswer(questionId, isCorrect) {
-  const stats = load(KEYS.stats) || {};
+export async function recordAnswer(materiaId, questionId, isCorrect) {
+  const stats = load(statsKey(materiaId)) || {};
   const entry = stats[questionId] || { times_answered: 0, times_correct: 0 };
   entry.times_answered += 1;
   if (isCorrect) entry.times_correct += 1;
   entry.last_answered_at = Date.now();
   stats[questionId] = entry;
-  save(KEYS.stats, stats);
+  save(statsKey(materiaId), stats);
 }
 
-export async function getQuestionStats(questionId) {
-  const stats = load(KEYS.stats) || {};
+export async function getQuestionStats(materiaId, questionId) {
+  const stats = load(statsKey(materiaId)) || {};
   const entry = stats[questionId];
   if (!entry) return null;
   return { question_id: questionId, ...entry };
 }
 
-export async function getAllStats() {
-  const stats = load(KEYS.stats) || {};
+export async function getAllStats(materiaId) {
+  const stats = load(statsKey(materiaId)) || {};
   return Object.entries(stats).map(([question_id, data]) => ({
     question_id,
     ...data,
   }));
 }
 
-export async function getFailedQuestions() {
-  const stats = load(KEYS.stats) || {};
+export async function getFailedQuestions(materiaId) {
+  const stats = load(statsKey(materiaId)) || {};
   return Object.entries(stats)
     .map(([question_id, data]) => ({
       question_id,
@@ -67,8 +98,8 @@ export async function getFailedQuestions() {
     .sort((a, b) => a.accuracy - b.accuracy || b.times_answered - a.times_answered);
 }
 
-export async function addUserQuestion(question) {
-  const questions = load(KEYS.questions) || [];
+export async function addUserQuestion(materiaId, question) {
+  const questions = load(questionsKey(materiaId)) || [];
   const id = 'USER-' + Date.now();
   questions.unshift({
     id,
@@ -79,12 +110,12 @@ export async function addUserQuestion(question) {
     explanation:   question.explanation || '',
     created_at:    Date.now(),
   });
-  save(KEYS.questions, questions);
+  save(questionsKey(materiaId), questions);
   return id;
 }
 
-export async function getUserQuestions() {
-  const questions = load(KEYS.questions) || [];
+export async function getUserQuestions(materiaId) {
+  const questions = load(questionsKey(materiaId)) || [];
   return questions.map(row => ({
     id:          row.id,
     source:      'user',
@@ -96,22 +127,24 @@ export async function getUserQuestions() {
   }));
 }
 
-export async function deleteUserQuestion(id) {
-  const questions = load(KEYS.questions) || [];
-  save(KEYS.questions, questions.filter(q => q.id !== id));
+export async function deleteUserQuestion(materiaId, id) {
+  const questions = load(questionsKey(materiaId)) || [];
+  save(questionsKey(materiaId), questions.filter(q => q.id !== id));
 }
 
+export async function resetStats(materiaId) {
+  localStorage.removeItem(statsKey(materiaId));
+}
+
+// ── Settings: globales, no namespaceados ──────────────────────────────────
+
 export async function getSetting(key, defaultValue = null) {
-  const settings = load(KEYS.settings) || {};
+  const settings = load(SETTINGS_KEY) || {};
   return key in settings ? settings[key] : defaultValue;
 }
 
 export async function saveSetting(key, value) {
-  const settings = load(KEYS.settings) || {};
+  const settings = load(SETTINGS_KEY) || {};
   settings[key] = String(value);
-  save(KEYS.settings, settings);
-}
-
-export async function resetStats() {
-  localStorage.removeItem(KEYS.stats);
+  save(SETTINGS_KEY, settings);
 }

@@ -15,6 +15,7 @@ import SettingsScreen from './src/screens/SettingsScreen';
 
 import { initDatabase } from './src/db/database';
 import Analytics from './src/components/Analytics';
+import { MateriaProvider, useMateria } from './src/materia/MateriaContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -40,11 +41,26 @@ const splashStyles = StyleSheet.create({
 const logo = require('./assets/logo.png');
 
 export default function App() {
+  return (
+    <MateriaProvider>
+      <SafeAreaProvider>
+        <AppContent />
+        <Analytics />
+      </SafeAreaProvider>
+    </MateriaProvider>
+  );
+}
+
+function AppContent() {
   const [splashDone, setSplashDone] = useState(false);
   const opacity = useRef(new Animated.Value(0)).current;
+  const { setMateriaId } = useMateria();
 
   useEffect(() => {
     initDatabase().catch((err) => console.error('Error iniciando DB:', err));
+
+    // FASE 1: hardcodear bcyt como materia activa (Fase 2 trae MateriaSelectScreen)
+    setMateriaId('bcyt');
 
     Animated.sequence([
       Animated.timing(opacity, { toValue: 1, duration: 900, useNativeDriver: true }),
@@ -70,7 +86,6 @@ export default function App() {
   }
 
   return (
-    <SafeAreaProvider>
     <NavigationContainer>
       <StatusBar style="light" />
       <Stack.Navigator
@@ -119,7 +134,5 @@ export default function App() {
         />
       </Stack.Navigator>
     </NavigationContainer>
-    <Analytics />
-    </SafeAreaProvider>
   );
 }

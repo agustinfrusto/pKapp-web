@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { QUESTIONS } from '../data/questions';
+import { useMateria } from '../materia/MateriaContext';
 
 const logo = require('../assets/logo.png');
 
@@ -19,6 +19,9 @@ const EXAM_SIZE = 75;
 
 export default function HomeScreen({ navigation }) {
   const insets = useSafeAreaInsets();
+  const { materia } = useMateria();
+  if (!materia) return null; // Aún no se eligió materia (Fase 2)
+  const QUESTIONS = materia.QUESTIONS;
   const examCount = QUESTIONS.filter(q => q.source === 'exam').length;
   const generatedCount = QUESTIONS.filter(q => q.source === 'generated').length;
   const examModeCount = Math.min(EXAM_SIZE, QUESTIONS.length);

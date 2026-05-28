@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Constants from 'expo-constants';
-import { QUESTIONS, TOPICS } from '../data/questions';
+import { useMateria } from '../materia/MateriaContext';
 
 // La version se lee desde app.json; al bumpearla ahi se actualiza acá automáticamente
 const APP_VERSION = Constants.expoConfig?.version || '?';
@@ -16,15 +16,19 @@ import {
 import { confirm } from '../utils/confirm';
 
 export default function SettingsScreen() {
+  const { materiaId, materia } = useMateria();
+  const QUESTIONS = materia?.QUESTIONS || [];
+  const TOPICS = materia?.TOPICS || {};
   const [userQuestions, setUserQuestions] = useState([]);
   const [hideFeedback, setHideFeedback] = useState(false);
 
   const loadData = useCallback(async () => {
-    const qs = await getUserQuestions();
+    if (!materiaId) return;
+    const qs = await getUserQuestions(materiaId);
     setUserQuestions(qs);
     const hf = await getSetting('hide_feedback', 'false');
     setHideFeedback(hf === 'true');
-  }, []);
+  }, [materiaId]);
 
   useFocusEffect(
     useCallback(() => {
@@ -42,7 +46,7 @@ export default function SettingsScreen() {
       'Resetear estadísticas',
       '¿Seguro que querés borrar todas las estadísticas? Esto no se puede deshacer.',
       async () => {
-        await resetStats();
+        await resetStats(materiaId);
         Alert.alert('Listo', 'Estadísticas borradas.');
       },
       { confirmLabel: 'Borrar', destructive: true }
@@ -54,7 +58,7 @@ export default function SettingsScreen() {
       'Eliminar pregunta',
       '¿Seguro? Esta acción no se puede deshacer.',
       async () => {
-        await deleteUserQuestion(id);
+        await deleteUserQuestion(materiaId, id);
         loadData();
       },
       { confirmLabel: 'Eliminar', destructive: true }
