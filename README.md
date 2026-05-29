@@ -11,13 +11,13 @@ Construido con **Expo / React Native**. Esta es la **versión web** del proyecto
 
 ## Características
 
-- **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** y **Anatomía**, con estructura preparada para sumar los demás módulos.
-- **~840 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025 + Anatomía 2018-2025).
-- **34 preguntas adicionales** generadas con Claude a partir de los apuntes para cubrir temas con menor presencia en exámenes (solo BCYT).
-- **Filtros:** por fuente (examen real / generada) y por parcial (1er / 2do), combinables.
+- **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** (BCYT) y **Anatomía**, con estructura preparada para sumar los demás módulos.
+- **808 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025 + Anatomía 2018-2025).
+- **34 preguntas adicionales** generadas con Claude a partir de los apuntes (solo BCYT).
+- **Filtros:** por fuente (examen real / generada) y por parcial, combinables.
 - **Tres modos:**
-  - **Práctica por tema:** elegís un tema específico o practicás por parcial (1er o 2do, 40 preguntas).
-  - **Examen:** 75 preguntas al azar (igual que el examen real).
+  - **Práctica por tema:** elegís un tema específico o practicás por parcial.
+  - **Examen:** preguntas al azar con tamaño igual al examen real (configurable por materia — BCYT: 75 / 40 por parcial; Anatomía: 50 / 25 por parcial).
   - **Repaso de fallos:** las que respondiste mal antes.
 - **Explicaciones** tras cada respuesta o al final del cuestionario.
 - **Estadísticas** por tema y lista de preguntas más falladas.
@@ -27,9 +27,15 @@ Construido con **Expo / React Native**. Esta es la **versión web** del proyecto
 
 ## Temas cubiertos
 
+### Biología Celular y Tisular (BCYT)
+
 **1er parcial:** Química del agua / pH / tampones · Aminoácidos y proteínas · Lípidos e hidratos de carbono · Enzimas y cinética · Metabolismo celular (glucólisis, Krebs, fosforilación oxidativa) · Membrana biológica · Organelos celulares · Microscopía · Transporte a través de membranas · Potencial de acción · División celular y cromosomas · Reparación del ADN y radiobiología.
 
 **2do parcial:** Genética y herencia · ADN, ARN y síntesis proteica · Tejido epitelial · Tejido conjuntivo · Tejido cartilaginoso · Tejido óseo · Tejido muscular (histología) · Sangre y hemopoyesis · Tejido linfoideo · Ciclo celular y cáncer · Contracción muscular · Palancas y biomecánica · Radioprotección · Hemostasis y coagulación · Sistema inmune.
+
+### Anatomía
+
+Sistema nervioso central · Nervios periféricos y plexos · Sistema muscular · Osteología · Sistema vascular periférico · Cabeza y cuello · Tórax y mediastino · Abdomen · Pelvis y periné.
 
 ---
 
@@ -56,7 +62,7 @@ Construido con **Expo / React Native**. Esta es la **versión web** del proyecto
 
 ```
 pKapp/
-├── App.js                          # Navegación (stack navigator) + splash
+├── App.js                          # Navegación + splash + ThemeProvider
 ├── index.js                        # Entry point Expo
 ├── app.json                        # Config Expo (incluye sección web/PWA)
 ├── vercel.json                     # Config de deploy en Vercel
@@ -64,14 +70,34 @@ pKapp/
 ├── package.json
 ├── public/                         # Archivos servidos en la raíz del sitio web
 │   ├── manifest.json               # Manifest PWA
-│   ├── icon-192.png
-│   ├── icon-512.png
-│   └── favicon.png
+│   ├── icon-192.png, icon-512.png, favicon.png
+│   ├── _redirects                  # SPA fallback (Cloudflare Pages)
+│   └── _headers                    # Security headers (Cloudflare Pages)
 ├── scripts/
-│   └── inject-pwa.js               # Post-build: inyecta meta tags PWA en dist/
+│   ├── inject-pwa.js               # Post-build: inyecta meta tags PWA y CF Analytics
+│   └── update-readme.js            # Auto-actualiza conteos en este README
+├── docs/
+│   └── CLOUDFLARE-MIGRATION.md     # Guía paso a paso de migración Vercel → CF Pages
 ├── src/
-│   ├── data/
-│   │   └── questions.js            # Banco de preguntas (hardcoded)
+│   ├── materias/                   # Registry de materias (ESFUNO)
+│   │   ├── index.js                # MATERIAS y MATERIA_LIST
+│   │   ├── bcyt/                   # Biología Celular y Tisular
+│   │   │   ├── index.js
+│   │   │   ├── metadata.js         # id, nombre, icono, color, imagen
+│   │   │   ├── config.js           # examSize, parciales, etc.
+│   │   │   ├── topics.js           # TOPICS de BCYT
+│   │   │   └── questions.js        # Banco de preguntas (419)
+│   │   └── anatomia/               # Anatomía
+│   │       ├── index.js
+│   │       ├── metadata.js
+│   │       ├── config.js
+│   │       ├── topics.js
+│   │       └── questions.js        # Banco de preguntas (423)
+│   ├── materia/
+│   │   └── MateriaContext.js       # Estado: materia activa, getter de data
+│   ├── theme/
+│   │   ├── colors.js               # Paletas light/dark
+│   │   └── ThemeContext.js
 │   ├── db/
 │   │   ├── database.js             # Fallback (re-exporta database.web)
 │   │   ├── database.native.js      # Implementación nativa (SQLite)
@@ -80,16 +106,20 @@ pKapp/
 │   │   ├── Analytics.js            # Stub nativo (devuelve null)
 │   │   └── Analytics.web.js        # Vercel Analytics en web
 │   ├── utils/
-│   │   └── confirm.js              # Confirmaciones cross-platform
+│   │   ├── confirm.js              # Confirmaciones cross-platform
+│   │   ├── migration.js            # Export/import de progreso entre dominios
+│   │   └── webStyles.js            # Inyección de CSS para web (hover, etc.)
+│   ├── assets/                     # Imágenes de materias e íconos
 │   └── screens/
-│       ├── HomeScreen.js           # Menú principal
-│       ├── TopicSelectScreen.js    # Selector de tema + filtro + timer
+│       ├── MateriaSelectScreen.js  # Pantalla inicial: elegí materia
+│       ├── HomeScreen.js           # Menú principal de la materia
+│       ├── TopicSelectScreen.js    # Selector de tema + filtros + timer
 │       ├── QuizScreen.js           # Quiz en sí
 │       ├── ResultsScreen.js        # Resultados + revisión
 │       ├── AddQuestionScreen.js    # Formulario para agregar preguntas
 │       ├── StatsScreen.js          # Estadísticas
-│       └── SettingsScreen.js       # Ajustes
-└── assets/                         # Íconos, splash
+│       └── SettingsScreen.js       # Ajustes (tema, import/export, etc.)
+└── assets/                         # Logo principal
 ```
 
 ---
@@ -150,10 +180,12 @@ En `TopicSelectScreen` hay tres controles combinables:
 - **Solo preguntas reales** → filtra `source === 'exam'`.
 - **Solo generadas** → filtra `source === 'generated' || source === 'user'`.
 
-**Filtro de parcial** (3 opciones):
-- **Examen** (default) → sin filtro de parcial. En modo examen sortea 75 preguntas.
-- **1er Parcial** → filtra `parcial === 'primero'`. En modo examen sortea 40 preguntas.
-- **2do Parcial** → filtra `parcial === 'segundo'`. En modo examen sortea 40 preguntas.
+**Filtro de parcial** (3 opciones, los tamaños dependen de la materia):
+- **Examen** (default) → sin filtro de parcial. En modo examen sortea `examSize` preguntas (BCYT: 75; Anatomía: 50).
+- **1er Parcial** → filtra `parcial === 'primero'`. Sortea `examSizeParcial` preguntas (BCYT: 40; Anatomía: 25).
+- **2do Parcial** → filtra `parcial === 'segundo'`. Sortea `examSizeParcial` preguntas.
+
+Cada materia define sus tamaños en `src/materias/<id>/config.js`.
 
 **Timer** (opcional):
 - Stepper de 10 a 120 minutos, en saltos de 10.
@@ -165,7 +197,7 @@ En `TopicSelectScreen` hay tres controles combinables:
 
 Por transparencia, dejo registro de en qué partes del proyecto utilicé asistencia de IA (principalmente **Claude**):
 
-- **Contenido educativo:** 34 de las 419 preguntas fueron generadas a partir del material de estudio (están marcadas con `source: "generated"` y se pueden filtrar desde la app). Las explicaciones de varias preguntas también fueron refinadas con apoyo de IA tomando como referencia los resúmenes oficiales.
+- **Contenido educativo:** 34 de las 842 preguntas totales (BCYT 419 + Anatomía 423) fueron generadas a partir del material de estudio (solo en BCYT; están marcadas con `source: "generated"` y se pueden filtrar desde la app). Las explicaciones de varias preguntas también fueron refinadas con apoyo de IA tomando como referencia los resúmenes oficiales.
 - **Código:** asistencia para refactors, debugging, configuración del soporte web (PWA, separación `database.native.js` / `database.web.js`), deploy en Vercel y revisión de patrones.
 - **Decisiones de diseño, arquitectura y revisión final:** mías.
 
