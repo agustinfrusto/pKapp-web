@@ -83,7 +83,11 @@ function AppContent() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      documentTitle={{
+        formatter: () => 'pKapp',
+      }}
+    >
       <StatusBar style="light" />
       <Stack.Navigator
         initialRouteName="MateriaSelect"
