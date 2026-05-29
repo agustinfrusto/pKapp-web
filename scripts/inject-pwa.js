@@ -41,6 +41,29 @@ if (!html.includes('rel="manifest"')) {
   console.log('  PWA tags ya presentes, skip.');
 }
 
+// 2.5 Hover effects (solo web). React Native Web renderiza Touchables como
+// elementos con role="button"; agregamos un box-shadow sutil en el azul de
+// marca al hacer hover. No afecta el layout.
+const hoverStyles = `
+    <style>
+      @media (hover: hover) {
+        [role="button"]:not(:disabled):hover {
+          box-shadow: 0 0 0 2px rgba(26, 63, 111, 0.55);
+          transition: box-shadow 0.15s ease;
+        }
+        [role="button"]:not(:disabled) {
+          transition: box-shadow 0.15s ease;
+        }
+      }
+    </style>`;
+
+if (!html.includes('@media (hover: hover)')) {
+  html = html.replace('</head>', `${hoverStyles}\n  </head>`);
+  console.log('  Hover styles inyectados.');
+} else {
+  console.log('  Hover styles ya presentes, skip.');
+}
+
 // 3. (Opcional) Cloudflare Web Analytics
 // Para activarlo en Cloudflare Pages: settings → environment variables →
 // agregar CF_ANALYTICS_TOKEN con el token del beacon.
