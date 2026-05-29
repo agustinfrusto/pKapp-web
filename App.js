@@ -17,6 +17,7 @@ import SettingsScreen from './src/screens/SettingsScreen';
 import { initDatabase } from './src/db/database';
 import Analytics from './src/components/Analytics';
 import { MateriaProvider } from './src/materia/MateriaContext';
+import { injectWebStyles } from './src/utils/webStyles';
 
 const Stack = createNativeStackNavigator();
 
@@ -57,6 +58,7 @@ function AppContent() {
   const opacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    injectWebStyles();
     initDatabase().catch((err) => console.error('Error iniciando DB:', err));
 
     Animated.sequence([
