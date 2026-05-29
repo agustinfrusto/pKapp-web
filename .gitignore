@@ -30,3 +30,6 @@ ios/
 
 # No commitear zips
 *.zip
+
+# Notas personales (no para distribución)
+docs/LAUNCH-PLAYBOOK.md
