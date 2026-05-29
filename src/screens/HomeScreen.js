@@ -15,7 +15,6 @@ const icons = {
   ajustes:     require('../assets/ajustes.png'),
 };
 
-const EXAM_SIZE = 75;
 
 export default function HomeScreen({ navigation }) {
   const insets = useSafeAreaInsets();
@@ -24,7 +23,8 @@ export default function HomeScreen({ navigation }) {
   const QUESTIONS = materia.QUESTIONS;
   const examCount = QUESTIONS.filter(q => q.source === 'exam').length;
   const generatedCount = QUESTIONS.filter(q => q.source === 'generated').length;
-  const examModeCount = Math.min(EXAM_SIZE, QUESTIONS.length);
+  const examSize = materia.config?.examSize || 75;
+  const examModeCount = Math.min(examSize, QUESTIONS.length);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
