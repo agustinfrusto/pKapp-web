@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, View, Image, StyleSheet } from 'react-native';
+import { Animated, View, Image, StyleSheet, TouchableOpacity, Text, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
@@ -93,12 +93,25 @@ function AppContent() {
       <StatusBar style="light" />
       <Stack.Navigator
         initialRouteName="MateriaSelect"
-        screenOptions={{
+        screenOptions={({ navigation }) => ({
           headerStyle: { backgroundColor: '#1a3f6f' },
           headerTintColor: '#fff',
           headerTitleStyle: { fontWeight: 'bold' },
           contentStyle: { backgroundColor: '#f1f5f9' },
-        }}
+          // Back button custom para garantizar que se vea en web.
+          // createNativeStackNavigator no siempre renderiza el back nativo en web.
+          headerLeft: Platform.OS === 'web' && navigation.canGoBack()
+            ? () => (
+                <TouchableOpacity
+                  onPress={() => navigation.goBack()}
+                  style={{ paddingHorizontal: 12, paddingVertical: 6 }}
+                  activeOpacity={0.7}
+                >
+                  <Text style={{ color: '#fff', fontSize: 22, lineHeight: 22 }}>←</Text>
+                </TouchableOpacity>
+              )
+            : undefined,
+        })}
       >
         <Stack.Screen
           name="MateriaSelect"
@@ -118,12 +131,12 @@ function AppContent() {
         <Stack.Screen
           name="Quiz"
           component={QuizScreen}
-          options={{ title: 'pKapp · Quiz', headerBackVisible: false }}
+          options={{ title: 'pKapp · Quiz', headerBackVisible: false, headerLeft: () => null }}
         />
         <Stack.Screen
           name="Results"
           component={ResultsScreen}
-          options={{ title: 'pKapp · Resultados', headerBackVisible: false }}
+          options={{ title: 'pKapp · Resultados', headerBackVisible: false, headerLeft: () => null }}
         />
         <Stack.Screen
           name="AddQuestion"
