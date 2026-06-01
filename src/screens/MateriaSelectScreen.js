@@ -57,7 +57,7 @@ function MigrationBanner() {
   }
   return (
     <View style={styles.migrationWrap}>
-      <Text style={styles.migrationTitle}>🎉 Nos mudamos a pkapp.uy</Text>
+      <Text style={styles.migrationTitle}>Nos mudamos a pkapp.uy</Text>
       <Text style={styles.migrationBody}>
         Para no perder tu progreso, descargá un respaldo y subilo en el nuevo sitio (Ajustes → Importar progreso).
       </Text>
