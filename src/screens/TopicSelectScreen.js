@@ -116,7 +116,7 @@ export default function TopicSelectScreen({ route, navigation }) {
         />
         
         <View style={styles.examInfoCard}>
-          <Text style={styles.examInfoTitle}>📝 Modo Examen</Text>
+          <Text style={styles.examInfoTitle}>Modo Examen</Text>
           <Text style={styles.examInfoText}>
             {parcialFilter === 'all'
               ? `Se sortean ${Math.min(EXAM_SIZE_FULL, getFilteredQuestions().length)} preguntas al azar de todos los temas, como en el examen real.`
