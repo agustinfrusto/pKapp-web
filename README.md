@@ -106,7 +106,7 @@ pKapp/
 │   │   └── database.web.js         # Implementación web (localStorage)
 │   ├── components/
 │   │   ├── Analytics.js            # Stub nativo (devuelve null)
-│   │   └── Analytics.web.js        # Vercel Analytics en web
+│   │   └── Analytics.web.js        # Analytics en web
 │   ├── utils/
 │   │   ├── confirm.js              # Confirmaciones cross-platform
 │   │   ├── migration.js            # Export/import de progreso entre dominios
@@ -132,8 +132,8 @@ pKapp/
 |--|--|--|
 | **Persistencia** | SQLite (`expo-sqlite`) | `localStorage` |
 | **Confirmaciones** | `Alert.alert` con múltiples botones | `window.confirm` (envuelto en `src/utils/confirm.js`) |
-| **Analytics** | — | Vercel Analytics |
-| **Distribución** | Stores (EAS Build) | Vercel (deploy automático en cada `git push`) |
+| **Analytics** | — | Cloudflare Web Analytics |
+| **Distribución** | Stores (EAS Build) | Cloudflare Pages (deploy automático en cada `git push`) |
 
 La capa de DB usa los sufijos `.native.js` / `.web.js` para que Metro elija el archivo correcto según la plataforma. Cualquier import desde `'../db/database'` se resuelve automáticamente.
 
@@ -164,7 +164,9 @@ npx expo export --platform web && node scripts/inject-pwa.js
 
 ### Deploy
 
-El proyecto está conectado a **Vercel**. Cada `git push` a `main` redeploya automáticamente. La config está en `vercel.json`.
+El proyecto se sirve desde **Cloudflare Pages** en [pkapp.uy](https://pkapp.uy). Cada `git push` a `main` redeploya automáticamente.
+
+Durante la ventana de migración también queda corriendo un deploy paralelo en **Vercel** (`pkapp-web.vercel.app`) para que los usuarios que tenían el dominio viejo puedan exportar su progreso. Config en `vercel.json`.
 
 ---
 
