@@ -197,7 +197,7 @@ export default function SettingsScreen() {
         <View style={styles.aboutCard}>
           <Text style={styles.aboutText}>
             <Text style={styles.aboutBold}>pKapp</Text> <Text style={styles.aboutVersion}>v{APP_VERSION}</Text>
-            {'\n'}Preparación para Biología Celular y Tisular (1er y 2do parcial).
+            {'\n'}Preparación para ESFUNO.
             {'\n\n'}{examCount + generatedCount} preguntas en total: {examCount} reales extraidas de exámenes y parciales y {generatedCount} generadas a partir del material de estudio.
           </Text>
           <TouchableOpacity
