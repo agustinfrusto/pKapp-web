@@ -14,6 +14,21 @@ const logo = require('../assets/logo.png');
 const MERCADOPAGO_URL = 'https://link.mercadopago.com.uy/pkapp';
 const NEW_DOMAIN_URL = 'https://pkapp.uy';
 
+// Fecha en que pkapp-web.vercel.app deja de funcionar (00:00 UTC-3).
+const MIGRATION_DEADLINE = new Date('2026-06-13T00:00:00-03:00');
+
+function getDaysLeft() {
+  const ms = MIGRATION_DEADLINE.getTime() - Date.now();
+  if (ms <= 0) return 0;
+  return Math.ceil(ms / 86400000);
+}
+
+function getBadgeText(days) {
+  if (days === 0) return 'ÚLTIMAS HORAS';
+  if (days === 1) return 'SOLO QUEDA 1 DÍA';
+  return `SOLO QUEDAN ${days} DÍAS`;
+}
+
 export default function MateriaSelectScreen({ navigation }) {
   const insets = useSafeAreaInsets();
   const { setMateriaId } = useMateria();
@@ -55,14 +70,15 @@ function MigrationBanner() {
   function handleGoToNew() {
     Linking.openURL(NEW_DOMAIN_URL);
   }
+  const daysLeft = getDaysLeft();
   return (
     <View style={styles.migrationWrap}>
       <View style={styles.migrationBadge}>
-        <Text style={styles.migrationBadgeText}>SOLO QUEDAN 5 DÍAS</Text>
+        <Text style={styles.migrationBadgeText}>{getBadgeText(daysLeft)}</Text>
       </View>
       <Text style={styles.migrationTitle}>Nos mudamos a pkapp.uy</Text>
       <Text style={styles.migrationBody}>
-        Este sitio deja de funcionar en 5 días. Descargá tu progreso ahora y subilo en pkapp.uy (Ajustes → Importar progreso) para no perder tus estadísticas ni tus preguntas.
+        Este sitio deja de funcionar el 13 de junio. Descargá tu progreso ahora y subilo en pkapp.uy (Ajustes → Importar progreso) para no perder tus estadísticas ni tus preguntas.
       </Text>
       <View style={styles.migrationButtons}>
         <TouchableOpacity style={styles.migrationBtnPrimary} onPress={handleExport} activeOpacity={0.85}>
