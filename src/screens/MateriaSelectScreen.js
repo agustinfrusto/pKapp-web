@@ -57,9 +57,12 @@ function MigrationBanner() {
   }
   return (
     <View style={styles.migrationWrap}>
+      <View style={styles.migrationBadge}>
+        <Text style={styles.migrationBadgeText}>SOLO QUEDAN 5 DÍAS</Text>
+      </View>
       <Text style={styles.migrationTitle}>Nos mudamos a pkapp.uy</Text>
       <Text style={styles.migrationBody}>
-        Para no perder tu progreso, descargá un respaldo y subilo en el nuevo sitio (Ajustes → Importar progreso).
+        Este sitio deja de funcionar en 5 días. Descargá tu progreso ahora y subilo en pkapp.uy (Ajustes → Importar progreso) para no perder tus estadísticas ni tus preguntas.
       </Text>
       <View style={styles.migrationButtons}>
         <TouchableOpacity style={styles.migrationBtnPrimary} onPress={handleExport} activeOpacity={0.85}>
@@ -229,44 +232,63 @@ const styles = StyleSheet.create({
   migrationWrap: {
     marginHorizontal: 16,
     marginTop: 16,
-    padding: 16,
-    backgroundColor: '#dbeafe',
+    padding: 18,
+    backgroundColor: '#fff7ed',
     borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#93c5fd',
+    borderWidth: 2,
+    borderColor: '#f97316',
+    shadowColor: '#f97316',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  migrationBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#dc2626',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    marginBottom: 10,
+  },
+  migrationBadgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.6,
   },
   migrationTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#1e3a8a',
-    marginBottom: 6,
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#7c2d12',
+    marginBottom: 8,
   },
   migrationBody: {
-    fontSize: 12,
-    color: '#1e40af',
-    lineHeight: 17,
-    marginBottom: 12,
+    fontSize: 13,
+    color: '#9a3412',
+    lineHeight: 19,
+    marginBottom: 14,
   },
   migrationButtons: {
     gap: 8,
   },
   migrationBtnPrimary: {
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 11,
+    backgroundColor: '#ea580c',
+    paddingVertical: 13,
     borderRadius: 10,
     alignItems: 'center',
   },
   migrationBtnPrimaryText: {
     color: '#fff',
     fontWeight: '700',
-    fontSize: 13,
+    fontSize: 14,
   },
   migrationBtnSecondary: {
     paddingVertical: 8,
     alignItems: 'center',
   },
   migrationBtnSecondaryText: {
-    color: '#1e3a8a',
+    color: '#9a3412',
     fontSize: 12,
     textDecorationLine: 'underline',
   },
