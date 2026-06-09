@@ -1,5 +1,5 @@
 // Pantalla principal: muestra los modos de uso disponibles.
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useMateria } from '../materia/MateriaContext';
@@ -21,8 +21,15 @@ export default function HomeScreen({ navigation }) {
   const { materia } = useMateria();
   if (!materia) return null; // Aún no se eligió materia (Fase 2)
   const QUESTIONS = materia.QUESTIONS;
-  const examCount = QUESTIONS.filter(q => q.source === 'exam').length;
-  const generatedCount = QUESTIONS.filter(q => q.source === 'generated').length;
+  // Conteo por fuente en una sola pasada (memoizado).
+  const { examCount, generatedCount } = useMemo(() => {
+    let ex = 0, gen = 0;
+    for (const q of QUESTIONS) {
+      if (q.source === 'exam') ex++;
+      else if (q.source === 'generated') gen++;
+    }
+    return { examCount: ex, generatedCount: gen };
+  }, [QUESTIONS]);
   const examSize = materia.config?.examSize || 75;
   const examModeCount = Math.min(examSize, QUESTIONS.length);
 

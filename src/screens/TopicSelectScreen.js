@@ -1,7 +1,7 @@
 // Pantalla de selección de tema, con toggle de filtro de fuente.
 // Acá es donde el usuario decide si practicar solo preguntas reales,
 // solo generadas, o ambas.
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert,
 } from 'react-native';
@@ -49,32 +49,41 @@ export default function TopicSelectScreen({ route, navigation }) {
     })();
   }, [mode, materiaId]);
 
-  // Combinamos preguntas hardcodeadas con las del usuario
-  const allQuestions = [...QUESTIONS, ...userQuestions];
+  // Combinamos preguntas hardcodeadas con las del usuario (memoizado).
+  const allQuestions = useMemo(
+    () => [...QUESTIONS, ...userQuestions],
+    [QUESTIONS, userQuestions]
+  );
 
-  // Función para filtrar preguntas según el modo y la fuente
-  function getFilteredQuestions(topicFilter = null) {
+  // Base ya filtrada por source/parcial/modo, sin filtro de topic (una sola pasada).
+  const filteredBase = useMemo(() => {
     let filtered = allQuestions;
-    
     if (sourceFilter === 'exam') {
       filtered = filtered.filter(q => q.source === 'exam');
     } else if (sourceFilter === 'generated') {
       filtered = filtered.filter(q => q.source === 'generated' || q.source === 'user');
     }
-
     if (parcialFilter !== 'all') {
       filtered = filtered.filter(q => q.parcial === parcialFilter);
     }
-
     if (mode === 'failed') {
       filtered = filtered.filter(q => failedIds.has(q.id));
     }
-    
-    if (topicFilter) {
-      filtered = filtered.filter(q => q.topic === topicFilter);
-    }
-    
     return filtered;
+  }, [allQuestions, sourceFilter, parcialFilter, mode, failedIds]);
+
+  // Conteo por topic en una sola pasada — evita iterar las 842 preguntas N veces.
+  const countByTopic = useMemo(() => {
+    const map = new Map();
+    for (const q of filteredBase) {
+      map.set(q.topic, (map.get(q.topic) || 0) + 1);
+    }
+    return map;
+  }, [filteredBase]);
+
+  function getFilteredQuestions(topicFilter = null) {
+    if (!topicFilter) return filteredBase;
+    return filteredBase.filter(q => q.topic === topicFilter);
   }
 
   async function startQuiz(topic = null) {
@@ -119,11 +128,11 @@ export default function TopicSelectScreen({ route, navigation }) {
           <Text style={styles.examInfoTitle}>Modo Examen</Text>
           <Text style={styles.examInfoText}>
             {parcialFilter === 'all'
-              ? `Se sortean ${Math.min(EXAM_SIZE_FULL, getFilteredQuestions().length)} preguntas al azar de todos los temas, como en el examen real.`
-              : `Se sortean ${Math.min(EXAM_SIZE_PARCIAL, getFilteredQuestions().length)} preguntas al azar de ${(PARCIAL_FILTERS && PARCIAL_FILTERS[parcialFilter]) || 'este parcial'}.`}
+              ? `Se sortean ${Math.min(EXAM_SIZE_FULL, filteredBase.length)} preguntas al azar de todos los temas, como en el examen real.`
+              : `Se sortean ${Math.min(EXAM_SIZE_PARCIAL, filteredBase.length)} preguntas al azar de ${(PARCIAL_FILTERS && PARCIAL_FILTERS[parcialFilter]) || 'este parcial'}.`}
           </Text>
           <Text style={styles.examInfoCount}>
-            Disponibles: {getFilteredQuestions().length} preguntas
+            Disponibles: {filteredBase.length} preguntas
           </Text>
           
           <TouchableOpacity
@@ -168,14 +177,14 @@ export default function TopicSelectScreen({ route, navigation }) {
       >
         <Text style={styles.topicCardTitle}>🎲 Todos los temas mezclados</Text>
         <Text style={styles.topicCardCount}>
-          {getFilteredQuestions().length} preguntas
+          {filteredBase.length} preguntas
         </Text>
       </TouchableOpacity>
 
       <Text style={styles.sectionLabel}>O elegí un tema específico:</Text>
 
       {Object.entries(TOPICS).map(([key, name]) => {
-        const count = getFilteredQuestions(key).length;
+        const count = countByTopic.get(key) || 0;
         if (count === 0) return null;
         return (
           <TouchableOpacity
