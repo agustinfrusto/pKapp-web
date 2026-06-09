@@ -86,19 +86,17 @@ export default function QuizScreen({ route, navigation }) {
 
   function handleNext() {
     if (isLast) {
-      // Ir a resultados
-      navigation.replace('Results', {
-        answers: [
-          ...answers,
-        ],
+      requestAnimationFrame(() => navigation.replace('Results', {
+        answers: [...answers],
         mode,
         topic,
-      });
+      }));
     } else {
-      // Siguiente pregunta
-      setCurrentIndex(currentIndex + 1);
-      setSelectedIndex(null);
-      setAnswered(false);
+      requestAnimationFrame(() => {
+        setCurrentIndex(currentIndex + 1);
+        setSelectedIndex(null);
+        setAnswered(false);
+      });
     }
   }
 

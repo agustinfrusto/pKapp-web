@@ -38,7 +38,7 @@ export default function HomeScreen({ navigation }) {
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => navigation.navigate('MateriaSelect')}
+          onPress={() => requestAnimationFrame(() => navigation.navigate('MateriaSelect'))}
           activeOpacity={0.7}
         >
           <Text style={styles.backButtonText}>← Cambiar materia</Text>
@@ -59,28 +59,28 @@ export default function HomeScreen({ navigation }) {
           icon={icons.practicar}
           title="Entrena Temas/Parciales"
           description="Crea tu propio test eligiendo temas o practica para los parciales"
-          onPress={() => navigation.navigate('TopicSelect', { mode: 'practice' })}
+          onPress={() => requestAnimationFrame(() => navigation.navigate('TopicSelect', { mode: 'practice' }))}
         />
 
         <ModeCard
           icon={icons.examen}
           title="Modo examen"
           description={`${examModeCount} preguntas al azar como en el parcial real`}
-          onPress={() => navigation.navigate('TopicSelect', { mode: 'exam' })}
+          onPress={() => requestAnimationFrame(() => navigation.navigate('TopicSelect', { mode: 'exam' }))}
         />
 
         <ModeCard
           icon={icons.repasar}
           title="Repasar fallos"
           description="Preguntas que te costaron antes"
-          onPress={() => navigation.navigate('TopicSelect', { mode: 'failed' })}
+          onPress={() => requestAnimationFrame(() => navigation.navigate('TopicSelect', { mode: 'failed' }))}
         />
 
         <ModeCard
           icon={icons.estadisticas}
           title="Mis estadísticas"
           description="% de aciertos por tema, preguntas falladas"
-          onPress={() => navigation.navigate('Stats')}
+          onPress={() => requestAnimationFrame(() => navigation.navigate('Stats'))}
           iconSize={64}
         />
 
@@ -88,14 +88,14 @@ export default function HomeScreen({ navigation }) {
           icon={icons.agregar}
           title="Agregar pregunta"
           description="Agregá tus propias preguntas al banco"
-          onPress={() => navigation.navigate('AddQuestion')}
+          onPress={() => requestAnimationFrame(() => navigation.navigate('AddQuestion'))}
         />
 
         <ModeCard
           icon={icons.ajustes}
           title="Ajustes"
           description="Filtrar fuente, resetear estadísticas"
-          onPress={() => navigation.navigate('Settings')}
+          onPress={() => requestAnimationFrame(() => navigation.navigate('Settings'))}
           iconSize={38}
         />
       </View>

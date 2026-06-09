@@ -104,13 +104,13 @@ export default function TopicSelectScreen({ route, navigation }) {
 
     const hf = await getSetting('hide_feedback', 'false');
 
-    navigation.navigate('Quiz', {
+    requestAnimationFrame(() => navigation.navigate('Quiz', {
       questions,
       mode,
       topic: topic || 'Todos los temas',
       hideFeedback: hf === 'true',
       timerMinutes,
-    });
+    }));
   }
 
   // En modo examen, no se elige tema: directo arranca

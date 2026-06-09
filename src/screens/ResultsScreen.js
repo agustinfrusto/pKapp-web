@@ -16,11 +16,11 @@ export default function ResultsScreen({ route, navigation }) {
   const { message, emoji, color } = getResultFeedback(percentage);
 
   function handleHome() {
-    navigation.navigate('Home');
+    requestAnimationFrame(() => navigation.navigate('Home'));
   }
 
   function handleRetry() {
-    navigation.goBack();
+    requestAnimationFrame(() => navigation.goBack());
   }
 
   if (showReview) {
