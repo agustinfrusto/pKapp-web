@@ -1,0 +1,40 @@
+name: Update CHANGELOG
+
+# Se dispara cada vez que se pushea un tag de versión (vX.Y.Z).
+# Regenera el CHANGELOG.md a partir de los commits del nuevo tag
+# y lo prepende al archivo existente.
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Generate CHANGELOG entry for new tag
+        uses: orhun/git-cliff-action@v3
+        with:
+          config: cliff.toml
+          args: --latest --tag ${{ github.ref_name }} --prepend CHANGELOG.md
+
+      - name: Commit and push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet CHANGELOG.md; then
+            echo "No hay cambios en CHANGELOG.md, nada que commitear."
+            exit 0
+          fi
+          git add CHANGELOG.md
+          git commit -m "docs: actualiza CHANGELOG para ${GITHUB_REF_NAME} [skip ci]"
+          git push origin main

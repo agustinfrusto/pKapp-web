@@ -11,6 +11,8 @@ Construido con **Expo / React Native**. Esta es la **versión web** del proyecto
 
 > Si buscás la versión nativa (iOS / Android), está en [pKapp](https://github.com/agustinfrusto/pKapp).
 
+Historial de cambios: [CHANGELOG.md](CHANGELOG.md) (auto-generado en cada release).
+
 ## Capturas
 
 <p align="center">

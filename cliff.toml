@@ -1,0 +1,48 @@
+# Configuración de git-cliff para generar CHANGELOG.md a partir del historial de git.
+# Docs: https://git-cliff.org/docs/configuration
+
+[changelog]
+header = """
+# Changelog
+
+Generado automáticamente desde commits con [git-cliff](https://git-cliff.org/).
+Las versiones anteriores a `v1.0.13` viven solo en el historial de git y los tags.
+
+"""
+body = """
+{% if version %}\
+## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+## [unreleased]
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | upper_first }}
+{% for commit in commits %}
+- {{ commit.message | split(pat="\\n") | first | trim }}\
+{% endfor %}
+{% endfor %}\n
+"""
+footer = ""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = false
+split_commits = false
+commit_parsers = [
+  { message = "^feat",     group = "✨ Funcionalidad nueva" },
+  { message = "^fix",      group = "🐛 Correcciones" },
+  { message = "^perf",     group = "⚡ Performance" },
+  { message = "^ui",       group = "🎨 UI/UX" },
+  { message = "^style",    group = "💅 Estilo" },
+  { message = "^refactor", group = "♻️ Refactor" },
+  { message = "^docs",     group = "📚 Documentación" },
+  { message = "^chore",    group = "🔧 Mantenimiento" },
+  { message = "^release",  group = "🚀 Releases" },
+  { message = ".*",        group = "Otros" },
+]
+protect_breaking_commits = false
+filter_commits = false
+tag_pattern = "v[0-9].*"
+topo_order = false
+sort_commits = "oldest"
