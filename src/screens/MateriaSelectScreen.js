@@ -64,11 +64,11 @@ function MigrationBanner() {
   function handleExport() {
     const ok = downloadBackup();
     if (ok) {
-      setTimeout(() => Linking.openURL(NEW_DOMAIN_URL), 600);
+      requestAnimationFrame(() => setTimeout(() => Linking.openURL(NEW_DOMAIN_URL), 600));
     }
   }
   function handleGoToNew() {
-    Linking.openURL(NEW_DOMAIN_URL);
+    requestAnimationFrame(() => Linking.openURL(NEW_DOMAIN_URL));
   }
   const daysLeft = getDaysLeft();
   return (
@@ -94,7 +94,7 @@ function MigrationBanner() {
 
 function DonationCard() {
   function handleDonate() {
-    Linking.openURL(MERCADOPAGO_URL).catch(() => {});
+    requestAnimationFrame(() => Linking.openURL(MERCADOPAGO_URL).catch(() => {}));
   }
 
   return (
