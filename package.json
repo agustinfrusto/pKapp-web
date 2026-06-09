@@ -7,7 +7,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "update-readme": "node scripts/update-readme.js"
+    "update-readme": "node scripts/update-readme.js",
+    "build:web": "expo export -p web && node scripts/inject-preload.js"
   },
   "dependencies": {
     "@react-navigation/native": "^6.1.0",
