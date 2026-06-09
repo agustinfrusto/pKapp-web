@@ -11,6 +11,19 @@ Construido con **Expo / React Native**. Esta es la **versión web** del proyecto
 
 > Si buscás la versión nativa (iOS / Android), está en [pKapp](https://github.com/agustinfrusto/pKapp).
 
+## Capturas
+
+<p align="center">
+  <img src="docs/screenshots/01-materia-select.png" width="220" alt="Elegir materia" />
+  <img src="docs/screenshots/02-home.png" width="220" alt="Menú principal" />
+  <img src="docs/screenshots/03-topic-select.png" width="220" alt="Filtros y selección de tema" />
+</p>
+<p align="center">
+  <img src="docs/screenshots/04-quiz.png" width="220" alt="Quiz con feedback" />
+  <img src="docs/screenshots/05-results.png" width="220" alt="Resultados y revisión" />
+  <img src="docs/screenshots/06-stats.png" width="220" alt="Estadísticas por tema" />
+</p>
+
 ## Características
 
 - **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** (BCYT) y **Anatomía**, con estructura preparada para sumar los demás módulos.
