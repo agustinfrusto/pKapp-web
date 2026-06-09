@@ -98,6 +98,9 @@ function AppContent() {
           headerTintColor: '#fff',
           headerTitleStyle: { fontWeight: 'bold' },
           contentStyle: { backgroundColor: '#f1f5f9' },
+          // En web la transición animada de native-stack agrega ~200ms al INP
+          // sin aportar mucho visualmente. En nativo se mantiene la default.
+          animation: Platform.OS === 'web' ? 'none' : 'default',
           // Back button custom para garantizar que se vea en web.
           // createNativeStackNavigator no siempre renderiza el back nativo en web.
           headerLeft: Platform.OS === 'web' && navigation.canGoBack()
