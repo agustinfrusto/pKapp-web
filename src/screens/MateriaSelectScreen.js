@@ -127,7 +127,6 @@ function DonationCard() {
 
 function MateriaCard({ materia, onPress }) {
   const totalQs = materia.QUESTIONS?.length || 0;
-  const parciales = materia.config?.parciales?.length || 0;
 
   return (
     <TouchableOpacity
@@ -148,7 +147,7 @@ function MateriaCard({ materia, onPress }) {
       </Text>
       {materia.available ? (
         <Text style={styles.cardMeta}>
-          {totalQs} preguntas{parciales ? ` · ${parciales} parcial${parciales === 1 ? '' : 'es'}` : ''}
+          {totalQs} preguntas
         </Text>
       ) : (
         <Text style={styles.cardComingSoon}>Próximamente</Text>
