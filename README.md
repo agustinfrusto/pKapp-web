@@ -212,13 +212,23 @@ Cada materia define sus tamaños en `src/materias/<id>/config.js`.
 
 ## Uso de IA en el proyecto
 
-Por transparencia, dejo en claro las partes del proyecto utilicé asistencia de IA (principalmente **Claude**):
+Por transparencia, detallo en qué partes del proyecto se usó asistencia de IA (principalmente **Claude**, mayormente Opus 4.7).
 
-- **Contenido educativo:** 34 de las 842 preguntas totales (BCYT 419 + Anatomía 423) fueron generadas a partir del material de estudio (solo en BCYT; están marcadas con `source: "generated"` y se pueden filtrar desde la app). Las explicaciones de varias preguntas también fueron refinadas con apoyo de IA tomando como referencia los resúmenes oficiales.
-- **Código:** asistencia para refactors, debugging, configuración del soporte web (PWA, separación `database.native.js` / `database.web.js`), deploy en Cloudflare Pages y revisión de patrones.
-- **Decisiones de diseño, arquitectura y revisión final:** mías.
+### Contenido educativo
 
-Esto no reemplaza ni invalida el trabajo de los autores académicos del material original (las preguntas reales de examen están claramente identificadas y atribuidas a sus respectivos parciales).
+- **808 preguntas reales** extraídas de parciales y exámenes oficiales. Se usó IA como apoyo para transcribir y limpiar los PDFs originales, pero cada pregunta fue revisada manualmente contra el documento fuente.
+- **34 preguntas generadas** a partir de los apuntes oficiales de BCYT. Están marcadas con `source: "generated"` y son auditables desde la app: en `TopicSelect` → filtro **Fuente: Solo generadas**.
+- **Explicaciones:** redactadas o refinadas con IA tomando como referencia los resúmenes oficiales, priorizando precisión y consistencia con el material de estudio.
+
+### Código
+
+Asistencia para refactors, debugging, configuración del soporte web (PWA, split `database.native.js` / `database.web.js`), deploy en Cloudflare Pages y revisión de patrones.
+
+### Lo que NO se delegó a IA
+
+- La curaduría de qué preguntas reales incluir y de qué exámenes provienen.
+- La validación de las preguntas generadas contra el material original.
+- Las decisiones de diseño, arquitectura, UX y la revisión final de cada cambio.
 
 ---
 
