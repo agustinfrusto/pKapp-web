@@ -21,11 +21,14 @@ jobs:
           ref: main
           fetch-depth: 0
 
+      - name: Install git-cliff
+        run: |
+          curl -sSfL "https://github.com/orhun/git-cliff/releases/download/v2.4.0/git-cliff-v2.4.0-x86_64-unknown-linux-musl.tar.gz" \
+            | tar -xz --strip-components=1
+          sudo install -m 755 git-cliff /usr/local/bin/git-cliff
+
       - name: Generate CHANGELOG entry for new tag
-        uses: orhun/git-cliff-action@v3
-        with:
-          config: cliff.toml
-          args: --latest --tag ${{ github.ref_name }} --prepend CHANGELOG.md
+        run: git-cliff --config cliff.toml --latest --tag ${{ github.ref_name }} --prepend CHANGELOG.md
 
       - name: Commit and push
         run: |
