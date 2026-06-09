@@ -36,7 +36,7 @@ export default function MateriaSelectScreen({ navigation }) {
   function handlePick(materia) {
     if (!materia.available) return;
     setMateriaId(materia.id);
-    navigation.navigate('Home');
+    requestAnimationFrame(() => navigation.navigate('Home'));
   }
 
   return (
