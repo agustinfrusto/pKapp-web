@@ -40,7 +40,7 @@ const splashStyles = StyleSheet.create({
   },
 });
 
-const logo = require('./assets/logo.png');
+const logo = require('./src/assets/logo.png');
 
 export default function App() {
   return (
@@ -60,6 +60,11 @@ function AppContent() {
   useEffect(() => {
     injectWebStyles();
     initDatabase().catch((err) => console.error('Error iniciando DB:', err));
+
+    if (Platform.OS === 'web') {
+      setSplashDone(true);
+      return;
+    }
 
     Animated.sequence([
       Animated.timing(opacity, { toValue: 1, duration: 900, useNativeDriver: true }),
