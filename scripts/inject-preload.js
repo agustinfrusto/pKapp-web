@@ -14,7 +14,7 @@ if (!logoFile) {
 }
 
 const logoHref = `/assets/src/assets/${logoFile}`;
-const preloadTag = `  <link rel="preload" as="image" href="${logoHref}">`;
+const preloadTag = `  <link rel="preload" as="image" href="${logoHref}" fetchpriority="high">`;
 
 let html = fs.readFileSync(indexHtmlPath, 'utf-8');
 
