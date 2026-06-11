@@ -13,8 +13,10 @@ if (!logoFile) {
   process.exit(1);
 }
 
-const logoHref = `/assets/src/assets/${logoFile}`;
-const preloadTag = `  <link rel="preload" as="image" href="${logoHref}" fetchpriority="high">`;
+const materiasDir = path.join(assetsDir, 'materias');
+const materiaFiles = fs.existsSync(materiasDir)
+  ? fs.readdirSync(materiasDir).filter(f => f.endsWith('.png'))
+  : [];
 
 let html = fs.readFileSync(indexHtmlPath, 'utf-8');
 
@@ -23,6 +25,11 @@ if (html.includes('rel="preload"') && html.includes('logo')) {
   process.exit(0);
 }
 
-html = html.replace('</head>', `${preloadTag}\n  </head>`);
+const preloadTags = [
+  `  <link rel="preload" as="image" href="/assets/src/assets/${logoFile}" fetchpriority="high">`,
+  ...materiaFiles.map(f => `  <link rel="preload" as="image" href="/assets/src/assets/materias/${f}">`),
+].join('\n');
+
+html = html.replace('</head>', `${preloadTags}\n  </head>`);
 fs.writeFileSync(indexHtmlPath, html, 'utf-8');
-console.log(`Injected preload: ${logoHref}`);
+console.log(`Injected preloads: logo + ${materiaFiles.length} materia images`);
