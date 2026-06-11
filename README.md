@@ -11,8 +11,6 @@ Construido con **Expo / React Native**. Esta es la **versión web** del proyecto
 
 > Si buscás la versión nativa (iOS / Android), está en [pKapp](https://github.com/agustinfrusto/pKapp).
 
-Historial de cambios: [CHANGELOG.md](CHANGELOG.md) (auto-generado en cada release).
-
 ## Capturas
 
 <p align="center">
@@ -92,6 +90,7 @@ pKapp/
 │   └── _headers                    # Security headers (Cloudflare Pages)
 ├── scripts/
 │   ├── inject-pwa.js               # Post-build: inyecta meta tags PWA y CF Analytics
+│   ├── inject-preload.js           # Post-build: inyecta preload del logo y materias
 │   └── update-readme.js            # Auto-actualiza conteos en este README
 ├── docs/
 │   └── screenshots/                # Capturas usadas en este README
@@ -170,11 +169,8 @@ npm install
 # correr en navegador
 npx expo start --web
 
-# generar build estático (output: dist/)
-npx expo export --platform web
-
-# build completo (con inyección de meta tags PWA)
-npx expo export --platform web && node scripts/inject-pwa.js
+# build completo (output: dist/)
+npm run build:web
 ```
 
 ### Deploy
