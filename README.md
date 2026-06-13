@@ -27,7 +27,7 @@ Construido con **Expo / React Native**. Esta es la **versión web** del proyecto
 ## Características
 
 - **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** (BCYT) y **Anatomía**, con estructura preparada para sumar los demás módulos.
-- **808 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025 + Anatomía 2018-2025).
+- **858 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025 + Anatomía 2018-2025).
 - **34 preguntas adicionales** generadas con Claude a partir de los apuntes (solo BCYT).
 - **Filtros:** por fuente (examen real / generada) y por parcial, combinables.
 - **Tres modos:**
@@ -108,7 +108,7 @@ pKapp/
 │   │       ├── metadata.js
 │   │       ├── config.js
 │   │       ├── topics.js
-│   │       └── questions.js        # Banco de preguntas (423)
+│   │       └── questions.js        # Banco de preguntas (473)
 │   ├── materia/
 │   │   └── MateriaContext.js       # Estado: materia activa, getter de data
 │   ├── theme/
@@ -214,7 +214,7 @@ Por transparencia, detallo en qué partes del proyecto se usó asistencia de IA 
 
 ### Contenido educativo
 
-- **808 preguntas reales** extraídas de parciales y exámenes oficiales. Se usó IA como apoyo para transcribir y limpiar los PDFs originales, pero cada pregunta fue revisada manualmente contra el documento fuente.
+- **858 preguntas reales** extraídas de parciales y exámenes oficiales. Se usó IA como apoyo para transcribir y limpiar los PDFs originales, pero cada pregunta fue revisada manualmente contra el documento fuente.
 - **34 preguntas generadas** a partir de los apuntes oficiales de BCYT. Están marcadas con `source: "generated"` y son auditables desde la app: en `TopicSelect` → filtro **Fuente: Solo generadas**.
 - **Explicaciones:** redactadas o refinadas con IA tomando como referencia los resúmenes oficiales, priorizando precisión y consistencia con el material de estudio.
 
