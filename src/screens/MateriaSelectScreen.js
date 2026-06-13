@@ -117,7 +117,7 @@ function WelcomeBanner() {
       <Text style={styles.welcomeText}>
         Migración completada — bienvenidos a <Text style={styles.welcomeBold}>pkapp.uy</Text>
       </Text>
-      <TouchableOpacity onPress={handleDismiss} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+      <TouchableOpacity style={styles.welcomeCloseBtn} onPress={handleDismiss} activeOpacity={0.7}>
         <Text style={styles.welcomeClose}>✕</Text>
       </TouchableOpacity>
     </View>
@@ -429,13 +429,24 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 13,
     color: '#166534',
+    textAlign: 'center',
   },
   welcomeBold: {
     fontWeight: '700',
   },
-  welcomeClose: {
-    fontSize: 13,
-    color: '#4ade80',
+  welcomeCloseBtn: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#16a34a',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginLeft: 10,
+  },
+  welcomeClose: {
+    fontSize: 11,
+    color: '#fff',
+    fontWeight: '700',
+    lineHeight: 13,
   },
 });
