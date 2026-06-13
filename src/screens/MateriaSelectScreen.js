@@ -1,8 +1,8 @@
 // Pantalla inicial: el usuario elige con qué materia quiere estudiar.
 // Se presenta SIEMPRE al abrir la app (no se persiste la última).
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Linking,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Linking, Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MATERIA_LIST } from '../materias';
@@ -48,6 +48,7 @@ export default function MateriaSelectScreen({ navigation }) {
       </View>
 
       {isLegacyDomain() && <MigrationBanner />}
+      <WelcomeBanner />
 
       <View style={styles.list}>
         {MATERIA_LIST.map((m) => (
@@ -88,6 +89,37 @@ function MigrationBanner() {
           <Text style={styles.migrationBtnSecondaryText}>Ir sin migrar →</Text>
         </TouchableOpacity>
       </View>
+    </View>
+  );
+}
+
+const WELCOME_KEY = 'pkapp_welcome_v1';
+
+function WelcomeBanner() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+    if (window.location.hostname !== 'pkapp.uy') return;
+    if (typeof localStorage !== 'undefined' && localStorage.getItem(WELCOME_KEY)) return;
+    setVisible(true);
+  }, []);
+
+  function handleDismiss() {
+    if (typeof localStorage !== 'undefined') localStorage.setItem(WELCOME_KEY, '1');
+    setVisible(false);
+  }
+
+  if (!visible) return null;
+
+  return (
+    <View style={styles.welcomeWrap}>
+      <Text style={styles.welcomeText}>
+        Migración completada — bienvenidos a <Text style={styles.welcomeBold}>pkapp.uy</Text>
+      </Text>
+      <TouchableOpacity onPress={handleDismiss} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+        <Text style={styles.welcomeClose}>✕</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -378,5 +410,32 @@ const styles = StyleSheet.create({
     color: '#94a3b8',
     marginTop: 10,
     textAlign: 'center',
+  },
+
+  // Welcome banner
+  welcomeWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginTop: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    backgroundColor: '#f0fdf4',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#bbf7d0',
+  },
+  welcomeText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#166534',
+  },
+  welcomeBold: {
+    fontWeight: '700',
+  },
+  welcomeClose: {
+    fontSize: 13,
+    color: '#4ade80',
+    marginLeft: 10,
   },
 });
