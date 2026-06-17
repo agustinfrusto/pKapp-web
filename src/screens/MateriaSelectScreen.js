@@ -17,6 +17,9 @@ const NEW_DOMAIN_URL = 'https://pkapp.uy';
 // Fecha en que pkapp-web.vercel.app deja de funcionar (00:00 UTC-3).
 const MIGRATION_DEADLINE = new Date('2026-06-13T00:00:00-03:00');
 
+// Fecha en que el banner de ánimo del examen deja de mostrarse (12:00 UTC-3).
+const EXAM_BANNER_DEADLINE = new Date('2026-06-17T12:00:00-03:00');
+
 function getDaysLeft() {
   const ms = MIGRATION_DEADLINE.getTime() - Date.now();
   if (ms <= 0) return 0;
@@ -49,6 +52,7 @@ export default function MateriaSelectScreen({ navigation }) {
 
       {isLegacyDomain() && <MigrationBanner />}
       <WelcomeBanner />
+      <ExamBanner />
 
       <View style={styles.list}>
         {MATERIA_LIST.map((m) => (
@@ -89,6 +93,20 @@ function MigrationBanner() {
           <Text style={styles.migrationBtnSecondaryText}>Ir sin migrar →</Text>
         </TouchableOpacity>
       </View>
+    </View>
+  );
+}
+
+function ExamBanner() {
+  if (Date.now() >= EXAM_BANNER_DEADLINE.getTime()) return null;
+  return (
+    <View style={styles.examWrap}>
+      <Text style={styles.examEmoji}>🍀</Text>
+      <Text style={styles.examText}>
+        ¿Estudiando para el examen? Recordá descansar y tomar aguita!
+        {'\n'}
+        <Text style={styles.examBold}>Éxito y suerte para los que la necesiten!</Text>
+      </Text>
     </View>
   );
 }
@@ -410,6 +428,34 @@ const styles = StyleSheet.create({
     color: '#94a3b8',
     marginTop: 10,
     textAlign: 'center',
+  },
+
+  // Exam encouragement banner
+  examWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginTop: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    backgroundColor: '#eef6ff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#bfdbfe',
+  },
+  examEmoji: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  examText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#1e3a5f',
+    lineHeight: 19,
+  },
+  examBold: {
+    fontWeight: '700',
+    color: '#1a3f6f',
   },
 
   // Welcome banner
