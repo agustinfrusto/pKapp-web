@@ -176,7 +176,7 @@ npm run build:web
 
 El proyecto se sirve desde **Cloudflare Pages** en [pkapp.uy](https://pkapp.uy). Cada `git push` a `main` redeploya automáticamente.
 
-Durante la ventana de migración también queda corriendo un deploy paralelo en **Vercel** (`pkapp-web.vercel.app`) para que los usuarios que tenían el dominio viejo puedan exportar su progreso. Config en `vercel.json`.
+La migración desde el dominio anterior (`pkapp-web.vercel.app`, alojado en **Vercel**) ya está completa: el sitio vive 100% en Cloudflare Pages. El `vercel.json` se conserva solo con una regla de redirect (308) hacia pkapp.uy para enlaces viejos.
 
 ---
 
