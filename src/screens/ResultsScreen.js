@@ -1,8 +1,21 @@
 // Pantalla de resultados: muestra puntaje y permite revisar cada pregunta.
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform,
 } from 'react-native';
+
+// Donación post-simulacro (solo web, Mercado Pago).
+const DONATION_MIN_SCORE = 60;          // solo aparece en buenos resultados
+const DONATION_PROMPT_KEY = 'pkapp_donation_prompt_date';
+const DONATION_AMOUNTS = [50, 100, 200];  // sugerencias; el monto se elige en MP
+const MERCADOPAGO_URL = 'https://link.mercadopago.com.uy/pkapp';
+
+function shouldShowDonation(percentage) {
+  if (Platform.OS !== 'web' || typeof localStorage === 'undefined') return false;
+  if (percentage < DONATION_MIN_SCORE) return false;
+  const today = new Date().toISOString().slice(0, 10);
+  return localStorage.getItem(DONATION_PROMPT_KEY) !== today;
+}
 
 export default function ResultsScreen({ route, navigation }) {
   const { answers, topic } = route.params;
@@ -14,6 +27,7 @@ export default function ResultsScreen({ route, navigation }) {
   
   // Mensaje y color según el porcentaje (50% suele ser el de aprobación)
   const { message, emoji, color } = getResultFeedback(percentage);
+  const [showDonation] = useState(() => shouldShowDonation(percentage));
 
   function handleHome() {
     requestAnimationFrame(() => navigation.navigate('Home'));
@@ -144,6 +158,8 @@ export default function ResultsScreen({ route, navigation }) {
         </View>
       </View>
 
+      {showDonation && <DonationPrompt />}
+
       <TouchableOpacity
         style={[styles.button, styles.reviewButton]}
         onPress={() => setShowReview(true)}
@@ -168,6 +184,53 @@ export default function ResultsScreen({ route, navigation }) {
         <Text style={styles.secondaryButtonText}>🏠 Inicio</Text>
       </TouchableOpacity>
     </ScrollView>
+  );
+}
+
+function DonationPrompt() {
+  const [visible, setVisible] = useState(true);
+
+  function markSeen() {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(DONATION_PROMPT_KEY, new Date().toISOString().slice(0, 10));
+    }
+  }
+  function openLink(url) {
+    markSeen();
+    requestAnimationFrame(() => Linking.openURL(url).catch(() => {}));
+  }
+  function dismiss() {
+    markSeen();
+    setVisible(false);
+  }
+
+  if (!visible) return null;
+
+  return (
+    <View style={styles.donationCard}>
+      <View style={styles.donationHeader}>
+        <Text style={styles.donationTitle}>Ayuda a mantener esta aplicación</Text>
+        <TouchableOpacity onPress={dismiss} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <Text style={styles.donationClose}>✕</Text>
+        </TouchableOpacity>
+      </View>
+      <Text style={styles.donationBody}>
+        Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:
+      </Text>
+      <View style={styles.donationAmounts}>
+        {DONATION_AMOUNTS.map((amt) => (
+          <TouchableOpacity
+            key={amt}
+            style={styles.donationAmountBtn}
+            onPress={() => openLink(MERCADOPAGO_URL)}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.donationAmountText}>${amt}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <Text style={styles.donationOther}>Elegís el monto en Mercado Pago</Text>
+    </View>
   );
 }
 
@@ -289,6 +352,60 @@ const styles = StyleSheet.create({
     backgroundColor: '#ddf2f5',
     borderWidth: 1,
     borderColor: '#0d7a8a',
+  },
+  // Donación post-simulacro
+  donationCard: {
+    backgroundColor: '#fef3c7', // amber-100
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#fde68a',     // amber-200
+    padding: 16,
+    marginBottom: 16,
+  },
+  donationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  donationTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#78350f',           // amber-900
+    flex: 1,
+  },
+  donationClose: {
+    fontSize: 14,
+    color: '#c2974a',           // amber muted
+    marginLeft: 10,
+  },
+  donationBody: {
+    fontSize: 13,
+    color: '#92400e',           // amber-800
+    lineHeight: 19,
+    marginBottom: 14,
+  },
+  donationAmounts: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 12,
+  },
+  donationAmountBtn: {
+    flex: 1,
+    backgroundColor: '#b45309',  // amber-700
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  donationAmountText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  donationOther: {
+    fontSize: 12,
+    color: '#a16207',           // amber-700 muted
+    textAlign: 'center',
   },
   reviewButtonText: {
     color: '#095c6b',
