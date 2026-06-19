@@ -15,7 +15,6 @@ import StatsScreen from './src/screens/StatsScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 
 import { initDatabase } from './src/db/database';
-import Analytics from './src/components/Analytics';
 import { MateriaProvider } from './src/materia/MateriaContext';
 import { injectWebStyles } from './src/utils/webStyles';
 
@@ -47,7 +46,6 @@ export default function App() {
     <MateriaProvider>
       <SafeAreaProvider>
         <AppContent />
-        <Analytics />
       </SafeAreaProvider>
     </MateriaProvider>
   );

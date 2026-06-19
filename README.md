@@ -119,8 +119,6 @@ pKapp/
 │   │   ├── database.native.js      # Implementación nativa (SQLite)
 │   │   └── database.web.js         # Implementación web (localStorage)
 │   ├── components/
-│   │   ├── Analytics.js            # Stub nativo (devuelve null)
-│   │   ├── Analytics.web.js        # Analytics en web
 │   │   └── DonationBox.js          # Bloque de donación (Mercado Pago)
 │   ├── utils/
 │   │   ├── confirm.js              # Confirmaciones cross-platform
