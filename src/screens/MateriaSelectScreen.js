@@ -9,6 +9,7 @@ import { MATERIA_LIST } from '../materias';
 import { useMateria } from '../materia/MateriaContext';
 import { isLegacyDomain, downloadBackup } from '../utils/migration';
 import DonationBox from '../components/DonationBox';
+import { track } from '../utils/track';
 
 const logo = require('../assets/logo.png');
 
@@ -36,6 +37,7 @@ export default function MateriaSelectScreen({ navigation }) {
 
   function handlePick(materia) {
     if (!materia.available) return;
+    track('materia_elegida', { materia: materia.id });
     setMateriaId(materia.id);
     requestAnimationFrame(() => navigation.navigate('Home'));
   }
@@ -173,7 +175,7 @@ function DonationCard() {
   return (
     <View style={styles.donationWrap}>
       <View style={styles.donationDivider} />
-      <DonationBox />
+      <DonationBox origen="materias" />
     </View>
   );
 }

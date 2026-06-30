@@ -1,8 +1,9 @@
 // Pantalla de resultados: muestra puntaje y permite revisar cada pregunta.
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform,
 } from 'react-native';
+import { track } from '../utils/track';
 
 // Donación post-simulacro (solo web, Mercado Pago).
 const DONATION_MIN_SCORE = 60;          // solo aparece en buenos resultados
@@ -18,16 +19,20 @@ function shouldShowDonation(percentage) {
 }
 
 export default function ResultsScreen({ route, navigation }) {
-  const { answers, topic } = route.params;
+  const { answers, topic, mode } = route.params;
   const [showReview, setShowReview] = useState(false);
 
   const correctCount = answers.filter(a => a.isCorrect).length;
   const total = answers.length;
   const percentage = Math.round((correctCount / total) * 100);
-  
+
   // Mensaje y color según el porcentaje (50% suele ser el de aprobación)
   const { message, emoji, color } = getResultFeedback(percentage);
   const [showDonation] = useState(() => shouldShowDonation(percentage));
+
+  useEffect(() => {
+    track('simulacro_terminado', { mode, score: percentage, total });
+  }, []);
 
   function handleHome() {
     requestAnimationFrame(() => navigation.navigate('Home'));
@@ -197,6 +202,7 @@ function DonationPrompt() {
   }
   function openLink(url) {
     markSeen();
+    track('donacion_click', { origen: 'resultados' });
     requestAnimationFrame(() => Linking.openURL(url).catch(() => {}));
   }
   function dismiss() {

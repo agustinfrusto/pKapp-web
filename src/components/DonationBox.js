@@ -2,12 +2,14 @@
 // Versión persistente, sin descartar — usado en Home y selección de materia.
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
+import { track } from '../utils/track';
 
 const MERCADOPAGO_URL = 'https://link.mercadopago.com.uy/pkapp';
 const AMOUNTS = [50, 100, 200];
 
-export default function DonationBox({ style }) {
+export default function DonationBox({ style, origen }) {
   function handleDonate() {
+    track('donacion_click', { origen });
     requestAnimationFrame(() => Linking.openURL(MERCADOPAGO_URL).catch(() => {}));
   }
 

@@ -101,7 +101,7 @@ export default function HomeScreen({ navigation }) {
         />
       </View>
 
-      <DonationBox style={styles.donationBox} />
+      <DonationBox style={styles.donationBox} origen="home" />
 
       {Platform.OS === 'web' && (
         <View style={styles.privacyFooter}>
