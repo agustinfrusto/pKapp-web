@@ -17,8 +17,6 @@ const NEW_DOMAIN_URL = 'https://pkapp.uy';
 // Fecha en que pkapp-web.vercel.app deja de funcionar (00:00 UTC-3).
 const MIGRATION_DEADLINE = new Date('2026-06-13T00:00:00-03:00');
 
-// Fecha en que el banner de ánimo del examen deja de mostrarse (12:00 UTC-3).
-const EXAM_BANNER_DEADLINE = new Date('2026-06-17T12:00:00-03:00');
 
 function getDaysLeft() {
   const ms = MIGRATION_DEADLINE.getTime() - Date.now();
@@ -52,7 +50,7 @@ export default function MateriaSelectScreen({ navigation }) {
 
       {isLegacyDomain() && <MigrationBanner />}
       <WelcomeBanner />
-      <ExamBanner />
+      <AboutBanner />
 
       <View style={styles.list}>
         {MATERIA_LIST.map((m) => (
@@ -97,15 +95,44 @@ function MigrationBanner() {
   );
 }
 
-function ExamBanner() {
-  if (Date.now() >= EXAM_BANNER_DEADLINE.getTime()) return null;
+const ABOUT_KEY = 'pkapp_about_seen_at';
+const ABOUT_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000; // reaparece una vez por semana
+
+function AboutBanner() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (typeof localStorage === 'undefined') { setVisible(true); return; }
+    const seenAt = Number(localStorage.getItem(ABOUT_KEY));
+    if (!seenAt || Date.now() - seenAt >= ABOUT_INTERVAL_MS) setVisible(true);
+  }, []);
+
+  function dismiss() {
+    if (typeof localStorage !== 'undefined') localStorage.setItem(ABOUT_KEY, String(Date.now()));
+    setVisible(false);
+  }
+
+  function handleEmail() {
+    requestAnimationFrame(() => Linking.openURL('mailto:pkappsoporte@gmail.com').catch(() => {}));
+  }
+
+  if (!visible) return null;
+
   return (
-    <View style={styles.examWrap}>
-      <Text style={styles.examEmoji}>🍀</Text>
-      <Text style={styles.examText}>
-        ¿Estudiando para el examen? Recordá descansar y tomar aguita!
-        {'\n'}
-        <Text style={styles.examBold}>Éxito y suerte para los que la necesiten!</Text>
+    <View style={styles.aboutWrap}>
+      <View style={styles.aboutHeader}>
+        <Text style={styles.aboutTitle}>👋 Una nota del creador</Text>
+        <TouchableOpacity style={styles.aboutCloseBtn} onPress={dismiss} activeOpacity={0.7}>
+          <Text style={styles.aboutClose}>✕</Text>
+        </TouchableOpacity>
+      </View>
+      <Text style={styles.aboutBody}>
+        ¡Hola! Soy el creador de pKapp. Al principio la hice para ayudar a mi pareja a estudiar; como le sirvió a mucha gente, decidí lanzarla y mantenerla.
+        {'\n\n'}
+        Soy informático (no del área de la salud), así que puede haber errores en las explicaciones: se generan analizando material de estudio público con ayuda de IA.
+        {'\n\n'}
+        Si encontrás un error o tenés un problema, escribime a{' '}
+        <Text style={styles.aboutEmail} onPress={handleEmail}>pkappsoporte@gmail.com</Text>.
       </Text>
     </View>
   );
@@ -349,34 +376,53 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 
-  // Exam encouragement banner
-  examWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  // About / creator note banner
+  aboutWrap: {
     marginHorizontal: 16,
     marginTop: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    backgroundColor: '#eef6ff',
-    borderRadius: 12,
+    padding: 16,
+    backgroundColor: '#ffffff',
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#bfdbfe',
+    borderColor: '#e2e8f0',
   },
-  examEmoji: {
-    fontSize: 24,
-    marginRight: 12,
+  aboutHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
   },
-  examText: {
-    flex: 1,
-    fontSize: 13,
-    color: '#1e3a5f',
-    lineHeight: 19,
-  },
-  examBold: {
+  aboutTitle: {
+    fontSize: 15,
     fontWeight: '700',
     color: '#1a3f6f',
+    flex: 1,
   },
-
+  aboutCloseBtn: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#e2e8f0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 10,
+  },
+  aboutClose: {
+    fontSize: 11,
+    color: '#475569',
+    fontWeight: '700',
+    lineHeight: 13,
+  },
+  aboutBody: {
+    fontSize: 13,
+    color: '#475569',
+    lineHeight: 20,
+  },
+  aboutEmail: {
+    color: '#0d7a8a',
+    fontWeight: '700',
+    textDecorationLine: 'underline',
+  },
   // Welcome banner
   welcomeWrap: {
     flexDirection: 'row',

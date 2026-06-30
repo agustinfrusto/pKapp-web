@@ -201,6 +201,13 @@ export default function SettingsScreen() {
             {'\n\n'}{examCount + generatedCount} preguntas en total: {examCount} reales extraidas de exámenes y parciales y {generatedCount} generadas a partir del material de estudio.
           </Text>
           <TouchableOpacity
+            onPress={() => Linking.openURL('mailto:pkappsoporte@gmail.com')}
+            style={styles.aboutLinkRow}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.aboutLinkText}>Soporte / reportar un error: pkappsoporte@gmail.com</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
             onPress={() => Linking.openURL('https://github.com/agustinfrusto/pKapp-web')}
             style={styles.aboutLinkRow}
             activeOpacity={0.7}
