@@ -5,6 +5,9 @@ import {
 } from 'react-native';
 import { track } from '../utils/track';
 
+// Umbral de "buen resultado" para analítica (evento simulacro_aprobado).
+const APROBADO_MIN_SCORE = 60;
+
 // Donación post-simulacro (solo web, Mercado Pago).
 const DONATION_MIN_SCORE = 60;          // solo aparece en buenos resultados
 const DONATION_PROMPT_KEY = 'pkapp_donation_prompt_date';
@@ -32,6 +35,9 @@ export default function ResultsScreen({ route, navigation }) {
 
   useEffect(() => {
     track('simulacro_terminado', { mode, score: percentage, total });
+    if (percentage >= APROBADO_MIN_SCORE) {
+      track('simulacro_aprobado', { mode, score: percentage });
+    }
   }, []);
 
   function handleHome() {
