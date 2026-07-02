@@ -89,7 +89,7 @@ pKapp/
 │   ├── _redirects                  # SPA fallback (Cloudflare Pages)
 │   └── _headers                    # Security headers (Cloudflare Pages)
 ├── scripts/
-│   ├── inject-pwa.js               # Post-build: inyecta meta tags PWA y CF Analytics
+│   ├── inject-pwa.js               # Post-build: inyecta meta tags PWA, CF Analytics y Umami
 │   ├── inject-preload.js           # Post-build: inyecta preload del logo y materias
 │   └── update-readme.js            # Auto-actualiza conteos en este README
 ├── docs/
@@ -123,6 +123,7 @@ pKapp/
 │   ├── utils/
 │   │   ├── confirm.js              # Confirmaciones cross-platform
 │   │   ├── migration.js            # Export/import de progreso entre dominios
+│   │   ├── track.js                # Eventos de analítica (Umami)
 │   │   └── webStyles.js            # Inyección de CSS para web (hover, etc.)
 │   ├── assets/                     # Imágenes de materias e íconos
 │   └── screens/
@@ -145,7 +146,7 @@ pKapp/
 |--|--|--|
 | **Persistencia** | SQLite (`expo-sqlite`) | `localStorage` |
 | **Confirmaciones** | `Alert.alert` con múltiples botones | `window.confirm` (envuelto en `src/utils/confirm.js`) |
-| **Analytics** | — | Cloudflare Web Analytics |
+| **Analytics** | — | Cloudflare Web Analytics (páginas) + Umami (eventos, sin cookies) |
 | **Distribución** | Stores (EAS Build) | Cloudflare Pages (deploy automático en cada `git push`) |
 
 La capa de DB usa los sufijos `.native.js` / `.web.js` para que Metro elija el archivo correcto según la plataforma. Cualquier import desde `'../db/database'` se resuelve automáticamente.
