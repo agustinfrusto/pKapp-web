@@ -3,7 +3,6 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useMateria } from '../materia/MateriaContext';
-import DonationBox from '../components/DonationBox';
 
 const logo = require('../assets/logo.png');
 
@@ -101,8 +100,6 @@ export default function HomeScreen({ navigation }) {
         />
       </View>
 
-      <DonationBox style={styles.donationBox} origen="home" />
-
       {Platform.OS === 'web' && (
         <View style={styles.privacyFooter}>
           <Text style={styles.privacyText}>
@@ -181,10 +178,6 @@ const styles = StyleSheet.create({
   },
   modesContainer: {
     padding: 16,
-  },
-  donationBox: {
-    marginHorizontal: 16,
-    marginBottom: 8,
   },
   card: {
     flexDirection: 'row',
