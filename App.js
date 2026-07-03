@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, View, Image, StyleSheet, TouchableOpacity, Text, Platform } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -17,6 +17,7 @@ import SettingsScreen from './src/screens/SettingsScreen';
 import { initDatabase } from './src/db/database';
 import { MateriaProvider } from './src/materia/MateriaContext';
 import { injectWebStyles } from './src/utils/webStyles';
+import { trackPageview } from './src/utils/track';
 
 const Stack = createNativeStackNavigator();
 
@@ -54,6 +55,8 @@ export default function App() {
 function AppContent() {
   const [splashDone, setSplashDone] = useState(false);
   const opacity = useRef(new Animated.Value(0)).current;
+  const navigationRef = useNavigationContainerRef();
+  const routeNameRef = useRef();
 
   useEffect(() => {
     injectWebStyles();
@@ -89,6 +92,19 @@ function AppContent() {
 
   return (
     <NavigationContainer
+      ref={navigationRef}
+      onReady={() => {
+        // La carga inicial ("/") ya la registra Umami; solo guardamos la ruta actual.
+        routeNameRef.current = navigationRef.getCurrentRoute()?.name;
+      }}
+      onStateChange={() => {
+        const prev = routeNameRef.current;
+        const curr = navigationRef.getCurrentRoute()?.name;
+        if (curr && prev !== curr) {
+          trackPageview(curr);
+          routeNameRef.current = curr;
+        }
+      }}
       documentTitle={{
         formatter: () => 'pKapp',
       }}
