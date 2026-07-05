@@ -1059,8 +1059,8 @@ export const QUESTIONS = [
       'Del cono medular se originan las raíces de los plexos lumbar y sacro.',
       'De la intumescencia lumbosacra se originan las once raíces intercostales.',
     ],
-    correctIndex: 1,
-    explanation: 'Del cono medular (extremo inferior de la médula) emergen las raíces que forman los plexos lumbar y sacro (y descienden como cola de caballo). La intumescencia cervical va de C4 a T1. Las raíces intercostales son 12 (T1-T12), no 11.',
+    correctIndex: 0,
+    explanation: 'La intumescencia cervical (C4–T1) contiene los segmentos medulares que dan origen a las raíces del plexo braquial, el cual se forma habitualmente por los ramos anteriores de C5 a T1, aunque puede recibir una contribución de C4 (plexo prefijado). Las raíces de los plexos lumbar y sacro nacen de la intumescencia lumbosacra, no del cono medular. Los nervios intercostales corresponden a T1–T11; T12 constituye el nervio subcostal.',
   },
   {
     id: 'A-2025-T2-Q5',
@@ -1314,7 +1314,7 @@ export const QUESTIONS = [
       'Del cono medular se originan las raíces de los plexos lumbar y sacro.',
     ],
     correctIndex: 0,
-    explanation: 'La 4ta raíz cervical (C4) sale a nivel de la intumescencia cervical y forma el nervio frénico (junto con C3 y C5). Las raíces intercostales son torácicas (T1-T12), no lumbosacras. Del cono medular salen las raíces de cola de caballo (lumbares y sacras).',
+    explanation: 'La 4ta raíz cervical (C4) sale a nivel de la intumescencia cervical y forma el nervio frénico (junto con C3 y C5). Los nervios intercostales son torácicos (T1–T11; T12 es el subcostal), no lumbosacros. Las raíces de los plexos lumbar y sacro nacen de la intumescencia lumbosacra y descienden por debajo del cono medular como cola de caballo.',
   },
   {
     id: 'A-2022-T1-Q2',
