@@ -1,0 +1,25 @@
+# Dependabot: abre PRs ante dependencias desactualizadas/vulnerables.
+# Nota: las ALERTAS y los "security updates" se activan aparte, en
+# GitHub → Settings → Code security and analysis (ahí está el valor de seguridad).
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    # Agrupa minor+patch en un solo PR para reducir ruido.
+    groups:
+      minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    # Expo y React Native se actualizan juntos vía upgrade de SDK
+    # (expo install --fix), no con PRs sueltos que romperían el pinning.
+    ignore:
+      - dependency-name: "expo"
+      - dependency-name: "react-native"
+      - dependency-name: "react"
+      - dependency-name: "react-dom"
