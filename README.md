@@ -173,6 +173,16 @@ npx expo start --web
 npm run build:web
 ```
 
+### Versionado
+
+Semver según el prefijo del commit (aplicado a partir de `v1.0.33`; hasta la `v1.0.32` se usaba patch para todo):
+
+- `feat` → minor (1.**x**.0)
+- `fix` / `ui` / `chore` / `docs` / `refactor` / `perf` → patch (1.0.**x**)
+- breaking change → major
+
+Cada release se taggea `vX.Y.Z`. La versión vive en `package.json` **y** `app.json` (esta última es la que se muestra en Ajustes → Acerca de).
+
 ### Deploy
 
 El proyecto se sirve desde **Cloudflare Pages** en [pkapp.uy](https://pkapp.uy). Cada `git push` a `main` redeploya automáticamente.
