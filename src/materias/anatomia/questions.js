@@ -1051,18 +1051,6 @@ export const QUESTIONS = [
     explanation: 'El VII par (facial) tiene su origen real en la protuberancia. SÍ tiene componente vegetativo (parasimpático, por el nervio intermediario de Wrisberg). Su origen aparente está en el surco bulbo-protuberancial (no mesencéfalo).',
   },
   {
-    id: 'A-2025-T2-Q4',
-    source: 'exam', exam: '2025 Turno 2', topic: 'snc', materia: 'anatomia', parcial: 'primero',
-    question: 'Con respecto a la médula espinal:',
-    options: [
-      'De la intumescencia cervical se origina la 4ta raíz cervical.',
-      'Del cono medular se originan las raíces de los plexos lumbar y sacro.',
-      'De la intumescencia lumbosacra se originan las once raíces intercostales.',
-    ],
-    correctIndex: 0,
-    explanation: 'La intumescencia cervical (C4–T1) contiene los segmentos medulares que dan origen a las raíces del plexo braquial, el cual se forma habitualmente por los ramos anteriores de C5 a T1, aunque puede recibir una contribución de C4 (plexo prefijado). Las raíces de los plexos lumbar y sacro nacen de la intumescencia lumbosacra, no del cono medular. Los nervios intercostales corresponden a T1–T11; T12 constituye el nervio subcostal.',
-  },
-  {
     id: 'A-2025-T2-Q5',
     source: 'exam', exam: '2025 Turno 2', topic: 'snc', materia: 'anatomia', parcial: 'primero',
     question: 'Con respecto al sistema nervioso:',
@@ -1304,18 +1292,6 @@ export const QUESTIONS = [
   },
 
   // ============== PRIMER PARCIAL ANATOMÍA – 11 de julio 2022 – Turno 1 ==============
-  {
-    id: 'A-2022-T1-Q1',
-    source: 'exam', exam: '2022 Turno 1', topic: 'snc', materia: 'anatomia', parcial: 'primero',
-    question: 'Con respecto a la configuración externa de la médula espinal:',
-    options: [
-      'De la intumescencia cervical se origina la 4ta raíz cervical que dará origen al nervio frénico.',
-      'De la intumescencia lumbosacra se originan las once raíces de los nervios intercostales.',
-      'Del cono medular se originan las raíces de los plexos lumbar y sacro.',
-    ],
-    correctIndex: 0,
-    explanation: 'La 4ta raíz cervical (C4) sale a nivel de la intumescencia cervical y forma el nervio frénico (junto con C3 y C5). Los nervios intercostales son torácicos (T1–T11; T12 es el subcostal), no lumbosacros. Las raíces de los plexos lumbar y sacro nacen de la intumescencia lumbosacra y descienden por debajo del cono medular como cola de caballo.',
-  },
   {
     id: 'A-2022-T1-Q2',
     source: 'exam', exam: '2022 Turno 1', topic: 'snc', materia: 'anatomia', parcial: 'primero',
