@@ -16,10 +16,18 @@ updates:
         update-types:
           - "minor"
           - "patch"
-    # Expo y React Native se actualizan juntos vía upgrade de SDK
-    # (expo install --fix), no con PRs sueltos que romperían el pinning.
     ignore:
+      # Core del SDK de Expo: se actualiza junto vía `expo install --fix`
+      # al hacer upgrade de SDK, nunca con PRs sueltos (desalinea y rompe el build).
       - dependency-name: "expo"
+      - dependency-name: "expo-*"
       - dependency-name: "react-native"
       - dependency-name: "react"
       - dependency-name: "react-dom"
+      - dependency-name: "babel-preset-expo"
+      # Ecosistema RN / navegación: dejamos pasar minor/patch (van agrupados),
+      # pero bloqueamos los MAJOR (rompen y deben alinear con el SDK a mano).
+      - dependency-name: "react-native-*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@react-navigation/*"
+        update-types: ["version-update:semver-major"]
