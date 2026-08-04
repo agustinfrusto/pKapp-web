@@ -26,7 +26,7 @@ Construido con **Expo / React Native**. Esta es la **versión web** del proyecto
 
 ## Características
 
-- **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** (BCYT) y **Anatomía**, con estructura preparada para sumar los demás módulos.
+- **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** (BCYT) y **Anatomía**; **Neurobiología** en preparación ("Próximamente"). Estructura preparada para sumar los demás módulos.
 - **858 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025 + Anatomía 2018-2025).
 - **34 preguntas adicionales** generadas con Claude a partir de los apuntes (solo BCYT).
 - **Filtros:** por fuente (examen real / generada) y por parcial, combinables.
@@ -103,12 +103,18 @@ pKapp/
 │   │   │   ├── config.js           # examSize, parciales, etc.
 │   │   │   ├── topics.js           # TOPICS de BCYT
 │   │   │   └── questions.js        # Banco de preguntas (419)
-│   │   └── anatomia/               # Anatomía
+│   │   ├── anatomia/               # Anatomía
+│   │   │   ├── index.js
+│   │   │   ├── metadata.js
+│   │   │   ├── config.js
+│   │   │   ├── topics.js
+│   │   │   └── questions.js        # Banco de preguntas (473)
+│   │   └── neuro/                  # Neurobiología (bloqueada / "Próximamente")
 │   │       ├── index.js
-│   │       ├── metadata.js
-│   │       ├── config.js
+│   │       ├── metadata.js         # available: false
+│   │       ├── config.js           # sin parciales
 │   │       ├── topics.js
-│   │       └── questions.js        # Banco de preguntas (473)
+│   │       └── questions.js        # Banco de preguntas (132, contenido de terceros)
 │   ├── materia/
 │   │   └── MateriaContext.js       # Estado: materia activa, getter de data
 │   ├── theme/
