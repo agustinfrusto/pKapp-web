@@ -5,6 +5,8 @@ import {
 } from 'react-native';
 import { track } from '../utils/track';
 import { MP_LINKS, DONATION_AMOUNTS } from '../utils/mercadopago';
+import { reportQuestion } from '../utils/report';
+import { useMateria } from '../materia/MateriaContext';
 
 // Umbral de "buen resultado" para analítica (evento simulacro_aprobado).
 const APROBADO_MIN_SCORE = 60;
@@ -28,6 +30,7 @@ function shouldShowDonation(percentage) {
 
 export default function ResultsScreen({ route, navigation }) {
   const { answers, topic, mode } = route.params;
+  const { materia } = useMateria();
   const [showReview, setShowReview] = useState(false);
 
   const correctCount = answers.filter(a => a.isCorrect).length;
@@ -120,6 +123,14 @@ export default function ResultsScreen({ route, navigation }) {
                 </Text>
               </View>
             ) : null}
+
+            <TouchableOpacity
+              style={styles.reportButton}
+              onPress={() => reportQuestion(answer.question, materia?.name)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.reportButtonText}>🚩 Reportar pregunta</Text>
+            </TouchableOpacity>
           </View>
         ))}
 
@@ -540,6 +551,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#095c6b',
     lineHeight: 18,
+  },
+  reportButton: {
+    alignSelf: 'flex-start',
+    paddingTop: 10,
+    paddingBottom: 2,
+  },
+  reportButtonText: {
+    fontSize: 12,
+    color: '#b91c1c',   // red-700
+    fontWeight: '700',
   },
   bottomButtonsRow: {
     flexDirection: 'row',
