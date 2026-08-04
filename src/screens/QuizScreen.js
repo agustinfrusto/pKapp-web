@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { recordAnswer } from '../db/database';
 import { confirm } from '../utils/confirm';
 import { useMateria } from '../materia/MateriaContext';
+import { reportQuestion } from '../utils/report';
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
@@ -227,6 +228,16 @@ export default function QuizScreen({ route, navigation }) {
             <Text style={styles.explanationText}>{currentQuestion.explanation}</Text>
           </View>
         ) : null}
+
+        {answered && (
+          <TouchableOpacity
+            style={styles.reportButton}
+            onPress={() => reportQuestion(currentQuestion, materia?.name)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.reportButtonText}>🚩 Reportar pregunta</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
 
       {/* Botón siguiente */}
@@ -434,6 +445,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#095c6b',
     lineHeight: 20,
+  },
+  reportButton: {
+    alignSelf: 'center',
+    paddingVertical: 9,
+    paddingHorizontal: 16,
+    marginTop: 14,
+    backgroundColor: '#fef2f2',   // red-50
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: '#fecaca',       // red-200
+  },
+  reportButtonText: {
+    fontSize: 13,
+    color: '#b91c1c',             // red-700
+    fontWeight: '700',
   },
   footer: {
     paddingTop: 16,
