@@ -114,7 +114,7 @@ pKapp/
 │   │       ├── metadata.js         # available: false
 │   │       ├── config.js           # sin parciales
 │   │       ├── topics.js
-│   │       └── questions.js        # Banco de preguntas (132, contenido de terceros)
+│   │       └── questions.js        # Banco de preguntas (132)
 │   ├── materia/
 │   │   └── MateriaContext.js       # Estado: materia activa, getter de data
 │   ├── theme/
