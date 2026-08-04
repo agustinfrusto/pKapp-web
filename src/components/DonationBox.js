@@ -3,14 +3,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import { track } from '../utils/track';
-
-const MERCADOPAGO_URL = 'https://link.mercadopago.com.uy/pkapp';
-const AMOUNTS = [50, 100, 200];
+import { MP_LINKS, DONATION_AMOUNTS } from '../utils/mercadopago';
 
 export default function DonationBox({ style, origen }) {
-  function handleDonate() {
-    track('donacion_click', { origen });
-    requestAnimationFrame(() => Linking.openURL(MERCADOPAGO_URL).catch(() => {}));
+  function handleDonate(amt) {
+    track('donacion_click', { origen, monto: amt });
+    requestAnimationFrame(() => Linking.openURL(MP_LINKS[amt]).catch(() => {}));
   }
 
   return (
@@ -20,18 +18,18 @@ export default function DonationBox({ style, origen }) {
         Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:
       </Text>
       <View style={styles.amounts}>
-        {AMOUNTS.map((amt) => (
+        {DONATION_AMOUNTS.map((amt) => (
           <TouchableOpacity
             key={amt}
             style={styles.amountBtn}
-            onPress={handleDonate}
+            onPress={() => handleDonate(amt)}
             activeOpacity={0.85}
           >
             <Text style={styles.amountText}>${amt}</Text>
           </TouchableOpacity>
         ))}
       </View>
-      <Text style={styles.footer}>Elegís el monto en Mercado Pago</Text>
+      <Text style={styles.footer}>Vía Mercado Pago</Text>
     </View>
   );
 }
@@ -58,7 +56,7 @@ const styles = StyleSheet.create({
   },
   amounts: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
     marginBottom: 12,
   },
   amountBtn: {
@@ -70,7 +68,7 @@ const styles = StyleSheet.create({
   },
   amountText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
   },
   footer: {

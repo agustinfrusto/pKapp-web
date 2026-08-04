@@ -4,21 +4,26 @@ import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform,
 } from 'react-native';
 import { track } from '../utils/track';
+import { MP_LINKS, DONATION_AMOUNTS } from '../utils/mercadopago';
 
 // Umbral de "buen resultado" para analítica (evento simulacro_aprobado).
 const APROBADO_MIN_SCORE = 60;
 
 // Donación post-simulacro (solo web, Mercado Pago).
-const DONATION_MIN_SCORE = 60;          // solo aparece en buenos resultados
-const DONATION_PROMPT_KEY = 'pkapp_donation_prompt_date';
-const DONATION_AMOUNTS = [50, 100, 200];  // sugerencias; el monto se elige en MP
-const MERCADOPAGO_URL = 'https://link.mercadopago.com.uy/pkapp';
+const DONATION_MIN_SCORE = 60;          // solo aparece en buenos resultados (≥60%)
+const DONATION_WARM_SCORE = 80;         // ≥80% → pedido más celebratorio
+const DONATION_COUNT_KEY = 'pkapp_donation_count';
+const DONATION_EVERY = 3;               // muestra el pedido en 1 de cada 3 aprobados
 
+// Cuenta los simulacros aprobados y decide si mostrar el pedido (1º, 4º, 7º...).
+// Reemplaza el viejo tope de "una vez por día": más impresiones en semana de
+// examen (donde se hacen muchos simulacros) sin aparecer en todos.
 function shouldShowDonation(percentage) {
   if (Platform.OS !== 'web' || typeof localStorage === 'undefined') return false;
   if (percentage < DONATION_MIN_SCORE) return false;
-  const today = new Date().toISOString().slice(0, 10);
-  return localStorage.getItem(DONATION_PROMPT_KEY) !== today;
+  const count = Number(localStorage.getItem(DONATION_COUNT_KEY) || 0) + 1;
+  localStorage.setItem(DONATION_COUNT_KEY, String(count));
+  return (count - 1) % DONATION_EVERY === 0;
 }
 
 export default function ResultsScreen({ route, navigation }) {
@@ -169,7 +174,7 @@ export default function ResultsScreen({ route, navigation }) {
         </View>
       </View>
 
-      {showDonation && <DonationPrompt />}
+      {showDonation && <DonationPrompt percentage={percentage} />}
 
       <TouchableOpacity
         style={[styles.button, styles.reviewButton]}
@@ -198,21 +203,15 @@ export default function ResultsScreen({ route, navigation }) {
   );
 }
 
-function DonationPrompt() {
+function DonationPrompt({ percentage }) {
   const [visible, setVisible] = useState(true);
+  const warm = percentage >= DONATION_WARM_SCORE;
 
-  function markSeen() {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(DONATION_PROMPT_KEY, new Date().toISOString().slice(0, 10));
-    }
-  }
-  function openLink(url) {
-    markSeen();
-    track('donacion_click', { origen: 'resultados' });
-    requestAnimationFrame(() => Linking.openURL(url).catch(() => {}));
+  function openLink(amt) {
+    track('donacion_click', { origen: 'resultados', monto: amt });
+    requestAnimationFrame(() => Linking.openURL(MP_LINKS[amt]).catch(() => {}));
   }
   function dismiss() {
-    markSeen();
     setVisible(false);
   }
 
@@ -221,27 +220,31 @@ function DonationPrompt() {
   return (
     <View style={styles.donationCard}>
       <View style={styles.donationHeader}>
-        <Text style={styles.donationTitle}>Ayuda a mantener esta aplicación</Text>
+        <Text style={styles.donationTitle}>
+          {warm ? '¡Gran resultado! 🏆' : 'Ayuda a mantener esta aplicación'}
+        </Text>
         <TouchableOpacity onPress={dismiss} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
           <Text style={styles.donationClose}>✕</Text>
         </TouchableOpacity>
       </View>
       <Text style={styles.donationBody}>
-        Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:
+        {warm
+          ? 'Si pKapp te está ayudando a llegar al examen, dale una mano para mantenerla (no es de Udelar):'
+          : 'Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:'}
       </Text>
       <View style={styles.donationAmounts}>
         {DONATION_AMOUNTS.map((amt) => (
           <TouchableOpacity
             key={amt}
             style={styles.donationAmountBtn}
-            onPress={() => openLink(MERCADOPAGO_URL)}
+            onPress={() => openLink(amt)}
             activeOpacity={0.85}
           >
             <Text style={styles.donationAmountText}>${amt}</Text>
           </TouchableOpacity>
         ))}
       </View>
-      <Text style={styles.donationOther}>Elegís el monto en Mercado Pago</Text>
+      <Text style={styles.donationOther}>Vía Mercado Pago</Text>
     </View>
   );
 }
@@ -399,7 +402,7 @@ const styles = StyleSheet.create({
   },
   donationAmounts: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
     marginBottom: 12,
   },
   donationAmountBtn: {
@@ -411,7 +414,7 @@ const styles = StyleSheet.create({
   },
   donationAmountText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
   },
   donationOther: {
