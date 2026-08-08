@@ -26,13 +26,13 @@ Construido con **Expo / React Native**. Esta es la **versión web** del proyecto
 
 ## Características
 
-- **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** (BCYT) y **Anatomía**; **Neurobiología** en preparación ("Próximamente"). Estructura preparada para sumar los demás módulos.
-- **858 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025 + Anatomía 2018-2025).
+- **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** (BCYT), **Anatomía** y **Neurobiología**. Estructura preparada para sumar los demás módulos.
+- **1049 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025 + Anatomía 2018-2025 + Neurobiología).
 - **34 preguntas adicionales** generadas con Claude a partir de los apuntes (solo BCYT).
 - **Filtros:** por fuente (examen real / generada) y por parcial, combinables.
 - **Tres modos:**
   - **Práctica por tema:** elegís un tema específico o practicás por parcial.
-  - **Examen:** preguntas al azar con tamaño igual al examen real (configurable por materia — BCYT: 75 / 40 por parcial; Anatomía: 50 / 25 por parcial).
+  - **Examen:** preguntas al azar con tamaño igual al examen real (configurable por materia — BCYT: 75 / 40 por parcial; Anatomía: 50 / 25 por parcial; Neurobiología: 25, sin parciales).
   - **Repaso de fallos:** las que respondiste mal antes.
 - **Explicaciones** tras cada respuesta o al final del cuestionario.
 - **Estadísticas** por tema y lista de preguntas más falladas.
@@ -51,6 +51,12 @@ Construido con **Expo / React Native**. Esta es la **versión web** del proyecto
 ### Anatomía
 
 Sistema nervioso central · Nervios periféricos y plexos · Sistema muscular · Osteología · Sistema vascular periférico · Cabeza y cuello · Tórax y mediastino · Abdomen · Pelvis y periné.
+
+### Neurobiología
+
+Organización del sistema nervioso · Neurona: tipos, prolongaciones y organelos · Glía (astrocitos, microglía, oligodendrocitos) · Mielina y nervio periférico · Potencial de membrana y de acción · Sinapsis y transmisión · Receptores sensoriales y transducción · Vías somatosensoriales y corteza · Reflejos, husos y órgano de Golgi · Control motor y cortezas motoras · Sistema nervioso autónomo · Médula espinal · Cerebelo · Corteza cerebral e hipocampo.
+
+Materia sin parciales (examen único).
 
 ---
 
@@ -108,11 +114,11 @@ pKapp/
 │   │   │   ├── metadata.js
 │   │   │   ├── config.js
 │   │   │   ├── topics.js
-│   │   │   └── questions.js        # Banco de preguntas (473)
-│   │   └── neuro/                  # Neurobiología (bloqueada / "Próximamente")
+│   │   │   └── questions.js        # Banco de preguntas (471)
+│   │   └── neuro/                  # Neurobiología
 │   │       ├── index.js
-│   │       ├── metadata.js         # available: false
-│   │       ├── config.js           # sin parciales
+│   │       ├── metadata.js         # available: true
+│   │       ├── config.js           # sin parciales (examen de 25)
 │   │       ├── topics.js
 │   │       └── questions.js        # Banco de preguntas (193)
 │   ├── materia/
@@ -230,7 +236,7 @@ Por transparencia, detallo en qué partes del proyecto se usó asistencia de IA 
 
 ### Contenido educativo
 
-- **858 preguntas reales** extraídas de parciales y exámenes oficiales. Se usó IA como apoyo para transcribir y limpiar los PDFs originales, pero cada pregunta fue revisada manualmente contra el documento fuente.
+- **1049 preguntas reales** extraídas de parciales y exámenes oficiales. Se usó IA como apoyo para transcribir y limpiar los PDFs originales, pero cada pregunta fue revisada manualmente contra el documento fuente.
 - **34 preguntas generadas** a partir de los apuntes oficiales de BCYT. Están marcadas con `source: "generated"` y son auditables desde la app: en `TopicSelect` → filtro **Fuente: Solo generadas**.
 - **Explicaciones:** redactadas o refinadas con IA tomando como referencia los resúmenes oficiales, priorizando precisión y consistencia con el material de estudio.
 

@@ -7,5 +7,5 @@ export const metadata = {
   icon:        '🧠',
   image:       require('../../assets/materias/neuro.png'),
   color:       '#1a3f6f',
-  available:   false, // "Próximamente" hasta cargar preguntas
+  available:   true,
 };

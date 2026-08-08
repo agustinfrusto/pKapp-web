@@ -1,35 +1,56 @@
+# Dependencias
 node_modules/
-.expo/
+
+# Build / salida
 dist/
+web-build/
+
+# Expo / EAS
+.expo/
+.expo-shared/
+
+# Logs
 npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.log
+
+# Variables de entorno / secretos
+.env
+.env.*
+!.env.example
 *.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
+
+# Backups / temporales
 *.orig.*
-web-build/
+*.tmp
+*.bak
+
+# Cobertura de tests
+coverage/
+
+# TypeScript
+*.tsbuildinfo
 
 # macOS
 .DS_Store
 
-# Expo / EAS
-.expo-shared/
-
-# IDE
+# IDE / herramientas
 .vscode/
 .idea/
 *.swp
+.claude/
 
-# Archives
+# Archivos comprimidos
 *.zip
 
 # Native folders generadas por expo prebuild (no usamos, web-only)
 android/
 ios/
-
-# No commitear zips
-*.zip
 
 # Notas personales (no para distribución)
 docs/LAUNCH-PLAYBOOK.md
