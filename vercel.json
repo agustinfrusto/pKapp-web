@@ -1,5 +1,0 @@
-{
-  "redirects": [
-    { "source": "/(.*)", "destination": "https://pkapp.uy/$1", "permanent": true }
-  ]
-}
