@@ -38,7 +38,7 @@ export default function ResultsScreen({ route, navigation }) {
   const percentage = Math.round((correctCount / total) * 100);
 
   // Mensaje y color según el porcentaje (50% suele ser el de aprobación)
-  const { message, emoji, color } = getResultFeedback(percentage);
+  const { message, color } = getResultFeedback(percentage);
   const [showDonation] = useState(() => shouldShowDonation(percentage));
 
   useEffect(() => {
@@ -156,7 +156,6 @@ export default function ResultsScreen({ route, navigation }) {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       <View style={styles.resultCard}>
-        <Text style={styles.emoji}>{emoji}</Text>
         <Text style={[styles.percentage, { color }]}>{percentage}%</Text>
         <Text style={styles.scoreText}>
           {correctCount} de {total} correctas
@@ -296,10 +295,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 4,
     elevation: 3,
-  },
-  emoji: {
-    fontSize: 64,
-    marginBottom: 8,
   },
   percentage: {
     fontSize: 56,
