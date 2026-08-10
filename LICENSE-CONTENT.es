@@ -1,7 +1,5 @@
 Creative Commons Atribución-NoComercial-CompartirIgual 4.0 Internacional
 
-Copyright (c) 2026 Agustín Frusto
-
 =======================================================================
 
 Esta licencia aplica al contenido educativo de este proyecto,
