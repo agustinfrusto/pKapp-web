@@ -1,5 +1,10 @@
 Creative Commons Atribución-NoComercial-CompartirIgual 4.0 Internacional
 
+El contenido educativo se basa en material de estudio de terceros y no
+pertenece a pKapp ni a Agustín Frusto; sus derechos pertenecen a los
+autores originales. Se reproduce con fines exclusivamente educativos y
+no comerciales. Reclamos de derechos: agustinfrusto@gmail.com
+
 =======================================================================
 
 Esta licencia aplica al contenido educativo de este proyecto,
