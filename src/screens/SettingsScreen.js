@@ -218,20 +218,22 @@ export default function SettingsScreen() {
             </Text>
           </View>
 
-          <TouchableOpacity
-            onPress={() => Linking.openURL('mailto:pkappsoporte@gmail.com')}
-            style={styles.aboutLinkRow}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.aboutLinkText}>Soporte / reportar un error: pkappsoporte@gmail.com</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => Linking.openURL('https://github.com/agustinfrusto/pKapp-web')}
-            style={styles.aboutLinkRow}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.aboutLinkText}>Código fuente en GitHub ↗</Text>
-          </TouchableOpacity>
+          <View style={styles.aboutLinks}>
+            <TouchableOpacity
+              onPress={() => Linking.openURL('mailto:pkappsoporte@gmail.com')}
+              style={styles.aboutLinkRow}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.aboutLinkText}>✉️  Reportar un error</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => Linking.openURL('https://github.com/agustinfrusto/pKapp-web')}
+              style={styles.aboutLinkRow}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.aboutLinkText}>Código fuente en GitHub ↗</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </ScrollView>
@@ -446,11 +448,22 @@ const styles = StyleSheet.create({
     color: '#94a3b8',
     fontWeight: '500',
   },
-  aboutLinkRow: {
-    marginTop: 12,
-    paddingTop: 12,
+  aboutLinks: {
+    marginTop: 14,
+    paddingTop: 14,
     borderTopWidth: 1,
     borderTopColor: '#e2e8f0',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  aboutLinkRow: {
+    paddingVertical: 9,
+    paddingHorizontal: 14,
+    backgroundColor: '#f1f5f9',
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
   aboutLinkText: {
     fontSize: 13,
