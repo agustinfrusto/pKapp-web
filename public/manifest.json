@@ -1,7 +1,7 @@
 {
   "name": "pKapp",
   "short_name": "pKapp",
-  "description": "Preparación para ESFUNO (Biología Celular y Tisular, Anatomía y demás módulos)",
+  "description": "Preparación para ESFUNO (Biología Celular y Tisular, Anatomía, Neurobiología y demás módulos)",
   "lang": "es",
   "start_url": "/",
   "scope": "/",

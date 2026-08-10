@@ -83,11 +83,11 @@ Materia sin parciales (examen único).
 
 ```
 pKapp/
-├── App.js                          # Navegación + splash + ThemeProvider
+├── App.js                          # Navegación + splash (MateriaProvider)
 ├── index.js                        # Entry point Expo
 ├── app.json                        # Config Expo (incluye sección web/PWA)
-├── vercel.json                     # Config de deploy en Vercel
 ├── metro.config.js                 # Excluye expo-sqlite del bundle web
+├── babel.config.js
 ├── package.json
 ├── public/                         # Archivos servidos en la raíz del sitio web
 │   ├── manifest.json               # Manifest PWA
@@ -96,58 +96,55 @@ pKapp/
 │   └── _headers                    # Security headers (Cloudflare Pages)
 ├── scripts/
 │   ├── inject-pwa.js               # Post-build: inyecta meta tags PWA, CF Analytics y Umami
-│   ├── inject-preload.js           # Post-build: inyecta preload del logo y materias
-│   └── update-readme.js            # Auto-actualiza conteos en este README
+│   └── inject-preload.js           # Post-build: inyecta preload del logo y materias
 ├── docs/
 │   └── screenshots/                # Capturas usadas en este README
-├── src/
-│   ├── materias/                   # Registry de materias (ESFUNO)
-│   │   ├── index.js                # MATERIAS y MATERIA_LIST
-│   │   ├── bcyt/                   # Biología Celular y Tisular
-│   │   │   ├── index.js
-│   │   │   ├── metadata.js         # id, nombre, icono, color, imagen
-│   │   │   ├── config.js           # examSize, parciales, etc.
-│   │   │   ├── topics.js           # TOPICS de BCYT
-│   │   │   └── questions.js        # Banco de preguntas (419)
-│   │   ├── anatomia/               # Anatomía
-│   │   │   ├── index.js
-│   │   │   ├── metadata.js
-│   │   │   ├── config.js
-│   │   │   ├── topics.js
-│   │   │   └── questions.js        # Banco de preguntas (471)
-│   │   └── neuro/                  # Neurobiología
-│   │       ├── index.js
-│   │       ├── metadata.js         # available: true
-│   │       ├── config.js           # sin parciales (examen de 25)
-│   │       ├── topics.js
-│   │       └── questions.js        # Banco de preguntas (193)
-│   ├── materia/
-│   │   └── MateriaContext.js       # Estado: materia activa, getter de data
-│   ├── theme/
-│   │   ├── colors.js               # Paletas light/dark
-│   │   └── ThemeContext.js
-│   ├── db/
-│   │   ├── database.js             # Fallback (re-exporta database.web)
-│   │   ├── database.native.js      # Implementación nativa (SQLite)
-│   │   └── database.web.js         # Implementación web (localStorage)
-│   ├── components/
-│   │   └── DonationBox.js          # Bloque de donación (Mercado Pago)
-│   ├── utils/
-│   │   ├── confirm.js              # Confirmaciones cross-platform
-│   │   ├── migration.js            # Export/import de progreso entre dominios
-│   │   ├── track.js                # Eventos de analítica (Umami)
-│   │   └── webStyles.js            # Inyección de CSS para web (hover, etc.)
-│   ├── assets/                     # Imágenes de materias e íconos
-│   └── screens/
-│       ├── MateriaSelectScreen.js  # Pantalla inicial: elegí materia
-│       ├── HomeScreen.js           # Menú principal de la materia
-│       ├── TopicSelectScreen.js    # Selector de tema + filtros + timer
-│       ├── QuizScreen.js           # Quiz en sí
-│       ├── ResultsScreen.js        # Resultados + revisión
-│       ├── AddQuestionScreen.js    # Formulario para agregar preguntas
-│       ├── StatsScreen.js          # Estadísticas
-│       └── SettingsScreen.js       # Ajustes (tema, import/export, etc.)
-└── assets/                         # Logo principal
+└── src/
+    ├── materias/                   # Registry de materias (ESFUNO)
+    │   ├── index.js                # MATERIAS y MATERIA_LIST
+    │   ├── bcyt/                   # Biología Celular y Tisular
+    │   │   ├── index.js
+    │   │   ├── metadata.js         # id, nombre, icono, color, imagen
+    │   │   ├── config.js           # examSize, parciales, etc.
+    │   │   ├── topics.js           # TOPICS de BCYT
+    │   │   └── questions.js        # Banco de preguntas (419)
+    │   ├── anatomia/               # Anatomía
+    │   │   ├── index.js
+    │   │   ├── metadata.js
+    │   │   ├── config.js
+    │   │   ├── topics.js
+    │   │   └── questions.js        # Banco de preguntas (471)
+    │   └── neuro/                  # Neurobiología
+    │       ├── index.js
+    │       ├── metadata.js         # available: true
+    │       ├── config.js           # sin parciales (examen de 25)
+    │       ├── topics.js
+    │       └── questions.js        # Banco de preguntas (193)
+    ├── materia/
+    │   └── MateriaContext.js       # Estado: materia activa, getter de data
+    ├── db/
+    │   ├── database.native.js      # Implementación nativa (SQLite)
+    │   ├── database.web.js         # Implementación web (localStorage)
+    │   └── sqlite-stub.js          # Stub vacío de expo-sqlite para web
+    ├── components/
+    │   └── DonationBox.js          # Bloque de donación (Mercado Pago)
+    ├── utils/
+    │   ├── confirm.js              # Confirmaciones cross-platform
+    │   ├── migration.js            # Export/import de progreso entre dominios
+    │   ├── mercadopago.js          # Links de donación (Mercado Pago)
+    │   ├── report.js               # Reporte de preguntas (mailto a soporte)
+    │   ├── track.js                # Eventos de analítica (Umami)
+    │   └── webStyles.js            # Inyección de CSS para web (hover, etc.)
+    ├── assets/                     # Logo, íconos e imágenes de materias
+    └── screens/
+        ├── MateriaSelectScreen.js  # Pantalla inicial: elegí materia
+        ├── HomeScreen.js           # Menú principal de la materia
+        ├── TopicSelectScreen.js    # Selector de tema + filtros + timer
+        ├── QuizScreen.js           # Quiz en sí
+        ├── ResultsScreen.js        # Resultados + revisión
+        ├── AddQuestionScreen.js    # Formulario para agregar preguntas
+        ├── StatsScreen.js          # Estadísticas
+        └── SettingsScreen.js       # Ajustes (filtro de fuente, import/export, reset)
 ```
 
 ---
@@ -199,7 +196,7 @@ Cada release se taggea `vX.Y.Z`. La versión vive en `package.json` **y** `app.j
 
 El proyecto se sirve desde **Cloudflare Pages** en [pkapp.uy](https://pkapp.uy). Cada `git push` a `main` redeploya automáticamente.
 
-La migración desde el dominio anterior (`pkapp-web.vercel.app`, alojado en **Vercel**) ya está completa: el sitio vive 100% en Cloudflare Pages. El `vercel.json` se conserva solo con una regla de redirect (308) hacia pkapp.uy para enlaces viejos.
+La migración desde el host anterior (**Vercel**, dominio `pkapp-web.vercel.app`) ya está completa y el proyecto de Vercel fue dado de baja: el sitio vive 100% en Cloudflare Pages.
 
 ---
 
@@ -218,7 +215,7 @@ En `TopicSelectScreen` hay tres controles combinables:
 - **Solo generadas** → filtra `source === 'generated' || source === 'user'`.
 
 **Filtro de parcial** (3 opciones, los tamaños dependen de la materia):
-- **Examen** (default) → sin filtro de parcial. En modo examen sortea `examSize` preguntas (BCYT: 75; Anatomía: 50).
+- **Examen** (default) → sin filtro de parcial. En modo examen sortea `examSize` preguntas (BCYT: 75; Anatomía: 50; Neurobiología: 25).
 - **1er Parcial** → filtra `parcial === 'primero'`. Sortea `examSizeParcial` preguntas (BCYT: 40; Anatomía: 25).
 - **2do Parcial** → filtra `parcial === 'segundo'`. Sortea `examSizeParcial` preguntas.
 
@@ -232,7 +229,7 @@ Cada materia define sus tamaños en `src/materias/<id>/config.js`.
 
 ## Uso de IA en el proyecto
 
-Por transparencia, detallo en qué partes del proyecto se usó asistencia de IA (principalmente **Claude**, mayormente Opus 4.7).
+Por transparencia, detallo en qué partes del proyecto se usó asistencia de IA (principalmente **Claude**, familia Opus).
 
 ### Contenido educativo
 
