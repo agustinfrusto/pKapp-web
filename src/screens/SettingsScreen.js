@@ -189,34 +189,22 @@ export default function SettingsScreen() {
         )}
       </View>
 
-      {/* 4. Acerca de (info + conteos, una sola vez) */}
+      {/* 4. Acerca de (info compacta) */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Acerca de</Text>
         <View style={styles.aboutCard}>
-          <Text style={styles.aboutText}>
-            <Text style={styles.aboutBold}>pKapp</Text> <Text style={styles.aboutVersion}>v{APP_VERSION}</Text>
-            {'\n'}Preparación para ESFUNO.
-          </Text>
+          <View style={styles.aboutHeader}>
+            <Text style={styles.aboutBold}>pKapp <Text style={styles.aboutVersion}>v{APP_VERSION}</Text></Text>
+            <Text style={styles.aboutTagline}>Preparación para ESFUNO</Text>
+          </View>
 
-          <Text style={styles.bankCaption}>Banco de {materia?.name || 'preguntas'}</Text>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Exámenes reales</Text>
-            <Text style={styles.infoValue}>{examCount}</Text>
+          <View style={styles.bankRow}>
+            <Text style={styles.bankCaption}>Banco de {materia?.name || 'preguntas'}</Text>
+            <Text style={styles.bankTotal}>{examCount + generatedCount + userQuestions.length}</Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Generadas (práctica)</Text>
-            <Text style={styles.infoValue}>{generatedCount}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Tuyas</Text>
-            <Text style={styles.infoValue}>{userQuestions.length}</Text>
-          </View>
-          <View style={[styles.infoRow, styles.totalRow]}>
-            <Text style={styles.totalLabel}>Total</Text>
-            <Text style={styles.totalValue}>
-              {examCount + generatedCount + userQuestions.length}
-            </Text>
-          </View>
+          <Text style={styles.bankBreakdown}>
+            {examCount} de exámenes · {generatedCount} generadas · {userQuestions.length} tuyas
+          </Text>
 
           <View style={styles.aboutLinks}>
             <TouchableOpacity
@@ -231,7 +219,7 @@ export default function SettingsScreen() {
               style={styles.aboutLinkRow}
               activeOpacity={0.7}
             >
-              <Text style={styles.aboutLinkText}>Código fuente en GitHub ↗</Text>
+              <Text style={styles.aboutLinkText}>Código fuente ↗</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -288,45 +276,31 @@ const styles = StyleSheet.create({
   collapseBody: {
     marginTop: 10,
   },
+  bankRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#eef2f6',
+  },
   bankCaption: {
     fontSize: 11,
     color: '#94a3b8',
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.4,
-    marginTop: 14,
-    marginBottom: 4,
   },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  infoLabel: {
-    fontSize: 14,
-    color: '#475569',
-  },
-  infoValue: {
-    fontSize: 14,
-    color: '#1e293b',
-    fontWeight: '600',
-  },
-  totalRow: {
-    borderTopWidth: 1,
-    borderTopColor: '#e2e8f0',
-    marginTop: 4,
-    paddingTop: 12,
-  },
-  totalLabel: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#1e293b',
-  },
-  totalValue: {
-    fontSize: 18,
+  bankTotal: {
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#6366f1',
+  },
+  bankBreakdown: {
+    fontSize: 12,
+    color: '#607d99',
+    marginTop: 2,
   },
   emptyCard: {
     backgroundColor: '#fff',
@@ -432,14 +406,17 @@ const styles = StyleSheet.create({
   aboutCard: {
     backgroundColor: '#fff',
     borderRadius: 10,
-    padding: 16,
+    padding: 14,
   },
-  aboutText: {
-    fontSize: 13,
-    color: '#475569',
-    lineHeight: 20,
+  aboutHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    flexWrap: 'wrap',
+    gap: 8,
   },
   aboutBold: {
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#1e293b',
   },
@@ -448,18 +425,19 @@ const styles = StyleSheet.create({
     color: '#94a3b8',
     fontWeight: '500',
   },
+  aboutTagline: {
+    fontSize: 12,
+    color: '#607d99',
+  },
   aboutLinks: {
-    marginTop: 14,
-    paddingTop: 14,
-    borderTopWidth: 1,
-    borderTopColor: '#e2e8f0',
+    marginTop: 12,
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
   },
   aboutLinkRow: {
-    paddingVertical: 9,
-    paddingHorizontal: 14,
+    paddingVertical: 8,
+    paddingHorizontal: 13,
     backgroundColor: '#f1f5f9',
     borderRadius: 999,
     borderWidth: 1,
