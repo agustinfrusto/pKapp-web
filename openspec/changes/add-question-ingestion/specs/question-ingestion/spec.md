@@ -46,6 +46,45 @@ locales del usuario.
 - **THEN** el pipeline termina con error explícito y no emite un banco vacío
   como si fuera un resultado válido
 
+### Requirement: Independencia del agente que ejecuta el pipeline
+
+El pipeline SHALL poder ser ejecutado indistintamente por cualquier agente de
+codificación con acceso a un modelo, sin depender de una API key ni de un SDK
+concreto.
+
+Toda etapa que necesite trabajo de modelo SHALL comunicarse por archivos: escribe
+en disco su entrada, con todo lo que el modelo no debe ver ya removido, y lee de
+disco las respuestas. La etapa no invoca al modelo por sí misma.
+
+Ninguna etapa SHALL sustituir el trabajo de modelo por un mecanismo determinista
+y presentar el resultado como generado. Si el trabajo de modelo no se hizo, la
+etapa falla de forma visible en lugar de producir una salida de relleno.
+
+#### Scenario: Ejecución por un agente sin API key
+
+- **WHEN** el agente que corre el pipeline no tiene API key ni SDK del modelo
+- **THEN** las etapas de modelo emiten su archivo de entrada y se detienen a la
+  espera del archivo de respuestas, sin fallar por credenciales
+
+#### Scenario: Entrada de una etapa de modelo
+
+- **WHEN** una etapa escribe la entrada que consumirá el modelo
+- **THEN** el archivo contiene únicamente lo que el modelo debe ver, y puede
+  verificarse mecánicamente que lo omitido no está presente
+
+#### Scenario: Respuestas faltantes o incompletas
+
+- **WHEN** el archivo de respuestas falta, o no cubre todos los registros de la
+  entrada
+- **THEN** la etapa se detiene informando qué registros faltan, y no completa los
+  huecos con texto generado por reglas
+
+#### Scenario: Relleno determinista disfrazado de generación
+
+- **WHEN** una explicación proviene de una plantilla o regla y no del modelo
+- **THEN** queda registrada como tal en la trazabilidad, nunca con el mismo
+  estado que una explicación generada
+
 ### Requirement: Detección determinística de la respuesta correcta
 El pipeline SHALL determinar la respuesta correcta a partir de datos
 estructurados del documento, sin inferencia visual sobre la página

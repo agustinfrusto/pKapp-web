@@ -1,0 +1,74 @@
+[
+  {
+    "topic": "snc",
+    "question": "Con respecto al tronco encefálico:",
+    "correctOption": "Se encuentra en la fosa posterior de la cavidad craneana.",
+    "explanation": "El tronco encefálico es parte del SNC y se ubica en la fosa posterior. Los pares I (olfatorio) y II (óptico) NO se originan ahí; emergen del telencéfalo y diencéfalo respectivamente."
+  },
+  {
+    "topic": "snc",
+    "question": "Con respecto a las cavidades ependimarias del encéfalo:",
+    "correctOption": "El cuarto ventrículo es la cavidad ependimaria del rombencéfalo.",
+    "explanation": "El IV ventrículo corresponde al rombencéfalo (bulbo, protuberancia y cerebelo). El III ventrículo es del diencéfalo y los laterales del telencéfalo. El mesencéfalo solo tiene el acueducto de Silvio."
+  },
+  {
+    "topic": "nervios",
+    "question": "Con respecto al plexo braquial, marque la opción correcta:",
+    "correctOption": "Los troncos primarios se forman en el triángulo posterior del cuello.",
+    "explanation": "Los tres troncos primarios (superior, medio e inferior) se constituyen en la región supraclavicular (triángulo posterior del cuello) a partir de los ramos anteriores de C5-T1."
+  },
+  {
+    "topic": "nervios",
+    "question": "Con respecto al nervio ciático o isquiático:",
+    "correctOption": "Emerge de la pelvis a través del foramen ciático mayor por debajo del músculo piriforme.",
+    "explanation": "El nervio ciático sale de la pelvis mayor por el espacio infrapiriforme del foramen ciático mayor, descendiendo por el compartimento posterior del muslo."
+  },
+  {
+    "topic": "musculatura",
+    "question": "Con respecto a los músculos del compartimento anterior del brazo:",
+    "correctOption": "Están inervados principalmente por el nervio musculocutáneo.",
+    "explanation": "El nervio musculocutáneo inerva los tres músculos del compartimento anterior del brazo: bíceps braquial, coracobraquial y braquial anterior."
+  },
+  {
+    "topic": "osteologia",
+    "question": "Respecto a la anatomía del fémur, es correcto afirmar que:",
+    "correctOption": "El trocánter mayor se ubica en la extremidad proximal hacia lateral.",
+    "explanation": "El trocánter mayor es una eminencia ósea lateral y palpable en la extremidad superior del fémur, sitio de inserción para los músculos glúteos medio y menor."
+  },
+  {
+    "topic": "vascular",
+    "question": "En cuanto a la irrigación del miembro inferior:",
+    "correctOption": "La arteria femoral es continuación directa de la arteria ilíaca externa.",
+    "explanation": "Al pasar por detrás del ligamento inguinal (anillo femoral), la arteria ilíaca externa cambia de nombre y pasa a ser la arteria femoral común."
+  },
+  {
+    "topic": "cabeza-cuello",
+    "question": "Con respecto a la glándula parótida, marque la opción correcta:",
+    "correctOption": "El conducto parotídeo (de Stenon) desemboca en el vestíbulo bucal a nivel del segundo molar superior.",
+    "explanation": "El conducto parotídeo cruza el masetero, perfora el buccinador y se abre en la mucosa del vestíbulo bucal frente al cuello del 2° molar superior."
+  },
+  {
+    "topic": "torax",
+    "question": "En cuanto a la anatomía del mediastino posterior:",
+    "correctOption": "Contiene al esófago torácico y al conducto torácico.",
+    "explanation": "El mediastino posterior aloja la aorta torácica descendente, el esófago, el conducto torácico, las venas ácigos y hemiácigos, y los troncos simpáticos torácicos."
+  },
+  {
+    "topic": "torax",
+    "question": "Con respecto al árbol bronquial:",
+    "correctOption": "El bronquio principal derecho es más vertical, corto y de mayor calibre que el izquierdo.",
+    "explanation": "El bronquio fuente derecho tiene una dirección más vertical y rectilínea, además de ser más corto y ancho, facilitando el alojamiento de cuerpos extraños aspirados."
+  },
+  {
+    "topic": "abdomen",
+    "question": "Con respecto al foramen omental (hiatus de Winslow):",
+    "correctOption": "Está limitado por delante por el borde libre del omento menor (pedículo hepático).",
+    "explanation": "El límite anterior del foramen epiploico u omental está formado por el ligamento hepatoduodenal (borde libre del epiplón menor), que contiene la vena porta, arteria hepática propia y colédoco."
+  },
+  {
+    "topic": "pelvis",
+    "question": "Con respecto al espacio retropúbico (de Retzius):",
+    "correctOption": "Se sitúa entre la sínfisis púbica por delante y la vejiga urinaria por detrás.",
+    "explanation": "El espacio prevesical o de Retzius es un espacio extraperitoneal relleno de tejido adiposo y plexos venosos, ubicado entre la pared abdominal/pubis y la cara anterior de la vejiga."
+  }
+]

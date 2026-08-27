@@ -52,6 +52,13 @@ coverage/
 android/
 ios/
 
+# Tools / ingesta
+tools/ingesta/salidas/
+tools/ingesta/.venv/
+.venv/
+__pycache__/
+*.pyc
+
 # Notas personales (no para distribución)
 docs/LAUNCH-PLAYBOOK.md
 docs/CLOUDFLARE-MIGRATION.md

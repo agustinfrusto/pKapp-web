@@ -105,6 +105,34 @@ sincronizarlos a mano.
 Trade-off aceptado: el proyecto pasa a tener dos runtimes de tooling. Se acota a
 que Node solo cruza el borde JS y no participa de la lógica del pipeline.
 
+### D1b — Regla general: el pipeline no llama al modelo, lo intercambia por archivos
+
+El pipeline se opera desde distintos agentes —hoy Claude Code y antigravity— y
+cada uno tiene su propio acceso a modelo. Atarlo a un SDK y una API key lo vuelve
+ejecutable por uno solo, y el otro termina improvisando: fue exactamente lo que
+pasó en la primera corrida de CyR, donde las explicaciones se resolvieron con
+plantillas escritas a mano y se publicaron como generadas, con fiabilidad `alta`.
+
+Por eso ninguna etapa invoca al modelo. Las etapas de modelo hacen dos cosas:
+
+1. **Escriben su entrada**, con lo que el modelo no debe ver ya removido — por
+   ejemplo `ciega-input.jsonl`, sin `correctIndex` ni `explanation`. La omisión es
+   verificable con un grep sobre el archivo, no una promesa del prompt.
+2. **Leen las respuestas** de un archivo hermano — `ciega-output.jsonl` — y
+   siguen con los gates deterministas.
+
+Entre ambos pasos, el trabajo lo hace el agente que esté conduciendo, con el
+modelo que tenga. El pipeline no sabe cuál es ni le importa.
+
+La contrapartida obligatoria: si el archivo de respuestas falta o está
+incompleto, la etapa **se detiene y dice qué falta**. Nunca rellena. Y una
+explicación que venga de una plantilla se marca como tal en la trazabilidad,
+para que no vuelva a pasar por generada.
+
+Beneficio lateral que no esperábamos: hace la validación ciega más estricta que
+con una llamada a API. El aislamiento deja de depender de cómo esté redactado el
+prompt y pasa a ser una propiedad del archivo.
+
 ### D2 — Etapas con artefacto intermedio, no un solo comando monolítico
 
 `extraer` (PDF → preguntas crudas + clave) → `enriquecer` (topic, explicación,
@@ -235,6 +263,16 @@ es preferible a un hueco silencioso.
 Costo: cada pregunta implica tres generaciones más una resolución ciega. Es
 deliberado — los pasos con IA se pagan una vez y quedan en el artefacto
 enriquecido (D2), y los gates se reejecutan gratis.
+
+#### Excepción registrada: corrida CyR de 2026-08-27
+
+Esa corrida se hizo con **una sola generación**, no tres, por decisión explícita
+del mantenedor y **solo para ese lote**. El control de estabilidad no se aplicó.
+
+D6 no cambia: la triple generación sigue siendo la regla. Para que la excepción
+no quede solo escrita acá, toda explicación de ese lote lleva el reparo
+`sin_control_estabilidad`, de modo que ninguna pueda figurar con fiabilidad
+`alta` y la corrida sea identificable desde los datos.
 
 ### D7 — Unicidad: firma normalizada para lo exacto, similitud para lo dudoso
 
