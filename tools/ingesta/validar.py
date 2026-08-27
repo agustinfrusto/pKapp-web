@@ -30,6 +30,11 @@ def calcular_hash_enunciado(texto: str) -> str:
     return hashlib.sha256(norm.encode('utf-8')).hexdigest()[:16]
 
 UMBRAL_CASI_DUPLICADO = 0.88
+# Estos examenes comparten molde retorico ("Con respecto a X, marque la opcion
+# correcta"), asi que el enunciado solo no alcanza: dos preguntas distintas sobre
+# el mismo tema se parecen mucho. Cuando el enunciado supera el umbral se exige
+# ademas que las opciones se parezcan, que es donde vive la diferencia real.
+UMBRAL_OPCIONES = 0.60
 
 # El origen de las explicaciones de esta corrida, para la trazabilidad.
 MODELO_EXPLICACIONES = os.environ.get('INGESTA_MODELO', 'plantillas-deterministas')
@@ -45,9 +50,25 @@ def fiabilidad_por_reparos(reparos: list) -> str:
     return 'baja'
 
 
+def similitud_opciones(a: list, b: list) -> float:
+    """
+    Para cada opcion de A busca su mejor coincidencia en B y promedia. Simetrico
+    por promedio de ambos sentidos, para no depender del orden de comparacion.
+    """
+    if not a or not b:
+        return 0.0
+    na = [normalizar_enunciado(o) for o in a]
+    nb = [normalizar_enunciado(o) for o in b]
+
+    def dirigida(xs, ys):
+        return sum(max(SequenceMatcher(None, x, y).ratio() for y in ys) for x in xs) / len(xs)
+
+    return (dirigida(na, nb) + dirigida(nb, na)) / 2
+
+
 def detectar_casi_duplicados(items: list) -> dict:
     """
-    Compara enunciados normalizados por similitud. Devuelve {indice: [pares]}.
+    Un casi-duplicado exige enunciado Y opciones parecidos. Devuelve {indice: [pares]}.
     No decide: los pares van completos a revision manual (D7).
     """
     pares = {}
@@ -61,9 +82,13 @@ def detectar_casi_duplicados(items: list) -> dict:
             if normalizados[i] == normalizados[j]:
                 continue  # duplicado exacto: lo resuelve el gate de hash
             ratio = SequenceMatcher(None, normalizados[i], normalizados[j]).ratio()
-            if ratio >= UMBRAL_CASI_DUPLICADO:
-                pares.setdefault(i, []).append((j, round(ratio, 3)))
-                pares.setdefault(j, []).append((i, round(ratio, 3)))
+            if ratio < UMBRAL_CASI_DUPLICADO:
+                continue
+            ratio_opts = similitud_opciones(items[i].get('options', []), items[j].get('options', []))
+            if ratio_opts < UMBRAL_OPCIONES:
+                continue  # mismo molde de enunciado, preguntas distintas
+            pares.setdefault(i, []).append((j, round(ratio, 3), round(ratio_opts, 3)))
+            pares.setdefault(j, []).append((i, round(ratio, 3), round(ratio_opts, 3)))
     return pares
 
 
@@ -208,8 +233,9 @@ def validar_lote(enriquecidas_path: Path, materia_id: str, salida_dir: Path):
                     'numero_original': items[j].get('numero_original'),
                     'exam': items[j].get('exam'),
                     'question': items[j].get('question'),
-                    'similitud': ratio,
-                } for j, ratio in pares_casi_dup[idx]]
+                    'similitud_enunciado': ratio,
+                    'similitud_opciones': ratio_opts,
+                } for j, ratio, ratio_opts in pares_casi_dup[idx]]
                 revision_manual.append({
                     'numero_original': q_num,
                     'archivo_origen': item.get('archivo_origen', ''),
