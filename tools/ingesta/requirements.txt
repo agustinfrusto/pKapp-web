@@ -1,3 +1,4 @@
+# El pipeline NO llama al modelo: las etapas de modelo intercambian por archivos
+# (ver "Contrato de intercambio con el modelo" en el README). Por eso acá no hay
+# ningún SDK ni nada que requiera una API key.
 pymupdf>=1.23.0
-google-genai>=1.0.0
-python-dotenv>=1.0.0

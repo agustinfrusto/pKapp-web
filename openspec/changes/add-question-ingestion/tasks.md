@@ -24,7 +24,7 @@ revisarlos.
 - [x] 1b.2 Verificar mecánicamente que la entrada de una etapa de modelo no contiene lo que el modelo no debe ver; verificado por grep sobre `ciega-input.jsonl` (sin `correctIndex` ni `explanation`)
 - [x] 1b.3 Hacer que una etapa de modelo se detenga informando los registros faltantes cuando el archivo de respuestas no cubre toda la entrada, en vez de rellenar
 - [x] 1b.4 Marcar en la trazabilidad el origen real de cada explicación (`modelo` vs `plantilla`), de modo que un relleno determinista nunca figure con el mismo estado que una generada
-- [ ] 1b.5 Quitar de `requirements.txt` la dependencia de SDK del modelo y documentar en el README el contrato de intercambio por archivos
+- [x] 1b.5 Quitar de `requirements.txt` la dependencia de SDK del modelo y documentar en el README el contrato de intercambio por archivos
 
 ## 2. Inventario del corpus
 
