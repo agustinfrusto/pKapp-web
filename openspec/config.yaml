@@ -1,0 +1,87 @@
+schema: spec-driven
+
+context: |
+  ## Qué es pKapp
+
+  App de estudio para alumnos de la Escuela Técnica de Medicina (ESFUNO, Uruguay).
+  Banco de preguntas de exámenes reales con quiz, estadísticas y repaso de fallos.
+  Esta es la versión WEB (PWA). Existe un repo nativo aparte: NO es relevante acá,
+  no se sincroniza y no debe condicionar ninguna decisión de diseño.
+
+  ## Invariantes (no negociables)
+
+  - TODO LOCAL: el progreso del usuario vive en su dispositivo. No hay backend
+    propio ni base de datos remota. Nada de lo que el usuario responde, falla o
+    agrega sale del navegador.
+  - SIN CUENTAS: no hay login, registro ni identidad. El respaldo se mueve a mano
+    (exportar/importar archivo desde Ajustes).
+  - GRATIS SIEMPRE: sin planes, sin paywall, sin contenido bloqueado. Las
+    donaciones (links externos a Mercado Pago) son voluntarias y nunca pueden
+    condicionar el acceso a una funcionalidad.
+
+  Dos matices reales, para no contradecirlos sin querer:
+  - `src/utils/track.js` manda eventos anónimos de uso a Umami (analítica web).
+    Es lo único que sale del dispositivo. No incluye respuestas ni contenido del
+    usuario, y degrada a no-op si el script está bloqueado.
+  - `src/utils/mercadopago.js` solo guarda links de pago externos. No hay
+    integración de pagos en la app.
+
+  ## Stack
+
+  - Expo / React Native corriendo en web, exportado como PWA instalable.
+  - React Navigation (native-stack). Sin TypeScript, sin tests, sin linter configurado.
+  - Estilos con StyleSheet de RN (no hay librería de UI ni theming central).
+  - Capa de datos con dos implementaciones que Metro resuelve por plataforma:
+    `src/db/database.web.js` (localStorage) y `src/db/database.native.js` (SQLite).
+    En web las claves se namespacean por materia: `pkapp_question_stats:<materiaId>`,
+    `pkapp_user_questions:<materiaId>`. Los settings (`pkapp_settings`) son globales
+    cross-materia a propósito.
+  - Compatibilidad de datos hacia atrás: los usuarios no tienen cuenta ni respaldo
+    automático, así que romper el formato de localStorage les borra el progreso.
+    Todo cambio de forma necesita su migración, al estilo del flag `pkapp_migrated_v0.10`.
+
+  ## Dominio
+
+  - MATERIA: unidad de nivel superior (hoy `bcyt`, `anatomia`, `neuro`). Cada una es
+    una carpeta en `src/materias/<id>/` con cinco archivos: `metadata.js` (id, nombre,
+    ícono, color, `available`), `config.js` (`examSize`, `parciales`), `topics.js`,
+    `questions.js` e `index.js` que compone todo. Se registran en `src/materias/index.js`.
+  - PARCIAL: subdivisión del año de una materia. Puede ser `null` (Neurobiología no
+    tiene parciales) y ahí la UI oculta el filtro.
+  - TOPIC: tema dentro de una materia. Mapa slug → nombre legible en `topics.js`.
+  - SOURCE: origen de una pregunta. `exam` = extraída de un examen real; `generated`
+    = generada a partir de apuntes. El usuario puede filtrar por esto y la distinción
+    debe permanecer visible: nunca presentar una generada como si fuera real.
+  - Pregunta: `{ id, source, exam, topic, materia, question, options, correctIndex, explanation }`.
+  - Preguntas propias del usuario: se guardan solo en su dispositivo, nunca en el repo.
+
+  ## Contenido de terceros
+
+  Las preguntas se basan en material de estudio de terceros, con derechos de sus
+  autores. Se reproducen sin fines comerciales y con fines educativos. Cada
+  `questions.js` lleva ese encabezado legal: no lo quites al editar el archivo.
+  Ver `LICENSE-CONTENT`.
+
+  ## Convenciones
+
+  - Todo en español: código, comentarios, commits y UI. Los comentarios explican
+    el porqué, no el qué, y son escuetos.
+  - Commits: `<área>: <descripción en minúscula>`, con áreas tipo `ui:`, `docs:`,
+    `fix:`. Si el cambio incluye bump, la versión va al final entre paréntesis.
+  - VERSIÓN: se bumpea en `package.json` Y en `app.json` a la vez, siempre al mismo
+    número. `app.json` es la que se muestra en Ajustes vía `expo-constants`.
+  - No commitear ni pushear sin que el usuario lo pida explícitamente.
+  - Build web: `npm run build:web` (expo export + `scripts/inject-pwa.js` +
+    `scripts/inject-preload.js`). `dist/` está gitignoreado.
+  - Deploy: Cloudflare Pages conectado al repo. Ver `docs/CLOUDFLARE-MIGRATION.md`.
+
+# Per-artifact rules (optional)
+# rules:
+#   proposal:
+#     - Keep proposals under 500 words
+
+# Per-operation guidance (optional)
+# operations:
+#   apply:
+#     guidance:
+#       - Keep test summaries concise
