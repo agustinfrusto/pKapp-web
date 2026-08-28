@@ -63,6 +63,13 @@ El directorio `tools/ingesta/referencia/` almacena muestras de explicaciones ya 
 4. **`validar`**: Aplica gates deterministas en código (estructura, no material visual, no ambigüedad, no duplicados, fiabilidad de explicaciones). Emite `banco.jsonl`, `descartadas.jsonl`, `revision-manual.jsonl`, `explicaciones-dudosas.jsonl` y `reporte-calidad.md`.
 5. **`emitir`**: Helper Node que inserta las preguntas de `banco.jsonl` en `src/materias/<id>/questions.js` sin alterar el encabezado legal ni las preguntas preexistentes.
 
+Fuera del flujo, `render_revision.py` convierte `revision-manual.jsonl` en un
+markdown legible para decidir la cola a mano, con los casi-duplicados de a pares:
+
+```
+python3 tools/ingesta/render_revision.py <dir_salida>/revision-manual.jsonl
+```
+
 ---
 
 ## Contrato de intercambio con el modelo
