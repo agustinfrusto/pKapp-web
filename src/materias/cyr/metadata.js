@@ -7,5 +7,5 @@ export const metadata = {
   icon:        '🫀',
   image:       require('../../assets/materias/cyr.png'),
   color:       '#1a3f6f',
-  available:   false, // false = "Próximamente", no se puede entrar
+  available:   true,
 };
