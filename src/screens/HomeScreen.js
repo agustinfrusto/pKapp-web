@@ -1,6 +1,6 @@
 // Pantalla principal: muestra los modos de uso disponibles.
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Platform, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useMateria } from '../materia/MateriaContext';
 
@@ -53,6 +53,8 @@ export default function HomeScreen({ navigation }) {
           {examCount} preguntas reales · {generatedCount} preguntas extra
         </Text>
       </View>
+
+      {materia.bancoReducido ? <BancoReducidoBanner /> : null}
 
       <View style={styles.modesContainer}>
         <ModeCard
@@ -110,6 +112,26 @@ export default function HomeScreen({ navigation }) {
         </View>
       )}
     </ScrollView>
+  );
+}
+
+// Aviso para las materias donde se consiguieron pocos examenes: explica el
+// tamano del banco y pide material, en vez de dejar al usuario suponiendo.
+function BancoReducidoBanner() {
+  function escribir() {
+    requestAnimationFrame(() => Linking.openURL('mailto:pkappsoporte@gmail.com').catch(() => {}));
+  }
+
+  return (
+    <View style={styles.avisoWrap}>
+      <Text style={styles.avisoTitulo}>📉 Banco más reducido</Text>
+      <Text style={styles.avisoBody}>
+        Esta materia tiene menos preguntas que las anteriores porque tuve acceso a menos prototipos de examen.
+        {'\n\n'}
+        Si tenés material para aportar, escribime a{' '}
+        <Text style={styles.avisoEmail} onPress={escribir}>pkappsoporte@gmail.com</Text>.
+      </Text>
+    </View>
   );
 }
 
@@ -175,6 +197,31 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#a8c8e0',
     marginTop: 8,
+  },
+  avisoWrap: {
+    marginHorizontal: 16,
+    marginTop: 12,
+    padding: 14,
+    backgroundColor: '#ffffff',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  avisoTitulo: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1a3f6f',
+    marginBottom: 6,
+  },
+  avisoBody: {
+    fontSize: 13,
+    color: '#475569',
+    lineHeight: 20,
+  },
+  avisoEmail: {
+    color: '#1a3f6f',
+    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
   modesContainer: {
     padding: 16,

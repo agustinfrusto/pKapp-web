@@ -8,4 +8,5 @@ export const metadata = {
   image:       require('../../assets/materias/neuro.png'),
   color:       '#1a3f6f',
   available:   true,
+  bancoReducido: true, // muestra el aviso de banco acotado en HomeScreen
 };

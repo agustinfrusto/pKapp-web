@@ -8,4 +8,5 @@ export const metadata = {
   image:       require('../../assets/materias/cyr.png'),
   color:       '#1a3f6f',
   available:   true,
+  bancoReducido: true, // muestra el aviso de banco acotado en HomeScreen
 };
