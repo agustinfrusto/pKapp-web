@@ -29,11 +29,12 @@ Construido con **Expo / React Native**. Esta es la **versión web** del proyecto
 
 ## Qué hace pKapp
 
-pKapp está pensado para estudiar de forma práctica y enfocada. La app ayuda a repasar materias del plan de la Escuela Técnica de Medicina con un banco de preguntas estructurado, explicaciones útiles y seguimiento del desempeño.
+pKapp está pensado para estudiar de forma práctica y enfocada. La app ayuda a repasar materias del plan de la Escuela Técnica de Medicina —BCYT, Anatomía, Neurobiología y Cardiovascular y Respiratorio— con un banco de preguntas estructurado, explicaciones útiles y seguimiento del desempeño.
 
 ## Características
 
 - **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** (BCYT), **Anatomía**, **Neurobiología** y **Cardiovascular y Respiratorio** (CyR). Estructura preparada para sumar los demás módulos.
+- **Banco de preguntas** con material real y generado, según la materia: BCYT, Anatomía, Neurobiología y CyR.
 - **1049 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025 + Anatomía 2018-2025 + Neurobiología + CyR según el banco disponible).
 - **34 preguntas adicionales** generadas con Claude a partir de los apuntes (solo BCYT).
 - **Filtros:** por fuente (examen real / generada) y por parcial, combinables.
