@@ -32,13 +32,20 @@ function shouldShowDonation(percentage) {
 }
 
 export default function ResultsScreen({ route, navigation }) {
-  const { answers, topic, mode } = route.params;
+  // Igual que en Quiz: /resultados es una URL alcanzable en frio y ahi no hay
+  // respuestas que mostrar. Se calcula sobre una lista vacia para no romper y se
+  // sale por el efecto de mas abajo.
+  const { answers, topic, mode } = route.params || {};
+  const respuestas = Array.isArray(answers) ? answers : [];
+  const sinResultados = respuestas.length === 0;
   const { materia } = useMateria();
   const [showReview, setShowReview] = useState(false);
 
-  const correctCount = answers.filter(a => a.isCorrect).length;
-  const total = answers.length;
-  const percentage = Math.round((correctCount / total) * 100);
+  const correctCount = respuestas.filter(a => a.isCorrect).length;
+  const total = respuestas.length;
+  // Sin respuestas el porcentaje seria NaN, que ademas se cuela en
+  // shouldShowDonation (NaN < 60 es false) y contaria una donacion fantasma.
+  const percentage = total ? Math.round((correctCount / total) * 100) : 0;
 
   // Mensaje y color según el porcentaje (50% suele ser el de aprobación)
   const { oscuro: esOscuro } = useTema();
@@ -46,6 +53,11 @@ export default function ResultsScreen({ route, navigation }) {
   const [showDonation] = useState(() => shouldShowDonation(percentage));
 
   useEffect(() => {
+    // Una entrada en frio a /resultados no es un simulacro terminado: no se mide.
+    if (sinResultados) {
+      navigation.reset({ index: 0, routes: [{ name: 'MateriaSelect' }] });
+      return;
+    }
     track('simulacro_terminado', { mode, score: percentage, total });
     if (percentage >= APROBADO_MIN_SCORE) {
       track('simulacro_aprobado', { mode, score: percentage });
@@ -60,6 +72,8 @@ export default function ResultsScreen({ route, navigation }) {
     requestAnimationFrame(() => navigation.goBack());
   }
 
+  if (sinResultados) return null;
+
   if (showReview) {
     return (
       <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900" contentContainerClassName="p-4 pb-[30px]">
@@ -70,7 +84,7 @@ export default function ResultsScreen({ route, navigation }) {
           </Text>
         </View>
 
-        {answers.map((answer, idx) => (
+        {respuestas.map((answer, idx) => (
           <View
             key={idx}
             className={`mb-2.5 rounded-md border-l-4 bg-white p-3.5 dark:bg-slate-800 ${

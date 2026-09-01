@@ -18,7 +18,8 @@ import StatsScreen from './src/screens/StatsScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 
 import { initDatabase } from './src/db/database';
-import { MateriaProvider } from './src/materia/MateriaContext';
+import { MateriaProvider, useMateria } from './src/materia/MateriaContext';
+import { linking } from './src/navigation/linking';
 import { injectWebStyles } from './src/utils/webStyles';
 import { TemaProvider } from './src/theme/TemaContext';
 import { colores, oscuro } from './src/theme/colores';
@@ -72,6 +73,23 @@ function AppContent() {
   const navigationRef = useNavigationContainerRef();
   const routeNameRef = useRef();
 
+  // La materia no se persiste a proposito (ver MateriaContext): siempre se pasa
+  // por el selector al abrir. Ahora que cada pantalla tiene URL propia, alguien
+  // puede recargar /estadisticas o compartir /inicio y caer sin materia elegida,
+  // donde Home y TopicSelect devuelven null y la pantalla queda en blanco.
+  // Ante eso volvemos al selector en vez de mostrar la nada.
+  const { materiaId } = useMateria();
+  const materiaIdRef = useRef(materiaId);
+  useEffect(() => {
+    materiaIdRef.current = materiaId;
+  }, [materiaId]);
+
+  const volverAlSelectorSiFaltaMateria = () => {
+    const ruta = navigationRef.getCurrentRoute()?.name;
+    if (!ruta || ruta === 'MateriaSelect' || materiaIdRef.current) return;
+    navigationRef.resetRoot({ index: 0, routes: [{ name: 'MateriaSelect' }] });
+  };
+
   useEffect(() => {
     injectWebStyles(esOscuro);
     initDatabase().catch((err) => console.error('Error iniciando DB:', err));
@@ -116,11 +134,14 @@ function AppContent() {
   return (
     <NavigationContainer
       ref={navigationRef}
+      linking={linking}
       onReady={() => {
         // La carga inicial ("/") ya la registra Umami; solo guardamos la ruta actual.
         routeNameRef.current = navigationRef.getCurrentRoute()?.name;
+        volverAlSelectorSiFaltaMateria();
       }}
       onStateChange={() => {
+        volverAlSelectorSiFaltaMateria();
         const prev = routeNameRef.current;
         const curr = navigationRef.getCurrentRoute()?.name;
         if (curr && prev !== curr) {

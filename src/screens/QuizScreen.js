@@ -3,7 +3,7 @@
 // y guarda el resultado en la base de datos.
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, TouchableOpacity, ScrollView,
+  View, Text, TouchableOpacity, ScrollView, Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { recordAnswer } from '../db/database';
@@ -19,7 +19,12 @@ function formatTime(seconds) {
 }
 
 export default function QuizScreen({ route, navigation }) {
-  const { questions, mode, topic, hideFeedback, timerMinutes } = route.params;
+  // Con URLs por pantalla se puede entrar a /quiz de cero (recarga, link pegado,
+  // adelante del navegador tras un reload). Ahi no hay params: el quiz no existe
+  // y hay que volver al principio en vez de romper al desestructurar.
+  const { questions, mode, topic, hideFeedback, timerMinutes } = route.params || {};
+  const preguntas = Array.isArray(questions) ? questions : [];
+  const sinQuiz = preguntas.length === 0;
   const insets = useSafeAreaInsets();
   const { materiaId, materia } = useMateria();
   const TOPICS = materia?.TOPICS || {};
@@ -30,10 +35,52 @@ export default function QuizScreen({ route, navigation }) {
   const [timeLeft, setTimeLeft] = useState(timerMinutes ? timerMinutes * 60 : null);
   const answersRef = useRef([]);
   const timerRef = useRef(null);
+  // Marca las salidas legitimas (terminar el quiz o confirmar el abandono) para
+  // que el guardia de abajo no vuelva a preguntar.
+  const salidaAprobadaRef = useRef(false);
 
-  const currentQuestion = questions[currentIndex];
-  const isLast = currentIndex === questions.length - 1;
-  const progress = ((currentIndex + 1) / questions.length) * 100;
+  const currentQuestion = preguntas[currentIndex];
+  const isLast = currentIndex === preguntas.length - 1;
+  const progress = preguntas.length ? ((currentIndex + 1) / preguntas.length) * 100 : 0;
+
+  // Sin quiz que mostrar, al selector. Va en efecto porque no se puede navegar
+  // durante el render.
+  useEffect(() => {
+    if (sinQuiz) {
+      navigation.reset({ index: 0, routes: [{ name: 'MateriaSelect' }] });
+    }
+  }, [sinQuiz, navigation]);
+
+  // Regla general: nadie pierde el progreso de un quiz sin confirmarlo. El
+  // guardia vive aca y no en cada boton para que valga igual para la X, el atras
+  // del navegador y cualquier salida futura.
+  //
+  // En web el atras del navegador llega como un RESET que despacha useLinking
+  // DESPUES de que la URL ya cambio. Si el usuario cancela, la vista se queda en
+  // el quiz pero la barra de direcciones quedo una entrada atras, asi que hay que
+  // devolverla hacia adelante a mano.
+  useEffect(() => {
+    return navigation.addListener('beforeRemove', (e) => {
+      if (salidaAprobadaRef.current || sinQuiz) return;
+      e.preventDefault();
+      const vinoDelNavegador = Platform.OS === 'web' && e.data.action.type === 'RESET';
+      confirm(
+        'Salir del quiz',
+        '¿Seguro que querés salir? Se perderá el progreso de este quiz.',
+        () => {
+          salidaAprobadaRef.current = true;
+          navigation.dispatch(e.data.action);
+        },
+        {
+          confirmLabel: 'Salir',
+          destructive: true,
+          onCancel: () => {
+            if (vinoDelNavegador) window.history.go(1);
+          },
+        }
+      );
+    });
+  }, [navigation, sinQuiz]);
 
   // Countdown timer
   useEffect(() => {
@@ -42,6 +89,7 @@ export default function QuizScreen({ route, navigation }) {
       setTimeLeft(prev => {
         if (prev <= 1) {
           clearInterval(timerRef.current);
+          salidaAprobadaRef.current = true;
           navigation.replace('Results', {
             answers: answersRef.current,
             mode,
@@ -88,6 +136,7 @@ export default function QuizScreen({ route, navigation }) {
 
   function handleNext() {
     if (isLast) {
+      salidaAprobadaRef.current = true;
       requestAnimationFrame(() => navigation.replace('Results', {
         answers: [...answers],
         mode,
@@ -102,14 +151,13 @@ export default function QuizScreen({ route, navigation }) {
     }
   }
 
+  // La confirmacion la pone el guardia de 'beforeRemove'; pedirla aca tambien
+  // mostraria el cartel dos veces.
   function handleQuit() {
-    confirm(
-      'Salir del quiz',
-      '¿Seguro que querés salir? Se perderá el progreso de este quiz.',
-      () => navigation.navigate('Home'),
-      { confirmLabel: 'Salir', destructive: true }
-    );
+    navigation.navigate('Home');
   }
+
+  if (sinQuiz) return null;
 
   return (
     <View className="flex-1 bg-slate-100 dark:bg-slate-900">
@@ -123,7 +171,7 @@ export default function QuizScreen({ route, navigation }) {
             <View className="h-full bg-white" style={{ width: `${progress}%` }} />
           </View>
           <Text className="ml-3 min-w-[50px] text-sm font-semibold text-white">
-            {currentIndex + 1} / {questions.length}
+            {currentIndex + 1} / {preguntas.length}
           </Text>
         </View>
         {timeLeft !== null && (
