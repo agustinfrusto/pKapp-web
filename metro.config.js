@@ -1,8 +1,14 @@
 // Configuración de Metro para excluir expo-sqlite del bundle web.
 const { getDefaultConfig } = require('expo/metro-config');
+const { withNativeWind } = require('nativewind/metro');
 const path = require('path');
 
-const config = getDefaultConfig(__dirname);
+// El orden importa: withNativeWind devuelve una config con su propio resolver.
+// Si se envolviera al final, pisaría el resolveRequest de abajo y el stub de
+// expo-sqlite dejaría de aplicarse en web — un fallo que solo se ve al exportar.
+const config = withNativeWind(getDefaultConfig(__dirname), {
+  input: './global.css',
+});
 
 // Stub vacío al que redirigir expo-sqlite y sus internals en web
 const emptyShim = path.resolve(__dirname, 'src/db/sqlite-stub.js');
