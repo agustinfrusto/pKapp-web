@@ -1,0 +1,43 @@
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: '#fef3c7', // amber-100
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#fde68a',     // amber-200
+    padding: 16,
+  },
+  title: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#78350f',           // amber-900
+    marginBottom: 8,
+  },
+  body: {
+    fontSize: 13,
+    color: '#92400e',           // amber-800
+    lineHeight: 19,
+    marginBottom: 14,
+  },
+  amounts: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+  },
+  amountBtn: {
+    flex: 1,
+    backgroundColor: '#b45309',  // amber-700
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  amountText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  footer: {
+    fontSize: 12,
+    color: '#a16207',           // amber-700 muted
+    textAlign: 'center',
+  },
+});

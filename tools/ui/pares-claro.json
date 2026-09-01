@@ -1,0 +1,198 @@
+[
+ {
+  "nombre": "HomeScreen backButtonText  white/brand",
+  "fg": "#ffffff",
+  "bg": "#1a3f6f"
+ },
+ {
+  "nombre": "HomeScreen subtitle  brand-tint/brand",
+  "fg": "#c5d9f0",
+  "bg": "#1a3f6f",
+  "grande": true
+ },
+ {
+  "nombre": "HomeScreen stats  brand-pale/brand",
+  "fg": "#a8c8e0",
+  "bg": "#1a3f6f"
+ },
+ {
+  "nombre": "HomeScreen avisoTitulo  brand/white",
+  "fg": "#1a3f6f",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "HomeScreen avisoBody  slate-600/white",
+  "fg": "#475569",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "HomeScreen cardTitle  brand-ink/white",
+  "fg": "#0f1f33",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "HomeScreen cardDescription  brand-soft/white [corregido]",
+  "fg": "#58738d",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "HomeScreen privacyText  slate-400/slate-100 (colapsado) [corregido]",
+  "fg": "#66707f",
+  "bg": "#f1f5f9"
+ },
+ {
+  "nombre": "DonationBox title  warning-ink/warning-surface",
+  "fg": "#78350f",
+  "bg": "#fef3c7"
+ },
+ {
+  "nombre": "DonationBox body  warning-strong/warning-surface",
+  "fg": "#92400e",
+  "bg": "#fef3c7"
+ },
+ {
+  "nombre": "DonationBox amountText  white/warning",
+  "fg": "#ffffff",
+  "bg": "#b45309"
+ },
+ {
+  "nombre": "DonationBox footer  warning/warning-surface (colapsado)",
+  "fg": "#b45309",
+  "bg": "#fef3c7"
+ },
+ {
+  "nombre": "Settings sectionTitle  brand/slate-50",
+  "fg": "#1a3f6f",
+  "bg": "#f8fafc"
+ },
+ {
+  "nombre": "Settings collapseTitle  brand-ink/white",
+  "fg": "#0f1f33",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "Settings collapseToggle  accent/white",
+  "fg": "#0d7a8a",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "Settings bankCaption  slate-400/white [corregido]",
+  "fg": "#66707f",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "Settings bankTotal  brand/white (colapsado de 6366f1)",
+  "fg": "#1a3f6f",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "Settings bankBreakdown  brand-soft/white [corregido]",
+  "fg": "#58738d",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "Settings emptyText  slate-400/white [corregido]",
+  "fg": "#66707f",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "Settings questionTopic  brand/white (colapsado de 6366f1)",
+  "fg": "#1a3f6f",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "Settings questionText  slate-800/white",
+  "fg": "#1e293b",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "Settings questionCorrect  success/white (colapsado de 15803d)",
+  "fg": "#276221",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "Settings dataHint  brand-soft/white [corregido]",
+  "fg": "#58738d",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "Settings importBtnText  white/brand (colapsado de 1d4ed8)",
+  "fg": "#ffffff",
+  "bg": "#1a3f6f"
+ },
+ {
+  "nombre": "Settings exportBtnText  brand-ink/brand-tint (colapsado)",
+  "fg": "#0f1f33",
+  "bg": "#c5d9f0"
+ },
+ {
+  "nombre": "Settings dangerButtonText  danger/danger-surface (colapsado)",
+  "fg": "#b52828",
+  "bg": "#fceaea"
+ },
+ {
+  "nombre": "Settings aboutVersion  slate-400/white [corregido]",
+  "fg": "#66707f",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "Settings aboutTagline  brand-soft/white [corregido]",
+  "fg": "#58738d",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "Settings aboutLinkText  accent/slate-100",
+  "fg": "#0d7a8a",
+  "bg": "#f1f5f9"
+ },
+ {
+  "nombre": "Settings settingDescription  brand-soft/white [corregido]",
+  "fg": "#58738d",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "Semantico success/success-surface",
+  "fg": "#276221",
+  "bg": "#e8f5e7"
+ },
+ {
+  "nombre": "Semantico success-strong/success-surface",
+  "fg": "#1a5216",
+  "bg": "#e8f5e7"
+ },
+ {
+  "nombre": "Semantico danger-strong/danger-surface",
+  "fg": "#8b1c1c",
+  "bg": "#fceaea"
+ },
+ {
+  "nombre": "Semantico accent-strong/accent-surface",
+  "fg": "#095c6b",
+  "bg": "#ddf2f5"
+ },
+ {
+  "nombre": "Semantico brand-muted/white",
+  "fg": "#354d66",
+  "bg": "#ffffff"
+ },
+ {
+  "nombre": "Semantico slate-700/parcial-1",
+  "fg": "#334155",
+  "bg": "#e0f2fe"
+ },
+ {
+  "nombre": "Semantico slate-700/parcial-2",
+  "fg": "#334155",
+  "bg": "#ede9fe"
+ },
+ {
+  "nombre": "Semantico slate-500/slate-50",
+  "fg": "#64748b",
+  "bg": "#f8fafc"
+ },
+ {
+  "nombre": "Semantico warning-bold/white [corregido]",
+  "fg": "#9c6200",
+  "bg": "#ffffff"
+ }
+]
