@@ -1,7 +1,7 @@
 // Pantalla de ajustes: gestión de preguntas custom, reseteo de stats, info.
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch, Linking,
+  View, Text, TouchableOpacity, ScrollView, Alert, Switch, Linking,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Constants from 'expo-constants';
@@ -15,6 +15,7 @@ import {
 } from '../db/database';
 import { confirm } from '../utils/confirm';
 import { pickAndImportBackup, downloadBackup } from '../utils/migration';
+import { colores } from '../theme/colores';
 import { Platform } from 'react-native';
 
 export default function SettingsScreen() {
@@ -73,65 +74,67 @@ export default function SettingsScreen() {
   const generatedCount = QUESTIONS.filter(q => q.source === 'generated').length;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+    <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900" contentContainerClassName="p-4 pb-[30px]">
       {/* 1. Cuestionario (el ajuste configurable, arriba) */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Cuestionario</Text>
-        <View style={styles.settingRow}>
-          <View style={styles.settingInfo}>
-            <Text style={styles.settingLabel}>Ocultar resultado hasta el final</Text>
-            <Text style={styles.settingDescription}>
+      <View className="mb-6">
+        <Text className="mb-2.5 text-base font-bold uppercase tracking-[0.5px] text-brand dark:text-brandD-light">Cuestionario</Text>
+        <View className="flex-row items-center rounded-md bg-white p-4 dark:bg-slate-800">
+          <View className="mr-3 flex-1">
+            <Text className="text-base font-semibold text-brand-ink dark:text-brandD-ink">Ocultar resultado hasta el final</Text>
+            <Text className="mt-[3px] text-xs leading-4 text-brand-soft dark:text-brandD-soft">
               Respondé sin ver si acertás. Al terminar, revisás todo junto.
             </Text>
           </View>
           <Switch
             value={hideFeedback}
             onValueChange={handleToggleHideFeedback}
-            trackColor={{ false: '#ccd9e6', true: '#0d7a8a' }}
-            thumbColor="#fff"
+            trackColor={{ false: colores.brand.border, true: colores.accent.DEFAULT }}
+            thumbColor="white"
           />
         </View>
       </View>
 
       {/* 2. Mis preguntas (desplegable, con contador) */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Mis preguntas</Text>
+      <View className="mb-6">
+        <Text className="mb-2.5 text-base font-bold uppercase tracking-[0.5px] text-brand dark:text-brandD-light">Mis preguntas</Text>
         <TouchableOpacity
-          style={[styles.collapseHeader, showQuestions && styles.collapseHeaderOpen]}
+          className={`flex-row items-center justify-between rounded-md bg-white px-4 py-3.5 dark:bg-slate-800 ${
+            showQuestions ? 'rounded-b-none border-b border-b-brand-wash dark:border-b-brandD-wash' : ''
+          }`}
           onPress={() => setShowQuestions((v) => !v)}
           activeOpacity={0.7}
         >
-          <Text style={styles.collapseTitle}>
+          <Text className="text-base font-semibold text-brand-ink dark:text-brandD-ink">
             {userQuestions.length} {userQuestions.length === 1 ? 'pregunta propia' : 'preguntas propias'}
           </Text>
-          <Text style={styles.collapseToggle}>{showQuestions ? '▲  Ocultar' : '▼  Ver'}</Text>
+          <Text className="text-sm font-bold text-accent dark:text-accentD">{showQuestions ? '▲  Ocultar' : '▼  Ver'}</Text>
         </TouchableOpacity>
         {showQuestions && (
-          <View style={styles.collapseBody}>
+          <View className="mt-2.5">
             {userQuestions.length === 0 ? (
-              <View style={styles.emptyCard}>
-                <Text style={styles.emptyText}>
+              <View className="rounded bg-white p-5 dark:bg-slate-800">
+                <Text className="text-center text-sm leading-5 text-muted dark:text-mutedD">
                   No agregaste preguntas todavía. Usá "Agregar pregunta" en el menú principal.
                 </Text>
               </View>
             ) : (
               userQuestions.map((q) => (
-                <View key={q.id} style={styles.questionCard}>
-                  <View style={styles.questionCardHeader}>
-                    <Text style={styles.questionTopic}>
+                <View key={q.id} className="mb-2 rounded bg-white p-3 dark:bg-slate-800">
+                  <View className="mb-1.5 flex-row items-center justify-between">
+                    <Text className="text-xxs font-semibold uppercase text-brand dark:text-brandD-light">
                       {TOPICS[q.topic] || q.topic}
                     </Text>
                     <TouchableOpacity
                       onPress={() => handleDeleteUserQuestion(q.id)}
-                      style={styles.deleteButton}
+                      className="p-1"
                     >
-                      <Text style={styles.deleteButtonText}>×</Text>
+                      <Text className="text-md">×</Text>
                     </TouchableOpacity>
                   </View>
-                  <Text style={styles.questionText} numberOfLines={2}>
+                  <Text className="mb-1.5 text-sm leading-[18px] text-slate-800 dark:text-brandD-ink" numberOfLines={2}>
                     {q.question}
                   </Text>
-                  <Text style={styles.questionCorrect}>
+                  <Text className="text-xs font-medium text-success dark:text-successD">
                     {q.options[q.correctIndex]}
                   </Text>
                 </View>
@@ -142,47 +145,52 @@ export default function SettingsScreen() {
       </View>
 
       {/* 3. Tus datos (desplegable: respaldo + reset) */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Tus datos</Text>
+      <View className="mb-6">
+        <Text className="mb-2.5 text-base font-bold uppercase tracking-[0.5px] text-brand dark:text-brandD-light">Tus datos</Text>
         <TouchableOpacity
-          style={[styles.collapseHeader, showData && styles.collapseHeaderOpen]}
+          className={`flex-row items-center justify-between rounded-md bg-white px-4 py-3.5 dark:bg-slate-800 ${
+            showData ? 'rounded-b-none border-b border-b-brand-wash dark:border-b-brandD-wash' : ''
+          }`}
           onPress={() => setShowData((v) => !v)}
           activeOpacity={0.7}
         >
-          <Text style={styles.collapseTitle}>Respaldo y reseteo</Text>
-          <Text style={styles.collapseToggle}>{showData ? '▲  Ocultar' : '▼  Ver'}</Text>
+          <Text className="text-base font-semibold text-brand-ink dark:text-brandD-ink">Respaldo y reseteo</Text>
+          <Text className="text-sm font-bold text-accent dark:text-accentD">{showData ? '▲  Ocultar' : '▼  Ver'}</Text>
         </TouchableOpacity>
         {showData && (
-          <View style={styles.collapseBody}>
-            <View style={styles.dataCard}>
+          <View className="mt-2.5">
+            <View className="rounded-md bg-white p-3.5 dark:bg-slate-800">
               {Platform.OS === 'web' && (
                 <>
-                  <Text style={styles.dataHint}>
+                  <Text className="mb-2.5 text-xs leading-[17px] text-brand-soft dark:text-brandD-soft">
                     Descargá un respaldo de tu progreso para no perderlo o pasarlo a otro dispositivo.
                   </Text>
                   <TouchableOpacity
-                    style={styles.exportBtn}
+                    className="mb-2 items-center rounded border border-brand-border bg-brand-tint py-2.5 dark:border-brandD-border dark:bg-brandD-tint"
                     onPress={() => {
                       const ok = downloadBackup();
                       if (!ok) Alert.alert('Error', 'No se pudo generar el respaldo.');
                     }}
                   >
-                    <Text style={styles.exportBtnText}>💾 Descargar respaldo</Text>
+                    <Text className="text-xs font-semibold text-brand-ink dark:text-brandD-ink">💾 Descargar respaldo</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={styles.importBtn}
+                    className="mb-2 items-center rounded bg-brand py-[11px] dark:bg-brandD-deep"
                     onPress={() => pickAndImportBackup((r) => {
                       Alert.alert(r.ok ? 'Listo' : 'Error', r.message);
                       if (r.ok) loadData();
                     })}
                   >
-                    <Text style={styles.importBtnText}>📂 Importar respaldo</Text>
+                    <Text className="text-sm font-semibold text-white">📂 Importar respaldo</Text>
                   </TouchableOpacity>
-                  <View style={styles.dataDivider} />
+                  <View className="my-3 h-px bg-slate-200 dark:bg-brandD-border" />
                 </>
               )}
-              <TouchableOpacity style={styles.dangerButton} onPress={handleResetStats}>
-                <Text style={styles.dangerButtonText}>Resetear estadísticas</Text>
+              <TouchableOpacity
+                className="items-center rounded border border-danger-border bg-danger-surface py-3.5 dark:border-dangerD-border dark:bg-dangerD-surface"
+                onPress={handleResetStats}
+              >
+                <Text className="text-base font-semibold text-danger dark:text-dangerD">Resetear estadísticas</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -190,36 +198,36 @@ export default function SettingsScreen() {
       </View>
 
       {/* 4. Acerca de (info compacta) */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Acerca de</Text>
-        <View style={styles.aboutCard}>
-          <View style={styles.aboutHeader}>
-            <Text style={styles.aboutBold}>pKapp <Text style={styles.aboutVersion}>v{APP_VERSION}</Text></Text>
-            <Text style={styles.aboutTagline}>Preparación para ESFUNO</Text>
+      <View className="mb-6">
+        <Text className="mb-2.5 text-base font-bold uppercase tracking-[0.5px] text-brand dark:text-brandD-light">Acerca de</Text>
+        <View className="rounded bg-white p-3.5 dark:bg-slate-800">
+          <View className="flex-row flex-wrap items-baseline justify-between gap-2">
+            <Text className="text-base font-bold text-slate-800 dark:text-brandD-ink">pKapp <Text className="text-xs font-medium text-muted dark:text-mutedD">v{APP_VERSION}</Text></Text>
+            <Text className="text-xs text-brand-soft dark:text-brandD-soft">Preparación para ESFUNO</Text>
           </View>
 
-          <View style={styles.bankRow}>
-            <Text style={styles.bankCaption}>Banco de {materia?.name || 'preguntas'}</Text>
-            <Text style={styles.bankTotal}>{examCount + generatedCount + userQuestions.length}</Text>
+          <View className="mt-3 flex-row items-baseline justify-between border-t border-t-brand-wash pt-2.5 dark:border-t-brandD-wash">
+            <Text className="text-xxs font-semibold uppercase tracking-[0.4px] text-muted dark:text-mutedD">Banco de {materia?.name || 'preguntas'}</Text>
+            <Text className="text-md font-bold text-brand dark:text-brandD-light">{examCount + generatedCount + userQuestions.length}</Text>
           </View>
-          <Text style={styles.bankBreakdown}>
+          <Text className="mt-0.5 text-xs text-brand-soft dark:text-brandD-soft">
             {examCount} de exámenes · {generatedCount} generadas · {userQuestions.length} tuyas
           </Text>
 
-          <View style={styles.aboutLinks}>
+          <View className="mt-3 flex-row flex-wrap gap-2">
             <TouchableOpacity
               onPress={() => Linking.openURL('mailto:pkappsoporte@gmail.com')}
-              style={styles.aboutLinkRow}
+              className="rounded-full border border-slate-200 bg-slate-100 px-[13px] py-2 dark:border-brandD-border dark:bg-slate-800"
               activeOpacity={0.7}
             >
-              <Text style={styles.aboutLinkText}>✉️  Reportar un error</Text>
+              <Text className="text-sm font-semibold text-accent dark:text-accentD">✉️  Reportar un error</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => Linking.openURL('https://github.com/agustinfrusto/pKapp-web')}
-              style={styles.aboutLinkRow}
+              className="rounded-full border border-slate-200 bg-slate-100 px-[13px] py-2 dark:border-brandD-border dark:bg-slate-800"
               activeOpacity={0.7}
             >
-              <Text style={styles.aboutLinkText}>Código fuente ↗</Text>
+              <Text className="text-sm font-semibold text-accent dark:text-accentD">Código fuente ↗</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -227,247 +235,3 @@ export default function SettingsScreen() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 30,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#1a3f6f',
-    textTransform: 'uppercase',
-    marginBottom: 10,
-    letterSpacing: 0.5,
-  },
-  collapseHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-  },
-  collapseHeaderOpen: {
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eef2f6',
-  },
-  collapseTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#0f1f33',
-  },
-  collapseToggle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#0d7a8a',
-  },
-  collapseBody: {
-    marginTop: 10,
-  },
-  bankRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-    marginTop: 12,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#eef2f6',
-  },
-  bankCaption: {
-    fontSize: 11,
-    color: '#94a3b8',
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
-  bankTotal: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#6366f1',
-  },
-  bankBreakdown: {
-    fontSize: 12,
-    color: '#607d99',
-    marginTop: 2,
-  },
-  emptyCard: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 20,
-  },
-  emptyText: {
-    fontSize: 13,
-    color: '#94a3b8',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  questionCard: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 8,
-  },
-  questionCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  questionTopic: {
-    fontSize: 11,
-    color: '#6366f1',
-    fontWeight: '600',
-    textTransform: 'uppercase',
-  },
-  deleteButton: {
-    padding: 4,
-  },
-  deleteButtonText: {
-    fontSize: 16,
-  },
-  questionText: {
-    fontSize: 13,
-    color: '#1e293b',
-    marginBottom: 6,
-    lineHeight: 18,
-  },
-  questionCorrect: {
-    fontSize: 12,
-    color: '#15803d',
-    fontWeight: '500',
-  },
-  dataCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 14,
-  },
-  dataHint: {
-    fontSize: 12,
-    color: '#607d99',
-    lineHeight: 17,
-    marginBottom: 10,
-  },
-  dataDivider: {
-    height: 1,
-    backgroundColor: '#e2e8f0',
-    marginVertical: 12,
-  },
-  importBtn: {
-    backgroundColor: '#1d4ed8',
-    paddingVertical: 11,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  importBtnText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 13,
-  },
-  exportBtn: {
-    backgroundColor: '#dbeafe',
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#93c5fd',
-    marginBottom: 8,
-  },
-  exportBtnText: {
-    color: '#1e3a8a',
-    fontWeight: '600',
-    fontSize: 12,
-  },
-  dangerButton: {
-    backgroundColor: '#fee2e2',
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#fca5a5',
-  },
-  dangerButtonText: {
-    color: '#b91c1c',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  aboutCard: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 14,
-  },
-  aboutHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  aboutBold: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#1e293b',
-  },
-  aboutVersion: {
-    fontSize: 12,
-    color: '#94a3b8',
-    fontWeight: '500',
-  },
-  aboutTagline: {
-    fontSize: 12,
-    color: '#607d99',
-  },
-  aboutLinks: {
-    marginTop: 12,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  aboutLinkRow: {
-    paddingVertical: 8,
-    paddingHorizontal: 13,
-    backgroundColor: '#f1f5f9',
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-  aboutLinkText: {
-    fontSize: 13,
-    color: '#0d7a8a',
-    fontWeight: '600',
-  },
-  settingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-  },
-  settingInfo: {
-    flex: 1,
-    marginRight: 12,
-  },
-  settingLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#0f1f33',
-  },
-  settingDescription: {
-    fontSize: 12,
-    color: '#607d99',
-    marginTop: 3,
-    lineHeight: 16,
-  },
-});

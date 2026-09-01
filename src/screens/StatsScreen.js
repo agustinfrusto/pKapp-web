@@ -1,14 +1,21 @@
 // Pantalla de estadísticas: % de aciertos por tema, total respondido, etc.
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, RefreshControl,
+  View, Text, ScrollView, RefreshControl,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { getAllStats, getUserQuestions } from '../db/database';
 import { useMateria } from '../materia/MateriaContext';
+import { colores, oscuro } from '../theme/colores';
+import { useTema } from '../theme/TemaContext';
+import { sombras } from '../theme/sombras';
 
 export default function StatsScreen() {
   const { materiaId, materia } = useMateria();
+  // El color de acierto se aplica por `style` porque depende de un porcentaje
+  // calculado: no hay clase de utilidad que se pueda escribir literal.
+  const { oscuro: esOscuro } = useTema();
+  const colorAcierto = (p) => acierto(p, esOscuro);
   const QUESTIONS = materia?.QUESTIONS || [];
   const TOPICS = materia?.TOPICS || {};
   const [stats, setStats] = useState([]);
@@ -83,13 +90,13 @@ export default function StatsScreen() {
   if (totalAnswered === 0) {
     return (
       <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.emptyContainer}
+        className="flex-1 bg-slate-50 dark:bg-slate-900"
+        contentContainerClassName="min-h-[400px] flex-1 items-center justify-center p-8"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={loadStats} />}
       >
-        <Text style={styles.emptyEmoji}>📊</Text>
-        <Text style={styles.emptyTitle}>Sin estadísticas todavía</Text>
-        <Text style={styles.emptyText}>
+        <Text className="mb-4 text-display-lg">📊</Text>
+        <Text className="mb-2 text-lg font-bold text-slate-800 dark:text-brandD-ink">Sin estadísticas todavía</Text>
+        <Text className="text-center text-base leading-[22px] text-slate-500 dark:text-brandD-soft">
           Hacé algunos quizzes y volvé a esta pantalla para ver tu progreso.
         </Text>
       </ScrollView>
@@ -98,59 +105,54 @@ export default function StatsScreen() {
 
   return (
     <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.scrollContent}
+      className="flex-1 bg-slate-50 dark:bg-slate-900"
+      contentContainerClassName="p-4 pb-[30px]"
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={loadStats} />}
     >
       {/* Estadística global */}
-      <View style={styles.globalCard}>
-        <Text style={styles.globalLabel}>Aciertos globales</Text>
-        <Text style={[styles.globalValue, { color: getAccuracyColor(globalAccuracy) }]}>
+      <View className="mb-5 items-center rounded-lg bg-white p-6 dark:bg-slate-800" style={sombras.cardAlta}>
+        <Text className="mb-1 text-base font-semibold uppercase text-slate-500 dark:text-brandD-soft">Aciertos globales</Text>
+        <Text className="text-display-md font-bold" style={{ color: colorAcierto(globalAccuracy) }}>
           {globalAccuracy}%
         </Text>
-        <Text style={styles.globalSubtext}>
+        <Text className="mt-1 text-sm text-muted dark:text-mutedD">
           {totalCorrect} aciertos de {totalAnswered} respuestas
         </Text>
       </View>
 
       {/* Por tema */}
-      <Text style={styles.sectionTitle}>Por tema</Text>
+      <Text className="mb-2.5 mt-2 text-md font-bold text-slate-800 dark:text-brandD-ink">Por tema</Text>
       {Object.entries(statsByTopic).map(([key, data]) => {
         if (data.totalQuestions === 0) return null;
         return (
-          <View key={key} style={styles.topicCard}>
-            <View style={styles.topicHeader}>
-              <Text style={styles.topicName}>{TOPICS[key]}</Text>
+          <View key={key} className="mb-2 rounded bg-white p-3.5 dark:bg-slate-800">
+            <View className="mb-2 flex-row items-center justify-between">
+              <Text className="flex-1 text-base font-semibold text-slate-800 dark:text-brandD-ink">{TOPICS[key]}</Text>
               {data.accuracy !== null ? (
-                <Text style={[styles.topicAccuracy, { color: getAccuracyColor(data.accuracy) }]}>
+                <Text className="text-md font-bold" style={{ color: colorAcierto(data.accuracy) }}>
                   {data.accuracy}%
                 </Text>
               ) : (
-                <Text style={styles.topicNotPracticed}>Sin practicar</Text>
+                <Text className="text-xs italic text-muted dark:text-mutedD">Sin practicar</Text>
               )}
             </View>
             
             {data.accuracy !== null && (
               <>
-                <View style={styles.progressBarBg}>
+                <View className="h-1.5 overflow-hidden rounded-xs bg-slate-200 dark:bg-brandD-border">
                   <View
-                    style={[
-                      styles.progressBarFill,
-                      {
-                        width: `${data.accuracy}%`,
-                        backgroundColor: getAccuracyColor(data.accuracy),
-                      },
-                    ]}
+                    className="h-full"
+                    style={{ width: `${data.accuracy}%`, backgroundColor: colorAcierto(data.accuracy) }}
                   />
                 </View>
-                <Text style={styles.topicDetails}>
+                <Text className="mt-1.5 text-xxs text-muted dark:text-mutedD">
                   {data.correct} aciertos en {data.answered} respuestas · {data.totalQuestions} preguntas disponibles
                 </Text>
               </>
             )}
             
             {data.accuracy === null && (
-              <Text style={styles.topicDetails}>
+              <Text className="mt-1.5 text-xxs text-muted dark:text-mutedD">
                 {data.totalQuestions} preguntas disponibles
               </Text>
             )}
@@ -161,19 +163,19 @@ export default function StatsScreen() {
       {/* Preguntas más falladas */}
       {failedStats.length > 0 && (
         <>
-          <Text style={styles.sectionTitle}>Más falladas</Text>
+          <Text className="mb-2.5 mt-2 text-md font-bold text-slate-800 dark:text-brandD-ink">Más falladas</Text>
           {failedStats.map((item, idx) => (
-            <View key={item.question_id} style={styles.failedCard}>
-              <View style={styles.failedHeader}>
-                <Text style={styles.failedRank}>#{idx + 1}</Text>
-                <Text style={styles.failedAccuracy}>
+            <View key={item.question_id} className="mb-2 rounded border-l-[3px] border-l-danger bg-white p-3 dark:border-l-dangerD dark:bg-slate-800">
+              <View className="mb-1.5 flex-row justify-between">
+                <Text className="text-xs font-bold text-muted dark:text-mutedD">#{idx + 1}</Text>
+                <Text className="text-xs font-semibold text-danger dark:text-dangerD">
                   {Math.round(item.accuracy * 100)}% ({item.times_correct}/{item.times_answered})
                 </Text>
               </View>
-              <Text style={styles.failedQuestion} numberOfLines={2}>
+              <Text className="text-sm leading-[18px] text-slate-800 dark:text-brandD-ink" numberOfLines={2}>
                 {item.question.question}
               </Text>
-              <Text style={styles.failedTopic}>
+              <Text className="mt-1 text-xxs italic text-slate-500 dark:text-brandD-soft">
                 {TOPICS[item.question.topic]}
               </Text>
             </View>
@@ -184,152 +186,12 @@ export default function StatsScreen() {
   );
 }
 
-function getAccuracyColor(percentage) {
-  if (percentage >= 80) return '#276221';
-  if (percentage >= 60) return '#c67c00';
-  return '#b52828';
+// Verde / ámbar / rojo según el porcentaje. Los tres tienen su contraparte
+// oscura porque los tonos pensados para texto sobre blanco se apagan sobre fondo
+// oscuro.
+function acierto(percentage, esOscuro) {
+  const p = esOscuro ? oscuro : colores;
+  if (percentage >= 80) return p.success.DEFAULT;
+  if (percentage >= 60) return p.warning.bold;
+  return p.danger.DEFAULT;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 30,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-    minHeight: 400,
-  },
-  emptyEmoji: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1e293b',
-    marginBottom: 8,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: '#64748b',
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  globalCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  globalLabel: {
-    fontSize: 14,
-    color: '#64748b',
-    textTransform: 'uppercase',
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  globalValue: {
-    fontSize: 56,
-    fontWeight: 'bold',
-  },
-  globalSubtext: {
-    fontSize: 13,
-    color: '#94a3b8',
-    marginTop: 4,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1e293b',
-    marginBottom: 10,
-    marginTop: 8,
-  },
-  topicCard: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 8,
-  },
-  topicHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  topicName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1e293b',
-    flex: 1,
-  },
-  topicAccuracy: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  topicNotPracticed: {
-    fontSize: 12,
-    color: '#94a3b8',
-    fontStyle: 'italic',
-  },
-  progressBarBg: {
-    height: 6,
-    backgroundColor: '#e2e8f0',
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-  },
-  topicDetails: {
-    fontSize: 11,
-    color: '#94a3b8',
-    marginTop: 6,
-  },
-  failedCard: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 8,
-    borderLeftWidth: 3,
-    borderLeftColor: '#ef4444',
-  },
-  failedHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-  },
-  failedRank: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#94a3b8',
-  },
-  failedAccuracy: {
-    fontSize: 12,
-    color: '#b91c1c',
-    fontWeight: '600',
-  },
-  failedQuestion: {
-    fontSize: 13,
-    color: '#1e293b',
-    lineHeight: 18,
-  },
-  failedTopic: {
-    fontSize: 11,
-    color: '#64748b',
-    marginTop: 4,
-    fontStyle: 'italic',
-  },
-});

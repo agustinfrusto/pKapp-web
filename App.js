@@ -1,8 +1,11 @@
+import './global.css';
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, View, Image, StyleSheet, TouchableOpacity, Text, Platform } from 'react-native';
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
+import { useColorScheme } from 'nativewind';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import MateriaSelectScreen from './src/screens/MateriaSelectScreen';
@@ -17,6 +20,8 @@ import SettingsScreen from './src/screens/SettingsScreen';
 import { initDatabase } from './src/db/database';
 import { MateriaProvider } from './src/materia/MateriaContext';
 import { injectWebStyles } from './src/utils/webStyles';
+import { TemaProvider } from './src/theme/TemaContext';
+import { colores, oscuro } from './src/theme/colores';
 import { trackPageview } from './src/utils/track';
 
 const Stack = createNativeStackNavigator();
@@ -46,20 +51,29 @@ export default function App() {
   return (
     <MateriaProvider>
       <SafeAreaProvider>
-        <AppContent />
+        <TemaProvider>
+          <AppContent />
+        </TemaProvider>
       </SafeAreaProvider>
     </MateriaProvider>
   );
 }
 
 function AppContent() {
+  const { colorScheme } = useColorScheme();
+  const esOscuro = colorScheme === 'dark';
+  // El chrome del navegador vive fuera del árbol de estilos de NativeWind:
+  // si no se pinta a mano, queda un borde claro delatando el tema anterior.
+  const chrome = esOscuro
+    ? { cabecera: oscuro.brand.deep, texto: oscuro.brand.ink, fondo: '#0f172a' }
+    : { cabecera: colores.brand.DEFAULT, texto: '#fff', fondo: '#f1f5f9' };
   const [splashDone, setSplashDone] = useState(false);
   const opacity = useRef(new Animated.Value(0)).current;
   const navigationRef = useNavigationContainerRef();
   const routeNameRef = useRef();
 
   useEffect(() => {
-    injectWebStyles();
+    injectWebStyles(esOscuro);
     initDatabase().catch((err) => console.error('Error iniciando DB:', err));
 
     if (Platform.OS === 'web') {
@@ -73,6 +87,15 @@ function AppContent() {
       Animated.timing(opacity, { toValue: 0, duration: 900, useNativeDriver: true }),
     ]).start(() => setSplashDone(true));
   }, []);
+
+  // El themeColor de la PWA define el color del chrome del navegador en la app
+  // instalada; el inyectado en el build es el del tema claro.
+  useEffect(() => {
+    injectWebStyles(esOscuro);
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', chrome.cabecera);
+  }, [chrome.cabecera, esOscuro]);
 
   if (!splashDone) {
     return (
@@ -109,14 +132,14 @@ function AppContent() {
         formatter: () => 'pKapp',
       }}
     >
-      <StatusBar style="light" />
+      <StatusBar style={esOscuro ? 'light' : 'light'} backgroundColor={chrome.cabecera} />
       <Stack.Navigator
         initialRouteName="MateriaSelect"
         screenOptions={({ navigation }) => ({
-          headerStyle: { backgroundColor: '#1a3f6f' },
-          headerTintColor: '#fff',
+          headerStyle: { backgroundColor: chrome.cabecera },
+          headerTintColor: chrome.texto,
           headerTitleStyle: { fontWeight: 'bold' },
-          contentStyle: { backgroundColor: '#f1f5f9' },
+          contentStyle: { backgroundColor: chrome.fondo },
           // En web la transición animada de native-stack agrega ~200ms al INP
           // sin aportar mucho visualmente. En nativo se mantiene la default.
           animation: Platform.OS === 'web' ? 'none' : 'default',
@@ -129,7 +152,7 @@ function AppContent() {
                   style={{ paddingHorizontal: 12, paddingVertical: 6 }}
                   activeOpacity={0.7}
                 >
-                  <Text style={{ color: '#fff', fontSize: 22, lineHeight: 22 }}>←</Text>
+                  <Text style={{ color: chrome.texto, fontSize: 22, lineHeight: 22 }}>←</Text>
                 </TouchableOpacity>
               )
             : undefined,

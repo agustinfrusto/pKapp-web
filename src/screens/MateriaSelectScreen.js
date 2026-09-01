@@ -2,19 +2,23 @@
 // Se presenta SIEMPRE al abrir la app (no se persiste la última).
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Linking,
+  View, Text, TouchableOpacity, ScrollView, Image, Linking, Switch,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MATERIA_LIST } from '../materias';
 import { useMateria } from '../materia/MateriaContext';
 import DonationBox from '../components/DonationBox';
 import { track } from '../utils/track';
+import { sombras } from '../theme/sombras';
+import { useTema } from '../theme/TemaContext';
+import { colores, oscuro as paletaOscura } from '../theme/colores';
 
 const logo = require('../assets/logo.png');
 
 export default function MateriaSelectScreen({ navigation }) {
   const insets = useSafeAreaInsets();
   const { setMateriaId } = useMateria();
+  const { oscuro, setOscuro } = useTema();
 
   function handlePick(materia) {
     if (!materia.available) return;
@@ -24,16 +28,39 @@ export default function MateriaSelectScreen({ navigation }) {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      <View style={[styles.header, { paddingTop: insets.top + 24 }]}>
-        <Image source={logo} style={styles.logo} resizeMode="contain" />
-        <Text style={styles.subtitle}>Tus materias de ESFUNO</Text>
-        <Text style={styles.hint}>Elegí una para empezar</Text>
+    <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900" contentContainerClassName="pb-10">
+      <View
+        className="items-center bg-brand px-6 pb-6 dark:bg-brandD-deep"
+        style={{ paddingTop: insets.top + 24 }}
+      >
+        {/* Absoluto para no empujar el logo: esta pantalla no tiene botón de
+            volver, así que no hay una fila superior donde meterlo. El +13
+            alinea su caja con la del de Home, que se centra contra la píldora
+            de "Cambiar materia": sin eso salta 5 px al entrar a una materia. */}
+        <View
+          className="absolute right-4 flex-row items-center gap-1.5"
+          style={{ top: insets.top + 13 }}
+        >
+          <Text className="text-sm" accessibilityLabel="Modo oscuro">{oscuro ? '🌙' : '☀️'}</Text>
+          <Switch
+            value={oscuro}
+            onValueChange={setOscuro}
+            trackColor={{ false: colores.brand.muted, true: paletaOscura.accent.DEFAULT }}
+            thumbColor="white"
+            accessibilityLabel="Activar modo oscuro"
+          />
+        </View>
+
+        {/* Dimensiones en `style`: NativeWind no las aplica por className al
+            Image de react-native-web, que cae a su tamaño intrínseco. */}
+        <Image source={logo} className="mb-2" style={{ width: 240, height: 90 }} resizeMode="contain" />
+        <Text className="mt-1 text-base text-brand-tint">Tus materias de ESFUNO</Text>
+        <Text className="mt-1.5 text-xs text-brand-pale">Elegí una para empezar</Text>
       </View>
 
       <AboutBanner />
 
-      <View style={styles.list}>
+      <View className="p-4">
         {MATERIA_LIST.map((m) => (
           <MateriaCard key={m.id} materia={m} onPress={() => handlePick(m)} />
         ))}
@@ -68,20 +95,24 @@ function AboutBanner() {
   if (!visible) return null;
 
   return (
-    <View style={styles.aboutWrap}>
-      <View style={styles.aboutHeader}>
-        <Text style={styles.aboutTitle}>👋 Una nota del creador</Text>
-        <TouchableOpacity style={styles.aboutCloseBtn} onPress={dismiss} activeOpacity={0.7}>
-          <Text style={styles.aboutClose}>✕</Text>
+    <View className="mx-4 mt-3 rounded-md border border-slate-200 bg-white p-4 dark:border-brandD-border dark:bg-slate-800">
+      <View className="mb-2 flex-row items-center justify-between">
+        <Text className="flex-1 text-base font-bold text-brand dark:text-brandD-light">👋 Una nota del creador</Text>
+        <TouchableOpacity
+          className="ml-2.5 h-6 w-6 items-center justify-center rounded-md bg-slate-200 dark:bg-brandD-border"
+          onPress={dismiss}
+          activeOpacity={0.7}
+        >
+          <Text className="text-xxs font-bold leading-[13px] text-slate-600 dark:text-brandD-ink">✕</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.aboutBody}>
+      <Text className="text-sm leading-5 text-slate-600 dark:text-brandD-ink">
         ¡Hola! Soy el creador de pKapp. Al principio la hice para ayudar a mi pareja a estudiar; como le sirvió a mucha gente, decidí lanzarla y mantenerla.
         {'\n\n'}
         Soy informático (no del área de la salud), así que puede haber errores en las explicaciones: se generan analizando material de estudio público con ayuda de IA.
         {'\n\n'}
         Si encontrás un error o tenés un problema, escribime a{' '}
-        <Text style={styles.aboutEmail} onPress={handleEmail}>pkappsoporte@gmail.com</Text>.
+        <Text className="font-bold text-accent underline dark:text-accentD" onPress={handleEmail}>pkappsoporte@gmail.com</Text>.
       </Text>
     </View>
   );
@@ -89,8 +120,8 @@ function AboutBanner() {
 
 function DonationCard() {
   return (
-    <View style={styles.donationWrap}>
-      <View style={styles.donationDivider} />
+    <View className="items-center px-4 pb-4 pt-1.5">
+      <View className="mb-[18px] mt-1 h-px w-2/5 bg-slate-300 dark:bg-brandD-border" />
       <DonationBox origen="materias" />
     </View>
   );
@@ -101,179 +132,38 @@ function MateriaCard({ materia, onPress }) {
 
   return (
     <TouchableOpacity
-      style={[styles.card, !materia.available && styles.cardDisabled]}
+      className={`mb-3 items-center rounded-md bg-white px-4 py-6 dark:bg-slate-800 ${
+        !materia.available ? 'opacity-[0.55]' : ''
+      }`}
+      style={sombras.card}
       onPress={onPress}
       disabled={!materia.available}
       activeOpacity={0.7}
     >
-      <View style={[styles.iconBox, { backgroundColor: materia.color }]}>
+      <View
+        className="mb-3.5 h-[110px] w-[110px] items-center justify-center overflow-hidden rounded-lg"
+        style={{ backgroundColor: materia.color }}
+      >
         {materia.image ? (
-          <Image source={materia.image} style={styles.iconImage} resizeMode="contain" />
+          <Image source={materia.image} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
         ) : (
-          <Text style={styles.iconEmoji}>{materia.icon}</Text>
+          <Text className="text-display-sm">{materia.icon}</Text>
         )}
       </View>
-      <Text style={[styles.cardTitle, !materia.available && styles.textDisabled]}>
+      <Text
+        className={`text-center text-md font-semibold ${
+          materia.available ? 'text-brand-ink dark:text-brandD-ink' : 'text-slate-500 dark:text-mutedD'
+        }`}
+      >
         {materia.name}
       </Text>
       {materia.available ? (
-        <Text style={styles.cardMeta}>
+        <Text className="mt-1.5 text-center text-sm text-brand-soft dark:text-brandD-soft">
           {totalQs} preguntas
         </Text>
       ) : (
-        <Text style={styles.cardComingSoon}>Próximamente</Text>
+        <Text className="mt-1.5 text-center text-sm italic text-muted dark:text-mutedD">Próximamente</Text>
       )}
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f1f5f9',
-  },
-  scrollContent: {
-    paddingBottom: 40,
-  },
-  header: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-    backgroundColor: '#1a3f6f',
-    alignItems: 'center',
-  },
-  logo: {
-    width: 240,
-    height: 90,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 15,
-    color: '#c5d9f0',
-    marginTop: 4,
-  },
-  hint: {
-    fontSize: 12,
-    color: '#a8c8e0',
-    marginTop: 6,
-  },
-  list: {
-    padding: 16,
-  },
-  card: {
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingVertical: 24,
-    paddingHorizontal: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  cardDisabled: {
-    opacity: 0.55,
-  },
-  iconBox: {
-    width: 110,
-    height: 110,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 14,
-    overflow: 'hidden',
-  },
-  iconImage: {
-    width: '100%',
-    height: '100%',
-  },
-  iconEmoji: {
-    fontSize: 36,
-  },
-  cardTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#0f1f33',
-    textAlign: 'center',
-  },
-  cardMeta: {
-    fontSize: 13,
-    color: '#607d99',
-    marginTop: 6,
-    textAlign: 'center',
-  },
-  cardComingSoon: {
-    fontSize: 13,
-    color: '#94a3b8',
-    fontStyle: 'italic',
-    marginTop: 6,
-    textAlign: 'center',
-  },
-  textDisabled: {
-    color: '#64748b',
-  },
-
-  // Donation
-  donationWrap: {
-    paddingHorizontal: 16,
-    paddingTop: 6,
-    paddingBottom: 16,
-    alignItems: 'center',
-  },
-  donationDivider: {
-    height: 1,
-    width: '40%',
-    backgroundColor: '#cbd5e1',
-    marginBottom: 18,
-    marginTop: 4,
-  },
-
-  // About / creator note banner
-  aboutWrap: {
-    marginHorizontal: 16,
-    marginTop: 12,
-    padding: 16,
-    backgroundColor: '#ffffff',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-  aboutHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  aboutTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#1a3f6f',
-    flex: 1,
-  },
-  aboutCloseBtn: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#e2e8f0',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 10,
-  },
-  aboutClose: {
-    fontSize: 11,
-    color: '#475569',
-    fontWeight: '700',
-    lineHeight: 13,
-  },
-  aboutBody: {
-    fontSize: 13,
-    color: '#475569',
-    lineHeight: 20,
-  },
-  aboutEmail: {
-    color: '#0d7a8a',
-    fontWeight: '700',
-    textDecorationLine: 'underline',
-  },
-});

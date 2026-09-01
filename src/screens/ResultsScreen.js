@@ -1,12 +1,15 @@
 // Pantalla de resultados: muestra puntaje y permite revisar cada pregunta.
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform,
+  View, Text, TouchableOpacity, ScrollView, Linking, Platform,
 } from 'react-native';
 import { track } from '../utils/track';
 import { MP_LINKS, DONATION_AMOUNTS } from '../utils/mercadopago';
 import { reportQuestion } from '../utils/report';
 import { useMateria } from '../materia/MateriaContext';
+import { colores, oscuro } from '../theme/colores';
+import { useTema } from '../theme/TemaContext';
+import { sombras } from '../theme/sombras';
 
 // Umbral de "buen resultado" para analítica (evento simulacro_aprobado).
 const APROBADO_MIN_SCORE = 60;
@@ -38,7 +41,8 @@ export default function ResultsScreen({ route, navigation }) {
   const percentage = Math.round((correctCount / total) * 100);
 
   // Mensaje y color según el porcentaje (50% suele ser el de aprobación)
-  const { message, color } = getResultFeedback(percentage);
+  const { oscuro: esOscuro } = useTema();
+  const { message, color } = getResultFeedback(percentage, esOscuro);
   const [showDonation] = useState(() => shouldShowDonation(percentage));
 
   useEffect(() => {
@@ -58,10 +62,10 @@ export default function ResultsScreen({ route, navigation }) {
 
   if (showReview) {
     return (
-      <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.reviewHeader}>
-          <Text style={styles.reviewTitle}>Revisión completa</Text>
-          <Text style={styles.reviewSubtitle}>
+      <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900" contentContainerClassName="p-4 pb-[30px]">
+        <View className="mb-4 items-center py-2">
+          <Text className="text-lg font-bold text-brand-ink dark:text-brandD-ink">Revisión completa</Text>
+          <Text className="mt-1 text-base text-brand-soft dark:text-brandD-soft">
             {correctCount} / {total} aciertos ({percentage}%)
           </Text>
         </View>
@@ -69,84 +73,92 @@ export default function ResultsScreen({ route, navigation }) {
         {answers.map((answer, idx) => (
           <View
             key={idx}
-            style={[
-              styles.reviewCard,
-              answer.isCorrect ? styles.reviewCardCorrect : styles.reviewCardWrong,
-            ]}
+            className={`mb-2.5 rounded-md border-l-4 bg-white p-3.5 dark:bg-slate-800 ${
+              answer.isCorrect
+                ? 'border-l-success dark:border-l-successD'
+                : 'border-l-danger dark:border-l-dangerD'
+            }`}
           >
-            <View style={styles.reviewCardHeader}>
-              <Text style={styles.reviewCardNumber}>#{idx + 1}</Text>
-              <Text style={[
-                styles.reviewCardStatus,
-                answer.isCorrect ? styles.statusCorrect : styles.statusWrong,
-              ]}>
+            <View className="mb-2 flex-row justify-between">
+              <Text className="text-xs font-semibold text-muted dark:text-mutedD">#{idx + 1}</Text>
+              <Text
+                className={`text-xs font-bold ${
+                  answer.isCorrect
+                    ? 'text-success-strong dark:text-successD-strong'
+                    : 'text-danger-strong dark:text-dangerD-strong'
+                }`}
+              >
                 {answer.isCorrect ? '✓ Correcta' : '✗ Incorrecta'}
               </Text>
             </View>
 
-            <Text style={styles.reviewQuestion}>{answer.question.question}</Text>
+            <Text className="mb-2.5 text-base leading-5 text-brand-ink dark:text-brandD-ink">{answer.question.question}</Text>
 
-            <View style={styles.reviewOptionsContainer}>
+            <View className="mb-1 gap-1.5">
               {answer.question.options.map((option, optIdx) => {
                 const isCorrect = optIdx === answer.question.correctIndex;
                 const isWrong = optIdx === answer.selectedIndex && !answer.isCorrect;
                 return (
                   <View
                     key={optIdx}
-                    style={[
-                      styles.reviewOption,
-                      isCorrect && styles.reviewOptionCorrect,
-                      isWrong && styles.reviewOptionWrong,
-                    ]}
+                    className={`flex-row items-center rounded-sm border p-2.5 ${
+                      isCorrect
+                        ? 'border-success bg-success-surface dark:border-successD dark:bg-successD-surface'
+                        : isWrong
+                        ? 'border-danger bg-danger-surface dark:border-dangerD dark:bg-dangerD-surface'
+                        : 'border-brand-border bg-slate-50 dark:border-brandD-border dark:bg-slate-900'
+                    }`}
                   >
-                    <Text style={styles.reviewOptionLetter}>
+                    <Text className="mr-2.5 min-w-[18px] text-xs font-bold text-brand-soft dark:text-brandD-soft">
                       {String.fromCharCode(65 + optIdx)}
                     </Text>
-                    <Text style={[
-                      styles.reviewOptionText,
-                      isCorrect && styles.reviewOptionTextCorrect,
-                      isWrong && styles.reviewOptionTextWrong,
-                    ]}>
+                    <Text
+                      className={`flex-1 text-sm leading-[18px] ${
+                        isCorrect ? 'font-semibold text-success-strong dark:text-successD-strong'
+                          : isWrong ? 'text-danger-strong dark:text-dangerD-strong'
+                          : 'text-brand-muted dark:text-brandD-soft'
+                      }`}
+                    >
                       {option}
                     </Text>
-                    {isCorrect && <Text style={styles.reviewOptionIcon}>✓</Text>}
-                    {isWrong && <Text style={styles.reviewOptionIcon}>✗</Text>}
+                    {isCorrect && <Text className="ml-1.5 text-base font-bold">✓</Text>}
+                    {isWrong && <Text className="ml-1.5 text-base font-bold">✗</Text>}
                   </View>
                 );
               })}
             </View>
 
             {answer.question.explanation ? (
-              <View style={styles.reviewExplanation}>
-                <Text style={styles.reviewExplanationText}>
+              <View className="mt-2 rounded-sm border-l-[3px] border-l-accent bg-accent-surface p-2.5 dark:border-l-accentD dark:bg-accentD-surface">
+                <Text className="text-xs leading-[18px] text-accent-strong dark:text-accentD-strong">
                   💡 {answer.question.explanation}
                 </Text>
               </View>
             ) : null}
 
             <TouchableOpacity
-              style={styles.reportButton}
+              className="self-start pb-0.5 pt-2.5"
               onPress={() => reportQuestion(answer.question, materia?.name)}
               activeOpacity={0.7}
             >
-              <Text style={styles.reportButtonText}>🚩 Reportar pregunta</Text>
+              <Text className="text-xs font-bold text-danger dark:text-dangerD">🚩 Reportar pregunta</Text>
             </TouchableOpacity>
           </View>
         ))}
 
-        <View style={styles.bottomButtonsRow}>
+        <View className="mt-4 flex-row gap-2.5">
           <TouchableOpacity
-            style={[styles.bottomButton, styles.secondaryButton]}
+            className="flex-1 items-center rounded py-3.5 border border-brand-border bg-white dark:border-brandD-border dark:bg-slate-800"
             onPress={() => setShowReview(false)}
           >
-            <Text style={styles.secondaryButtonText}>← Volver</Text>
+            <Text className="text-md font-semibold text-brand-muted dark:text-brandD-ink">← Volver</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
-            style={[styles.bottomButton, styles.primaryButton]}
+            className="flex-1 items-center rounded py-3.5 bg-brand dark:bg-brandD-deep"
             onPress={handleHome}
           >
-            <Text style={styles.primaryButtonText}>Inicio</Text>
+            <Text className="text-md font-bold text-white">Inicio</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -154,60 +166,60 @@ export default function ResultsScreen({ route, navigation }) {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      <View style={styles.resultCard}>
-        <Text style={[styles.percentage, { color }]}>{percentage}%</Text>
-        <Text style={styles.scoreText}>
+    <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900" contentContainerClassName="p-4 pb-[30px]">
+      <View className="mb-4 items-center rounded-lg bg-white p-7 dark:bg-slate-800" style={sombras.cardAlta}>
+        <Text className="text-display-md font-bold" style={{ color }}>{percentage}%</Text>
+        <Text className="mt-1 text-md text-brand-muted dark:text-brandD-ink">
           {correctCount} de {total} correctas
         </Text>
-        <Text style={styles.message}>{message}</Text>
-        
-        <View style={styles.topicBadge}>
-          <Text style={styles.topicBadgeText}>{topic}</Text>
+        <Text className="mt-3 text-center text-base text-brand-soft dark:text-brandD-soft">{message}</Text>
+
+        <View className="mt-4 rounded-lg bg-brand-surface px-3.5 py-1.5 dark:bg-brandD-surface">
+          <Text className="text-xs font-semibold text-brand dark:text-brandD-ink">{topic}</Text>
         </View>
       </View>
 
-      <View style={styles.statsRow}>
-        <View style={styles.statBox}>
-          <Text style={styles.statValue}>{correctCount}</Text>
-          <Text style={styles.statLabel}>Correctas</Text>
+      <View className="mb-5 flex-row gap-2.5">
+        <View className="flex-1 items-center rounded-md bg-white p-3.5 dark:bg-slate-800">
+          <Text className="text-xl font-bold text-success dark:text-successD">{correctCount}</Text>
+          <Text className="mt-0.5 text-xs text-brand-soft dark:text-brandD-soft">Correctas</Text>
         </View>
-        <View style={styles.statBox}>
-          <Text style={[styles.statValue, { color: '#ef4444' }]}>
+        <View className="flex-1 items-center rounded-md bg-white p-3.5 dark:bg-slate-800">
+          <Text className="text-xl font-bold text-danger dark:text-dangerD">
             {total - correctCount}
           </Text>
-          <Text style={styles.statLabel}>Incorrectas</Text>
+          <Text className="mt-0.5 text-xs text-brand-soft dark:text-brandD-soft">Incorrectas</Text>
         </View>
-        <View style={styles.statBox}>
-          <Text style={styles.statValue}>{total}</Text>
-          <Text style={styles.statLabel}>Total</Text>
+        <View className="flex-1 items-center rounded-md bg-white p-3.5 dark:bg-slate-800">
+          <Text className="text-xl font-bold text-success dark:text-successD">{total}</Text>
+          <Text className="mt-0.5 text-xs text-brand-soft dark:text-brandD-soft">Total</Text>
         </View>
       </View>
 
       {showDonation && <DonationPrompt percentage={percentage} />}
 
       <TouchableOpacity
-        style={[styles.button, styles.reviewButton]}
+        className="mb-2.5 items-center rounded py-3.5 border border-accent bg-accent-surface dark:border-accentD dark:bg-accentD-surface"
         onPress={() => setShowReview(true)}
         activeOpacity={0.8}
       >
-        <Text style={styles.reviewButtonText}>📋 Revisar todas las respuestas</Text>
+        <Text className="text-base font-semibold text-accent-strong dark:text-accentD-strong">📋 Revisar todas las respuestas</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.button, styles.primaryButton]}
+        className="mb-2.5 items-center rounded py-3.5 bg-brand dark:bg-brandD-deep"
         onPress={handleRetry}
         activeOpacity={0.8}
       >
-        <Text style={styles.primaryButtonText}>🔄 Volver a practicar</Text>
+        <Text className="text-md font-bold text-white">🔄 Volver a practicar</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.button, styles.secondaryButton]}
+        className="mb-2.5 items-center rounded py-3.5 border border-brand-border bg-white dark:border-brandD-border dark:bg-slate-800"
         onPress={handleHome}
         activeOpacity={0.8}
       >
-        <Text style={styles.secondaryButtonText}>🏠 Inicio</Text>
+        <Text className="text-md font-semibold text-brand-muted dark:text-brandD-ink">🏠 Inicio</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -228,344 +240,52 @@ function DonationPrompt({ percentage }) {
   if (!visible) return null;
 
   return (
-    <View style={styles.donationCard}>
-      <View style={styles.donationHeader}>
-        <Text style={styles.donationTitle}>
+    <View className="mb-4 rounded-md border border-warning-border bg-warning-surface p-4 dark:border-warningD-border dark:bg-warningD-surface">
+      <View className="mb-2 flex-row items-center justify-between">
+        <Text className="flex-1 text-base font-bold text-warning-ink dark:text-warningD-ink">
           {warm ? '¡Gran resultado! 🏆' : 'Ayuda a mantener esta aplicación'}
         </Text>
         <TouchableOpacity onPress={dismiss} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-          <Text style={styles.donationClose}>✕</Text>
+          <Text className="ml-2.5 text-base text-warning-bold dark:text-warningD-bold">✕</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.donationBody}>
+      <Text className="mb-3.5 text-sm leading-[19px] text-warning-strong dark:text-warningD-strong">
         {warm
           ? 'Si pKapp te está ayudando a llegar al examen, dale una mano para mantenerla (no es de Udelar):'
           : 'Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:'}
       </Text>
-      <View style={styles.donationAmounts}>
+      <View className="mb-3 flex-row gap-2">
         {DONATION_AMOUNTS.map((amt) => (
           <TouchableOpacity
             key={amt}
-            style={styles.donationAmountBtn}
+            className="flex-1 items-center rounded bg-warning py-3 dark:bg-warningD"
             onPress={() => openLink(amt)}
             activeOpacity={0.85}
           >
-            <Text style={styles.donationAmountText}>${amt}</Text>
+            <Text className="text-base font-bold text-white dark:text-slate-900">${amt}</Text>
           </TouchableOpacity>
         ))}
       </View>
-      <Text style={styles.donationOther}>Vía Mercado Pago</Text>
+      <Text className="text-center text-xs text-warning dark:text-warningD">Vía Mercado Pago</Text>
     </View>
   );
 }
 
-function getResultFeedback(percentage) {
+// El color depende de un porcentaje calculado, así que va por `style`: no hay
+// clase de utilidad que se pueda escribir literal para que Tailwind la vea.
+function getResultFeedback(percentage, esOscuro) {
+  const p = esOscuro ? oscuro : colores;
   if (percentage >= 90) {
-    return { message: '¡Excelente!.', emoji: '🏆', color: '#276221' };
+    return { message: '¡Excelente!.', emoji: '🏆', color: p.success.DEFAULT };
   }
   if (percentage >= 75) {
-    return { message: '¡Muy bien! Vas por buen camino.', emoji: '🎉', color: '#276221' };
+    return { message: '¡Muy bien! Vas por buen camino.', emoji: '🎉', color: p.success.DEFAULT };
   }
   if (percentage >= 60) {
-    return { message: 'A repasar solo un poco más.', emoji: '👍', color: '#c67c00' };
+    return { message: 'A repasar solo un poco más.', emoji: '👍', color: p.warning.bold };
   }
   if (percentage >= 50) {
-    return { message: 'Seguí mejorando.', emoji: '😬', color: '#c67c00' };
+    return { message: 'Seguí mejorando.', emoji: '😬', color: p.warning.bold };
   }
-  return { message: 'A estudiar fuerte. Vos podés.', emoji: '💪', color: '#b52828' };
+  return { message: 'A estudiar fuerte. Vos podés.', emoji: '💪', color: p.danger.DEFAULT };
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f1f5f9',
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 30,
-  },
-  resultCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 28,
-    alignItems: 'center',
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  percentage: {
-    fontSize: 56,
-    fontWeight: 'bold',
-  },
-  scoreText: {
-    fontSize: 18,
-    color: '#354d66',
-    marginTop: 4,
-  },
-  message: {
-    fontSize: 15,
-    color: '#607d99',
-    marginTop: 12,
-    textAlign: 'center',
-  },
-  topicBadge: {
-    backgroundColor: '#dce8f5',
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginTop: 16,
-  },
-  topicBadgeText: {
-    fontSize: 12,
-    color: '#1a3f6f',
-    fontWeight: '600',
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 20,
-  },
-  statBox: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 14,
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#276221',
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#607d99',
-    marginTop: 2,
-  },
-  button: {
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  primaryButton: {
-    backgroundColor: '#1a3f6f',
-  },
-  primaryButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  secondaryButton: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ccd9e6',
-  },
-  secondaryButtonText: {
-    color: '#354d66',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  reviewButton: {
-    backgroundColor: '#ddf2f5',
-    borderWidth: 1,
-    borderColor: '#0d7a8a',
-  },
-  // Donación post-simulacro
-  donationCard: {
-    backgroundColor: '#fef3c7', // amber-100
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#fde68a',     // amber-200
-    padding: 16,
-    marginBottom: 16,
-  },
-  donationHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  donationTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#78350f',           // amber-900
-    flex: 1,
-  },
-  donationClose: {
-    fontSize: 14,
-    color: '#c2974a',           // amber muted
-    marginLeft: 10,
-  },
-  donationBody: {
-    fontSize: 13,
-    color: '#92400e',           // amber-800
-    lineHeight: 19,
-    marginBottom: 14,
-  },
-  donationAmounts: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 12,
-  },
-  donationAmountBtn: {
-    flex: 1,
-    backgroundColor: '#b45309',  // amber-700
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  donationAmountText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  donationOther: {
-    fontSize: 12,
-    color: '#a16207',           // amber-700 muted
-    textAlign: 'center',
-  },
-  reviewButtonText: {
-    color: '#095c6b',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  // Review styles
-  reviewHeader: {
-    alignItems: 'center',
-    marginBottom: 16,
-    paddingVertical: 8,
-  },
-  reviewTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#0f1f33',
-  },
-  reviewSubtitle: {
-    fontSize: 14,
-    color: '#607d99',
-    marginTop: 4,
-  },
-  reviewCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 10,
-    borderLeftWidth: 4,
-  },
-  reviewCardCorrect: {
-    borderLeftColor: '#276221',
-  },
-  reviewCardWrong: {
-    borderLeftColor: '#b52828',
-  },
-  reviewCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  reviewCardNumber: {
-    fontSize: 12,
-    color: '#9ab0c4',
-    fontWeight: '600',
-  },
-  reviewCardStatus: {
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  statusCorrect: {
-    color: '#1a5216',
-  },
-  statusWrong: {
-    color: '#8b1c1c',
-  },
-  reviewQuestion: {
-    fontSize: 14,
-    color: '#0f1f33',
-    marginBottom: 10,
-    lineHeight: 20,
-  },
-  reviewOptionsContainer: {
-    gap: 6,
-    marginBottom: 4,
-  },
-  reviewOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ccd9e6',
-    backgroundColor: '#f8fafc',
-  },
-  reviewOptionCorrect: {
-    borderColor: '#276221',
-    backgroundColor: '#e8f5e7',
-  },
-  reviewOptionWrong: {
-    borderColor: '#b52828',
-    backgroundColor: '#fceaea',
-  },
-  reviewOptionLetter: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#607d99',
-    marginRight: 10,
-    minWidth: 18,
-  },
-  reviewOptionText: {
-    flex: 1,
-    fontSize: 13,
-    color: '#354d66',
-    lineHeight: 18,
-  },
-  reviewOptionTextCorrect: {
-    color: '#1a5216',
-    fontWeight: '600',
-  },
-  reviewOptionTextWrong: {
-    color: '#8b1c1c',
-  },
-  reviewOptionIcon: {
-    fontSize: 14,
-    marginLeft: 6,
-    fontWeight: 'bold',
-  },
-  reviewExplanation: {
-    backgroundColor: '#ddf2f5',
-    padding: 10,
-    borderRadius: 8,
-    marginTop: 8,
-    borderLeftWidth: 3,
-    borderLeftColor: '#0d7a8a',
-  },
-  reviewExplanationText: {
-    fontSize: 12,
-    color: '#095c6b',
-    lineHeight: 18,
-  },
-  reportButton: {
-    alignSelf: 'flex-start',
-    paddingTop: 10,
-    paddingBottom: 2,
-  },
-  reportButtonText: {
-    fontSize: 12,
-    color: '#b91c1c',   // red-700
-    fontWeight: '700',
-  },
-  bottomButtonsRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 16,
-  },
-  bottomButton: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-});

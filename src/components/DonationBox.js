@@ -1,7 +1,7 @@
 // Bloque de donación reutilizable (Mercado Pago).
 // Versión persistente, sin descartar — usado en Home y selección de materia.
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, TouchableOpacity, Linking } from 'react-native';
 import { track } from '../utils/track';
 import { MP_LINKS, DONATION_AMOUNTS } from '../utils/mercadopago';
 
@@ -12,68 +12,29 @@ export default function DonationBox({ style, origen }) {
   }
 
   return (
-    <View style={[styles.card, style]}>
-      <Text style={styles.title}>Ayuda a mantener esta aplicación</Text>
-      <Text style={styles.body}>
+    <View
+      className="rounded-md border border-warning-border bg-warning-surface p-4 dark:border-warningD-border dark:bg-warningD-surface"
+      style={style}
+    >
+      <Text className="mb-2 text-base font-bold text-warning-ink dark:text-warningD-ink">
+        Ayuda a mantener esta aplicación
+      </Text>
+      <Text className="mb-3.5 text-sm leading-[19px] text-warning-strong dark:text-warningD-strong">
         Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:
       </Text>
-      <View style={styles.amounts}>
+      <View className="mb-3 flex-row gap-2">
         {DONATION_AMOUNTS.map((amt) => (
           <TouchableOpacity
             key={amt}
-            style={styles.amountBtn}
+            className="flex-1 items-center rounded bg-warning py-3 dark:bg-warningD"
             onPress={() => handleDonate(amt)}
             activeOpacity={0.85}
           >
-            <Text style={styles.amountText}>${amt}</Text>
+            <Text className="text-base font-bold text-white dark:text-slate-900">${amt}</Text>
           </TouchableOpacity>
         ))}
       </View>
-      <Text style={styles.footer}>Vía Mercado Pago</Text>
+      <Text className="text-center text-xs text-warning dark:text-warningD">Vía Mercado Pago</Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#fef3c7', // amber-100
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#fde68a',     // amber-200
-    padding: 16,
-  },
-  title: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#78350f',           // amber-900
-    marginBottom: 8,
-  },
-  body: {
-    fontSize: 13,
-    color: '#92400e',           // amber-800
-    lineHeight: 19,
-    marginBottom: 14,
-  },
-  amounts: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 12,
-  },
-  amountBtn: {
-    flex: 1,
-    backgroundColor: '#b45309',  // amber-700
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  amountText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  footer: {
-    fontSize: 12,
-    color: '#a16207',           // amber-700 muted
-    textAlign: 'center',
-  },
-});

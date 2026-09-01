@@ -3,10 +3,11 @@
 // solo generadas, o ambas.
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert,
+  View, Text, TouchableOpacity, ScrollView, Alert,
 } from 'react-native';
 import { getUserQuestions, getFailedQuestions, getSetting } from '../db/database';
 import { useMateria } from '../materia/MateriaContext';
+import { sombras } from '../theme/sombras';
 
 const SOURCE_FILTERS = {
   all: 'Todas',
@@ -137,7 +138,7 @@ export default function TopicSelectScreen({ route, navigation }) {
   // En modo examen, no se elige tema: directo arranca
   if (mode === 'exam') {
     return (
-      <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+      <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900" contentContainerClassName="p-4 pb-[30px]">
         <Filters
           sourceFilter={sourceFilter} setSourceFilter={setSourceFilter}
           parcialFilter={parcialFilter} setParcialFilter={setParcialFilter}
@@ -145,23 +146,23 @@ export default function TopicSelectScreen({ route, navigation }) {
           timerMinutes={timerMinutes} setTimerMinutes={setTimerMinutes}
         />
         
-        <View style={styles.examInfoCard}>
-          <Text style={styles.examInfoTitle}>Modo Examen</Text>
-          <Text style={styles.examInfoText}>
+        <View className="items-center rounded-md bg-white p-6 dark:bg-slate-800">
+          <Text className="mb-2.5 text-lg font-bold text-brand-ink dark:text-brandD-ink">Modo Examen</Text>
+          <Text className="mb-3.5 text-center text-base leading-[22px] text-brand-muted dark:text-brandD-soft">
             {parcialFilter === 'all'
               ? `Se sortean ${Math.min(EXAM_SIZE_FULL, filteredBase.length)} preguntas al azar de todos los temas, como en el examen real.`
               : `Se sortean ${Math.min(EXAM_SIZE_PARCIAL, filteredBase.length)} preguntas al azar de ${(PARCIAL_FILTERS && PARCIAL_FILTERS[parcialFilter]) || 'este parcial'}.`}
           </Text>
-          <Text style={styles.examInfoCount}>
+          <Text className="mb-5 text-sm font-semibold text-brand dark:text-brandD-light">
             Disponibles: {filteredBase.length} preguntas
           </Text>
           
           <TouchableOpacity
-            style={styles.startButton}
+            className="rounded bg-brand px-8 py-3.5 dark:bg-brandD-deep"
             onPress={() => startQuiz()}
             activeOpacity={0.8}
           >
-            <Text style={styles.startButtonText}>Comenzar examen</Text>
+            <Text className="text-md font-bold text-white">Comenzar examen</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -171,10 +172,10 @@ export default function TopicSelectScreen({ route, navigation }) {
   // Modo failed: si no hay falladas, lo decimos
   if (mode === 'failed' && failedIds.size === 0) {
     return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyEmoji}>🎯</Text>
-        <Text style={styles.emptyTitle}>Sin preguntas falladas</Text>
-        <Text style={styles.emptyText}>
+      <View className="flex-1 items-center justify-center bg-slate-100 p-8 dark:bg-slate-900">
+        <Text className="mb-4 text-display-lg">🎯</Text>
+        <Text className="mb-2 text-lg font-bold text-brand-ink dark:text-brandD-ink">Sin preguntas falladas</Text>
+        <Text className="text-center text-base leading-[22px] text-brand-soft dark:text-brandD-soft">
           Practicá un poco primero y volvé acá para repasar las que te cuesten.
         </Text>
       </View>
@@ -183,7 +184,7 @@ export default function TopicSelectScreen({ route, navigation }) {
 
   // Modo practice o failed con preguntas: lista de temas
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+    <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900" contentContainerClassName="p-4 pb-[30px]">
       <Filters
         sourceFilter={sourceFilter} setSourceFilter={setSourceFilter}
         parcialFilter={parcialFilter} setParcialFilter={setParcialFilter}
@@ -192,17 +193,18 @@ export default function TopicSelectScreen({ route, navigation }) {
       />
 
       <TouchableOpacity
-        style={[styles.topicCard, styles.allTopicsCard]}
+        className="mb-2.5 rounded-md border-2 border-accent bg-accent-surface p-4 dark:border-accentD dark:bg-accentD-surface"
+        style={sombras.cardSuave}
         onPress={() => startQuiz()}
         activeOpacity={0.7}
       >
-        <Text style={styles.topicCardTitle}>🎲 Todos los temas mezclados</Text>
-        <Text style={styles.topicCardCount}>
+        <Text className="text-base font-semibold text-brand-ink dark:text-brandD-ink">🎲 Todos los temas mezclados</Text>
+        <Text className="mt-[3px] text-xs text-brand-soft dark:text-brandD-soft">
           {filteredBase.length} preguntas
         </Text>
       </TouchableOpacity>
 
-      <Text style={styles.sectionLabel}>O elegí un tema específico:</Text>
+      <Text className="mb-2.5 ml-1 mt-2 text-sm font-semibold text-brand-soft dark:text-brandD-soft">O elegí un tema específico:</Text>
 
       {Object.entries(TOPICS).map(([key, name]) => {
         const count = countByTopic.get(key) || 0;
@@ -210,12 +212,13 @@ export default function TopicSelectScreen({ route, navigation }) {
         return (
           <TouchableOpacity
             key={key}
-            style={styles.topicCard}
+            className="mb-2.5 rounded-md bg-white p-4 dark:bg-slate-800"
+            style={sombras.cardSuave}
             onPress={() => startQuiz(key)}
             activeOpacity={0.7}
           >
-            <Text style={styles.topicCardTitle}>{name}</Text>
-            <Text style={styles.topicCardCount}>{count} preguntas</Text>
+            <Text className="text-base font-semibold text-brand-ink dark:text-brandD-ink">{name}</Text>
+            <Text className="mt-[3px] text-xs text-brand-soft dark:text-brandD-soft">{count} preguntas</Text>
           </TouchableOpacity>
         );
       })}
@@ -226,16 +229,24 @@ export default function TopicSelectScreen({ route, navigation }) {
 // Componente para el filtro de fuente (segmented control)
 function SourceFilter({ sourceFilter, setSourceFilter }) {
   return (
-    <View style={styles.filterInner}>
-      <Text style={styles.filterLabel}>Fuente:</Text>
-      <View style={styles.filterButtons}>
+    <View className="py-1.5">
+      <Text className="mb-2 text-xs font-semibold uppercase tracking-[0.4px] text-brand-soft dark:text-brandD-soft">Fuente:</Text>
+      <View className="flex-row flex-wrap gap-1.5">
         {Object.entries(SOURCE_FILTERS).map(([key, label]) => (
           <TouchableOpacity
             key={key}
-            style={[styles.filterButton, sourceFilter === key && styles.filterButtonActive]}
+            className={`rounded-sm border px-3 py-[7px] ${
+              sourceFilter === key
+                ? 'border-brand bg-brand dark:border-brandD-deep dark:bg-brandD-deep'
+                : 'border-brand-border bg-slate-100 dark:border-brandD-border dark:bg-slate-800'
+            }`}
             onPress={() => setSourceFilter(key)}
           >
-            <Text style={[styles.filterButtonText, sourceFilter === key && styles.filterButtonTextActive]}>
+            <Text
+              className={`text-sm font-medium ${
+                sourceFilter === key ? 'text-white' : 'text-brand-muted dark:text-brandD-soft'
+              }`}
+            >
               {label}
             </Text>
           </TouchableOpacity>
@@ -248,16 +259,24 @@ function SourceFilter({ sourceFilter, setSourceFilter }) {
 function ParcialFilter({ parcialFilter, setParcialFilter, parcialFilters }) {
   if (!parcialFilters) return null;
   return (
-    <View style={styles.filterInner}>
-      <Text style={styles.filterLabel}>Parcial:</Text>
-      <View style={styles.filterButtons}>
+    <View className="py-1.5">
+      <Text className="mb-2 text-xs font-semibold uppercase tracking-[0.4px] text-brand-soft dark:text-brandD-soft">Parcial:</Text>
+      <View className="flex-row flex-wrap gap-1.5">
         {Object.entries(parcialFilters).map(([key, label]) => (
           <TouchableOpacity
             key={key}
-            style={[styles.filterButton, parcialFilter === key && styles.filterButtonActiveParcial]}
+            className={`rounded-sm border px-3 py-[7px] ${
+              parcialFilter === key
+                ? 'border-accent bg-accent dark:border-accentD dark:bg-accentD'
+                : 'border-brand-border bg-slate-100 dark:border-brandD-border dark:bg-slate-800'
+            }`}
             onPress={() => setParcialFilter(key)}
           >
-            <Text style={[styles.filterButtonText, parcialFilter === key && styles.filterButtonTextActive]}>
+            <Text
+              className={`text-sm font-medium ${
+                parcialFilter === key ? 'text-white' : 'text-brand-muted dark:text-brandD-soft'
+              }`}
+            >
               {label}
             </Text>
           </TouchableOpacity>
@@ -278,25 +297,29 @@ function TimerPicker({ timerMinutes, setTimerMinutes }) {
   }
 
   return (
-    <View style={styles.filterInner}>
-      <Text style={styles.filterLabel}>Temporizador:</Text>
-      <View style={styles.timerRow}>
+    <View className="py-1.5">
+      <Text className="mb-2 text-xs font-semibold uppercase tracking-[0.4px] text-brand-soft dark:text-brandD-soft">Temporizador:</Text>
+      <View className="flex-row items-center gap-3">
         <TouchableOpacity
           onPress={decrement}
-          style={[styles.timerBtn, currentIdx === 0 && styles.timerBtnDisabled]}
+          className={`h-[34px] w-[34px] items-center justify-center rounded-sm ${
+            currentIdx === 0 ? 'bg-brand-border dark:bg-brandD-border' : 'bg-brand dark:bg-brandD-deep'
+          }`}
           disabled={currentIdx === 0}
         >
-          <Text style={styles.timerBtnText}>−</Text>
+          <Text className="text-lg font-bold leading-[22px] text-white">−</Text>
         </TouchableOpacity>
-        <Text style={styles.timerValue}>
+        <Text className="min-w-[80px] text-center text-base font-semibold text-brand-ink dark:text-brandD-ink">
           {timerMinutes === 0 ? 'Sin límite' : `${timerMinutes} min`}
         </Text>
         <TouchableOpacity
           onPress={increment}
-          style={[styles.timerBtn, currentIdx === TIMER_OPTIONS.length - 1 && styles.timerBtnDisabled]}
+          className={`h-[34px] w-[34px] items-center justify-center rounded-sm ${
+            currentIdx === TIMER_OPTIONS.length - 1 ? 'bg-brand-border dark:bg-brandD-border' : 'bg-brand dark:bg-brandD-deep'
+          }`}
           disabled={currentIdx === TIMER_OPTIONS.length - 1}
         >
-          <Text style={styles.timerBtnText}>+</Text>
+          <Text className="text-lg font-bold leading-[22px] text-white">+</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -305,15 +328,15 @@ function TimerPicker({ timerMinutes, setTimerMinutes }) {
 
 function Filters({ sourceFilter, setSourceFilter, parcialFilter, setParcialFilter, parcialFilters, timerMinutes, setTimerMinutes }) {
   return (
-    <View style={styles.filterContainer}>
+    <View className="mb-4 rounded-md bg-white px-4 py-3 dark:bg-slate-800">
       <SourceFilter sourceFilter={sourceFilter} setSourceFilter={setSourceFilter} />
       {parcialFilters && (
         <>
-          <View style={styles.filterDivider} />
+          <View className="my-1 h-px bg-slate-200 dark:bg-brandD-border" />
           <ParcialFilter parcialFilter={parcialFilter} setParcialFilter={setParcialFilter} parcialFilters={parcialFilters} />
         </>
       )}
-      <View style={styles.filterDivider} />
+      <View className="my-1 h-px bg-slate-200 dark:bg-brandD-border" />
       <TimerPicker timerMinutes={timerMinutes} setTimerMinutes={setTimerMinutes} />
     </View>
   );
@@ -328,187 +351,3 @@ function shuffleArray(array) {
   }
   return arr;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f1f5f9',
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 30,
-  },
-  filterContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 16,
-  },
-  filterInner: {
-    paddingVertical: 6,
-  },
-  filterDivider: {
-    height: 1,
-    backgroundColor: '#e2e8f0',
-    marginVertical: 4,
-  },
-  filterLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#607d99',
-    marginBottom: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
-  filterButtons: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-  },
-  filterButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 8,
-    backgroundColor: '#f1f5f9',
-    borderWidth: 1,
-    borderColor: '#ccd9e6',
-  },
-  filterButtonActive: {
-    backgroundColor: '#1a3f6f',
-    borderColor: '#1a3f6f',
-  },
-  filterButtonActiveParcial: {
-    backgroundColor: '#0d7a8a',
-    borderColor: '#0d7a8a',
-  },
-  filterButtonText: {
-    fontSize: 13,
-    color: '#354d66',
-    fontWeight: '500',
-  },
-  filterButtonTextActive: {
-    color: '#fff',
-  },
-  timerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  timerBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 8,
-    backgroundColor: '#1a3f6f',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  timerBtnDisabled: {
-    backgroundColor: '#ccd9e6',
-  },
-  timerBtnText: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
-    lineHeight: 22,
-  },
-  timerValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#0f1f33',
-    minWidth: 80,
-    textAlign: 'center',
-  },
-  topicCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  allTopicsCard: {
-    backgroundColor: '#ddf2f5',
-    borderWidth: 2,
-    borderColor: '#0d7a8a',
-  },
-  topicCardTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#0f1f33',
-  },
-  topicCardCount: {
-    fontSize: 12,
-    color: '#607d99',
-    marginTop: 3,
-  },
-  sectionLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#607d99',
-    marginTop: 8,
-    marginBottom: 10,
-    marginLeft: 4,
-  },
-  examInfoCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 24,
-    alignItems: 'center',
-  },
-  examInfoTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#0f1f33',
-    marginBottom: 10,
-  },
-  examInfoText: {
-    fontSize: 15,
-    color: '#354d66',
-    textAlign: 'center',
-    marginBottom: 14,
-    lineHeight: 22,
-  },
-  examInfoCount: {
-    fontSize: 13,
-    color: '#1a3f6f',
-    fontWeight: '600',
-    marginBottom: 20,
-  },
-  startButton: {
-    backgroundColor: '#1a3f6f',
-    paddingVertical: 14,
-    paddingHorizontal: 32,
-    borderRadius: 10,
-  },
-  startButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyEmoji: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#0f1f33',
-    marginBottom: 8,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: '#607d99',
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-});

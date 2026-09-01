@@ -1,8 +1,11 @@
 // Pantalla principal: muestra los modos de uso disponibles.
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Platform, Linking } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image, Platform, Linking, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useMateria } from '../materia/MateriaContext';
+import { sombras } from '../theme/sombras';
+import { useTema } from '../theme/TemaContext';
+import { colores, oscuro as paletaOscura } from '../theme/colores';
 
 const logo = require('../assets/logo.png');
 
@@ -19,6 +22,7 @@ const icons = {
 export default function HomeScreen({ navigation }) {
   const insets = useSafeAreaInsets();
   const { materia } = useMateria();
+  const { oscuro, setOscuro } = useTema();
   if (!materia) return null; // Aún no se eligió materia (Fase 2)
   const QUESTIONS = materia.QUESTIONS;
   // Conteo por fuente en una sola pasada (memoizado).
@@ -34,29 +38,50 @@ export default function HomeScreen({ navigation }) {
   const examModeCount = Math.min(examSize, QUESTIONS.length);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => requestAnimationFrame(() => navigation.navigate('MateriaSelect'))}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.backButtonText}>← Cambiar materia</Text>
-        </TouchableOpacity>
+    <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900" contentContainerClassName="pb-[30px]">
+      <View
+        className="items-center bg-brand px-6 pb-5 dark:bg-brandD-deep"
+        style={{ paddingTop: insets.top + 8 }}
+      >
+        {/* Cambiar materia a la izquierda, tema a la derecha. El switch vive acá
+            y no en Ajustes porque es lo que más se alterna. */}
+        <View className="mb-2 w-full flex-row items-center justify-between">
+          <TouchableOpacity
+            className="flex-row items-center rounded-full border border-white/25 bg-white/[0.18] px-3.5 py-[7px]"
+            onPress={() => requestAnimationFrame(() => navigation.navigate('MateriaSelect'))}
+            activeOpacity={0.7}
+          >
+            <Text className="text-sm font-semibold tracking-[0.2px] text-white">← Cambiar materia</Text>
+          </TouchableOpacity>
+
+          <View className="flex-row items-center gap-1.5">
+            <Text className="text-sm" accessibilityLabel="Modo oscuro">{oscuro ? '🌙' : '☀️'}</Text>
+            <Switch
+              value={oscuro}
+              onValueChange={setOscuro}
+              trackColor={{ false: colores.brand.muted, true: paletaOscura.accent.DEFAULT }}
+              thumbColor="white"
+              accessibilityLabel="Activar modo oscuro"
+            />
+          </View>
+        </View>
+        {/* Las dimensiones van en `style`: NativeWind no aplica width/height por
+            className al Image de react-native-web, que cae a su tamaño intrínseco. */}
         <Image
           source={logo}
-          style={styles.logo}
+          className="mb-2"
+          style={{ width: 300, height: 120 }}
           resizeMode="contain"
         />
-        <Text style={styles.subtitle}>{materia.name}</Text>
-        <Text style={styles.stats}>
+        <Text className="mt-1 text-center text-md text-brand-tint">{materia.name}</Text>
+        <Text className="mt-2 text-sm text-brand-pale">
           {examCount} preguntas reales · {generatedCount} preguntas extra
         </Text>
       </View>
 
       {materia.bancoReducido ? <BancoReducidoBanner /> : null}
 
-      <View style={styles.modesContainer}>
+      <View className="p-4">
         <ModeCard
           icon={icons.practicar}
           title="Entrena Temas/Parciales"
@@ -103,8 +128,8 @@ export default function HomeScreen({ navigation }) {
       </View>
 
       {Platform.OS === 'web' && (
-        <View style={styles.privacyFooter}>
-          <Text style={styles.privacyText}>
+        <View className="items-center px-6 pb-4 pt-2">
+          <Text className="text-center text-xxs leading-4 text-muted dark:text-mutedD">
             Tus estadísticas y preguntas se guardan localmente en tu navegador.
             {'\n'}
             Se usan analíticas anónimas (sin cookies ni datos personales).
@@ -123,13 +148,13 @@ function BancoReducidoBanner() {
   }
 
   return (
-    <View style={styles.avisoWrap}>
-      <Text style={styles.avisoTitulo}>📉 Banco más reducido</Text>
-      <Text style={styles.avisoBody}>
+    <View className="mx-4 mt-3 rounded-md border border-slate-200 bg-white p-3.5 dark:border-brandD-border dark:bg-slate-800">
+      <Text className="mb-1.5 text-base font-bold text-brand dark:text-brandD-light">📉 Banco más reducido</Text>
+      <Text className="text-sm leading-5 text-slate-600 dark:text-brandD-ink">
         Esta materia tiene menos preguntas que las anteriores porque tuve acceso a menos prototipos de examen.
         {'\n\n'}
         Si tenés material para aportar, escribime a{' '}
-        <Text style={styles.avisoEmail} onPress={escribir}>pkappsoporte@gmail.com</Text>.
+        <Text className="font-semibold text-brand underline dark:text-brandD-light" onPress={escribir}>pkappsoporte@gmail.com</Text>.
       </Text>
     </View>
   );
@@ -137,142 +162,24 @@ function BancoReducidoBanner() {
 
 function ModeCard({ icon, title, description, onPress, iconSize = 50 }) {
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
-      <View style={styles.cardIconContainer}>
+    <TouchableOpacity
+      className="mb-3 flex-row items-center rounded-md bg-white p-4 dark:bg-slate-800"
+      style={sombras.card}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      {/* Baldosa clara en oscuro: tres de los seis PNG son RGB sin alfa
+          (agregar, ajustes, repasar) y en fondo oscuro se ven como recuadros
+          blancos; los otros tres son line art oscuro y se pierden. La baldosa
+          resuelve las dos cosas sin tocar los assets. */}
+      <View className="mr-4 h-16 w-16 items-center justify-center dark:rounded-md dark:bg-white">
         <Image source={icon} style={{ width: iconSize, height: iconSize }} resizeMode="contain" />
       </View>
-      <View style={styles.cardContent}>
-        <Text style={styles.cardTitle}>{title}</Text>
-        <Text style={styles.cardDescription}>{description}</Text>
+      <View className="flex-1">
+        <Text className="text-md font-semibold text-brand-ink dark:text-brandD-ink">{title}</Text>
+        <Text className="mt-0.5 text-sm text-brand-soft dark:text-brandD-soft">{description}</Text>
       </View>
-      <Text style={styles.cardArrow}>›</Text>
+      <Text className="text-xl text-brand-pale dark:text-brandD-border">›</Text>
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f1f5f9',
-  },
-  scrollContent: {
-    paddingBottom: 30,
-  },
-  header: {
-    paddingBottom: 20,
-    paddingHorizontal: 24,
-    backgroundColor: '#1a3f6f',
-    alignItems: 'center',
-  },
-  backButton: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 7,
-    paddingHorizontal: 14,
-    marginBottom: 8,
-    backgroundColor: 'rgba(255,255,255,0.18)',
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.25)',
-  },
-  backButtonText: {
-    color: '#fff',
-    fontSize: 13,
-    fontWeight: '600',
-    letterSpacing: 0.2,
-  },
-  logo: {
-    width: 300,
-    height: 120,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#c5d9f0',
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  stats: {
-    fontSize: 13,
-    color: '#a8c8e0',
-    marginTop: 8,
-  },
-  avisoWrap: {
-    marginHorizontal: 16,
-    marginTop: 12,
-    padding: 14,
-    backgroundColor: '#ffffff',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-  avisoTitulo: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#1a3f6f',
-    marginBottom: 6,
-  },
-  avisoBody: {
-    fontSize: 13,
-    color: '#475569',
-    lineHeight: 20,
-  },
-  avisoEmail: {
-    color: '#1a3f6f',
-    fontWeight: '600',
-    textDecorationLine: 'underline',
-  },
-  modesContainer: {
-    padding: 16,
-  },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  cardIconContainer: {
-    width: 64,
-    height: 64,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  cardContent: {
-    flex: 1,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#0f1f33',
-  },
-  cardDescription: {
-    fontSize: 13,
-    color: '#607d99',
-    marginTop: 2,
-  },
-  cardArrow: {
-    fontSize: 28,
-    color: '#b8cfe0',
-  },
-  privacyFooter: {
-    paddingHorizontal: 24,
-    paddingTop: 8,
-    paddingBottom: 16,
-    alignItems: 'center',
-  },
-  privacyText: {
-    fontSize: 11,
-    color: '#8aa0b8',
-    textAlign: 'center',
-    lineHeight: 16,
-  },
-});

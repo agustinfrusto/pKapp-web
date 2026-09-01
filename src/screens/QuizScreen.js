@@ -3,13 +3,14 @@
 // y guarda el resultado en la base de datos.
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView,
+  View, Text, TouchableOpacity, ScrollView,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { recordAnswer } from '../db/database';
 import { confirm } from '../utils/confirm';
 import { useMateria } from '../materia/MateriaContext';
 import { reportQuestion } from '../utils/report';
+import { sombras } from '../theme/sombras';
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
@@ -111,111 +112,122 @@ export default function QuizScreen({ route, navigation }) {
   }
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-slate-100 dark:bg-slate-900">
       {/* Header con progreso */}
-      <View style={styles.header}>
+      <View className="flex-row items-center bg-brand px-3 py-3 dark:bg-brandD-deep">
         <TouchableOpacity onPress={handleQuit}>
-          <Text style={styles.quitButton}>✕</Text>
+          <Text className="px-2.5 text-xl text-white">✕</Text>
         </TouchableOpacity>
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${progress}%` }]} />
+        <View className="ml-3 flex-1 flex-row items-center">
+          <View className="h-1.5 flex-1 overflow-hidden rounded-xs bg-white/30">
+            <View className="h-full bg-white" style={{ width: `${progress}%` }} />
           </View>
-          <Text style={styles.progressText}>
+          <Text className="ml-3 min-w-[50px] text-sm font-semibold text-white">
             {currentIndex + 1} / {questions.length}
           </Text>
         </View>
         {timeLeft !== null && (
-          <Text style={[styles.timerText, timeLeft < 120 && styles.timerTextUrgent]}>
+          <Text
+            className={`ml-2.5 text-sm font-bold ${
+              timeLeft < 120 ? 'text-dangerD' : 'text-white'
+            }`}
+          >
             ⏱ {formatTime(timeLeft)}
           </Text>
         )}
       </View>
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+      <ScrollView className="flex-1" contentContainerClassName="p-4 pb-[100px]">
         {/* Tema y fuente */}
-        <View style={styles.metaContainer}>
-          <View style={styles.metaLeft}>
+        <View className="mb-2 flex-row items-start justify-between px-1">
+          <View className="mr-2 flex-1">
             {currentQuestion.parcial && (
-              <View style={[
-                styles.parcialBadge,
-                currentQuestion.parcial === 'primero' ? styles.parcialBadgePrimero : styles.parcialBadgeSegundo,
-              ]}>
-                <Text style={styles.parcialBadgeText}>
+              <View
+                className={`mb-1 self-start rounded-xs px-2 py-0.5 ${
+                  currentQuestion.parcial === 'primero'
+                    ? 'bg-parcial-1 dark:bg-parcialD-1'
+                    : 'bg-parcial-2 dark:bg-parcialD-2'
+                }`}
+              >
+                <Text className="text-[10px] font-bold uppercase tracking-[0.3px] text-slate-700 dark:text-brandD-ink">
                   {currentQuestion.parcial === 'primero' ? '1er Parcial' : '2do Parcial'}
                 </Text>
               </View>
             )}
-            <Text style={styles.topicLabel}>
+            <Text className="text-xs font-semibold uppercase text-accent dark:text-accentD">
               {TOPICS[currentQuestion.topic] || currentQuestion.topic}
             </Text>
           </View>
-          <View style={styles.metaRight}>
+          <View className="items-end">
             {currentQuestion.source === 'exam' && currentQuestion.exam && (
-              <Text style={styles.sourceLabel}>📄 {currentQuestion.exam}</Text>
+              <Text className="text-xxs text-brand-soft dark:text-brandD-soft">📄 {currentQuestion.exam}</Text>
             )}
             {currentQuestion.source === 'generated' && (
-              <Text style={styles.sourceLabel}>✨ Práctica</Text>
+              <Text className="text-xxs text-brand-soft dark:text-brandD-soft">✨ Práctica</Text>
             )}
             {currentQuestion.source === 'user' && (
-              <Text style={styles.sourceLabel}>👤 Tuya</Text>
+              <Text className="text-xxs text-brand-soft dark:text-brandD-soft">👤 Tuya</Text>
             )}
           </View>
         </View>
 
         {/* Pregunta */}
-        <View style={styles.questionCard}>
-          <Text style={styles.questionText}>{currentQuestion.question}</Text>
+        <View className="mb-4 rounded-md bg-white p-[18px] dark:bg-slate-800" style={sombras.card}>
+          <Text className="text-md leading-6 text-brand-ink dark:text-brandD-ink">{currentQuestion.question}</Text>
         </View>
 
         {/* Opciones */}
-        <View style={styles.optionsContainer}>
+        <View className="gap-2.5">
           {currentQuestion.options.map((option, idx) => {
             const isSelected = selectedIndex === idx;
             const isCorrect = idx === currentQuestion.correctIndex;
             const showResult = answered;
             
-            let optionStyle = [styles.option];
-            let textStyle = [styles.optionText];
+            // Las clases se eligen enteras y nunca se arman por concatenación
+            // de fragmentos: Tailwind no puede ver un nombre construido a pedazos.
+            // El color de fondo y de borde no puede estar también en la clase
+            // base: dos utilidades del mismo tipo tienen igual especificidad y
+            // gana la que va después en la hoja, no en el string.
+            const NEUTRA = 'border-brand-border bg-white dark:border-brandD-border dark:bg-slate-800';
+            const SEL = 'border-brand bg-brand-surface dark:border-brandD-light dark:bg-brandD-surface';
+            const OK = 'border-success bg-success-surface dark:border-successD dark:bg-successD-surface';
+            const MAL = 'border-danger bg-danger-surface dark:border-dangerD dark:bg-dangerD-surface';
+            const APAGADA = NEUTRA + ' opacity-50';
+            let estado = NEUTRA;
+            let textoEstado = 'text-brand-ink dark:text-brandD-ink';
             let icon = null;
-            
+
             if (showResult) {
               if (hideFeedback) {
-                if (isSelected) {
-                  optionStyle.push(styles.optionSelected);
-                } else {
-                  optionStyle.push(styles.optionDimmed);
-                }
+                estado = isSelected ? SEL : APAGADA;
+              } else if (isCorrect) {
+                estado = OK;
+                textoEstado = 'font-semibold text-success-strong dark:text-successD-strong';
+                icon = '✓';
+              } else if (isSelected) {
+                estado = MAL;
+                textoEstado = 'text-danger-strong dark:text-dangerD-strong';
+                icon = '✗';
               } else {
-                if (isCorrect) {
-                  optionStyle.push(styles.optionCorrect);
-                  textStyle.push(styles.optionTextCorrect);
-                  icon = '✓';
-                } else if (isSelected && !isCorrect) {
-                  optionStyle.push(styles.optionWrong);
-                  textStyle.push(styles.optionTextWrong);
-                  icon = '✗';
-                } else {
-                  optionStyle.push(styles.optionDimmed);
-                }
+                estado = APAGADA;
               }
             } else if (isSelected) {
-              optionStyle.push(styles.optionSelected);
+              estado = SEL;
             }
-            
+
             return (
               <TouchableOpacity
                 key={idx}
-                style={optionStyle}
+                className={`flex-row items-center rounded border-2 p-3.5 ${estado}`}
                 onPress={() => handleSelectOption(idx)}
                 disabled={answered}
                 activeOpacity={0.7}
               >
-                <Text style={styles.optionLetter}>
+                <Text className="mr-3 min-w-[20px] text-base font-bold text-brand-soft dark:text-brandD-soft">
                   {String.fromCharCode(65 + idx)}
                 </Text>
-                <Text style={textStyle}>{option}</Text>
-                {icon && <Text style={styles.optionIcon}>{icon}</Text>}
+                <Text className={`flex-1 text-base leading-5 ${textoEstado}`}>{option}</Text>
+                {icon && <Text className="ml-2 text-md font-bold">{icon}</Text>}
               </TouchableOpacity>
             );
           })}
@@ -223,32 +235,35 @@ export default function QuizScreen({ route, navigation }) {
 
         {/* Explicación después de responder */}
         {answered && !hideFeedback && currentQuestion.explanation ? (
-          <View style={styles.explanationCard}>
-            <Text style={styles.explanationTitle}>💡 Explicación</Text>
-            <Text style={styles.explanationText}>{currentQuestion.explanation}</Text>
+          <View className="mt-4 rounded border-l-4 border-l-accent bg-accent-surface p-3.5 dark:border-l-accentD dark:bg-accentD-surface">
+            <Text className="mb-1.5 text-base font-bold text-accent-strong dark:text-accentD-strong">💡 Explicación</Text>
+            <Text className="text-base leading-5 text-accent-strong dark:text-accentD-strong">{currentQuestion.explanation}</Text>
           </View>
         ) : null}
 
         {answered && (
           <TouchableOpacity
-            style={styles.reportButton}
+            className="mt-3.5 self-center rounded-full border border-danger-border bg-danger-surface px-4 py-[9px] dark:border-dangerD-border dark:bg-dangerD-surface"
             onPress={() => reportQuestion(currentQuestion, materia?.name)}
             activeOpacity={0.7}
           >
-            <Text style={styles.reportButtonText}>🚩 Reportar pregunta</Text>
+            <Text className="text-sm font-bold text-danger dark:text-dangerD">🚩 Reportar pregunta</Text>
           </TouchableOpacity>
         )}
       </ScrollView>
 
       {/* Botón siguiente */}
       {answered && (
-        <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
+        <View
+          className="border-t border-t-brand-border bg-white px-4 pt-4 dark:border-t-brandD-border dark:bg-slate-800"
+          style={{ paddingBottom: insets.bottom + 16 }}
+        >
           <TouchableOpacity
-            style={styles.nextButton}
+            className="items-center rounded bg-brand py-3.5 dark:bg-brandD-deep"
             onPress={handleNext}
             activeOpacity={0.8}
           >
-            <Text style={styles.nextButtonText}>
+            <Text className="text-md font-bold text-white">
               {isLast ? 'Ver resultados' : 'Siguiente →'}
             </Text>
           </TouchableOpacity>
@@ -257,226 +272,3 @@ export default function QuizScreen({ route, navigation }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f1f5f9',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1a3f6f',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-  },
-  quitButton: {
-    fontSize: 24,
-    color: '#fff',
-    paddingHorizontal: 10,
-  },
-  progressContainer: {
-    flex: 1,
-    marginLeft: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  progressBar: {
-    flex: 1,
-    height: 6,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#fff',
-  },
-  progressText: {
-    color: '#fff',
-    marginLeft: 12,
-    fontSize: 13,
-    fontWeight: '600',
-    minWidth: 50,
-  },
-  timerText: {
-    color: '#fff',
-    marginLeft: 10,
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  timerTextUrgent: {
-    color: '#ff6b6b',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 100,
-  },
-  metaContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-    paddingHorizontal: 4,
-  },
-  metaLeft: {
-    flex: 1,
-    marginRight: 8,
-  },
-  metaRight: {
-    alignItems: 'flex-end',
-  },
-  parcialBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-    marginBottom: 4,
-  },
-  parcialBadgePrimero: {
-    backgroundColor: '#e0f2fe',
-  },
-  parcialBadgeSegundo: {
-    backgroundColor: '#ede9fe',
-  },
-  parcialBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#334155',
-    textTransform: 'uppercase',
-    letterSpacing: 0.3,
-  },
-  topicLabel: {
-    fontSize: 12,
-    color: '#0d7a8a',
-    fontWeight: '600',
-    textTransform: 'uppercase',
-  },
-  sourceLabel: {
-    fontSize: 11,
-    color: '#607d99',
-  },
-  questionCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 18,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  questionText: {
-    fontSize: 16,
-    color: '#0f1f33',
-    lineHeight: 24,
-  },
-  optionsContainer: {
-    gap: 10,
-  },
-  option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 14,
-    borderWidth: 2,
-    borderColor: '#ccd9e6',
-  },
-  optionSelected: {
-    borderColor: '#1a3f6f',
-    backgroundColor: '#dce8f5',
-  },
-  optionCorrect: {
-    borderColor: '#276221',
-    backgroundColor: '#e8f5e7',
-  },
-  optionWrong: {
-    borderColor: '#b52828',
-    backgroundColor: '#fceaea',
-  },
-  optionDimmed: {
-    opacity: 0.5,
-  },
-  optionLetter: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#607d99',
-    marginRight: 12,
-    minWidth: 20,
-  },
-  optionText: {
-    flex: 1,
-    fontSize: 14,
-    color: '#0f1f33',
-    lineHeight: 20,
-  },
-  optionTextCorrect: {
-    color: '#1a5216',
-    fontWeight: '600',
-  },
-  optionTextWrong: {
-    color: '#8b1c1c',
-  },
-  optionIcon: {
-    fontSize: 18,
-    marginLeft: 8,
-    fontWeight: 'bold',
-  },
-  explanationCard: {
-    backgroundColor: '#ddf2f5',
-    borderRadius: 10,
-    padding: 14,
-    marginTop: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#0d7a8a',
-  },
-  explanationTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#095c6b',
-    marginBottom: 6,
-  },
-  explanationText: {
-    fontSize: 14,
-    color: '#095c6b',
-    lineHeight: 20,
-  },
-  reportButton: {
-    alignSelf: 'center',
-    paddingVertical: 9,
-    paddingHorizontal: 16,
-    marginTop: 14,
-    backgroundColor: '#fef2f2',   // red-50
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: '#fecaca',       // red-200
-  },
-  reportButtonText: {
-    fontSize: 13,
-    color: '#b91c1c',             // red-700
-    fontWeight: '700',
-  },
-  footer: {
-    paddingTop: 16,
-    paddingHorizontal: 16,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#ccd9e6',
-  },
-  nextButton: {
-    backgroundColor: '#1a3f6f',
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  nextButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
