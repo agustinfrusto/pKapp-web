@@ -1,6 +1,16 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
+# Los bundles JS/CSS llevan hash de contenido en el nombre, igual que /assets:
+# sin esta regla el navegador los revalidaba en cada visita y el chunk de la
+# materia se volvía a pedir aunque no hubiera cambiado.
+/_expo/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# El HTML sí tiene que revalidarse: es lo que apunta a los bundles nuevos.
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
 /*
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   X-Content-Type-Options: nosniff

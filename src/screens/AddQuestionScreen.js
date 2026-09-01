@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
-  ScrollView, Alert, KeyboardAvoidingView, Platform,
+  ScrollView, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { addUserQuestion } from '../db/database';
-import { confirm } from '../utils/confirm';
+import { confirm, avisar } from '../utils/confirm';
 import { useMateria } from '../materia/MateriaContext';
 import { colores, oscuro } from '../theme/colores';
 import { useTema } from '../theme/TemaContext';
@@ -33,7 +33,7 @@ export default function AddQuestionScreen({ navigation }) {
 
   function removeOption(index) {
     if (options.length <= 2) {
-      Alert.alert('Mínimo 2 opciones', 'Tiene que haber al menos 2 opciones de respuesta.');
+      avisar('Mínimo 2 opciones', 'Tiene que haber al menos 2 opciones de respuesta.');
       return;
     }
     const newOptions = options.filter((_, i) => i !== index);
@@ -48,7 +48,7 @@ export default function AddQuestionScreen({ navigation }) {
 
   function addOption() {
     if (options.length >= 6) {
-      Alert.alert('Máximo 6 opciones', 'No se pueden agregar más de 6 opciones.');
+      avisar('Máximo 6 opciones', 'No se pueden agregar más de 6 opciones.');
       return;
     }
     setOptions([...options, '']);
@@ -57,23 +57,23 @@ export default function AddQuestionScreen({ navigation }) {
   async function handleSave() {
     // Validaciones
     if (!questionText.trim()) {
-      Alert.alert('Falta la pregunta', 'Escribí el enunciado de la pregunta.');
+      avisar('Falta la pregunta', 'Escribí el enunciado de la pregunta.');
       return;
     }
     
     const filledOptions = options.map(o => o.trim()).filter(o => o.length > 0);
     if (filledOptions.length < 2) {
-      Alert.alert('Pocas opciones', 'Necesitás al menos 2 opciones con texto.');
+      avisar('Pocas opciones', 'Necesitás al menos 2 opciones con texto.');
       return;
     }
     
     if (correctIndex === null) {
-      Alert.alert('Falta marcar la correcta', 'Marcá cuál es la respuesta correcta.');
+      avisar('Falta marcar la correcta', 'Marcá cuál es la respuesta correcta.');
       return;
     }
     
     if (!options[correctIndex] || !options[correctIndex].trim()) {
-      Alert.alert('Opción correcta vacía', 'La opción marcada como correcta no tiene texto.');
+      avisar('Opción correcta vacía', 'La opción marcada como correcta no tiene texto.');
       return;
     }
 
@@ -117,7 +117,7 @@ export default function AddQuestionScreen({ navigation }) {
       );
     } catch (err) {
       console.error(err);
-      Alert.alert('Error', 'No se pudo guardar la pregunta.');
+      avisar('Error', 'No se pudo guardar la pregunta.');
     } finally {
       setSaving(false);
     }

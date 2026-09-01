@@ -3,10 +3,11 @@
 // solo generadas, o ambas.
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  View, Text, TouchableOpacity, ScrollView, Alert,
+  View, Text, TouchableOpacity, ScrollView,
 } from 'react-native';
 import { getUserQuestions, getFailedQuestions, getSetting } from '../db/database';
 import { useMateria } from '../materia/MateriaContext';
+import { avisar } from '../utils/confirm';
 import { sombras } from '../theme/sombras';
 
 const SOURCE_FILTERS = {
@@ -41,14 +42,15 @@ function dedupeQuestions(list) {
 export default function TopicSelectScreen({ route, navigation }) {
   const { mode } = route.params; // 'practice' | 'exam' | 'failed'
   const { materiaId, materia } = useMateria();
-  if (!materia) return null;
-  const QUESTIONS = materia.QUESTIONS;
-  const TOPICS = materia.TOPICS;
-  const EXAM_SIZE_FULL = materia.config.examSize;
-  const EXAM_SIZE_PARCIAL = materia.config.examSizeParcial;
+  // Ningún early return antes de los hooks: la cantidad de hooks tiene que ser
+  // la misma en todos los renders, y `materia` puede llegar en uno posterior.
+  const QUESTIONS = materia?.QUESTIONS;
+  const TOPICS = materia?.TOPICS || {};
+  const EXAM_SIZE_FULL = materia?.config?.examSize;
+  const EXAM_SIZE_PARCIAL = materia?.config?.examSizeParcial;
 
   // Materias sin parciales: PARCIAL_FILTERS queda en null y se omite el filtro
-  const parcialesConfig = materia.config.parciales;
+  const parcialesConfig = materia?.config?.parciales;
   const hasParciales = Array.isArray(parcialesConfig) && parcialesConfig.length > 0;
   const PARCIAL_FILTERS = hasParciales
     ? { all: 'Examen', ...Object.fromEntries(parcialesConfig.map(p => [p.id, p.label])) }
@@ -73,7 +75,7 @@ export default function TopicSelectScreen({ route, navigation }) {
 
   // Combinamos preguntas hardcodeadas con las del usuario (memoizado).
   const allQuestions = useMemo(
-    () => [...QUESTIONS, ...userQuestions],
+    () => [...(QUESTIONS || []), ...userQuestions],
     [QUESTIONS, userQuestions]
   );
 
@@ -112,7 +114,7 @@ export default function TopicSelectScreen({ route, navigation }) {
     let questions = getFilteredQuestions(topic);
 
     if (questions.length === 0) {
-      Alert.alert('Sin preguntas', 'No hay preguntas disponibles con los filtros actuales.');
+      avisar('Sin preguntas', 'No hay preguntas disponibles con los filtros actuales.');
       return;
     }
 
@@ -134,6 +136,8 @@ export default function TopicSelectScreen({ route, navigation }) {
       timerMinutes,
     }));
   }
+
+  if (!materia) return null;
 
   // En modo examen, no se elige tema: directo arranca
   if (mode === 'exam') {

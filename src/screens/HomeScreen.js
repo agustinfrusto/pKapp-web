@@ -23,17 +23,21 @@ export default function HomeScreen({ navigation }) {
   const insets = useSafeAreaInsets();
   const { materia } = useMateria();
   const { oscuro, setOscuro } = useTema();
-  if (!materia) return null; // Aún no se eligió materia (Fase 2)
-  const QUESTIONS = materia.QUESTIONS;
+  const QUESTIONS = materia?.QUESTIONS;
   // Conteo por fuente en una sola pasada (memoizado).
+  // El memo va antes del early return: React exige que la cantidad de hooks no
+  // cambie entre renders, y `materia` puede llegar en un render posterior.
   const { examCount, generatedCount } = useMemo(() => {
     let ex = 0, gen = 0;
-    for (const q of QUESTIONS) {
+    for (const q of QUESTIONS || []) {
       if (q.source === 'exam') ex++;
       else if (q.source === 'generated') gen++;
     }
     return { examCount: ex, generatedCount: gen };
   }, [QUESTIONS]);
+
+  if (!materia) return null; // Aún no se eligió materia (Fase 2)
+
   const examSize = materia.config?.examSize || 75;
   const examModeCount = Math.min(examSize, QUESTIONS.length);
 

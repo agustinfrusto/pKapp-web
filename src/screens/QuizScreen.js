@@ -38,6 +38,7 @@ export default function QuizScreen({ route, navigation }) {
   // Marca las salidas legitimas (terminar el quiz o confirmar el abandono) para
   // que el guardia de abajo no vuelva a preguntar.
   const salidaAprobadaRef = useRef(false);
+  const scrollRef = useRef(null);
 
   const currentQuestion = preguntas[currentIndex];
   const isLast = currentIndex === preguntas.length - 1;
@@ -86,22 +87,26 @@ export default function QuizScreen({ route, navigation }) {
   useEffect(() => {
     if (!timerMinutes) return;
     timerRef.current = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current);
-          salidaAprobadaRef.current = true;
-          navigation.replace('Results', {
-            answers: answersRef.current,
-            mode,
-            topic,
-          });
-          return 0;
-        }
-        return prev - 1;
-      });
+      setTimeLeft(prev => (prev <= 1 ? 0 : prev - 1));
     }, 1000);
     return () => clearInterval(timerRef.current);
   }, []);
+
+  // La navegación por tiempo agotado va en su propio efecto y no dentro del
+  // updater de setTimeLeft: React puede ejecutar un updater más de una vez, y
+  // navegar desde ahí dispara dos `replace` seguidos.
+  useEffect(() => {
+    if (timeLeft !== 0) return;
+    clearInterval(timerRef.current);
+    // Quedarse sin tiempo es una salida legítima: sin esto el guardia de
+    // 'beforeRemove' pediría confirmación para abandonar un quiz ya terminado.
+    salidaAprobadaRef.current = true;
+    navigation.replace('Results', {
+      answers: answersRef.current,
+      mode,
+      topic,
+    });
+  }, [timeLeft]);
 
   // Mantener ref sincronizada con el estado de answers
   useEffect(() => {
@@ -147,6 +152,9 @@ export default function QuizScreen({ route, navigation }) {
         setCurrentIndex(currentIndex + 1);
         setSelectedIndex(null);
         setAnswered(false);
+        // La ScrollView es la misma entre preguntas: sin esto, después de una
+        // pregunta larga la siguiente aparece con el scroll a mitad de camino.
+        scrollRef.current?.scrollTo({ y: 0, animated: false });
       });
     }
   }
@@ -185,7 +193,7 @@ export default function QuizScreen({ route, navigation }) {
         )}
       </View>
 
-      <ScrollView className="flex-1" contentContainerClassName="p-4 pb-[100px]">
+      <ScrollView ref={scrollRef} className="flex-1" contentContainerClassName="p-4 pb-[100px]">
         {/* Tema y fuente */}
         <View className="mb-2 flex-row items-start justify-between px-1">
           <View className="mr-2 flex-1">

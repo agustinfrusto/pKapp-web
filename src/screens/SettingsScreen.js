@@ -1,7 +1,7 @@
 // Pantalla de ajustes: gestión de preguntas custom, reseteo de stats, info.
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, TouchableOpacity, ScrollView, Alert, Switch, Linking,
+  View, Text, TouchableOpacity, ScrollView, Switch, Linking,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Constants from 'expo-constants';
@@ -13,7 +13,7 @@ import {
   resetStats, getUserQuestions, deleteUserQuestion,
   getSetting, saveSetting,
 } from '../db/database';
-import { confirm } from '../utils/confirm';
+import { confirm, avisar } from '../utils/confirm';
 import { pickAndImportBackup, downloadBackup } from '../utils/migration';
 import { colores } from '../theme/colores';
 import { Platform } from 'react-native';
@@ -52,7 +52,7 @@ export default function SettingsScreen() {
       '¿Seguro que querés borrar todas las estadísticas? Esto no se puede deshacer.',
       async () => {
         await resetStats(materiaId);
-        Alert.alert('Listo', 'Estadísticas borradas.');
+        avisar('Listo', 'Estadísticas borradas.');
       },
       { confirmLabel: 'Borrar', destructive: true }
     );
@@ -169,7 +169,7 @@ export default function SettingsScreen() {
                     className="mb-2 items-center rounded border border-brand-border bg-brand-tint py-2.5 dark:border-brandD-border dark:bg-brandD-tint"
                     onPress={() => {
                       const ok = downloadBackup();
-                      if (!ok) Alert.alert('Error', 'No se pudo generar el respaldo.');
+                      if (!ok) avisar('Error', 'No se pudo generar el respaldo.');
                     }}
                   >
                     <Text className="text-xs font-semibold text-brand-ink dark:text-brandD-ink">💾 Descargar respaldo</Text>
@@ -177,7 +177,7 @@ export default function SettingsScreen() {
                   <TouchableOpacity
                     className="mb-2 items-center rounded bg-brand py-[11px] dark:bg-brandD-deep"
                     onPress={() => pickAndImportBackup((r) => {
-                      Alert.alert(r.ok ? 'Listo' : 'Error', r.message);
+                      avisar(r.ok ? 'Listo' : 'Error', r.message);
                       if (r.ok) loadData();
                     })}
                   >

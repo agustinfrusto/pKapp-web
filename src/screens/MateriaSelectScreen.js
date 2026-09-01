@@ -9,6 +9,7 @@ import { MATERIA_LIST } from '../materias';
 import { useMateria } from '../materia/MateriaContext';
 import DonationBox from '../components/DonationBox';
 import { track } from '../utils/track';
+import { avisar } from '../utils/confirm';
 import { sombras } from '../theme/sombras';
 import { useTema } from '../theme/TemaContext';
 import { colores, oscuro as paletaOscura } from '../theme/colores';
@@ -17,14 +18,28 @@ const logo = require('../assets/logo.png');
 
 export default function MateriaSelectScreen({ navigation }) {
   const insets = useSafeAreaInsets();
-  const { setMateriaId } = useMateria();
+  const { elegirMateria } = useMateria();
   const { oscuro, setOscuro } = useTema();
+  // Cuál se está cargando: el banco de preguntas baja como chunk aparte, así que
+  // entre el toque y la navegación puede haber un instante visible en redes lentas.
+  const [cargandoId, setCargandoId] = useState(null);
 
-  function handlePick(materia) {
-    if (!materia.available) return;
+  async function handlePick(materia) {
+    if (!materia.available || cargandoId) return;
     track('materia_elegida', { materia: materia.id });
-    setMateriaId(materia.id);
-    requestAnimationFrame(() => navigation.navigate('Home'));
+    setCargandoId(materia.id);
+    try {
+      // El banco viaja en un chunk aparte: si la descarga falla, `elegirMateria`
+      // rechaza. Sin este catch el usuario tocaba la tarjeta y no pasaba nada.
+      const cargada = await elegirMateria(materia.id);
+      if (!cargada) throw new Error(`materia desconocida: ${materia.id}`);
+      requestAnimationFrame(() => navigation.navigate('Home'));
+    } catch (err) {
+      console.error('Error cargando la materia:', err);
+      avisar('No se pudo abrir la materia', 'Revisá tu conexión y probá de nuevo.');
+    } finally {
+      setCargandoId(null);
+    }
   }
 
   return (
@@ -62,7 +77,12 @@ export default function MateriaSelectScreen({ navigation }) {
 
       <View className="p-4">
         {MATERIA_LIST.map((m) => (
-          <MateriaCard key={m.id} materia={m} onPress={() => handlePick(m)} />
+          <MateriaCard
+            key={m.id}
+            materia={m}
+            cargando={cargandoId === m.id}
+            onPress={() => handlePick(m)}
+          />
         ))}
       </View>
 
@@ -127,8 +147,9 @@ function DonationCard() {
   );
 }
 
-function MateriaCard({ materia, onPress }) {
-  const totalQs = materia.QUESTIONS?.length || 0;
+function MateriaCard({ materia, onPress, cargando }) {
+  // Precalculado en conteos.js: mostrarlo no debe costar cargar el banco entero.
+  const totalQs = materia.preguntas || 0;
 
   return (
     <TouchableOpacity
@@ -137,7 +158,7 @@ function MateriaCard({ materia, onPress }) {
       }`}
       style={sombras.card}
       onPress={onPress}
-      disabled={!materia.available}
+      disabled={!materia.available || cargando}
       activeOpacity={0.7}
     >
       <View
@@ -159,7 +180,7 @@ function MateriaCard({ materia, onPress }) {
       </Text>
       {materia.available ? (
         <Text className="mt-1.5 text-center text-sm text-brand-soft dark:text-brandD-soft">
-          {totalQs} preguntas
+          {cargando ? 'Cargando…' : `${totalQs} preguntas`}
         </Text>
       ) : (
         <Text className="mt-1.5 text-center text-sm italic text-muted dark:text-mutedD">Próximamente</Text>
