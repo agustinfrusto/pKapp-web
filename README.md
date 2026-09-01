@@ -2,7 +2,7 @@
 
 [pkapp.uy](https://pkapp.uy)
 
-pKapp nació como una herramienta para ayudar a mi pareja a estudiar y terminó siendo útil para más personas. La idea era simple: resolver una necesidad concreta de preparación con preguntas reales, explicaciones claras y un flujo de repaso que no perdiera contexto.
+pKapp nació para acompañar a mi pareja en el estudio y terminó siendo útil para más personas. La idea era simple: resolver una necesidad concreta de preparación con preguntas reales, explicaciones claras y un flujo de repaso que no perdiera contexto.
 
 La versión web mantiene esa intención, pero pensada para funcionar en navegador y sentirse como una app: accesible, portable y útil en la vida cotidiana. No se construyó para parecer algo grande desde el principio; se construyó para resolver un problema real y seguir creciendo sin perder claridad.
 
