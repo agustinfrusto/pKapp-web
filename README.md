@@ -33,13 +33,13 @@ pKapp está pensado para estudiar de forma práctica y enfocada. La app ayuda a 
 
 ## Características
 
-- **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** (BCYT), **Anatomía** y **Neurobiología**. Estructura preparada para sumar los demás módulos.
-- **1049 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025 + Anatomía 2018-2025 + Neurobiología).
+- **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** (BCYT), **Anatomía**, **Neurobiología** y **Cardiovascular y Respiratorio** (CyR). Estructura preparada para sumar los demás módulos.
+- **1049 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025 + Anatomía 2018-2025 + Neurobiología + CyR según el banco disponible).
 - **34 preguntas adicionales** generadas con Claude a partir de los apuntes (solo BCYT).
 - **Filtros:** por fuente (examen real / generada) y por parcial, combinables.
 - **Tres modos:**
   - **Práctica por tema:** elegís un tema específico o practicás por parcial.
-  - **Examen:** preguntas al azar con tamaño igual al examen real (configurable por materia — BCYT: 75 / 40 por parcial; Anatomía: 50 / 25 por parcial; Neurobiología: 25, sin parciales).
+  - **Examen:** preguntas al azar con tamaño igual al examen real (configurable por materia — BCYT: 75 / 40 por parcial; Anatomía: 50 / 25 por parcial; Neurobiología: 25, sin parciales; CyR: 50, sin parciales).
   - **Repaso de fallos:** las que respondiste mal antes.
 - **Explicaciones** tras cada respuesta o al final del cuestionario.
 - **Estadísticas** por tema y lista de preguntas más falladas.
@@ -76,6 +76,12 @@ Sistema nervioso central · Nervios periféricos y plexos · Sistema muscular ·
 ### Neurobiología
 
 Organización del sistema nervioso · Neurona: tipos, prolongaciones y organelos · Glía (astrocitos, microglía, oligodendrocitos) · Mielina y nervio periférico · Potencial de membrana y de acción · Sinapsis y transmisión · Receptores sensoriales y transducción · Vías somatosensoriales y corteza · Reflejos, husos y órgano de Golgi · Control motor y cortezas motoras · Sistema nervioso autónomo · Médula espinal · Cerebelo · Corteza cerebral e hipocampo.
+
+Materia sin parciales (examen único).
+
+### Cardiovascular y Respiratorio (CyR)
+
+Fisiología cardíaca, ciclo y gasto cardíaco · Electrocardiograma y dipolo · Hemodinamia, presión arterial y resistencias · Circulaciones regionales y microcirculación · Mecánica ventilatoria, presiones y compliance · Intercambio gaseoso, transporte de O2/CO2 y V/Q · Control de la respiración y quimiorreceptores · Histología cardiovascular y respiratoria.
 
 Materia sin parciales (examen único).
 
@@ -135,12 +141,18 @@ pKapp/
     │   │   ├── config.js
     │   │   ├── topics.js
     │   │   └── questions.js        # Banco de preguntas (471)
-    │   └── neuro/                  # Neurobiología
+    │   ├── neuro/                  # Neurobiología
+    │   │   ├── index.js
+    │   │   ├── metadata.js         # available: true
+    │   │   ├── config.js           # sin parciales (examen de 25)
+    │   │   ├── topics.js
+    │   │   └── questions.js        # Banco de preguntas (193)
+    │   └── cyr/                    # Cardiovascular y Respiratorio
     │       ├── index.js
     │       ├── metadata.js         # available: true
-    │       ├── config.js           # sin parciales (examen de 25)
+    │       ├── config.js           # sin parciales (examen de 50)
     │       ├── topics.js
-    │       └── questions.js        # Banco de preguntas (193)
+    │       └── questions.js        # Banco de preguntas (varía según el contenido del módulo)
     ├── materia/
     │   └── MateriaContext.js       # Estado: materia activa, getter de data
     ├── db/
@@ -149,6 +161,10 @@ pKapp/
     │   └── sqlite-stub.js          # Stub vacío de expo-sqlite para web
     ├── components/
     │   └── DonationBox.js          # Bloque de donación (Mercado Pago)
+    ├── theme/
+    │   ├── colores.js              # Tokens de color del sistema visual
+    │   ├── sombras.js              # Elevación y sombras
+    │   └── TemaContext.js          # Contexto de tema / preferencias visuales
     ├── utils/
     │   ├── confirm.js              # Confirmaciones cross-platform
     │   ├── migration.js            # Export/import de progreso entre dominios
