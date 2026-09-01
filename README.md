@@ -2,10 +2,13 @@
 
 [pkapp.uy](https://pkapp.uy)
 
-App para ayudar a los estudiantes de Escuela Técnica de Medicina.
-La construí para ayudar a mi pareja, le ha sido útil y espero que ayude a más personas.
+pKapp nació como una herramienta para ayudar a mi pareja a estudiar y terminó siendo útil para más personas. La idea era simple: resolver una necesidad concreta de preparación con preguntas reales, explicaciones claras y un flujo de repaso que no perdiera contexto.
 
-> Es gratis, y va a serlo mientras pueda mantenerla
+La versión web mantiene esa intención, pero pensada para funcionar en navegador y sentirse como una app: accesible, portable y útil en la vida cotidiana. No se construyó para parecer algo grande desde el principio; se construyó para resolver un problema real y seguir creciendo sin perder claridad.
+
+La forma de trabajar en este proyecto está guiada por un enfoque de **Spec Driven Development**: cada cambio nace de una necesidad, se define con intención y se implementa con criterio. La prioridad no es sumar funciones por sumar; es mantener una base útil, coherente y fácil de sostener.
+
+> Es gratis, y va a serlo mientras pueda mantenerla.
 
 Construido con **Expo / React Native**. Esta es la **versión web** del proyecto: corre en cualquier navegador moderno y se puede instalar como **PWA** (Progressive Web App) en escritorio, Android e iOS.
 
@@ -24,6 +27,10 @@ Construido con **Expo / React Native**. Esta es la **versión web** del proyecto
   <img src="docs/screenshots/06-stats.png" width="220" alt="Estadísticas por tema" />
 </p>
 
+## Qué hace pKapp
+
+pKapp está pensado para estudiar de forma práctica y enfocada. La app ayuda a repasar materias del plan de la Escuela Técnica de Medicina con un banco de preguntas estructurado, explicaciones útiles y seguimiento del desempeño.
+
 ## Características
 
 - **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** (BCYT), **Anatomía** y **Neurobiología**. Estructura preparada para sumar los demás módulos.
@@ -39,6 +46,20 @@ Construido con **Expo / React Native**. Esta es la **versión web** del proyecto
 - **Agregar tus propias preguntas** al banco (se guardan localmente).
 - **Timer** opcional para poner un tiempo a los cuestionarios (hasta dos horas).
 - **PWA instalable** en cualquier dispositivo, con ícono propio y experiencia tipo app.
+
+## Cómo se construye pKapp
+
+Este proyecto no se construye como una lista interminable de features. La idea es simple: cada cambio parte de una necesidad real y se define antes de implementarse.
+
+### Principios
+
+- Cada funcionalidad nace de un problema concreto.
+- Antes de construir, se define el comportamiento esperado.
+- Se validan decisiones de UX, arquitectura y contenido.
+- La documentación acompaña la implementación, en vez de quedar como deuda posterior.
+- La mantenibilidad pesa más que la cantidad de cosas visibles.
+
+Esto hace que el proyecto se sienta más estable y más honesto: no se suma por sumar, se mejora con criterio.
 
 ## Temas cubiertos
 

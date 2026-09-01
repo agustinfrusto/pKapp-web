@@ -75,6 +75,27 @@ context: |
     `scripts/inject-preload.js`). `dist/` está gitignoreado.
   - Deploy: Cloudflare Pages conectado al repo. Ver `docs/CLOUDFLARE-MIGRATION.md`.
 
+  ## Estilo del README y documentación pública
+
+  - El tono debe ser honesto, humano y sobrio. No usar lenguaje de producto,
+    lanzamientos ni claims grandilocuentes. Evitar palabras como “revolucionario”,
+    “premium”, “game changer”, “best”, “increíble” o “drag and drop” salvo que
+    realmente describan una funcionalidad concreta.
+  - La narrativa debe explicar el origen real del proyecto: nació para ayudar a una
+    persona concreta (por ejemplo, la pareja del autor) y luego fue útil para más
+    personas. Esa verdad da credibilidad al proyecto y no requiere marketing.
+  - La introducción debe ser breve, concreta y humana: problema real, intención,
+    contexto y una línea de cómo la app se usa en la práctica.
+  - El README debe presentar la app como una herramienta de estudio útil, nunca como
+    una “demo” ni un producto presentado en una keynote.
+  - La estructura recomendada es: introducción, qué hace, enfoque de construcción
+    (Spec Driven Development), características clave, instalación, arquitectura,
+    contenido/licencia y notas de uso. Mantener el orden de la historia.
+  - En español, con jerga técnica mínima y explicada cuando hace falta. La claridad
+    importa más que la sofisticación del tono.
+  - Todo cambio de documentación debe preservar esa combinación de sinceridad,
+    claridad y rigor técnico.
+
 # Per-artifact rules (optional)
 # rules:
 #   proposal:
