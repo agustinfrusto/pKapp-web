@@ -35,7 +35,7 @@ pKapp está pensado para estudiar de forma práctica y enfocada. La app ayuda a 
 
 - **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** (BCYT), **Anatomía**, **Neurobiología** y **Cardiovascular y Respiratorio** (CyR). Estructura preparada para sumar los demás módulos.
 - **Banco de preguntas** con material real y generado, según la materia: BCYT, Anatomía, Neurobiología y CyR.
-- **1049 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025 + Anatomía 2018-2025 + Neurobiología + CyR según el banco disponible).
+- **1.162 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025 + Anatomía 2018-2025 + Neurobiología + CyR según el banco disponible).
 - **34 preguntas adicionales** generadas con Claude a partir de los apuntes (solo BCYT).
 - **Filtros:** por fuente (examen real / generada) y por parcial, combinables.
 - **Tres modos:**
