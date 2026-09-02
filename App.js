@@ -78,11 +78,12 @@ function AppContent() {
   // puede recargar /estadisticas o compartir /inicio y caer sin materia elegida,
   // donde Home y TopicSelect devuelven null y la pantalla queda en blanco.
   // Ante eso volvemos al selector en vez de mostrar la nada.
-  const { materiaId } = useMateria();
-  const materiaIdRef = useRef(materiaId);
-  useEffect(() => {
-    materiaIdRef.current = materiaId;
-  }, [materiaId]);
+  //
+  // Se lee el ref del contexto y no el estado: este chequeo corre en
+  // onStateChange, que puede adelantarse al commit de React si la pantalla de
+  // seleccion navega en el mismo tick en que elige la materia. Con el estado se
+  // leeria un null viejo y rebotaria al usuario apenas toca una materia.
+  const { materiaIdRef } = useMateria();
 
   const volverAlSelectorSiFaltaMateria = () => {
     const ruta = navigationRef.getCurrentRoute()?.name;
