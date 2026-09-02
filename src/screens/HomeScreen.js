@@ -1,13 +1,9 @@
 // Pantalla principal: muestra los modos de uso disponibles.
 import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, Platform, Linking, Switch } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View, Text, TouchableOpacity, ScrollView, Image, Platform, Linking } from 'react-native';
 import { useMateria } from '../materia/MateriaContext';
+import HeaderMarca from '../components/HeaderMarca';
 import { sombras } from '../theme/sombras';
-import { useTema } from '../theme/TemaContext';
-import { colores, oscuro as paletaOscura } from '../theme/colores';
-
-const logo = require('../assets/logo.png');
 
 const icons = {
   practicar:   require('../assets/practicar.png'),
@@ -20,9 +16,7 @@ const icons = {
 
 
 export default function HomeScreen({ navigation }) {
-  const insets = useSafeAreaInsets();
   const { materia } = useMateria();
-  const { oscuro, setOscuro } = useTema();
   const QUESTIONS = materia?.QUESTIONS;
   // Conteo por fuente en una sola pasada (memoizado).
   // El memo va antes del early return: React exige que la cantidad de hooks no
@@ -43,13 +37,8 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900" contentContainerClassName="pb-[30px]">
-      <View
-        className="items-center bg-brand px-6 pb-5 dark:bg-brandD-deep"
-        style={{ paddingTop: insets.top + 8 }}
-      >
-        {/* Cambiar materia a la izquierda, tema a la derecha. El switch vive acá
-            y no en Ajustes porque es lo que más se alterna. */}
-        <View className="mb-2 w-full flex-row items-center justify-between">
+      <HeaderMarca
+        izquierda={
           <TouchableOpacity
             className="flex-row items-center rounded-full border border-white/25 bg-white/[0.18] px-3.5 py-[7px]"
             onPress={() => requestAnimationFrame(() => navigation.navigate('MateriaSelect'))}
@@ -57,31 +46,15 @@ export default function HomeScreen({ navigation }) {
           >
             <Text className="text-sm font-semibold tracking-[0.2px] text-white">← Cambiar materia</Text>
           </TouchableOpacity>
-
-          <View className="flex-row items-center gap-1.5">
-            <Text className="text-sm" accessibilityLabel="Modo oscuro">{oscuro ? '🌙' : '☀️'}</Text>
-            <Switch
-              value={oscuro}
-              onValueChange={setOscuro}
-              trackColor={{ false: colores.brand.muted, true: paletaOscura.accent.DEFAULT }}
-              thumbColor="white"
-              accessibilityLabel="Activar modo oscuro"
-            />
-          </View>
-        </View>
-        {/* Las dimensiones van en `style`: NativeWind no aplica width/height por
-            className al Image de react-native-web, que cae a su tamaño intrínseco. */}
-        <Image
-          source={logo}
-          className="mb-2"
-          style={{ width: 300, height: 120 }}
-          resizeMode="contain"
-        />
-        <Text className="mt-1 text-center text-md text-brand-tint">{materia.name}</Text>
-        <Text className="mt-2 text-sm text-brand-pale">
+        }
+      >
+        {/* numberOfLines: el bloque de texto del header tiene alto fijo, así que
+            envolver desbordaría en vez de estirarlo. */}
+        <Text numberOfLines={1} className="text-center text-md text-brand-tint">{materia.name}</Text>
+        <Text numberOfLines={1} className="mt-2 text-center text-sm text-brand-pale">
           {examCount} preguntas reales · {generatedCount} preguntas extra
         </Text>
-      </View>
+      </HeaderMarca>
 
       {materia.bancoReducido ? <BancoReducidoBanner /> : null}
 

@@ -2,24 +2,18 @@
 // Se presenta SIEMPRE al abrir la app (no se persiste la última).
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, TouchableOpacity, ScrollView, Image, Linking, Switch,
+  View, Text, TouchableOpacity, ScrollView, Image, Linking,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MATERIA_LIST } from '../materias';
 import { useMateria } from '../materia/MateriaContext';
 import DonationBox from '../components/DonationBox';
+import HeaderMarca from '../components/HeaderMarca';
 import { track } from '../utils/track';
 import { avisar } from '../utils/confirm';
 import { sombras } from '../theme/sombras';
-import { useTema } from '../theme/TemaContext';
-import { colores, oscuro as paletaOscura } from '../theme/colores';
-
-const logo = require('../assets/logo.png');
 
 export default function MateriaSelectScreen({ navigation }) {
-  const insets = useSafeAreaInsets();
   const { elegirMateria } = useMateria();
-  const { oscuro, setOscuro } = useTema();
   // Cuál se está cargando: el banco de preguntas baja como chunk aparte, así que
   // entre el toque y la navegación puede haber un instante visible en redes lentas.
   const [cargandoId, setCargandoId] = useState(null);
@@ -44,34 +38,10 @@ export default function MateriaSelectScreen({ navigation }) {
 
   return (
     <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900" contentContainerClassName="pb-10">
-      <View
-        className="items-center bg-brand px-6 pb-6 dark:bg-brandD-deep"
-        style={{ paddingTop: insets.top + 24 }}
-      >
-        {/* Absoluto para no empujar el logo: esta pantalla no tiene botón de
-            volver, así que no hay una fila superior donde meterlo. El +13
-            alinea su caja con la del de Home, que se centra contra la píldora
-            de "Cambiar materia": sin eso salta 5 px al entrar a una materia. */}
-        <View
-          className="absolute right-4 flex-row items-center gap-1.5"
-          style={{ top: insets.top + 13 }}
-        >
-          <Text className="text-sm" accessibilityLabel="Modo oscuro">{oscuro ? '🌙' : '☀️'}</Text>
-          <Switch
-            value={oscuro}
-            onValueChange={setOscuro}
-            trackColor={{ false: colores.brand.muted, true: paletaOscura.accent.DEFAULT }}
-            thumbColor="white"
-            accessibilityLabel="Activar modo oscuro"
-          />
-        </View>
-
-        {/* Dimensiones en `style`: NativeWind no las aplica por className al
-            Image de react-native-web, que cae a su tamaño intrínseco. */}
-        <Image source={logo} className="mb-2" style={{ width: 240, height: 90 }} resizeMode="contain" />
-        <Text className="mt-1 text-base text-brand-tint">Tus materias de ESFUNO</Text>
-        <Text className="mt-1.5 text-xs text-brand-pale">Elegí una para empezar</Text>
-      </View>
+      <HeaderMarca>
+        <Text numberOfLines={1} className="text-center text-md text-brand-tint">Tus materias de ESFUNO</Text>
+        <Text numberOfLines={1} className="mt-2 text-center text-sm text-brand-pale">Elegí una para empezar</Text>
+      </HeaderMarca>
 
       <AboutBanner />
 
