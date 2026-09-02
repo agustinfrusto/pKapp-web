@@ -35,7 +35,7 @@ pKapp está pensado para estudiar de forma práctica y enfocada. La app ayuda a 
 
 - **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** (BCYT), **Anatomía**, **Neurobiología** y **Cardiovascular y Respiratorio** (CyR). Estructura preparada para sumar los demás módulos.
 - **Banco de preguntas** con material real y generado, según la materia: BCYT, Anatomía, Neurobiología y CyR.
-- **1.162 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025 + Anatomía 2018-2025 + Neurobiología + CyR según el banco disponible).
+- **1.162 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025: 385 · Anatomía 2018-2025: 471 · Neurobiología: 193 · CyR: 113).
 - **34 preguntas adicionales** generadas con Claude a partir de los apuntes (solo BCYT).
 - **Filtros:** por fuente (examen real / generada) y por parcial, combinables.
 - **Tres modos:**
@@ -123,13 +123,23 @@ pKapp/
 │   ├── _redirects                  # SPA fallback (Cloudflare Pages)
 │   └── _headers                    # Security headers (Cloudflare Pages)
 ├── scripts/
+│   ├── gen-conteos.mjs             # Pre-build: genera src/materias/conteos.js
 │   ├── inject-pwa.js               # Post-build: inyecta meta tags PWA, CF Analytics y Umami
-│   └── inject-preload.js           # Post-build: inyecta preload del logo y materias
+│   ├── inject-preload.js           # Post-build: inyecta preload del logo y materias
+│   └── capturar-screenshots.js     # Captura las imágenes de este README
+├── tools/                          # Herramientas de desarrollo (fuera del bundle)
+│   ├── ingesta/                    # Pipeline Python: extraer, validar y enriquecer preguntas
+│   ├── e2e/                        # Arnés de navegación web sobre CDP
+│   └── ui/                         # Chequeo de contraste de los tokens de color
+├── openspec/                       # Specs y changes (Spec Driven Development)
 ├── docs/
-│   └── screenshots/                # Capturas usadas en este README
+│   ├── screenshots/                # Capturas usadas en este README
+│   ├── CLOUDFLARE-MIGRATION.md     # Notas de la migración desde Vercel
+│   └── LAUNCH-PLAYBOOK.md
 └── src/
     ├── materias/                   # Registry de materias (ESFUNO)
     │   ├── index.js                # MATERIAS y MATERIA_LIST
+    │   ├── conteos.js              # GENERADO: preguntas por materia (sin cargar el banco)
     │   ├── bcyt/                   # Biología Celular y Tisular
     │   │   ├── index.js
     │   │   ├── metadata.js         # id, nombre, icono, color, imagen
@@ -153,7 +163,7 @@ pKapp/
     │       ├── metadata.js         # available: true
     │       ├── config.js           # sin parciales (examen de 50)
     │       ├── topics.js
-    │       └── questions.js        # Banco de preguntas (varía según el contenido del módulo)
+    │       └── questions.js        # Banco de preguntas (113)
     ├── materia/
     │   └── MateriaContext.js       # Estado: materia activa, getter de data
     ├── db/
@@ -161,7 +171,8 @@ pKapp/
     │   ├── database.web.js         # Implementación web (localStorage)
     │   └── sqlite-stub.js          # Stub vacío de expo-sqlite para web
     ├── components/
-    │   └── DonationBox.js          # Bloque de donación (Mercado Pago)
+    │   ├── DonationBox.js          # Bloque de donación (Mercado Pago)
+    │   └── HeaderMarca.js          # Header compartido (logo + título)
     ├── theme/
     │   ├── colores.js              # Tokens de color del sistema visual
     │   ├── sombras.js              # Elevación y sombras
@@ -214,10 +225,19 @@ Todo se guarda en `localStorage` del navegador. Los datos persisten entre sesion
 npm install
 
 # correr en navegador
-npx expo start --web
+npm run web
 
 # build completo (output: dist/)
 npm run build:web
+
+# regenerar los conteos por materia (también corre dentro de build:web)
+npm run conteos
+
+# recorrido e2e de navegación web
+npm run e2e
+
+# regenerar las capturas del README
+npm run screenshots
 ```
 
 ### Versionado
@@ -253,14 +273,14 @@ En `TopicSelectScreen` hay tres controles combinables:
 - **Solo generadas** → filtra `source === 'generated' || source === 'user'`.
 
 **Filtro de parcial** (3 opciones, los tamaños dependen de la materia):
-- **Examen** (default) → sin filtro de parcial. En modo examen sortea `examSize` preguntas (BCYT: 75; Anatomía: 50; Neurobiología: 25).
+- **Examen** (default) → sin filtro de parcial. En modo examen sortea `examSize` preguntas (BCYT: 75; Anatomía: 50; Neurobiología: 25; CyR: 50).
 - **1er Parcial** → filtra `parcial === 'primero'`. Sortea `examSizeParcial` preguntas (BCYT: 40; Anatomía: 25).
 - **2do Parcial** → filtra `parcial === 'segundo'`. Sortea `examSizeParcial` preguntas.
 
 Cada materia define sus tamaños en `src/materias/<id>/config.js`.
 
 **Timer** (opcional):
-- Stepper de 10 a 120 minutos, en saltos de 10.
+- Stepper con **Sin límite** (default) y de 10 a 120 minutos, en saltos de 10.
 - Cuando expira navega automáticamente a Resultados con las respuestas dadas hasta el momento.
 
 ---
@@ -271,7 +291,7 @@ Por transparencia, detallo en qué partes del proyecto se usó asistencia de IA 
 
 ### Contenido educativo
 
-- **1049 preguntas reales** extraídas de parciales y exámenes oficiales. Se usó IA como apoyo para transcribir y limpiar los PDFs originales, pero cada pregunta fue revisada manualmente contra el documento fuente.
+- **1.162 preguntas reales** extraídas de parciales y exámenes oficiales. Se usó IA como apoyo para transcribir y limpiar los PDFs originales, pero cada pregunta fue revisada manualmente contra el documento fuente.
 - **34 preguntas generadas** a partir de los apuntes oficiales de BCYT. Están marcadas con `source: "generated"` y son auditables desde la app: en `TopicSelect` → filtro **Fuente: Solo generadas**.
 - **Explicaciones:** redactadas o refinadas con IA tomando como referencia los resúmenes oficiales, priorizando precisión y consistencia con el material de estudio.
 
