@@ -25,8 +25,16 @@ updates:
       - dependency-name: "react"
       - dependency-name: "react-dom"
       - dependency-name: "babel-preset-expo"
-      # Ecosistema RN / navegación: dejamos pasar minor/patch (van agrupados),
-      # pero bloqueamos los MAJOR (rompen y deben alinear con el SDK a mano).
+      # Módulos nativos que el SDK pinea en `expo/bundledNativeModules.json`:
+      # ignorados por completo, no solo en major. Sus minor apuntan al SDK
+      # siguiente (reanimated 4.6 pide react-native 0.83-0.87 y estamos en 0.81),
+      # así que se mueven con `expo install --fix` al hacer upgrade de SDK.
+      - dependency-name: "react-native-reanimated"
+      - dependency-name: "react-native-worklets"
+      - dependency-name: "react-native-screens"
+      - dependency-name: "react-native-safe-area-context"
+      # Resto del ecosistema RN / navegación: dejamos pasar minor/patch (van
+      # agrupados), pero bloqueamos los MAJOR (rompen y deben alinear a mano).
       - dependency-name: "react-native-*"
         update-types: ["version-update:semver-major"]
       - dependency-name: "@react-navigation/*"
