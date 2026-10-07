@@ -6,7 +6,10 @@ pKapp nació para acompañar a mi pareja en el estudio y terminó siendo útil p
 
 La versión web mantiene esa intención, pero pensada para funcionar en navegador y sentirse como una app: accesible, portable y útil en la vida cotidiana. No se construyó para parecer algo grande desde el principio; se construyó para resolver un problema real y seguir creciendo sin perder claridad.
 
-La forma de trabajar en este proyecto está guiada por un enfoque de **Spec Driven Development**: cada cambio nace de una necesidad, se define con intención y se implementa con criterio. La prioridad no es sumar funciones por sumar; es mantener una base útil, coherente y fácil de sostener.
+Debo decir que la arquitectura no es la que me gustaria, dado a lo espontaneo que fue todo hay desiciones que no habria tomado de haber sabido que tanta gente usaria la app, aunque me alegra que haya sido util para tanta gente. Posteriormente fui corrigiendo muchas cosas y aun me encuentro en esa tarea.
+
+La forma de trabajar en este proyecto está guiada por un enfoque de **Spec Driven Development**: cada cambio nace de una necesidad, se define con intención y se implementa con criterio. La prioridad no es sumar funciones por sumar; es mantener una base útil, coherente y fácil de sostener. 
+
 
 > Es gratis, y va a serlo mientras pueda mantenerla.
 
