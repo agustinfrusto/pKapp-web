@@ -1,3 +1,4 @@
+import re
 import sys
 import os
 from pathlib import Path
@@ -12,7 +13,11 @@ def analizar_pdf(pdf_path: Path):
     
     # Text search for answer table at the end
     has_answer_section = False
-    answer_keywords = ['clave', 'respuestas', 'tabla de respuestas', 'plantilla', 'solucionario', 'correcta']
+    # Solo cuenta un encabezado de apartado: la palabra sola en su linea. Una palabra
+    # suelta ("correcta", "respuestas", "clave") aparece en los enunciados.
+    encabezado_apartado = re.compile(
+        r'^[ \t]*(tabla[ \t]+de[ \t]+)?(respuestas|clave|claves|plantilla|solucionario)[ \t]*:?[ \t\u2028\u2029]*$',
+        re.IGNORECASE | re.MULTILINE)
     
     for page_num in range(total_pages):
         page = doc[page_num]
@@ -31,8 +36,7 @@ def analizar_pdf(pdf_path: Path):
         
         # Check last 2 pages for answer key table
         if page_num >= total_pages - 2:
-            lower_text = text.lower()
-            if any(kw in lower_text for kw in answer_keywords):
+            if encabezado_apartado.search(text):
                 has_answer_section = True
 
     avg_chars_per_page = total_text_chars / max(total_pages, 1)
