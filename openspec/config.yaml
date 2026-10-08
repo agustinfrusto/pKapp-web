@@ -31,7 +31,9 @@ context: |
   - Expo / React Native corriendo en web, exportado como PWA instalable.
   - React Navigation (native-stack). Sin TypeScript ni linter configurado. No hay
     tests unitarios; sí un arnés e2e de navegación en `tools/e2e` (`npm run e2e`).
-  - Estilos con StyleSheet de RN (no hay librería de UI ni theming central).
+  - Estilos con NativeWind 4 (Tailwind 3 vía `className`). Los tokens de diseño viven
+    en `src/theme/` (`colores.js`, `sombras.js`, `TemaContext.js`). `StyleSheet.create`
+    solo queda en el splash de `App.js` y en `src/theme/sombras.js`.
   - Capa de datos con dos implementaciones que Metro resuelve por plataforma:
     `src/db/database.web.js` (localStorage) y `src/db/database.native.js` (SQLite).
     En web las claves se namespacean por materia: `pkapp_question_stats:<materiaId>`,
@@ -72,6 +74,8 @@ context: |
   - VERSIÓN: se bumpea en `package.json` Y en `app.json` a la vez, siempre al mismo
     número. `app.json` es la que se muestra en Ajustes vía `expo-constants`.
   - No commitear ni pushear sin que el usuario lo pida explícitamente.
+  - Trabajo multi-agente: roles, modelo por rol y pulses en `openspec/workers.md`.
+    Solo el Ingeniero commitea; ningún worker lo hace.
   - Build web: `npm run build:web` (`scripts/gen-conteos.mjs` + expo export +
     `scripts/inject-pwa.js` + `scripts/inject-preload.js`). `dist/` está gitignoreado.
     `src/materias/conteos.js` es generado y va commiteado: no editarlo a mano.

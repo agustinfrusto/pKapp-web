@@ -66,3 +66,5 @@ docs/CLOUDFLARE-MIGRATION.md
 # Tooling de agentes: lo genera el harness, no es del proyecto
 .agents/
 skills-lock.json
+.atl/
+.codegraph/
