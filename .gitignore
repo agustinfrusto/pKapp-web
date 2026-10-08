@@ -43,7 +43,9 @@ coverage/
 .vscode/
 .idea/
 *.swp
-.claude/
+# .claude/ es local, salvo las definiciones de roles, que son parte del protocolo
+.claude/*
+!.claude/agents/
 
 # Archivos comprimidos
 *.zip
