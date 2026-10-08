@@ -41,35 +41,35 @@ La extracción **no es un rol**. `tools/ingesta/extraer.py` es código determini
 el Ingeniero como acción acotada y tria `abortados.jsonl`. Si un PDF necesita una vía de
 parseo que el script no tiene, eso es una tarea de Programador.
 
-> Niveles de effort de la API para Sonnet 5.5 y Haiku 5.5: `low`, `medium`, `high`, `xhigh`,
-> `max`. En Sonnet 5.5 los niveles están recalibrados respecto de Sonnet 5. Que el `--effort`
-> de Orca acepte exactamente esos nombres se confirma en el primer dispatch, porque el CLI
-> no lista el enum sin un Run ligado. `--effort` exige `--model`.
+> Niveles de effort: `low`, `medium`, `high`, `xhigh`, `max`. En Sonnet 5.5 están
+> recalibrados respecto de Sonnet 5. Orca los pasa tal cual (primera prueba:
+> `claude-sonnet-5-5` + `low`, requested = effective). `--effort` exige `--model`.
 
 ---
 
-## Una terminal retenida por rol
+## Reutilizar terminales: solo entre tareas seguidas
 
 `--model` y `--effort` **no se combinan con `--terminal`**: el modelo queda fijado al nacer
-la terminal. De ahí sale la topología:
+la terminal. Y Orca solo admite reusar una terminal para un dispatch **inmediatamente
+siguiente**; `worker-retain` no sirve para mantener roles vivos, porque es una excepción
+que pide el usuario para debugging.
 
-**Una terminal por rol, nacida con su modelo, reutilizada para todas las tareas de ese rol.**
+Por eso la palanca de ahorro, que es el contexto caliente, se obtiene **agrupando**: las
+tareas del mismo rol se encolan una detrás de otra y comparten la terminal. Un Investigador
+que procesa cinco lotes seguidos en la misma terminal no relee cinco veces la guía de
+estilo, el mapa de TOPICS ni el esquema de pregunta. Al planificar, el Ingeniero ordena las
+tareas por rol siempre que las dependencias lo permitan.
 
-Eso resuelve a la vez las dos cosas que importan:
+Después de cada `worker_done` aceptado, exactamente una de estas:
 
-- El rol es la unidad de elección de modelo, que es lo que el diseño ya pedía.
-- La reutilización es **la palanca real de ahorro**, no la secuencialidad. Un Investigador
-  liberado y vuelto a crear relee la guía de estilo, el mapa de TOPICS y el esquema de
-  pregunta desde cero, en cada lote. Retenido, ese contexto ya está caliente.
-
-Después de cada `worker_done` aceptado, el Ingeniero hace exactamente una de tres cosas:
-
-1. Reusar la misma terminal para la tarea siguiente del mismo rol — **la opción default**.
-2. `worker-retain` si queda en pausa pero se va a volver a usar.
-3. `worker-release` solo cuando el rol terminó su ciclo completo.
+1. Reusar la misma terminal (`worker-start --terminal <handle>`) si la tarea siguiente es
+   del mismo rol y ya está lista.
+2. `worker-release` en cualquier otro caso.
+3. `worker-retain` solo si el usuario lo pide.
 
 Liberar es limpieza post-settlement, nunca cancelación, y solo un settlement aceptado la
-autoriza.
+autoriza. Si Orca detecta interacción humana en la terminal, el release responde
+`retained / user_takeover` y no la cierra: queda abierta para que el usuario la cierre.
 
 ---
 
@@ -120,9 +120,17 @@ no hay que confundir:
 Un heartbeat **no** es un pulse de progreso: prueba liveness y nada más. El pulse de
 progreso real es `--phase`, que cabe en una línea y no arrastra contexto.
 
+En el inbox, `phase`, `outcome`, `filesModified` y `reportPath` viajan dentro de `payload`,
+que es un **string JSON**: hay que parsearlo. Un worker puede saltearse pulses de fase e ir
+directo al `worker_done`; si el seguimiento por fase importa, la spec tiene que marcarlo
+como obligatorio.
+
 La regla que mantiene esto barato: **el detalle va a un archivo, no al inbox.** El worker
 escribe su reporte y lo apunta con `--report-path`; en el `worker_done` manda tres oraciones.
 El Ingeniero lee el reporte completo solo si las tres oraciones no alcanzan.
+
+Los reportes van a `.orca/reports/<tarea>.md`, que está gitignoreado: son registro de
+trabajo, no parte del proyecto.
 
 El Ingeniero espera con:
 
