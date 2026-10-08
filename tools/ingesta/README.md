@@ -57,7 +57,7 @@ El directorio `tools/ingesta/referencia/` almacena muestras de explicaciones ya 
 
 ## Etapas del Pipeline
 
-1. **`extraer`**: Lee el PDF estructurado con PyMuPDF (anotaciones de highlight o tabla final de respuestas). Emite `salidas/<materia>-<examen>-<ts>/crudas.jsonl`.
+1. **`extraer`**: Lee el PDF estructurado con PyMuPDF (tabla final de respuestas, anotaciones de highlight o relleno vectorial detrás de la opción; ver la sección siguiente). Emite `salidas/<materia>-<examen>-<ts>/crudas.jsonl`.
 2. **`enriquecer`**: Sugiere `topic`, restringido al mapa `TOPICS` de la materia, por reglas de palabra clave. Emite `enriquecidas.jsonl`.
 3. **Etapas de modelo** (validación ciega y explicaciones): no las corre el pipeline. Ver el contrato de intercambio más abajo.
 4. **`validar`**: Aplica gates deterministas en código (estructura, no material visual, no ambigüedad, no duplicados, fiabilidad de explicaciones). Emite `banco.jsonl`, `descartadas.jsonl`, `revision-manual.jsonl`, `explicaciones-dudosas.jsonl` y `reporte-calidad.md`.
@@ -69,6 +69,68 @@ markdown legible para decidir la cola a mano, con los casi-duplicados de a pares
 ```
 python3 tools/ingesta/render_revision.py <dir_salida>/revision-manual.jsonl
 ```
+
+---
+
+## Cómo `extraer` lee la clave
+
+La clave sale, en este orden de prioridad, de: el apartado `RESPUESTAS`, las anotaciones de highlight y el relleno vectorial. Si el PDF trae el apartado o anotaciones, el relleno no se lee: un fondo de color en un encabezado o una viñeta no debe pisar una clave explícita.
+
+**El apartado es un encabezado `RESPUESTAS` solo en su línea.** La palabra suelta aparece en enunciados ("se activan respuestas compensatorias") y, tratada como apartado, cortaba el examen en ese punto.
+
+### Relleno vectorial
+
+Muchos exámenes marcan la respuesta con un rectángulo de color detrás de la opción. Es un dato estructurado del PDF: se lee `page.get_drawings()` sin renderizar la página, así que no depende de la resolución ni de un OCR.
+
+- **Qué cuenta como relleno de marca.** Un relleno cromático: saturación ≥ 0,15 (`max(r,g,b) − min(r,g,b)`), área ≥ 200 y texto detrás. No se fija un color: el corpus ya usa cian y amarillo, y la próxima materia puede traer otro. Blanco, negro y gris no marcan; el área mínima descarta bordes y viñetas.
+- **A qué opción se asigna.** Cada relleno marca toda línea de texto con la que solapa en vertical (al menos el 30 % de su alto) y en horizontal. Si esa línea abre una opción (`a)`–`d)`) o la continúa, la marca es de esa opción. Una opción de dos líneas lleva un rectángulo por línea, y varias cajas sobre la misma opción cuentan como **una** marca.
+- **Un relleno que no cae en una opción se ignora.** Un fondo sobre un enunciado o un encabezado no es marca.
+- **Exactamente una marca por pregunta.** Sin ninguna, se **aborta el examen entero** (`marca_ausente`): no hay forma de distinguir una marca que falta de un desfase, y un desfase corre a lo largo de todo el examen. Con dos o más, se **descarta esa pregunta** (`marca_doble`, con las letras marcadas) y el resto sigue. En ambos casos conviene perder la pregunta antes que publicar una clave equivocada.
+
+La clave así armada entra por el mismo embudo que la del apartado (`verificar_claves`: cantidad, numeración, contigüidad) y sale con `detection_method: 'relleno'`.
+
+### Gate 3.5: solo páginas sin texto
+
+El gate aborta únicamente la **página sin capa de texto** (escaneada), porque sin texto no hay opción a la que asignar una marca (`resaltado_no_estructurado`). Antes abortaba cualquier relleno cromático detrás de texto, sin distinguir un rectángulo vectorial de una imagen; ahora un relleno es marca si cae en una opción y se ignora si no.
+
+### Encabezados y pies de página
+
+El encabezado ("Primer período Anatomía – 15 de agosto 2024") y el pie (número de página, "Descargado por…") no son parte del examen: no entran en un enunciado, en una opción ni cuentan como línea de marca. `extraer` los descarta antes de leer claves, así un relleno sobre ellos (un resaltado que se corre) no marca nada.
+
+Una línea es encabezado o pie si está en el borde de la página (`y0 < 56 pt` arriba, o por debajo del 92 % del alto) y cumple una de estas señales: su texto se repite en el borde de otras páginas del PDF; es un número suelto en el pie; o es un título de periodo con año (`período|examen|parcial` y `19xx|20xx`), aunque aparezca una sola vez. Las marcas de descarga (`Descargado por`, `Studocu`, `lOMoARcPSD`) se descartan siempre. Una línea que abre pregunta u opción (`12.`, `c)`) o es una entrada de clave (`16.C`) es contenido aunque se repita en el borde.
+
+`python3 tools/ingesta/pruebas/buscar_encabezados.py` lo verifica sobre el corpus: toma como huella todo texto que se repite en el borde de dos o más páginas y lo busca en cada enunciado y opción emitidos (sale con 1 si hay hallazgos).
+
+### Examen con varias materias: recorte por sección
+
+Algunos PDFs reúnen varias UTIs (el prototipo de 4 UTIs: Neurobiología, Cardiovascular y Respiratorio, Digestivo/Renal/Endócrino, Reproductor y Desarrollo). Cada una abre con una línea de encabezado propia. `extraer` usa un **mapa `materia_id → encabezado`** (`ENCABEZADOS_MATERIA`):
+
+| `materia_id` | Encabezado de sección |
+| :--- | :--- |
+| `bcyt` | Biología Celular y Tisular |
+| `anatomia` | Anatomía |
+| `neuro` | Neurobiología |
+| `cyr` | Cardiovascular y Respiratorio |
+| `dre` | Digestivo, Renal y Endócrino |
+| `ryd` | Reproductor y Desarrollo |
+
+- La comparación normaliza **tildes, mayúsculas, puntuación y espacios**: `DIGESTIVO, RENAL Y ENDÓCRINO` y `DIGESTIVO, RENAL Y ENDOCRINO` son el mismo encabezado.
+- **Solo aplica cuando el documento tiene secciones de dos o más materias.** Un examen de una sola materia (aunque traiga su encabezado) se procesa entero, como antes.
+- Con varias secciones se emite únicamente lo que está entre el encabezado de la materia destino y el siguiente. Para el 4 UTIs: `neuro` 1–25, `cyr` 26–49 (la 33 anulada), `dre` 50–99 y `ryd` 100–119.
+- Si el documento reúne varias materias y **ninguna es la destino**, no se emite nada y se registra un aborto de examen con motivo `sin_seccion` en `abortados.jsonl`. Un `materia_id` fuera del mapa cae en este caso.
+- Los números no se asumen: el recorte es por encabezado, no por rango de preguntas.
+
+### Preguntas descartadas
+
+Una pregunta anulada (`N. ANULADA` sin opciones, o el marcador `PREGUNTA N ANULADA`) se descarta antes de `verificar_claves` y sale del conjunto esperado, así no provoca un desfase de numeración. Rige tanto con relleno como con apartado: aunque la tabla de claves no traiga la `N`, la línea `N. ANULADA` abre la pregunta y se descarta. Las descartadas (`anulada`, `marca_doble`) se registran por pregunta en `abortados.jsonl`, con el campo `pregunta` y el motivo; no son exámenes abortados.
+
+### Inventario (`inventario.py`)
+
+El inventario ya no toma palabras sueltas como señal de apartado. Antes, `clave`, `respuestas`, `correcta`, etc. en cualquier parte de las dos últimas páginas marcaban el PDF como `apartado`, y un enunciado ("¿cuál describe correctamente…?") bastaba. Ahora cuenta solo un **encabezado de apartado**: `RESPUESTAS`, `CLAVE(S)`, `TABLA DE RESPUESTAS`, `PLANTILLA` o `SOLUCIONARIO` solo en su línea. Sigue mirando las dos últimas páginas.
+
+### Pruebas
+
+`python3 tools/ingesta/pruebas/correr_pruebas.py` genera PDFs sintéticos con PyMuPDF (`generar_fixtures.py`) y verifica cada caso: marca de una y de dos líneas, relleno que solapa dos opciones, pregunta sin marca, relleno suelto, pregunta anulada (con relleno y con apartado), prioridad del apartado, página escaneada, la palabra "respuestas" en un enunciado, PDF partido en prototipos, pregunta que cruza de página con relleno sobre el encabezado, opción marcada partida entre páginas, recorte por sección (destino con sección, sin sección y documento de una sola materia) y el inventario con y sin apartado real.
 
 ---
 
