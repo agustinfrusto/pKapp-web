@@ -16,6 +16,11 @@ MAGENTA = (1, 0, 1)
 X_TEXTO = 72
 ALTO_LINEA = 16
 TAM = 11
+# Caja real que PyMuPDF da a una linea de Helvetica de 11 pt: desde ASCENSO sobre la
+# linea base hasta DESCENSO por debajo. Con ella la invasion de una caja se mide en
+# fraccion exacta de la altura de la linea.
+ASCENSO = 11.825
+ALTO_BBOX = 15.114
 
 
 def _rect_linea(y):
@@ -30,7 +35,9 @@ def examen(ruta, preguntas, rellenos, color=AMARILLO, encabezado='Examen de prue
     anulada: solo "N. ANULADA", sin opciones.
     rellenos: lista de ('opcion', i_pregunta, i_opcion, i_linea) o
     ('rango', i_pregunta, (i_opcion_desde, i_opcion_hasta)) o ('enunciado', i_pregunta)
-    o ('encabezado',). Se resuelven a rectangulos con la posicion real del texto.
+    o ('encabezado',) o ('invade', i_pregunta, i_opcion, fraccion): la caja cubre la opcion
+    e invade `fraccion` de la altura de la linea de la opcion siguiente. Se resuelven a
+    rectangulos con la posicion real del texto.
     """
     doc = fitz.open()
     page = doc.new_page()
@@ -74,6 +81,11 @@ def examen(ruta, preguntas, rellenos, color=AMARILLO, encabezado='Examen de prue
             rect = fitz.Rect(X_TEXTO - 2, arriba - 10.5, 480, abajo + 3.5)
         elif r[0] == 'enunciado':
             rect = _rect_linea(pos[('enunciado', r[1])])
+        elif r[0] == 'invade':
+            arriba = pos[('opcion', r[1], r[2], 0)]
+            siguiente = pos[('opcion', r[1], r[2] + 1, 0)]
+            rect = fitz.Rect(X_TEXTO - 2, arriba - ASCENSO,
+                             480, siguiente - ASCENSO + r[3] * ALTO_BBOX)
         else:
             rect = _rect_linea(pos['encabezado'])
         page.draw_rect(rect, color=None, fill=color)
@@ -92,12 +104,13 @@ def documento(ruta, paginas, color=AMARILLO):
     """
     Documento de varias paginas con encabezado y numero de pagina como los examenes
     reales (encabezado a y=36, numero suelto a y=779). `paginas` es una lista de
-    paginas; cada una es (encabezado, lineas). Una linea es un texto o un par
-    (texto, True) si lleva relleno detras. Un encabezado (texto, True) tambien se
-    rellena: es el caso de un resaltado que se corre sobre el encabezado.
+    paginas; cada una es (encabezado, lineas) o (encabezado, lineas, extras). Una linea
+    es un texto o un par (texto, True) si lleva relleno detras. Un encabezado
+    (texto, True) tambien se rellena: es el caso de un resaltado que se corre sobre el
+    encabezado. `extras` son pares (y, texto) de lineas sueltas, p. ej. al pie.
     """
     doc = fitz.open()
-    for numero, (encabezado, lineas) in enumerate(paginas, start=1):
+    for numero, (encabezado, lineas, *resto) in enumerate(paginas, start=1):
         page = doc.new_page()
         elementos = []
         if encabezado is not None:
@@ -109,6 +122,8 @@ def documento(ruta, paginas, color=AMARILLO):
             elementos.append((y, texto, relleno))
             y += ALTO_LINEA
         elementos.append((Y_PIE, str(numero), False))
+        for yy, texto in (resto[0] if resto else []):
+            elementos.append((yy, texto, False))
         for yy, texto, relleno in elementos:
             if relleno:
                 page.draw_rect(_rect_linea(yy), color=None, fill=color)
@@ -226,6 +241,88 @@ def generar(directorio):
     documento(d / 'inventario_sin_apartado.pdf',
               [(ENC, _pregunta(51, 'a', texto='51. Cual describe correctamente la clave del proceso?')
                 + _pregunta(52, 'b', texto='52. Senale la opcion correcta sobre las respuestas motoras?'))])
+
+    # I1. Encabezados y pies: solo se descarta lo que es de verdad encabezado o pie.
+    # (a) La continuacion de la opcion C de la 52 abre la pagina 2, justo debajo del
+    # encabezado, y menciona "examen" y un anio: sigue siendo texto de la opcion.
+    pag1 = (ENC, _pregunta(51, 'a')[:-1] + _pregunta(52, 'a')[:-2] + ['c) Opcion C de 52,'])
+    pag2 = (ENC, ['    segun el examen de 2019 en adultos', ''] + _pregunta(53, 'c') + _pregunta(54, 'b'))
+    documento(d / 'borde_continuacion.pdf', [pag1, pag2])
+
+    # (b) Una palabra corta ("ambas") cierra la opcion C al pie de dos paginas: se repite
+    # en el borde, pero es contenido y no encabezado.
+    pag1 = (ENC, _pregunta(51, 'a')[:-1] + _pregunta(52, 'b')[:-2] + ['c) Opcion C de 52,'],
+            [(Y_PIE + 10, 'ambas')])
+    pag2 = (ENC, _pregunta(53, 'c') + _pregunta(54, 'b')[:-2] + ['c) Opcion C de 54,'],
+            [(Y_PIE + 10, 'ambas')])
+    documento(d / 'borde_palabra_corta.pdf', [pag1, pag2])
+
+    # (c) El encabezado real se repite en dos paginas: se descarta y queda registrado.
+    documento(d / 'borde_encabezado_real.pdf',
+              [(ENC, _pregunta(51, 'a') + _pregunta(52, 'b')),
+               (ENC, _pregunta(53, 'c') + _pregunta(54, 'b'))])
+
+    # A1 (a). Una marca de descarga abre la pagina, por encima de un titulo de periodo
+    # unico: la marca se descarta y el titulo, que queda sin contenido arriba, tambien.
+    documento(d / 'borde_marca_titulo.pdf',
+              [(ENC, _pregunta(51, 'a') + _pregunta(52, 'b') + _pregunta(53, 'c') + _pregunta(54, 'b'),
+                [(20, 'Descargado por Alumno Anonimo')])])
+
+    # A1 (b). Una linea de contenido abre la pagina 2 y, debajo y todavia en el borde
+    # superior, otra menciona "examen" y un anio: con contenido arriba es texto del examen.
+    pag1 = (ENC, _pregunta(51, 'a')[:-1] + _pregunta(52, 'a')[:-2] + ['c) Opcion C de 52,'])
+    pag2 = ('    la opcion sigue aca,',
+            ['    segun el examen de 2019 en adultos', ''] + _pregunta(53, 'c') + _pregunta(54, 'b'))
+    documento(d / 'borde_titulo_tras_contenido.pdf', [pag1, pag2])
+
+    # A2. Un pie de menos de 12 caracteres ("ver dorso") se repite al pie de dos paginas:
+    # se conserva como contenido de la opcion C y queda registrado como sospecha.
+    pag1 = (ENC, _pregunta(51, 'a')[:-1] + _pregunta(52, 'b')[:-2] + ['c) Opcion C de 52,'],
+            [(Y_PIE + 10, 'ver dorso')])
+    pag2 = (ENC, _pregunta(53, 'c') + _pregunta(54, 'b')[:-2] + ['c) Opcion C de 54,'],
+            [(Y_PIE + 10, 'ver dorso')])
+    documento(d / 'borde_pie_corto.pdf', [pag1, pag2])
+
+    # A3. Un examen que aborta (sin_seccion para el destino cyr) con descartes de borde:
+    # el encabezado se repite en las dos paginas y cada pagina lleva su numero.
+    documento(d / 'borde_abortado.pdf',
+              [(ENC, seccion('NEUROBIOLOGÍA', [1, 2], 'ab')),
+               (ENC, seccion('DIGESTIVO, RENAL Y ENDOCRINO', [50, 51], 'bc'))])
+
+    # I2. Marcador "PREGUNTA 53 ANULADA", seguido de su pregunta y solo, sin ella.
+    documento(d / 'anulada_marcador_con_pregunta.pdf',
+              [(ENC, _pregunta(51, 'a') + _pregunta(52, 'b') + ['PREGUNTA 53 ANULADA', '']
+                + _pregunta(53) + _pregunta(54, 'b'))])
+    documento(d / 'anulada_marcador_solo.pdf',
+              [(ENC, _pregunta(51, 'a') + _pregunta(52, 'b') + ['PREGUNTA 53 ANULADA', '']
+                + _pregunta(54, 'b'))])
+
+    # B1. El marcador "PREGUNTA 53 ANULADA" precede a la pregunta 53 completa y la tabla
+    # de claves no la trae: la 53 abre pregunta igual y no pisa las opciones de la 52.
+    # El control trae la 53 en la tabla.
+    def con_marcador(tabla):
+        return [(ENC, _pregunta(51) + _pregunta(52) + ['PREGUNTA 53 ANULADA', '']
+                 + _pregunta(53) + _pregunta(54) + ['RESPUESTAS:'] + tabla)]
+    documento(d / 'anulada_apartado_marcador.pdf',
+              con_marcador(['51. A', '52. B', '54. B']))
+    documento(d / 'anulada_apartado_marcador_con_clave.pdf',
+              con_marcador(['51. A', '52. B', '53. C', '54. B']))
+
+    # W3. El mismo texto (12 o mas caracteres) al pie de dos paginas, pero a alturas que
+    # difieren mas que TOLERANCIA_FRANJA (lineas base 810 y 825 pt: 15 pt de diferencia),
+    # ambas bajo el 92 % de 842. No es un pie repetido en la misma franja: es contenido.
+    # Por debajo de ~800 pt para no chocar con el numero de pagina (linea base 790).
+    pag1 = (ENC, _pregunta(51, 'a')[:-1] + _pregunta(52, 'b')[:-2] + ['c) Opcion C de 52,'],
+            [(810, 'segun lo expuesto')])
+    pag2 = (ENC, _pregunta(53, 'c') + _pregunta(54, 'b')[:-2] + ['c) Opcion C de 54,'],
+            [(825, 'segun lo expuesto')])
+    documento(d / 'borde_franja_distinta.pdf', [pag1, pag2])
+
+    # I3. La caja de la opcion B de la 52 invade la linea de la C: 20 % no alcanza el
+    # umbral (una marca, B); 40 % lo supera (marca en B y C, marca_doble).
+    for pct in (20, 40):
+        invade = [r for r in marcas_base if r[1] != 1] + [('invade', 1, 1, pct / 100)]
+        examen(d / f'solape_{pct}.pdf', _base(), invade, color=VERDE)
 
     # Pagina escaneada: solo una imagen, sin capa de texto.
     doc = fitz.open()

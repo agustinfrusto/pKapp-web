@@ -108,55 +108,129 @@ def _en_borde(rect, alto_pagina):
     return rect.y0 < TOPE_ENCABEZADO or rect.y0 > FRACCION_PIE * alto_pagina
 
 
+# Un texto repetido de MIN_CARACTERES_REPETIDO o mas caracteres normalizados, en la misma
+# franja vertical (tolerancia en y0, en puntos) de dos o mas paginas, es un encabezado o
+# pie: se descarta. Uno mas corto (1 a 11) puede ser una palabra del enunciado: se
+# conserva, pero queda registrado como sospecha.
+MIN_CARACTERES_REPETIDO = 12
+TOLERANCIA_FRANJA = 12
+
+
 def textos_repetidos_en_bordes(doc):
     """
-    Textos (normalizados) que aparecen en el borde de dos o mas paginas distintas:
-    el encabezado y el pie de un examen se repiten pagina a pagina.
+    {texto normalizado: [(pagina, y0), ...]} de los textos de borde que se repiten en
+    la misma franja vertical de dos o mas paginas distintas: el encabezado y el pie de
+    un examen se repiten pagina a pagina, a la misma altura. Incluye los textos cortos
+    (menos de MIN_CARACTERES_REPETIDO): decidir si descartan o son sospecha es de quien
+    los consulta.
     """
-    paginas = defaultdict(set)
+    apariciones = defaultdict(list)
     for i, page in enumerate(doc):
         for texto, rect in _lineas_pagina(page):
             if _en_borde(rect, page.rect.height) and not ESTRUCTURA_RE.match(texto):
-                paginas[normalizar(texto)].add(i)
-    return {t for t, pgs in paginas.items() if t and len(pgs) >= 2}
+                apariciones[normalizar(texto)].append((i, rect.y0))
+    return {t: apar for t, apar in apariciones.items()
+            if t and any(_misma_franja(a, b) for a in apar for b in apar if a[0] < b[0])}
 
 
-def es_encabezado_o_pie(texto, rect, alto_pagina, repetidos):
+def _misma_franja(a, b):
+    return a[0] != b[0] and abs(a[1] - b[1]) <= TOLERANCIA_FRANJA
+
+
+def _repite_en_otra_pagina(texto, rect, repetidos, pagina):
+    franja = repetidos.get(normalizar(texto))
+    return bool(franja) and any(p != pagina and abs(y0 - rect.y0) <= TOLERANCIA_FRANJA
+                                for p, y0 in franja)
+
+
+def regla_de_descarte(texto, rect, alto_pagina, repetidos, pagina):
     """
     Una linea de encabezado o pie no es parte del examen: ni del enunciado, ni de una
-    opcion, y un relleno sobre ella no es marca. Se reconoce por geometria (borde de
-    la pagina) mas una de tres senales: el texto se repite en otras paginas, es un
-    numero suelto de pagina, o es un titulo de periodo con anio.
+    opcion, y un relleno sobre ella no es marca. Devuelve la regla que la descarta, o
+    None si no la descarta ninguna de estas. Se reconoce por geometria (borde de la
+    pagina) mas una senal:
+      'pie_marca'       marca de descarga de un sitio de apuntes (en cualquier lugar)
+      'numero_pagina'   numero suelto al pie
+      'repetido_borde'  el texto, de MIN_CARACTERES_REPETIDO o mas caracteres, se repite
+                        en la misma franja de otra pagina
+    'titulo_periodo' no se decide aqui: depende de las demas lineas de la pagina (ver
+    es_titulo_periodo y lineas_del_examen). Es candidata una linea de titulo con anio y
+    y0 < TOPE_ENCABEZADO sin contenido por encima; lo descartado por 'pie_marca' o
+    'numero_pagina' no cuenta como contenido, pero un 'repetido_borde' ya es el titulo
+    de la pagina y corta la candidatura de lo que queda debajo.
     """
     t = texto.strip()
     if PIE_RE.search(t):
-        return True
+        return 'pie_marca'
     if not _en_borde(rect, alto_pagina) or ESTRUCTURA_RE.match(t):
-        return False
+        return None
     if rect.y0 > FRACCION_PIE * alto_pagina and re.fullmatch(r'\d{1,3}', t):
-        return True
-    if normalizar(t) in repetidos:
-        return True
-    return rect.y0 < TOPE_ENCABEZADO and bool(TITULO_RE.search(t))
+        return 'numero_pagina'
+    if (len(normalizar(t)) >= MIN_CARACTERES_REPETIDO
+            and _repite_en_otra_pagina(t, rect, repetidos, pagina)):
+        return 'repetido_borde'
+    return None
+
+
+def es_titulo_periodo(texto, rect):
+    """
+    Candidata a 'titulo_periodo': titulo de periodo con anio, solo arriba. Que se
+    descarte depende ademas de que no haya contenido por encima (lineas_del_examen).
+    """
+    t = texto.strip()
+    return rect.y0 < TOPE_ENCABEZADO and not ESTRUCTURA_RE.match(t) and bool(TITULO_RE.search(t))
+
+
+def es_repetido_corto(texto, rect, alto_pagina, repetidos, pagina):
+    """Texto de borde de 1 a MIN_CARACTERES_REPETIDO - 1 caracteres repetido en otra pagina."""
+    t = texto.strip()
+    return (_en_borde(rect, alto_pagina) and not ESTRUCTURA_RE.match(t)
+            and 0 < len(normalizar(t)) < MIN_CARACTERES_REPETIDO
+            and _repite_en_otra_pagina(t, rect, repetidos, pagina))
 
 
 def lineas_del_examen(doc, indices_paginas, repetidos=None):
     """
     Lineas del examen reconstruidas desde la geometria, sin encabezados ni pies de
-    pagina, y el conjunto de indices de linea que tienen detras un relleno cromatico.
+    pagina, el conjunto de indices de linea que tienen detras un relleno cromatico, los
+    descartes de borde (pagina 1-based, texto y regla de cada linea descartada) y las
+    sospechas de borde (mismo formato; regla 'repetido_corto'): textos cortos repetidos
+    en el borde de varias paginas que se conservan como contenido.
     Cada relleno marca toda linea con la que solapa en vertical (y se cruza en
     horizontal). Una linea de encabezado o pie se descarta antes de contar marcas.
+    Por pagina, primero se aplican las reglas que no dependen del resto de la pagina;
+    despues, 'titulo_periodo' sobre las lineas en orden de y0, hasta la primera de
+    contenido (la que ninguna regla descarta). Una marca de descarga o un numero de
+    pagina descartados no cortan la busqueda; un 'repetido_borde' si: un encabezado
+    repetido ya es el titulo de la pagina y lo que sigue debajo es texto del examen.
     """
     if repetidos is None:
         repetidos = textos_repetidos_en_bordes(doc)
     textos = []
     marcas = set()
+    descartes = []
+    sospechas = []
     for i in indices_paginas:
         page = doc[i]
+        alto_pagina = page.rect.height
         rellenos = rellenos_cromaticos(page)
-        for texto, rect in _lineas_pagina(page):
-            if es_encabezado_o_pie(texto, rect, page.rect.height, repetidos):
+        lineas = list(_lineas_pagina(page))
+        reglas = [regla_de_descarte(texto, rect, alto_pagina, repetidos, i) for texto, rect in lineas]
+        for k in sorted(range(len(lineas)), key=lambda k: lineas[k][1].y0):
+            if reglas[k] == 'repetido_borde':
+                break
+            if reglas[k]:
                 continue
+            if not es_titulo_periodo(*lineas[k]):
+                break
+            reglas[k] = 'titulo_periodo'
+        for (texto, rect), regla in zip(lineas, reglas):
+            registro = {'pagina': i + 1, 'texto': texto.strip()}
+            if regla:
+                descartes.append({**registro, 'regla': regla})
+                continue
+            if es_repetido_corto(texto, rect, alto_pagina, repetidos, i):
+                sospechas.append({**registro, 'regla': 'repetido_corto'})
             alto = rect.height
             if alto > 0:
                 for rel in rellenos:
@@ -166,7 +240,7 @@ def lineas_del_examen(doc, indices_paginas, repetidos=None):
                         marcas.add(len(textos))
                         break
             textos.append(texto)
-    return textos, marcas
+    return textos, marcas, descartes, sospechas
 
 
 def recortar_seccion(textos, marcas, materia_id):
@@ -281,6 +355,7 @@ def parse_exam_blocks(full_text: str, marcas=None):
     marcador_anulada_re = re.compile(r'^\s*PREGUNTA\s+(\d+)\s+ANULADA\b', re.IGNORECASE)
     linea_anulada_re = re.compile(r'\s*ANULADA\b', re.IGNORECASE)
     anulada_pendiente = None
+    anuladas_marcador = set()
 
     for n_linea, line in enumerate(lines):
         line_clean = line.strip()
@@ -295,13 +370,16 @@ def parse_exam_blocks(full_text: str, marcas=None):
         ma = marcador_anulada_re.match(line_clean)
         if ma:
             anulada_pendiente = int(ma.group(1))
+            anuladas_marcador.add(anulada_pendiente)
             continue
 
         qm = q_start_re.match(line_clean)
         # Check if line starts a question
         # Con apartado, solo abre pregunta un numero que figura en la tabla de claves;
-        # una anulada no tiene clave, asi que "N. ANULADA" abre pregunta igual.
-        if qm and (not ans_map or int(qm.group(1)) in ans_map or linea_anulada_re.match(qm.group(2))):
+        # una anulada no tiene clave, asi que "N. ANULADA" abre pregunta igual, y la que
+        # precede su marcador "PREGUNTA N ANULADA" tambien.
+        if qm and (not ans_map or int(qm.group(1)) in ans_map or linea_anulada_re.match(qm.group(2))
+                   or int(qm.group(1)) == anulada_pendiente):
             if current_q:
                 questions.append(current_q)
             qnum = int(qm.group(1))
@@ -348,6 +426,13 @@ def parse_exam_blocks(full_text: str, marcas=None):
         else:
             vigentes.append(q)
     questions = vigentes
+
+    # El marcador puede reemplazar a la pregunta en vez de precederla: si el examen no
+    # trae la pregunta N, el marcador solo la anula igual y N sale del conjunto esperado.
+    presentes = {d['pregunta'] for d in descartadas} | {q['numero_original'] for q in questions}
+    for n in sorted(anuladas_marcador - presentes):
+        descartadas.append({'pregunta': n, 'motivo': 'anulada'})
+        ans_map.pop(n, None)
 
     if usar_marcas:
         vigentes = []
@@ -442,7 +527,7 @@ def extraer_archivo_pdf(pdf_path: Path, materia_id: str):
 
     repetidos = textos_repetidos_en_bordes(doc)
     for title, pages, idx_paginas in proto_splits:
-        textos, marcas = lineas_del_examen(doc, idx_paginas, repetidos)
+        textos, marcas, descartes_borde, sospechas_borde = lineas_del_examen(doc, idx_paginas, repetidos)
         textos, marcas, estado = recortar_seccion(textos, marcas, materia_id)
         if estado == 'sin_seccion':
             motivo = f"sin_seccion: el documento reune varias materias y ninguna es '{materia_id}'"
@@ -453,6 +538,8 @@ def extraer_archivo_pdf(pdf_path: Path, materia_id: str):
                 'motivo': motivo,
                 'preguntas_detectadas': 0,
                 'claves_detectadas': 0,
+                'descartes_borde': descartes_borde,
+                'sospechas_borde': sospechas_borde,
             })
             continue
         full_text = '\n'.join(textos)
@@ -472,6 +559,8 @@ def extraer_archivo_pdf(pdf_path: Path, materia_id: str):
                 'motivo': motivo_aborto,
                 'preguntas_detectadas': len(qs),
                 'claves_detectadas': len(ans_map),
+                'descartes_borde': descartes_borde,
+                'sospechas_borde': sospechas_borde,
             })
             continue
 
@@ -491,7 +580,9 @@ def extraer_archivo_pdf(pdf_path: Path, materia_id: str):
             'archivo_origen': pdf_path.name,
             'preguntas': qs,
             'total_claves': len(ans_map),
-            'total_preguntas': len(qs)
+            'total_preguntas': len(qs),
+            'descartes_borde': descartes_borde,
+            'sospechas_borde': sospechas_borde,
         })
 
     doc.close()
@@ -510,6 +601,22 @@ def ejecutar_extraccion(pdf_path: Path, materia_id: str):
     with open(salida_dir / 'abortados.jsonl', 'w', encoding='utf-8') as f:
         for a in abortados:
             f.write(json.dumps(a, ensure_ascii=False) + '\n')
+
+    # Ninguna linea de borde se descarta en silencio: cada una queda registrada, y los
+    # textos cortos repetidos que se conservan quedan como sospecha. Las lineas se arman
+    # completas antes de abrir el archivo: un error no deja un volcado a medias.
+    descartes_lineas, sospechas_lineas = [], []
+    for exam in (*lotes, *abortados):
+        origen = exam.get('archivo_origen', pdf_path.name)
+        titulo = exam.get('titulo_examen') or exam.get('examen') or '(desconocido)'
+        for clave, lineas in (('descartes_borde', descartes_lineas), ('sospechas_borde', sospechas_lineas)):
+            for d in exam.get(clave, []):
+                lineas.append(json.dumps({'archivo_origen': origen, 'examen': titulo, **d},
+                                         ensure_ascii=False) + '\n')
+    for nombre, lineas in (('descartes-borde.jsonl', descartes_lineas),
+                           ('sospechas-borde.jsonl', sospechas_lineas)):
+        with open(salida_dir / nombre, 'w', encoding='utf-8') as f:
+            f.writelines(lineas)
 
     crudas_path = salida_dir / 'crudas.jsonl'
     total_crudas = 0
@@ -532,6 +639,8 @@ def ejecutar_extraccion(pdf_path: Path, materia_id: str):
                 f.write(json.dumps(registro, ensure_ascii=False) + '\n')
                 total_crudas += 1
 
+    if sospechas_lineas:
+        print(f"⚠️  {len(sospechas_lineas)} sospecha(s) de borde (texto corto repetido, conservado); ver sospechas-borde.jsonl")
     print(f"✅ Etapa 'extraer' completa: {total_crudas} preguntas emitidas en {crudas_path}")
     n_examenes = sum(1 for a in abortados if 'pregunta' not in a)
     if n_examenes:

@@ -84,6 +84,7 @@ Muchos exámenes marcan la respuesta con un rectángulo de color detrás de la o
 
 - **Qué cuenta como relleno de marca.** Un relleno cromático: saturación ≥ 0,15 (`max(r,g,b) − min(r,g,b)`), área ≥ 200 y texto detrás. No se fija un color: el corpus ya usa cian y amarillo, y la próxima materia puede traer otro. Blanco, negro y gris no marcan; el área mínima descarta bordes y viñetas.
 - **A qué opción se asigna.** Cada relleno marca toda línea de texto con la que solapa en vertical (al menos el 30 % de su alto) y en horizontal. Si esa línea abre una opción (`a)`–`d)`) o la continúa, la marca es de esa opción. Una opción de dos líneas lleva un rectángulo por línea, y varias cajas sobre la misma opción cuentan como **una** marca.
+- **El umbral se prueba en su borde.** Una caja que invade ~20 % de la línea de la opción siguiente no llega al 30 %: una sola marca, sobre la opción correcta. Una que invade ~40 % lo supera: marca en las dos opciones y la pregunta se descarta por `marca_doble`. Es el comportamiento conservador: se prefiere perder una pregunta antes que publicar una clave equivocada.
 - **Un relleno que no cae en una opción se ignora.** Un fondo sobre un enunciado o un encabezado no es marca.
 - **Exactamente una marca por pregunta.** Sin ninguna, se **aborta el examen entero** (`marca_ausente`): no hay forma de distinguir una marca que falta de un desfase, y un desfase corre a lo largo de todo el examen. Con dos o más, se **descarta esa pregunta** (`marca_doble`, con las letras marcadas) y el resto sigue. En ambos casos conviene perder la pregunta antes que publicar una clave equivocada.
 
@@ -97,7 +98,24 @@ El gate aborta únicamente la **página sin capa de texto** (escaneada), porque 
 
 El encabezado ("Primer período Anatomía – 15 de agosto 2024") y el pie (número de página, "Descargado por…") no son parte del examen: no entran en un enunciado, en una opción ni cuentan como línea de marca. `extraer` los descarta antes de leer claves, así un relleno sobre ellos (un resaltado que se corre) no marca nada.
 
-Una línea es encabezado o pie si está en el borde de la página (`y0 < 56 pt` arriba, o por debajo del 92 % del alto) y cumple una de estas señales: su texto se repite en el borde de otras páginas del PDF; es un número suelto en el pie; o es un título de periodo con año (`período|examen|parcial` y `19xx|20xx`), aunque aparezca una sola vez. Las marcas de descarga (`Descargado por`, `Studocu`, `lOMoARcPSD`) se descartan siempre. Una línea que abre pregunta u opción (`12.`, `c)`) o es una entrada de clave (`16.C`) es contenido aunque se repita en el borde.
+Una línea es encabezado o pie si está en el borde de la página (`y0 < 56 pt` arriba, o por debajo del 92 % del alto) y cumple una de estas reglas. Primero se aplican las tres primeras, que no dependen del resto de la página; después `titulo_periodo`:
+
+| Regla (registro) | Cuándo descarta |
+| :--- | :--- |
+| `pie_marca` | Marca de descarga (`Descargado por`, `Studocu`, `lOMoARcPSD`), en cualquier lugar de la página. |
+| `numero_pagina` | Número suelto de 1 a 3 cifras al pie. |
+| `repetido_borde` | El texto normalizado tiene **al menos 12 caracteres** y aparece en el borde de **al menos 2 páginas**, en la misma franja vertical (tolerancia de 12 pt en `y0`). Uno más corto no se descarta: ver *Sospechas de borde*. |
+| `titulo_periodo` | Título de periodo con año (`período|examen|parcial` y `19xx|20xx`) con `y0 < 56 pt` y **sin ninguna línea de contenido por encima** en la página. |
+
+**Qué es "contenido" para `titulo_periodo`.** Contenido es una línea que ninguna regla descarta. Se recorren las líneas de la página por `y0` y cada una que cumple el patrón de título se descarta, hasta la primera línea de contenido: de ahí para abajo, un "examen" con año es texto del examen y se conserva. Lo descartado por `pie_marca` o `numero_pagina` no corta la búsqueda (una marca de agua arriba de un título único no lo salva), pero un `repetido_borde` sí: un encabezado repetido ya es el título de la página, y lo que viene debajo (la continuación de una opción que menciona un "examen" de 2019) es texto del examen.
+
+**Limitación conocida.** Un título de período único debajo de un encabezado repetido se conserva como contenido y puede pegarse a una opción. Es consecuencia de la regla anterior (un `repetido_borde` corta la elegibilidad de `titulo_periodo`), elegida para no descartar continuaciones reales de una opción. El corpus actual no tiene ningún caso.
+
+Una línea que abre pregunta u opción (`12.`, `c)`) o es una entrada de clave (`16.C`) es contenido aunque se repita en el borde.
+
+**Ningún descarte es silencioso.** Cada línea de borde descartada se registra con página (desde 1), texto y regla: en `descartes_borde` de cada examen del resultado (emitido o abortado) y, desde `ejecutar_extraccion`, en `descartes-borde.jsonl` dentro de la carpeta de salida (más `archivo_origen` y `examen`; si un examen abortado no los trae, salen `pdf_path.name` y `(desconocido)`). Revisarlo es la forma de auditar que no se perdió contenido. Las líneas del volcado se arman completas en memoria antes de abrir el archivo: un error no deja un archivo a medio escribir.
+
+**Sospechas de borde.** Un texto de 1 a 11 caracteres normalizados que se repite en la misma franja de borde de 2 o más páginas ("ver dorso") puede ser un pie, pero también el cierre de una opción ("ambas"). No se descarta: se conserva como contenido y se registra como sospecha `{pagina, texto, regla: 'repetido_corto'}` en `sospechas_borde` de cada examen (emitido o abortado), y `ejecutar_extraccion` la vuelca en `sospechas-borde.jsonl` con el mismo formato que `descartes-borde.jsonl` e imprime el total. Los números sueltos al pie siguen siendo `numero_pagina`, no sospecha. Un archivo vacío significa que no hubo ninguna.
 
 `python3 tools/ingesta/pruebas/buscar_encabezados.py` lo verifica sobre el corpus: toma como huella todo texto que se repite en el borde de dos o más páginas y lo busca en cada enunciado y opción emitidos (sale con 1 si hay hallazgos).
 
@@ -117,12 +135,12 @@ Algunos PDFs reúnen varias UTIs (el prototipo de 4 UTIs: Neurobiología, Cardio
 - La comparación normaliza **tildes, mayúsculas, puntuación y espacios**: `DIGESTIVO, RENAL Y ENDÓCRINO` y `DIGESTIVO, RENAL Y ENDOCRINO` son el mismo encabezado.
 - **Solo aplica cuando el documento tiene secciones de dos o más materias.** Un examen de una sola materia (aunque traiga su encabezado) se procesa entero, como antes.
 - Con varias secciones se emite únicamente lo que está entre el encabezado de la materia destino y el siguiente. Para el 4 UTIs: `neuro` 1–25, `cyr` 26–49 (la 33 anulada), `dre` 50–99 y `ryd` 100–119.
-- Si el documento reúne varias materias y **ninguna es la destino**, no se emite nada y se registra un aborto de examen con motivo `sin_seccion` en `abortados.jsonl`. Un `materia_id` fuera del mapa cae en este caso.
+- Si el documento reúne varias materias y **ninguna es la destino**, no se emite nada y se registra un aborto de examen con motivo `sin_seccion` en `abortados.jsonl`. Un `materia_id` fuera del mapa cae en este caso. Cada registro de examen abortado en `abortados.jsonl` trae también `descartes_borde` y `sospechas_borde` (las listas de ese examen, ver *filtro de borde*), de modo que se puede auditar qué se descartó aun cuando no se emitió nada.
 - Los números no se asumen: el recorte es por encabezado, no por rango de preguntas.
 
 ### Preguntas descartadas
 
-Una pregunta anulada (`N. ANULADA` sin opciones, o el marcador `PREGUNTA N ANULADA`) se descarta antes de `verificar_claves` y sale del conjunto esperado, así no provoca un desfase de numeración. Rige tanto con relleno como con apartado: aunque la tabla de claves no traiga la `N`, la línea `N. ANULADA` abre la pregunta y se descarta. Las descartadas (`anulada`, `marca_doble`) se registran por pregunta en `abortados.jsonl`, con el campo `pregunta` y el motivo; no son exámenes abortados.
+Una pregunta anulada (`N. ANULADA` sin opciones, o el marcador `PREGUNTA N ANULADA`) se descarta antes de `verificar_claves` y sale del conjunto esperado, así no provoca un desfase de numeración. El marcador funciona en sus dos formas: seguido de su pregunta (se descarta esa pregunta) o solo, sin pregunta debajo (la `N` se registra igual como `anulada`). En ambas, el examen no aborta y la `N` se registra una sola vez. Rige tanto con relleno como con apartado: aunque la tabla de claves no traiga la `N`, abren pregunta tanto la línea `N. ANULADA` como la pregunta `N` que sigue a su marcador `PREGUNTA N ANULADA`, y se descarta; así sus opciones no se pegan a la pregunta anterior. Las descartadas (`anulada`, `marca_doble`) se registran por pregunta en `abortados.jsonl`, con el campo `pregunta` y el motivo; no son exámenes abortados.
 
 ### Inventario (`inventario.py`)
 
@@ -130,7 +148,7 @@ El inventario ya no toma palabras sueltas como señal de apartado. Antes, `clave
 
 ### Pruebas
 
-`python3 tools/ingesta/pruebas/correr_pruebas.py` genera PDFs sintéticos con PyMuPDF (`generar_fixtures.py`) y verifica cada caso: marca de una y de dos líneas, relleno que solapa dos opciones, pregunta sin marca, relleno suelto, pregunta anulada (con relleno y con apartado), prioridad del apartado, página escaneada, la palabra "respuestas" en un enunciado, PDF partido en prototipos, pregunta que cruza de página con relleno sobre el encabezado, opción marcada partida entre páginas, recorte por sección (destino con sección, sin sección y documento de una sola materia) y el inventario con y sin apartado real.
+`python3 tools/ingesta/pruebas/correr_pruebas.py` genera PDFs sintéticos con PyMuPDF (`generar_fixtures.py`) y verifica cada caso: marca de una y de dos líneas, relleno que solapa dos opciones, pregunta sin marca, relleno suelto, pregunta anulada (con relleno y con apartado), prioridad del apartado, página escaneada, la palabra "respuestas" en un enunciado, PDF partido en prototipos, pregunta que cruza de página con relleno sobre el encabezado, opción marcada partida entre páginas, encabezados y pies (continuación con "examen" y año, palabra corta repetida, encabezado real registrado y volcado a `descartes-borde.jsonl`, marca de descarga arriba de un título único, título bajo una línea de contenido, pie corto repetido registrado como sospecha y volcado a `sospechas-borde.jsonl`, examen abortado con descartes, abortado sin `archivo_origen`, volcado sin archivos a medio escribir, y `buscar_encabezados.py` sobre un corpus temporal), marcador `PREGUNTA N ANULADA` con y sin pregunta (y, con apartado, con la pregunta ausente o presente en la tabla de claves), mismo texto al pie de dos páginas en franjas distintas, borde del umbral de solape (20 % y 40 %), recorte por sección (destino con sección, sin sección y documento de una sola materia) y el inventario con y sin apartado real.
 
 ---
 

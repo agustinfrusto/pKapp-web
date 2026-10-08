@@ -5,6 +5,9 @@ Uso: python tools/ingesta/pruebas/correr_pruebas.py
 """
 import contextlib
 import io
+import json
+import shutil
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -181,6 +184,233 @@ def caso_inventario_con_apartado(pdf):
     return ok, 'inventario: el encabezado RESPUESTAS en su linea sigue detectado'
 
 
+def caso_borde_continuacion(pdf):
+    lotes, ab = correr(pdf)
+    q52 = [q for l in lotes for q in l['preguntas'] if q['numero_original'] == 52]
+    ok = (len(lotes) == 1 and not ab and claves(lotes[0]) == {51: 'A', 52: 'A', 53: 'C', 54: 'B'}
+          and q52 and q52[0]['options'][2] == 'Opcion C de 52, segun el examen de 2019 en adultos')
+    return ok, 'continuacion con "examen" y anio bajo el encabezado: se conserva en la opcion'
+
+
+def caso_borde_palabra_corta(pdf):
+    lotes, ab = correr(pdf)
+    opciones = {q['numero_original']: q['options'][2] for l in lotes for q in l['preguntas']}
+    ok = (len(lotes) == 1 and not ab and claves(lotes[0]) == {51: 'A', 52: 'B', 53: 'C', 54: 'B'}
+          and opciones.get(52) == 'Opcion C de 52, ambas' and opciones.get(54) == 'Opcion C de 54, ambas')
+    return ok, 'palabra corta repetida al pie de dos paginas (< 12 caracteres): se conserva'
+
+
+ENC = 'Primer periodo Anatomia - 15 de agosto 2024'
+
+
+def caso_borde_encabezado_real(pdf):
+    lotes, ab = correr(pdf)
+    descartes = lotes[0].get('descartes_borde', []) if lotes else []
+    encabezados = [d for d in descartes if d.get('texto') == ENC]
+    ok = (len(lotes) == 1 and not ab and claves(lotes[0]) == {51: 'A', 52: 'B', 53: 'C', 54: 'B'}
+          and [d.get('pagina') for d in encabezados] == [1, 2]
+          and {d.get('regla') for d in encabezados} == {'repetido_borde'}
+          and all(d.get('regla') == 'numero_pagina' for d in descartes if d.get('texto') in ('1', '2'))
+          and not any(ENC.lower() in q['question'].lower() for q in lotes[0]['preguntas']))
+    return ok, 'encabezado repetido en dos paginas: se descarta y queda registrado (pagina, texto, regla)'
+
+
+@contextlib.contextmanager
+def salida_temporal():
+    """ejecutar_extraccion escribe en un directorio temporal en vez de ESFUNO/salidas."""
+    with tempfile.TemporaryDirectory() as salida:
+        originales = extraer.get_materia_info, extraer.crear_directorio_salida
+        extraer.get_materia_info = lambda m: {'materia': m}
+        extraer.crear_directorio_salida = lambda m, nombre: Path(salida)
+        try:
+            yield Path(salida)
+        finally:
+            extraer.get_materia_info, extraer.crear_directorio_salida = originales
+
+
+def leer_jsonl(ruta):
+    if not ruta.exists():
+        return []
+    return [json.loads(l) for l in ruta.read_text(encoding='utf-8').splitlines()]
+
+
+def volcar(pdf, materia='prueba'):
+    """(registros de descartes-borde.jsonl, registros de sospechas-borde.jsonl)."""
+    with salida_temporal() as salida:
+        with contextlib.redirect_stdout(io.StringIO()):
+            extraer.ejecutar_extraccion(pdf, materia)
+        return (leer_jsonl(salida / 'descartes-borde.jsonl'),
+                leer_jsonl(salida / 'sospechas-borde.jsonl'))
+
+
+def caso_borde_volcado(pdf):
+    registros, _ = volcar(pdf)
+    ok = (any(r.get('texto') == ENC and r.get('regla') == 'repetido_borde' and r.get('pagina') == 2
+              for r in registros)
+          and all({'pagina', 'texto', 'regla'} <= set(r) for r in registros))
+    return ok, 'ejecutar_extraccion vuelca los descartes de borde en descartes-borde.jsonl'
+
+
+def caso_borde_marca_titulo(pdf):
+    lotes, ab = correr(pdf)
+    descartes = lotes[0].get('descartes_borde', []) if lotes else []
+    reglas = {d.get('texto'): d.get('regla') for d in descartes}
+    ok = (len(lotes) == 1 and not ab and claves(lotes[0]) == {51: 'A', 52: 'B', 53: 'C', 54: 'B'}
+          and reglas.get('Descargado por Alumno Anonimo') == 'pie_marca'
+          and reglas.get(ENC) == 'titulo_periodo'
+          and not any('periodo' in q['question'].lower() or any('periodo' in o.lower() for o in q['options'])
+                      for q in lotes[0]['preguntas']))
+    return ok, 'marca de descarga arriba de un titulo unico: ambas se descartan, el titulo como titulo_periodo'
+
+
+def caso_borde_titulo_tras_contenido(pdf):
+    lotes, ab = correr(pdf)
+    q52 = [q for l in lotes for q in l['preguntas'] if q['numero_original'] == 52]
+    descartes = lotes[0].get('descartes_borde', []) if lotes else []
+    ok = (len(lotes) == 1 and not ab and claves(lotes[0]) == {51: 'A', 52: 'A', 53: 'C', 54: 'B'}
+          and q52 and q52[0]['options'][2] == 'Opcion C de 52, la opcion sigue aca, segun el examen de 2019 en adultos'
+          and not any(d.get('texto', '').startswith('segun') for d in descartes))
+    return ok, 'titulo con "examen" y anio debajo de una linea de contenido: se conserva en la opcion'
+
+
+def caso_borde_pie_corto(pdf):
+    lotes, ab = correr(pdf)
+    opciones = {q['numero_original']: q['options'][2] for l in lotes for q in l['preguntas']}
+    sospechas = lotes[0].get('sospechas_borde') if lotes else None
+    esperadas = [{'pagina': 1, 'texto': 'ver dorso', 'regla': 'repetido_corto'},
+                 {'pagina': 2, 'texto': 'ver dorso', 'regla': 'repetido_corto'}]
+    ok = (len(lotes) == 1 and not ab and claves(lotes[0]) == {51: 'A', 52: 'B', 53: 'C', 54: 'B'}
+          and opciones.get(52) == 'Opcion C de 52, ver dorso'
+          and opciones.get(54) == 'Opcion C de 54, ver dorso'
+          and sospechas == esperadas)
+    return ok, 'pie corto repetido en dos paginas: se conserva y queda en sospechas_borde (repetido_corto)'
+
+
+def caso_borde_pie_corto_volcado(pdf):
+    _, sospechas = volcar(pdf)
+    ok = ([(r.get('archivo_origen'), r.get('pagina'), r.get('texto'), r.get('regla')) for r in sospechas]
+          == [('borde_pie_corto.pdf', 1, 'ver dorso', 'repetido_corto'),
+              ('borde_pie_corto.pdf', 2, 'ver dorso', 'repetido_corto')]
+          and all({'archivo_origen', 'examen', 'pagina', 'texto', 'regla'} <= set(r) for r in sospechas))
+    return ok, 'ejecutar_extraccion vuelca las sospechas en sospechas-borde.jsonl'
+
+
+def caso_borde_abortado(pdf):
+    registros, sospechas = volcar(pdf, 'cyr')
+    textos = {(r.get('pagina'), r.get('texto'), r.get('regla')) for r in registros}
+    ok = (all(r.get('archivo_origen') == 'borde_abortado.pdf' and r.get('examen') for r in registros)
+          and (1, ENC, 'repetido_borde') in textos and (2, ENC, 'repetido_borde') in textos
+          and not sospechas)
+    return ok, 'examen abortado (sin_seccion): sus descartes de borde se vuelcan con archivo_origen y examen'
+
+
+def inyectar_extraccion(pdf, resultado):
+    """ejecutar_extraccion con extraer_archivo_pdf reemplazado; devuelve (error, descartes, sospechas, archivos)."""
+    original = extraer.extraer_archivo_pdf
+    extraer.extraer_archivo_pdf = lambda p, m: resultado
+    error = None
+    try:
+        with salida_temporal() as salida:
+            try:
+                with contextlib.redirect_stdout(io.StringIO()):
+                    extraer.ejecutar_extraccion(pdf, 'prueba')
+            except Exception as e:
+                error = e
+            return (error, leer_jsonl(salida / 'descartes-borde.jsonl'),
+                    leer_jsonl(salida / 'sospechas-borde.jsonl'),
+                    {f.name for f in salida.iterdir()})
+    finally:
+        extraer.extraer_archivo_pdf = original
+
+
+def caso_abortado_sin_origen(pdf):
+    abortado = {'motivo': 'sin_seccion: x', 'preguntas_detectadas': 0, 'claves_detectadas': 0,
+                'descartes_borde': [{'pagina': 1, 'texto': 'T', 'regla': 'repetido_borde'}],
+                'sospechas_borde': [{'pagina': 1, 'texto': 's', 'regla': 'repetido_corto'}]}
+    error, descartes, sospechas, _ = inyectar_extraccion(pdf, ([], [abortado]))
+    base = {'archivo_origen': pdf.name, 'examen': '(desconocido)'}
+    ok = (error is None
+          and descartes == [{**base, 'pagina': 1, 'texto': 'T', 'regla': 'repetido_borde'}]
+          and sospechas == [{**base, 'pagina': 1, 'texto': 's', 'regla': 'repetido_corto'}])
+    return ok, 'abortado sin archivo_origen ni examen: se vuelca con pdf_path.name y "(desconocido)", sin KeyError'
+
+
+def caso_volcado_atomico(pdf):
+    # El segundo descarte no es un registro: armar las lineas falla antes de abrir el archivo.
+    roto = {'motivo': 'sin_seccion: x', 'archivo_origen': pdf.name, 'examen': 'E',
+            'descartes_borde': [{'pagina': 1, 'texto': 'T', 'regla': 'repetido_borde'}, 'no es un registro']}
+    error, _, _, archivos = inyectar_extraccion(pdf, ([], [roto]))
+    ok = error is not None and 'descartes-borde.jsonl' not in archivos and 'sospechas-borde.jsonl' not in archivos
+    return ok, 'un error al armar el volcado no deja descartes-borde.jsonl a medio escribir'
+
+
+def caso_buscar_encabezados(pdf):
+    with tempfile.TemporaryDirectory() as tmp:
+        carpeta = Path(tmp) / '1 - Biologia Celular y Tisular'
+        carpeta.mkdir()
+        shutil.copy(pdf, carpeta / pdf.name)
+        r = subprocess.run([sys.executable, str(AQUI / 'buscar_encabezados.py'), tmp],
+                           capture_output=True, text=True, encoding='utf-8')
+    ok = r.returncode == 0 and '1 PDFs aceptados' in r.stdout
+    return ok, f'buscar_encabezados.py sobre un corpus temporal: exit 0 y "1 PDFs aceptados" (exit {r.returncode})'
+
+
+def caso_anulada_marcador(pdf):
+    lotes, ab = correr(pdf)
+    anuladas = [a for a in ab if a.get('motivo') == 'anulada']
+    ok = (len(lotes) == 1 and claves(lotes[0]) == {51: 'A', 52: 'B', 54: 'B'}
+          and [a['pregunta'] for a in anuladas] == [53] and not sin_examenes_abortados(ab))
+    return ok, 'PREGUNTA 53 ANULADA: 53 sale del conjunto esperado, una sola vez, y el examen no aborta'
+
+
+def caso_solape_20(pdf):
+    lotes, ab = correr(pdf)
+    q52 = [q for l in lotes for q in l['preguntas'] if q['numero_original'] == 52]
+    ok = (len(lotes) == 1 and not ab and claves(lotes[0]) == {51: 'A', 52: 'B', 53: 'C', 54: 'B'}
+          and q52 and q52[0]['marcas'] == ['B'])
+    return ok, 'caja que invade 20 % de la linea siguiente: una sola marca, sobre B'
+
+
+def caso_solape_40(pdf):
+    lotes, ab = correr(pdf)
+    dobles = [a for a in ab if a.get('motivo') == 'marca_doble']
+    ok = (len(lotes) == 1 and claves(lotes[0]) == {51: 'A', 53: 'C', 54: 'B'}
+          and len(dobles) == 1 and dobles[0]['pregunta'] == 52 and dobles[0]['letras'] == ['B', 'C']
+          and not sin_examenes_abortados(ab))
+    return ok, 'caja que invade 40 % de la linea siguiente: marca en B y C, 52 descartada por marca_doble'
+
+
+def caso_anulada_apartado_marcador(pdf):
+    lotes, ab = correr(pdf)
+    q52 = [q for l in lotes for q in l['preguntas'] if q['numero_original'] == 52]
+    anuladas = [a for a in ab if a.get('motivo') == 'anulada']
+    ok = (len(lotes) == 1 and claves(lotes[0]) == {51: 'A', 52: 'B', 54: 'B'}
+          and q52 and q52[0]['options'] == ['Opcion A de 52', 'Opcion B de 52', 'Opcion C de 52']
+          and [a['pregunta'] for a in anuladas] == [53] and not sin_examenes_abortados(ab))
+    return ok, 'marcador + pregunta 53 sin clave en el apartado: la 52 conserva sus opciones y clave B, la 53 anulada'
+
+
+def caso_anulada_apartado_marcador_con_clave(pdf):
+    lotes, ab = correr(pdf)
+    q52 = [q for l in lotes for q in l['preguntas'] if q['numero_original'] == 52]
+    anuladas = [a for a in ab if a.get('motivo') == 'anulada']
+    ok = (len(lotes) == 1 and claves(lotes[0]) == {51: 'A', 52: 'B', 54: 'B'}
+          and q52 and q52[0]['options'] == ['Opcion A de 52', 'Opcion B de 52', 'Opcion C de 52']
+          and [a['pregunta'] for a in anuladas] == [53] and not sin_examenes_abortados(ab))
+    return ok, 'control: marcador + pregunta 53 con clave en la tabla: misma salida'
+
+
+def caso_borde_franja_distinta(pdf):
+    lotes, ab = correr(pdf)
+    descartes = lotes[0].get('descartes_borde', []) if lotes else []
+    opciones = {q['numero_original']: q['options'][2] for l in lotes for q in l['preguntas']}
+    ok = (len(lotes) == 1 and not ab and claves(lotes[0]) == {51: 'A', 52: 'B', 53: 'C', 54: 'B'}
+          and not any(d.get('texto') == 'segun lo expuesto' for d in descartes)
+          and opciones.get(52) == 'Opcion C de 52, segun lo expuesto'
+          and opciones.get(54) == 'Opcion C de 54, segun lo expuesto')
+    return ok, 'mismo texto al pie de dos paginas a alturas que difieren mas que la tolerancia: se conserva'
+
+
 CASOS = [
     ('marca_una_linea', 'marca de una linea', caso_una_linea),
     ('marca_dos_lineas', 'marca de dos lineas', caso_dos_lineas),
@@ -199,6 +429,25 @@ CASOS = [
     ('secciones_varias', 'varias secciones, destino ryd', caso_seccion_ryd),
     ('secciones_varias', 'varias secciones, destino sin seccion', caso_sin_seccion),
     ('una_seccion', 'una sola seccion, sin recorte', caso_una_seccion),
+    ('borde_continuacion', 'borde: continuacion con "examen" y anio', caso_borde_continuacion),
+    ('borde_palabra_corta', 'borde: palabra corta repetida al pie', caso_borde_palabra_corta),
+    ('borde_encabezado_real', 'borde: encabezado real repetido, registrado', caso_borde_encabezado_real),
+    ('borde_encabezado_real', 'borde: volcado a descartes-borde.jsonl', caso_borde_volcado),
+    ('borde_marca_titulo', 'borde: marca de descarga arriba de un titulo unico', caso_borde_marca_titulo),
+    ('borde_titulo_tras_contenido', 'borde: titulo debajo de contenido se conserva', caso_borde_titulo_tras_contenido),
+    ('borde_pie_corto', 'borde: pie corto repetido, conservado y en sospechas', caso_borde_pie_corto),
+    ('borde_pie_corto', 'borde: volcado a sospechas-borde.jsonl', caso_borde_pie_corto_volcado),
+    ('borde_abortado', 'borde: descartes de un examen abortado, volcados', caso_borde_abortado),
+    ('borde_abortado', 'borde: abortado sin archivo_origen, sin KeyError', caso_abortado_sin_origen),
+    ('borde_abortado', 'borde: volcado atomico ante un error', caso_volcado_atomico),
+    ('borde_encabezado_real', 'borde: buscar_encabezados.py sobre un corpus temporal', caso_buscar_encabezados),
+    ('anulada_marcador_con_pregunta', 'anulada: marcador seguido de su pregunta', caso_anulada_marcador),
+    ('anulada_marcador_solo', 'anulada: marcador solo, sin pregunta', caso_anulada_marcador),
+    ('anulada_apartado_marcador', 'anulada: marcador con su pregunta en el camino del apartado', caso_anulada_apartado_marcador),
+    ('anulada_apartado_marcador_con_clave', 'anulada: marcador con su pregunta y clave en la tabla (control)', caso_anulada_apartado_marcador_con_clave),
+    ('borde_franja_distinta', 'borde: mismo texto en franjas distintas se conserva', caso_borde_franja_distinta),
+    ('solape_20', 'solape: 20 % de la linea siguiente', caso_solape_20),
+    ('solape_40', 'solape: 40 % de la linea siguiente', caso_solape_40),
     ('inventario_sin_apartado', 'inventario sin falso positivo de clave', caso_inventario_sin_apartado),
     ('apartado_con_relleno', 'inventario con apartado real', caso_inventario_con_apartado),
 ]
