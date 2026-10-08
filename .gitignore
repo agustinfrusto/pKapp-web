@@ -57,6 +57,8 @@ ios/
 ESFUNO/
 # Originales en alta de las imagenes de materias: al repo va solo la version reducida
 Imagenes materias/
+# Referencias visuales para el Diseñador: material de terceros, no se distribuye
+referencias-diseno/
 tools/ingesta/salidas/
 tools/ingesta/.venv/
 .venv/

@@ -15,7 +15,7 @@ guía no respalde.
 |---|---|---|---|---|
 | **Ingeniero** | esta sesión (coordinador) | Opus | — | todo; único que commitea |
 | **Investigador** | `claude` | Sonnet | `high` | `tools/ingesta/salidas/**` |
-| **Diseñador** | `claude` | Sonnet | `medium` | `src/screens/**`, `src/components/**`, `src/theme/**` |
+| **Diseñador** | `claude` | Sonnet | `medium` | `src/screens/**`, `src/components/**`, `src/theme/**`, `src/assets/**` |
 | **Programador** | `claude` | Sonnet | `low` | lo que su spec nombre, nada más |
 
 **Siempre la última versión de cada familia.** IDs vigentes: Opus `claude-opus-5-5`,
@@ -34,6 +34,11 @@ Criterio detrás de cada elección:
   en `explicaciones-dudosas.jsonl` la audita el Ingeniero en Opus**. Así la calidad de
   Opus cae donde está el riesgo real, no sobre cada pregunta.
 - **Diseñador en Sonnet medio**: criterio visual acotado a una pantalla por tarea.
+
+**Las decisiones estéticas son del Diseñador**: imágenes, íconos, colores, tipografía,
+espaciado y jerarquía visual. El Ingeniero no las toma ni las anticipa en una spec:
+deja el objetivo y las restricciones técnicas (tamaño, peso, contraste, tokens
+existentes), y el Diseñador decide y justifica en su reporte.
 - **Programador en Sonnet bajo**: trabaja con spec en mano y sin decisiones de diseño. Para
   lo puramente mecánico (renombrar, mover, aplicar un patrón ya documentado) baja a Haiku.
 
