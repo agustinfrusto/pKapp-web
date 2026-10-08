@@ -136,9 +136,7 @@ pKapp/
 │   └── ui/                         # Chequeo de contraste de los tokens de color
 ├── openspec/                       # Specs y changes (Spec Driven Development)
 ├── docs/
-│   ├── screenshots/                # Capturas usadas en este README
-│   ├── CLOUDFLARE-MIGRATION.md     # Notas de la migración desde Vercel
-│   └── LAUNCH-PLAYBOOK.md
+│   └── screenshots/                # Capturas usadas en este README
 └── src/
     ├── materias/                   # Registry de materias (ESFUNO)
     │   ├── index.js                # MATERIAS y MATERIA_LIST
