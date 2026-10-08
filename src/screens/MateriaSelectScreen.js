@@ -2,7 +2,7 @@
 // Se presenta SIEMPRE al abrir la app (no se persiste la última).
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, TouchableOpacity, ScrollView, Image, Linking,
+  View, Text, TouchableOpacity, ScrollView, Image,
 } from 'react-native';
 import { MATERIA_LIST } from '../materias';
 import { useMateria } from '../materia/MateriaContext';
@@ -78,10 +78,6 @@ function AboutBanner() {
     setVisible(false);
   }
 
-  function handleEmail() {
-    requestAnimationFrame(() => Linking.openURL('mailto:pkappsoporte@gmail.com').catch(() => {}));
-  }
-
   if (!visible) return null;
 
   return (
@@ -97,12 +93,7 @@ function AboutBanner() {
         </TouchableOpacity>
       </View>
       <Text className="text-sm leading-5 text-slate-600 dark:text-brandD-ink">
-        ¡Hola! Soy el creador de pKapp. Al principio la hice para ayudar a mi pareja a estudiar; como le sirvió a mucha gente, decidí lanzarla y mantenerla.
-        {'\n\n'}
-        Soy informático (no del área de la salud), así que puede haber errores en las explicaciones: se generan analizando material de estudio público con ayuda de IA.
-        {'\n\n'}
-        Si encontrás un error o tenés un problema, escribime a{' '}
-        <Text className="font-bold text-accent underline dark:text-accentD" onPress={handleEmail}>pkappsoporte@gmail.com</Text>.
+        ¡Hola! Estoy sumando las materias que faltan (Digestivo, Renal y Endócrino, y Reproductor y Desarrollo) y dándole una lavada de cara a la página. Van llegando de a poco, ¡gracias por la paciencia!
       </Text>
     </View>
   );
