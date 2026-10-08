@@ -19,10 +19,12 @@ esa guía no respalde.
 | **Investigador** | `investigador.md` | `sonnet` | `high` | la carpeta de salida del pipeline (`tools/ingesta/salidas/**`) | ninguno |
 | **Auditor y Committer** | `auditor.md` | `haiku` | `low` | nada | `add` de la lista, `commit`, `push` con orden |
 
-**Siempre la última versión de cada familia:** los alias `opus`, `sonnet` y `haiku` de
-Claude Code la resuelven solos (verificado en `claude --help`, 2.1.294). En Orca, el
-`--model` se pasa al CLI de `claude`; si en algún despacho Orca rechazara el alias, se usa
-el ID vigente: `claude-opus-5-5`, `claude-sonnet-5-5`, `claude-haiku-5-5`.
+**Siempre la última versión de cada familia.** En el CLI de `claude`, los alias `opus`,
+`sonnet` y `haiku` la resuelven solos (verificado en `claude --help`, 2.1.294). **En Orca,
+siempre IDs explícitos**: Orca resuelve los alias por su cuenta y no a la última versión
+(con `haiku` + `--effort low` rechazó el despacho porque tomó un Haiku sin soporte de
+effort). IDs vigentes: `claude-opus-5-5`, `claude-sonnet-5-5`, `claude-haiku-5-5`; cuando
+salga una versión nueva, se actualiza esta línea.
 
 `antigravity` reemplaza al Programador **solo cuando el usuario lo pide**. El Ingeniero es
 siempre Claude Code en Opus.
@@ -206,7 +208,7 @@ Ningún otro rol toca git. Un worker que cree que su trabajo está listo manda
 ```
 orca orchestration run-create --objective "<objetivo>" --json
 orca orchestration worker-start --spec "<spec autocontenida>" --worktree current \
-  --agent claude --model <opus|sonnet|haiku> --effort <nivel> --json
+  --agent claude --model <claude-opus-5-5|claude-sonnet-5-5|claude-haiku-5-5> --effort <nivel> --json
 orca orchestration check --wait --types "worker_done,escalation,question" --timeout-ms 900000 --json
 ```
 

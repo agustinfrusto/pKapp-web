@@ -18,8 +18,9 @@ listas, código o diffs.
 | Investigador | `.claude/agents/investigador.md` | `sonnet` | `high` | validación ciega y explicaciones |
 | Auditor y Committer | `.claude/agents/auditor.md` | `haiku` | `low` | revisión del diff en staging y commit |
 
-`opus`, `sonnet` y `haiku` son alias de Claude Code que siempre apuntan a la última
-versión de cada familia.
+`opus`, `sonnet` y `haiku` son alias del CLI de Claude Code que siempre apuntan a la última
+versión de cada familia. En Orca se usan IDs explícitos (`claude-sonnet-5-5`, etc.): Orca no
+resuelve los alias a la última versión.
 
 ## Invocación
 
@@ -42,7 +43,7 @@ claude -p --agent programador --model sonnet --effort low "$(< .orca/specs/<tare
 Despachado desde Orca (ver `openspec/workers.md`), el rol se carga desde la spec:
 
 ```sh
-orca orchestration worker-start --agent claude --model sonnet --effort low \
+orca orchestration worker-start --agent claude --model claude-sonnet-5-5 --effort low \
   --worktree current --spec "$(< .orca/specs/<tarea>.md)" --json
 ```
 
