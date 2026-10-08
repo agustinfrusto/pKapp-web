@@ -16,6 +16,7 @@ listas, código o diffs.
 | Diseñador UI/UX | `.claude/agents/disenador.md` | `sonnet` | `max` | layouts, tokens, matrices de estados |
 | Programador Ejecutor | `.claude/agents/programador.md` | `sonnet` | `low` | código test-first, diffs |
 | Investigador | `.claude/agents/investigador.md` | `sonnet` | `high` | validación ciega y explicaciones |
+| Analista de código | `.claude/agents/analista.md` | `sonnet` | `high` | revisión de lógica de diffs de más de 50 líneas |
 | Auditor y Committer | `.claude/agents/auditor.md` | `haiku` | `low` | revisión del diff en staging y commit |
 
 `opus`, `sonnet` y `haiku` son alias del CLI de Claude Code que siempre apuntan a la última
@@ -31,6 +32,7 @@ claude --agent ingeniero   --model opus   --effort high
 claude --agent disenador   --model sonnet --effort max
 claude --agent programador --model sonnet --effort low
 claude --agent investigador --model sonnet --effort high
+claude --agent analista    --model sonnet --effort high
 claude --agent auditor     --model haiku  --effort low
 ```
 
@@ -50,9 +52,10 @@ orca orchestration worker-start --agent claude --model claude-sonnet-5-5 --effor
 ## Pipeline con compuertas
 
 ```
-Ingeniero ──spec──▶ Programador ──compuerta local en verde──▶ Auditor ──commit──▶ /clear
-                          │                                       │
-                          └── spec imposible o contradictoria ────┴──▶ Ingeniero (excepción)
+Ingeniero ──spec──▶ Programador ──compuerta en verde──▶ revisión de lógica ──▶ Auditor ──commit──▶ /clear
+                          ▲                                    │                   │
+                          └──────── bloqueante ────────────────┘                   │
+                          └── spec imposible o contradictoria ─────────────────────┴──▶ Ingeniero (excepción)
 ```
 
 1. **Spec:** el Ingeniero escribe la Open Spec con su aceptación observable.
@@ -60,9 +63,12 @@ Ingeniero ──spec──▶ Programador ──compuerta local en verde──�
    compuerta del área. Sin compuerta en verde, la entrega no es elegible para revisión.
    - `tools/ingesta/**` → `python3 tools/ingesta/pruebas/correr_pruebas.py`
    - `src/**`, `App.js`, `scripts/**` → `npm run build:web && npm run e2e`
-3. **Commit:** el Auditor revisa el diff en staging y commitea, solo cuando el operador lo
+3. **Revisión de lógica:** un diff de código de hasta 50 líneas lo revisa el Ingeniero; uno
+   de más de 50 lo revisa el Analista. Uno de más de ~600 se parte en tandas. Un
+   RECHAZADO vuelve al Programador; las advertencias las decide el Ingeniero.
+4. **Commit:** el Auditor revisa el diff en staging y commitea, solo cuando el operador lo
    ordena. El push también requiere una orden explícita.
-4. **Excepciones:** el Ingeniero interviene solo si la spec no se puede cumplir tal como
+5. **Excepciones:** el Ingeniero interviene solo si la spec no se puede cumplir tal como
    está escrita. Un bug vuelve al Programador.
 
 ## Fin de tarea
@@ -77,7 +83,8 @@ siguiente unidad. Ninguna sesión arrastra historial a la próxima tarea.
   invariantes de negocio y contratos de API, y convenciones globales del proyecto.
 - Cada entrada tiene 2 o 3 oraciones como máximo.
 - Nunca código, logs de terminal ni resultados de tests.
-- El Programador lee, sin escribir. El Diseñador, el Investigador y el Auditor no tienen acceso.
+- El Programador lee, sin escribir. El Diseñador, el Investigador, el Analista y el Auditor
+  no tienen acceso.
 
 ## Reglas que no cambian
 

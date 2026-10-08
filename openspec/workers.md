@@ -9,7 +9,7 @@ esa guía no respalde.
 
 ---
 
-## Los cinco roles
+## Los seis roles
 
 | Rol | Archivo | Modelo | Effort | Puede editar | git |
 |---|---|---|---|---|---|
@@ -17,6 +17,7 @@ esa guía no respalde.
 | **Diseñador UI/UX** | `disenador.md` | `sonnet` | `max` | `src/screens/**`, `src/components/**`, `src/theme/**`, `src/assets/**`, `referencias-diseno/**` | ninguno |
 | **Programador Ejecutor** | `programador.md` | `sonnet` | `low` | lo que su spec nombre | ninguno |
 | **Investigador** | `investigador.md` | `sonnet` | `high` | la carpeta de salida del pipeline (`tools/ingesta/salidas/**`) | ninguno |
+| **Analista de código** | `analista.md` | `sonnet` | `high` | solo su reporte (`.orca/reports/<tarea>-analisis.md`) | solo lectura |
 | **Auditor y Committer** | `auditor.md` | `haiku` | `low` | nada | `add` de la lista, `commit`, `push` con orden |
 
 **Siempre la última versión de cada familia.** En el CLI de `claude`, los alias `opus`,
@@ -44,6 +45,13 @@ Criterios:
 - **Auditor en Haiku:** revisa lo que un modelo chico puede revisar bien (logs olvidados,
   sintaxis, archivos fuera de la lista, encabezados legales) y commitea. No juzga diseño ni
   arquitectura.
+- **Analista en Sonnet `high`:** revisa la lógica de los diffs de más de 50 líneas, que el
+  Ingeniero no audita y el Auditor no puede juzgar. Lee contra la spec: cumplimiento,
+  correctitud, contratos con todos sus llamadores, calidad de los tests e invariantes.
+  Reemplaza a la revisión de Gentle AI, que el operador desactivó. `high` y no `max`: la
+  tarea es leer unas cientos de líneas con razonamiento de casos borde, no generar diseño;
+  `medium` se queda corto para encontrar bugs no evidentes. El que encuentra no arregla:
+  los bloqueantes vuelven al Programador.
 
 - **Investigador en Sonnet `high`:** hace las etapas de modelo del pipeline (validación
   ciega y explicaciones). Es el rol de más volumen y de más consecuencia, porque las
@@ -155,19 +163,34 @@ y actuar sobre el `projection.nextAction` literal de cada fila.
   invariantes de negocio y contratos de API, y convenciones globales del proyecto.
 - Cada entrada tiene 2 o 3 oraciones como máximo.
 - Nunca código, logs de terminal ni resultados de tests.
-- El Programador lee, sin escribir. El Diseñador, el Investigador y el Auditor no tienen acceso.
+- El Programador lee, sin escribir. El Diseñador, el Investigador, el Analista y el
+  Auditor no tienen acceso.
 
 ---
 
 ## Pipeline con compuertas y reparto
 
 ```
-Ingeniero ──spec──▶ Programador ──compuerta local en verde──▶ Auditor ──commit──▶ /clear
-                          │                                       │
-                          └── spec imposible o contradictoria ────┴──▶ Ingeniero (excepción)
+Ingeniero ──spec──▶ Programador ──compuerta en verde──▶ revisión de lógica ──▶ Auditor ──commit──▶ /clear
+                          ▲                                    │                   │
+                          └──────── bloqueante ────────────────┘                   │
+                          └── spec imposible o contradictoria ─────────────────────┴──▶ Ingeniero (excepción)
 ```
 
 **Compuerta local:** sin ella en verde, la entrega no es elegible para revisión.
+
+**Revisión de lógica**, según el tamaño del diff de código (sin contar docs ni fixtures
+generados):
+
+| Diff | Revisa | Resultado |
+|---|---|---|
+| hasta 50 líneas | Ingeniero | aprobado o vuelve al Programador |
+| más de 50 y hasta ~600 | Analista (`claude-sonnet-5-5`, `high`) | APROBADO, CON ADVERTENCIAS o RECHAZADO |
+| más de ~600 | nadie: se parte en tandas | el Analista responde `PARTIR` |
+
+Un RECHAZADO vuelve al Programador con el reporte. Las advertencias del Analista las
+decide el Ingeniero: se arreglan antes del commit o quedan registradas como deuda. Recién
+con la revisión cerrada se lanza al Auditor.
 
 | Área tocada | Compuerta |
 |---|---|
@@ -185,10 +208,14 @@ Programador es una comprobación del arnés e2e o del build que el cambio vuelve
 - Audita contenido: claves de preguntas, la cola de `explicaciones-dudosas.jsonl` y las
   propuestas del Diseñador contra el brief, las referencias y las restricciones técnicas.
   Lo que no cumple vuelve al Diseñador con el motivo.
-- Audita código solo en diffs de hasta 50 líneas; los más largos los revisa el Auditor o
-  se piden partidos.
+- Audita código solo en diffs de hasta 50 líneas; los más largos los revisa el Analista.
 - Interviene en código solo por excepción de arquitectura.
 - No ejecuta git que modifique el repo.
+
+**Analista:**
+- Recibe la spec, la lista de archivos y el reporte del Programador.
+- Lee el diff del árbol de trabajo, nunca del staging, y no edita nada fuera de su reporte.
+- El que encuentra no arregla: cada hallazgo lleva escenario concreto y evidencia.
 
 **Auditor:**
 - Recibe la lista de archivos de la entrega y la orden del operador.
