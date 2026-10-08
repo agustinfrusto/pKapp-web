@@ -53,6 +53,10 @@ android/
 ios/
 
 # Tools / ingesta
+# PDFs fuente de examenes: material de terceros, nunca se distribuye
+ESFUNO/
+# Originales en alta de las imagenes de materias: al repo va solo la version reducida
+Imagenes materias/
 tools/ingesta/salidas/
 tools/ingesta/.venv/
 .venv/
