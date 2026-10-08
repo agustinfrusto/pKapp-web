@@ -22,11 +22,16 @@ cualquier color cromático, no a uno en particular.
 - **WHEN** la opción marcada ocupa más de una línea y tiene un relleno por línea
 - **THEN** el pipeline la cuenta como una sola opción marcada
 
-#### Scenario: Pregunta sin marca o con más de una
-- **WHEN** alguna pregunta de un examen no tiene ninguna opción marcada, o tiene
-  más de una
+#### Scenario: Pregunta sin marca
+- **WHEN** una pregunta de un examen no tiene ninguna opción marcada y el examen no
+  la declara anulada
 - **THEN** el pipeline aborta ese examen, lo reporta, y no emite ninguna de sus
   preguntas
+
+#### Scenario: Pregunta con más de una marca
+- **WHEN** una pregunta tiene dos o más opciones marcadas
+- **THEN** el pipeline descarta esa pregunta, la registra para revisión manual con
+  las letras marcadas, y sigue con el resto del examen
 
 #### Scenario: Relleno fuera de las opciones
 - **WHEN** hay un relleno de color que no cae sobre ninguna opción, por ejemplo

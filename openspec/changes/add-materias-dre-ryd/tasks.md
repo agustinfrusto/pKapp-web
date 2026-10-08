@@ -5,48 +5,67 @@ mismo rol que van seguidas comparten terminal.
 
 ## 1. Lector de claves por relleno vectorial [Programador]
 
-- [ ] 1.1 En `tools/ingesta/extraer.py`, construir el `ans_map` desde los rellenos
+- [x] 1.1 En `tools/ingesta/extraer.py`, construir el `ans_map` desde los rellenos
   cromáticos asignados a la línea que abre cada opción (D1–D3), con
   `detection_method: 'relleno'`. Verificar: sobre los 20 exámenes sueltos (11 de DRE y 9
-  de RyD; el de 4 UTIs va en 2.2), `extraer_archivo_pdf` no aborta ninguno y
-  devuelve 50 preguntas con clave en cada examen de DRE y 20 en cada uno de RyD.
-- [ ] 1.2 Acotar el gate 3.5 a páginas sin texto (D4); un relleno que no cae en
+  de RyD; el de 4 UTIs va en 2.2), `extraer_archivo_pdf` no aborta ninguno; cada
+  examen de DRE da 50 preguntas menos sus anuladas, todas con clave; cada uno de RyD
+  da 20, salvo `Primer periodo 2024.pdf` y `Prototipo primer periodo … 23_11`, que
+  dan 18 y registran la 109 y la 112 como `marca_doble`.
+- [x] 1.2 Acotar el gate 3.5 a páginas sin texto (D4); un relleno que no cae en
   ninguna opción se ignora, no aborta. Verificar: una página escaneada sigue
   abortando, probado con un PDF de una página sin capa de texto; los exámenes de 1.1
   ya no abortan; y el de 4 UTIs, con su relleno magenta suelto, tampoco.
-- [ ] 1.3 Comprobar contra la clave conocida que el lector marca bien, con un archivo
+- [x] 1.3 Comprobar contra la clave conocida que el lector marca bien, con un archivo
   por color y por materia. Verificar: en DRE `Primer Periodo 2025.pdf` (cian), las
   preguntas 97–100 dan b, d, c y a; y el Ingeniero contrasta cuatro preguntas de un
   examen amarillo de DRE y cuatro de un examen de RyD contra su propia resolución,
   dejando las claves en el reporte.
-- [ ] 1.4 Fixtures sintéticos en `tools/ingesta/pruebas/`, generados con PyMuPDF por un
+- [x] 1.4 Fixtures sintéticos en `tools/ingesta/pruebas/`, generados con PyMuPDF por un
   script versionado: marca de una línea, marca de dos líneas, relleno que solapa dos
-  opciones, pregunta sin marca, relleno suelto sobre el enunciado y pregunta anulada
+  opciones (pregunta descartada, no examen abortado), pregunta sin marca, relleno
+  suelto sobre el enunciado y pregunta anulada
   **dentro** de la sección destino. Verificar: un comando corre los seis y comprueba
   aceptado / abortado / ignorado / descartada según la spec.
-- [ ] 1.5 Regresión de los caminos existentes. Verificar: correr la extracción
+- [x] 1.5 Regresión de los caminos existentes. Verificar: correr la extracción
   sobre todos los PDFs de `ESFUNO/1` a `ESFUNO/4` antes y después del cambio. Los
   que ya se extraían dan la misma cantidad de preguntas y las mismas claves, y el
   reporte lista cada archivo que pasa de abortado a aceptado, con sus claves
   revisadas por el Ingeniero antes de darlo por bueno.
-- [ ] 1.6 Documentar en `tools/ingesta/README.md` la detección por relleno y el
+- [x] 1.6 Documentar en `tools/ingesta/README.md` la detección por relleno y el
   nuevo alcance del gate 3.5. Verificar: la sección describe el criterio cromático y
   el aborto por marca ausente o doble.
 
 ## 2. Anuladas, secciones e inventario [Programador]
 
-- [ ] 2.1 Descartar las preguntas declaradas anuladas antes de `verificar_claves` y
-  registrarlas con motivo `anulada` (D5). Verificar: con el fixture de 1.4 (anulada
+- [x] 2.1 Descartar las preguntas declaradas anuladas antes de `verificar_claves` y
+  registrarlas con motivo `anulada` (D5). Se ejecuta junto con el grupo 1, porque los
+  exámenes sueltos de DRE ya traen anuladas. Verificar: con el fixture de 1.4 (anulada
   dentro de la sección destino), la pregunta no se emite, aparece en
   `abortados.jsonl` y no provoca desfase de numeración. La 33 del examen de 4 UTIs no
   sirve de prueba: está en la sección de Neuro, fuera de `dre` y `ryd`.
-- [ ] 2.2 Recortar la sección de la materia destino con el mapa de encabezados (D6).
-  Verificar: el examen de 4 UTIs emite solo 51–100 para `dre` y solo 101–120 para
+- [x] 2.2 Recortar la sección de la materia destino con el mapa de encabezados (D6).
+  Verificar: el examen de 4 UTIs emite solo 50–99 para `dre` y solo 100–119 para
   `ryd`; con un destino sin sección, no emite nada y lo reporta.
-- [ ] 2.3 Corregir el falso positivo de `inventario.py`: "correcta" deja de ser
+- [x] 2.3 Corregir el falso positivo de `inventario.py`: "correcta" deja de ser
   señal de apartado. Verificar: los exámenes de DRE y RyD se inventarían sin
   apartado de respuestas, y los de CyR que sí lo tienen siguen detectados.
-- [ ] 2.4 Documentar anuladas, secciones e inventario en `tools/ingesta/README.md`.
+- [x] 2.5 Filtrar los encabezados y pies de página que se cuelan en enunciados y
+  opciones (por ejemplo "Segundo Periodo Examen Digestivo, renal y end…" o "Primer
+  período Anatomía – 15 de agosto 2024 4"). Es un defecto anterior a este change, que
+  hallé en la auditoría del grupo 1. Verificar: sobre todos los PDFs aceptados de
+  `ESFUNO/1` a `ESFUNO/6`, ningún enunciado ni opción contiene el encabezado o el pie
+  de su página. Además, las líneas de encabezado y pie no pueden tomarse como
+  continuación de una opción: un relleno sobre ellas no cuenta como marca (hallazgo de
+  la revisión del grupo 1: con una pregunta que cruza de página, eso daba una clave
+  equivocada o una `marca_doble` falsa).
+- [x] 2.6 Ampliar los fixtures de `tools/ingesta/pruebas/` con lo que la revisión del
+  grupo 1 marcó sin cubrir: un enunciado que contiene la palabra "respuestas" sin ser
+  apartado; un examen de varias páginas partido por prototipo; una pregunta que cruza
+  de página con relleno sobre el encabezado de la página siguiente; una opción marcada
+  que se parte entre dos páginas (una sola marca); y una anulada en el camino del
+  apartado. Verificar: el comando de fixtures pasa todos los casos, viejos y nuevos.
+- [x] 2.4 Documentar anuladas, secciones e inventario en `tools/ingesta/README.md`.
   Verificar: el README nombra el mapa de encabezados y el motivo `anulada`.
 
 ## 3. Taxonomía de temas [Ingeniero → Programador]

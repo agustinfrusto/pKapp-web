@@ -12,8 +12,10 @@ vez.
 - Clave marcada con un rectángulo vectorial detrás de la opción. De los 20 sueltos,
   cian `(0,1,1)` en 7 y amarillo `(1,1,0)` en 13; el de 4 UTIs también es amarillo. Hay más rectángulos que preguntas porque las
   opciones de dos líneas llevan un rectángulo por línea.
-- Cada examen es un tramo de una prueba de varias UTIs: DRE numera 51–100 (50
-  preguntas) y RyD 101–120 (20). Los encabezados de página solo nombran la UTI; no hay
+- Cada examen es un tramo de una prueba de varias UTIs: en los exámenes sueltos, DRE
+  numera 51–100 (50 preguntas) y RyD 101–120 (20). En el de 4 UTIs la numeración corre
+  uno: Neuro desde la 1, CyR desde la 26, DRE 50–99 y RyD 100–119. Por eso la sección
+  se recorta por encabezado (D6) y nunca por rango numérico. Los encabezados de página solo nombran la UTI; no hay
   secciones por tema.
 - `Prototipo tercer periodo 4 UTIS-1.pdf` (2018) es el mismo archivo en las cuatro
   carpetas: 16 páginas, secciones NEUROBIOLOGÍA, CARDIOVASCULAR Y RESPIRATORIO,
@@ -71,9 +73,13 @@ próxima materia puede traer un tercero.
 ### D3. Un relleno que no cae en una opción no es marca
 
 Los rellenos sobre enunciados o encabezados (el magenta del examen de 4 UTIs) se
-ignoran. Lo que decide si el examen se acepta es la cuenta por pregunta: exactamente
-una opción marcada. Cero o dos o más → se aborta ese examen (escenario de la spec).
-Varias cajas sobre la misma opción cuentan como una sola marca.
+ignoran. Lo que decide es la cuenta por pregunta. Exactamente una opción marcada → clave.
+Cero marcas en una pregunta no anulada → se aborta el examen, porque suele indicar
+que el parseo de preguntas falló y eso afecta a todo el archivo. Dos o más marcas →
+se descarta **solo esa pregunta** con motivo `marca_doble`: es un problema local de la
+fuente (en RyD 2024 las preguntas 109 y 112 traen a y c pintadas), y abortar habría
+tirado las otras 18 preguntas sanas. Varias cajas sobre la misma opción cuentan como
+una sola marca.
 
 ### D4. El gate 3.5 pasa a abortar solo lo que realmente no se puede leer
 
@@ -85,7 +91,11 @@ aborta. Las anotaciones de highlight y el apartado siguen teniendo prioridad.
 
 ### D5. Las anuladas se sacan antes de verificar claves
 
-Un examen con "PREGUNTA N ANULADA" se procesa sin esa pregunta, y la `N` sale del
+Las anuladas no aparecen solo en el examen de 4 UTIs: cuatro exámenes sueltos de DRE
+las traen sin opciones ni marca (Primer Periodo 2025: 76, 85 y 92; Prototipo tercer
+periodo DRE 20_02; Prototipo tercer periodo DRE; Tercer periodo 2025). Por eso se
+implementan en el grupo 1, junto con el lector. Un examen con una pregunta anulada se
+procesa sin esa pregunta, y la `N` sale del
 conjunto esperado antes de `verificar_claves`. Así una anulada no dispara un desfase
 de numeración. Se registra en `abortados.jsonl` con motivo `anulada`, por pregunta.
 
