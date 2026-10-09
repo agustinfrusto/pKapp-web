@@ -150,6 +150,10 @@ El Ingeniero espera con:
 orca orchestration check --wait --types "worker_done,escalation,question" --timeout-ms 900000 --json
 ```
 
+Un Run ligado vuelve a entregar la misma Delivery hasta que se la acusa: después de
+procesar sus mensajes, la espera siguiente lleva `--ack <deliveryId>`. Si no, devuelve
+de nuevo el `worker_done` anterior.
+
 Un timeout o un resultado vacío es un checkpoint, no un fallo. Nunca se interpreta ausencia
 como que el worker murió: solo prueba positiva de salida autoriza `worker-stop` o
 `worker-abandon`. Tras tres esperas vacías, enumerar con `worker-list --include-remote --json`
