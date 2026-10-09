@@ -202,8 +202,80 @@ Criterios de frontera, que se aplican en este orden:
 | Imagen de tarjeta, ícono y color de cada materia | Diseñador | son decisiones estéticas |
 | Scaffold de las dos materias y registro | Programador | mecánico, con el molde de `cyr` |
 
-Las tareas del Investigador se encolan seguidas para reusar su terminal: primero toda
-la validación ciega de las dos materias, después todas las explicaciones.
+Las tareas del Investigador se encolan seguidas: primero toda la validación ciega de las
+dos materias y después todas las explicaciones. Cada lote es un despacho con terminal
+nueva (`openspec/workers.md`, "Contexto limpio por unidad de trabajo"); esto reemplaza la
+versión anterior de este párrafo, que reusaba la terminal.
+
+### D11. Las etapas de intercambio se vuelven código versionado
+
+Excepción resuelta el 2026-10-09, al arrancar el grupo 5. La 5.2 pedía emitir
+`ciega-input.jsonl`, pero ninguna etapa lo emite: en CyR, el emisor de la entrada
+ciega, la comparación contra la clave, el emisor de `expl-input.jsonl` y la
+consolidación se hicieron con scripts de sesión que no quedaron en el repo. Además,
+`extraer.py` procesa un PDF por corrida y `validar.py` lee un solo archivo, así que 21
+PDFs darían 21 bancos sin deduplicar entre sí. Sin estas piezas, el grupo 6 depende de
+edición manual, que es justo lo que el primer Goal prohíbe.
+
+Se agrega `tools/ingesta/intercambio.py`, con cuatro subcomandos que corren en este
+orden sobre un único directorio por materia:
+
+| Subcomando | Lee | Escribe |
+|---|---|---|
+| `consolidar <materia> <dir>...` | `crudas.jsonl`, `abortados.jsonl`, `descartes-borde.jsonl` y `sospechas-borde.jsonl` de cada `<dir>` de `extraer` | `salidas/<materia>-corpus-<ts>/` con los cuatro concatenados, en el orden de los argumentos |
+| `ciega-input <dir>` | `enriquecidas.jsonl` | `ciega-input.jsonl`: `ref`, `exam`, `n`, `question`, `options` |
+| `ciega-cerrar <dir>` | `enriquecidas.jsonl`, `ciega-output.jsonl` | `enriquecidas-ciega.jsonl`, `ciega-discrepancias.jsonl` |
+| `expl-input <dir>` | `enriquecidas-ciega.jsonl` | `expl-input.jsonl`: `ref`, `question`, `options`, `correctIndex` |
+
+`reparos.py` cierra el intercambio: lee `enriquecidas-ciega.jsonl` y `expl-output.jsonl`,
+exige `--modelo <id>` (sale de la corrida, no de una constante) y escribe
+`enriquecidas-final.jsonl`, que es la entrada de `validar.py`.
+
+Invariantes:
+
+- **`ref` es el índice, base 0, de la línea en `enriquecidas.jsonl`.** Ninguna etapa
+  reordena ni filtra líneas de un `enriquecidas*.jsonl`: una pregunta derivada se marca,
+  no se saca.
+- **La clave del documento nunca se toca.** `ciega-cerrar` solo agrega
+  `forzar_revision` y `detalle_revision`; `correctIndex` sale igual que entró.
+- **Ninguna guarda rellena.** Si `ciega-output.jsonl` o `expl-output.jsonl` no cubren
+  todos los `ref`, traen un `ref` desconocido o repetido, o un campo fuera de dominio, la
+  etapa sale con código 1, nombra los `ref` en falta y no escribe nada.
+- **La ciega va antes que las explicaciones.** `expl-input` lee `enriquecidas-ciega.jsonl`,
+  así que no corre sin la ciega cerrada.
+- `ciega-input.jsonl` no contiene `correctIndex`, `correct_letter` ni `explanation`.
+
+Contrato de `ciega-output.jsonl` (amplía el de `tools/ingesta/README.md`):
+
+| Campo | Dominio |
+|---|---|
+| `ref` | entero de la entrada |
+| `opcion_elegida` | índice válido de `options`, o `null` si no se puede resolver sin material ausente |
+| `opciones_defendibles` | lista de índices válidos; incluye `opcion_elegida` cuando no es `null` |
+| `confianza` | `alta`, `media`, `baja` o `nula`; `nula` si y solo si `opcion_elegida` es `null` |
+| `justificacion` | texto no vacío |
+
+`ciega-cerrar` deriva cada `ref` con la primera regla que acierta; el motivo va a
+`forzar_revision` y el detalle, con ambas respuestas y la justificación, a
+`detalle_revision`:
+
+1. `opcion_elegida` es `null` → `no_resoluble_a_ciegas`.
+2. `opciones_defendibles` tiene dos o más índices → `ambigua`.
+3. `opcion_elegida` distinta de `correctIndex` → `discrepancia_validacion_ciega`.
+
+`ciega-discrepancias.jsonl` lista los `ref` derivados con `ref`, `exam`,
+`numero_original`, `question`, `options`, `clave_documento`, `resolucion_ciega`,
+`confianza`, `justificacion` y `motivo`, la forma que ya usó CyR.
+
+`expl-input` cubre todos los `ref`, también los derivados: si el Ingeniero confirma la
+clave en la 7.1, la pregunta ya tiene explicación, y la explicación con la clave del
+documento sirve de evidencia en esa auditoría.
+
+Una sola generación por pregunta, como en CyR, por decisión del operador (2026-10-09):
+`reparos.py` registra el reparo `sin_control_estabilidad` en cada una y no se cumple el
+requisito de tres generaciones. Las tres generaciones
+triplican el gasto del Investigador sobre hasta 800 preguntas (12 × 50 de DRE y 10 × 20 de RyD, antes de deduplicar), y la cola de riesgo ya
+pasa por Opus en la 7.1.
 
 ### D10. La identidad visual de cada tarjeta la decide el Diseñador
 

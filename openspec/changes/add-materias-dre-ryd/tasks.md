@@ -97,19 +97,29 @@ mismo rol que van seguidas comparten terminal.
   hasta el grupo 7. Verificar: `npm run build:web` pasa y el selector sigue con
   cuatro materias.
 
-## 5. Corrida del pipeline [Ingeniero]
+## 5. Corrida del pipeline [Programador → Ingeniero]
 
-- [ ] 5.1 Extraer los 21 PDFs únicos de ambas materias. Verificar: `crudas.jsonl`
-  por materia y `abortados.jsonl` con abortos solo justificados; cada uno, triado.
-- [ ] 5.2 Enriquecer y emitir la entrada de validación ciega. Verificar:
-  `ciega-input.jsonl` no contiene `correctIndex` ni `explanation`, comprobado con
-  `rg`.
+- [ ] 5.0 [Programador] Implementar `tools/ingesta/intercambio.py` (`consolidar`,
+  `ciega-input`, `ciega-cerrar`, `expl-input`) y adaptar `reparos.py` según D11, con
+  fixtures en `tools/ingesta/pruebas/` y el contrato ampliado en el README. Verificar:
+  `correr_pruebas.py` pasa los casos nuevos (cobertura incompleta, `ref` desconocido o
+  repetido, campo fuera de dominio, las tres derivaciones y su prioridad, `correctIndex`
+  intacto, orden de líneas intacto, `expl-input` sin la ciega cerrada) y los viejos.
+- [ ] 5.1 [Ingeniero] Extraer los 21 PDFs únicos y consolidar por materia (el de 4 UTIs
+  entra en las dos). Verificar: un directorio `<materia>-corpus-<ts>` por materia con
+  `crudas.jsonl` y `abortados.jsonl`; cada aborto, triado.
+- [ ] 5.2 [Ingeniero] Enriquecer y emitir la entrada de validación ciega. Verificar:
+  `ciega-input.jsonl` no contiene `correctIndex`, `correct_letter` ni `explanation`,
+  comprobado con `rg`.
 
 ## 6. Validación ciega y explicaciones [Investigador, terminal compartida]
 
 - [ ] 6.1 Validación ciega de `dre`, en lotes. Verificar: `ciega-output.jsonl` cubre
   todos los `ref` de la entrada.
 - [ ] 6.2 Validación ciega de `ryd`, en lotes. Verificar: ídem.
+- [ ] 6.2b [Ingeniero] `intercambio.py ciega-cerrar` y `expl-input` en ambas materias.
+  Verificar: las dos salen con código 0 y `ciega-discrepancias.jsonl` queda triado en el
+  reporte.
 - [ ] 6.3 Explicaciones de `dre`, en lotes, con el tono de
   `tools/ingesta/referencia/muestras_explicaciones.json`. Verificar:
   `expl-output.jsonl` cubre todos los `ref`.
@@ -117,7 +127,8 @@ mismo rol que van seguidas comparten terminal.
 
 ## 7. Validación, auditoría y publicación [Ingeniero → Programador]
 
-- [ ] 7.1 [Ingeniero] Correr `validar.py` en ambas materias y auditar en Opus toda
+- [ ] 7.1 [Ingeniero] Correr `reparos.py --modelo <id>` y `validar.py` sobre
+  `enriquecidas-final.jsonl` en ambas materias y auditar en Opus toda
   la cola de `explicaciones-dudosas.jsonl` y `revision-manual.jsonl`. Verificar:
   cada entrada queda resuelta (corregida o descartada) y consta en el reporte.
 - [ ] 7.2 [Ingeniero] Emitir los bancos a `questions.js` con `emitir`. Verificar: el

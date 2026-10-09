@@ -15,8 +15,11 @@ visto la clave. Entre una y otra, `/clear`.
 1. Validación ciega
    - Entrada: `<salida>/ciega-input.jsonl`, que viene sin `correctIndex` ni `explanation`.
    - Salida: `<salida>/ciega-output.jsonl`, una línea por `ref`, con los campos `ref`,
-     `opcion_elegida`, `confianza` (`alta`, `media` o `baja`) y `justificacion` (una
-     oración).
+     `opcion_elegida` (índice, o `null` si la pregunta depende de material ausente),
+     `opciones_defendibles` (lista de índices defendibles; incluye `opcion_elegida`),
+     `confianza` (`alta`, `media` o `baja`; `nula` solo con `opcion_elegida` en `null`) y
+     `justificacion` (una oración). Dominio completo: D11 de
+     `openspec/changes/add-materias-dre-ryd/design.md`.
    - Resolver cada pregunta con el propio conocimiento. No buscar la clave en ningún
      otro archivo.
 
