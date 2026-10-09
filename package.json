@@ -33,7 +33,7 @@
     "tailwindcss": "^3.4.19"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^8.0.6"
   },
   "private": true,
   "overrides": {
