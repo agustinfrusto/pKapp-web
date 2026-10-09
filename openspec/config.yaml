@@ -74,6 +74,9 @@ context: |
     la versión va al final entre paréntesis.
   - VERSIÓN: se bumpea en `package.json` Y en `app.json` a la vez, siempre al mismo
     número. `app.json` es la que se muestra en Ajustes vía `expo-constants`.
+    Bumpea solo el commit que toca la app que se publica (src, public, scripts, build de
+    la raíz, app.json, package.json), con semver estricto desde el último tag, y lleva
+    tag `vX.Y.Z`. tools, openspec, .claude y docs no bumpean. Lo hace el Auditor.
   - No commitear ni pushear sin que el usuario lo pida explícitamente.
   - Trabajo multi-agente: seis roles (Ingeniero, Diseñador, Programador, Investigador, Analista, Auditor),
     resumen en `CLAUDE.md` y contrato en `openspec/workers.md`. Solo el Auditor commitea.

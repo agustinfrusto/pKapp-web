@@ -18,7 +18,7 @@ esa guía no respalde.
 | **Programador Ejecutor** | `programador.md` | `sonnet` | `low` | lo que su spec nombre | ninguno |
 | **Investigador** | `investigador.md` | `sonnet` | `high` | la carpeta de salida del pipeline (`tools/ingesta/salidas/**`) | ninguno |
 | **Analista de código** | `analista.md` | `sonnet` | `high` | solo su reporte (`.orca/reports/<tarea>-analisis.md`) | solo lectura |
-| **Auditor y Committer** | `auditor.md` | `haiku` | `low` | nada | `add` de la lista, `commit`, `push` con orden |
+| **Auditor y Committer** | `auditor.md` | `haiku` | `low` | solo el campo de versión (`package.json`, `package-lock.json`, `app.json`) | `add` de la lista, `commit`, `tag` de versión, `push` con orden |
 
 **Siempre la última versión de cada familia.** En el CLI de `claude`, los alias `opus`,
 `sonnet` y `haiku` la resuelven solos (verificado en `claude --help`, 2.1.294). **En Orca,
@@ -225,7 +225,13 @@ Programador es una comprobación del arnés e2e o del build que el cambio vuelve
 - Recibe la lista de archivos de la entrega y la orden del operador.
 - Stagea exactamente esa lista (nunca `git add -A`), revisa el diff y commitea con
   `tipo(alcance): mensaje`.
-- Pushea solo con orden explícita.
+- Versiona: si el commit toca la app que se publica (`src/**`, `public/**`, `scripts/**`,
+  archivos de build de la raíz, `app.json` o `package.json`), bumpea `package.json`,
+  `package-lock.json` y `app.json` en el mismo commit, con semver estricto desde el último
+  tag (`feat` → minor; el resto → patch; breaking → major, previa consulta), y crea el
+  tag `vX.Y.Z`. `tools/**`, `openspec/**`, `.claude/**` y los docs no bumpean. Detalle en
+  `.claude/agents/auditor.md`, paso 4.
+- Pushea solo con orden explícita, y con el push van sus tags.
 - El rediseño visual se commitea en la rama `rediseno`, y el merge a `main` solo se hace
   consolidado y con orden del operador. Lo que no es diseño va a `main`.
 

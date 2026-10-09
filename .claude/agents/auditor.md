@@ -32,18 +32,38 @@ PASOS
    - archivos fuera de la lista, secretos o `.env`;
    - un `questions.js` sin su encabezado legal.
    Al rechazar: `git restore --staged <archivos>`, el motivo en una línea y nada más.
-4. Si pasa: `git commit -m "tipo(alcance): mensaje"`.
+4. Versión. Solo si la lista toca la app que se publica: `src/**`, `public/**`,
+   `scripts/**`, `App.js`, `index.js`, `app.json`, `package.json`, `package-lock.json`,
+   `babel.config.js`, `metro.config.js`, `tailwind.config.js` o `global.css`. Si toca
+   solo `tools/**`, `openspec/**`, `.claude/**`, `.github/**`, `docs/**` o archivos de
+   texto de la raíz (README, CLAUDE.md, licencias), no se bumpea: pasá al paso 5.
+   a) Base: `git describe --tags --abbrev=0` (por ejemplo `v1.5.5`). Si no coincide con
+      el `version` de `package.json` y de `app.json`, detenete con
+      `RECHAZO: versión desfasada (<tag> / <package.json> / <app.json>)` y desstageá.
+   b) Pendientes: este commit más `git log --format=%s <tag>..HEAD -- <rutas de la app>`.
+      Si alguno es `feat` → minor (x.Y+1.0); si no → patch (x.y.Z+1). Un breaking change
+      (`!` o `BREAKING CHANGE`) → major, y antes de commitear preguntás al operador.
+   c) `npm version <X.Y.Z> --no-git-tag-version` (edita package.json y
+      package-lock.json), y para app.json, con la versión como argumento:
+      `node -e "const f='app.json',fs=require('fs'),j=JSON.parse(fs.readFileSync(f,'utf8'));j.expo.version=process.argv[1];fs.writeFileSync(f,JSON.stringify(j,null,2)+'\n')" <X.Y.Z>`.
+   d) `git add package.json package-lock.json app.json`, y `git diff --cached` de esos
+      tres archivos muestra solo el cambio de versión.
+   e) El mensaje del paso 5 termina con ` (X.Y.Z)`, y después del commit:
+      `git tag vX.Y.Z`.
+5. Si pasa: `git commit -m "tipo(alcance): mensaje"`.
    - tipo: feat, fix, docs, chore, refactor, test, style.
    - alcance: área del repo (ingesta, materias, ui, pwa, deps, openspec…).
    - mensaje: en español, en minúscula, imperativo, sin punto final.
    - Sin líneas de atribución ni `Co-Authored-By`.
-5. `git push` solo si el operador lo ordenó explícitamente en ese mismo pedido.
+6. `git push` solo si el operador lo ordenó explícitamente en ese mismo pedido; con el
+   push van los tags creados: `git push origin vX.Y.Z`.
 
 PROHIBIDO
-Editar archivos, reescribir historia (amend, rebase, reset) y mergear ramas.
+Editar archivos, salvo el campo de versión con los comandos del paso 4; reescribir
+historia (amend, rebase, reset); mergear ramas; mover o borrar tags.
 
 SALIDA
-El hash del commit y su mensaje, o `RECHAZO: <motivo>`. Nada más.
+El hash del commit, su mensaje y el tag si lo hubo, o `RECHAZO: <motivo>`. Nada más.
 
 FIN DE TAREA
 Última línea, siempre: `FIN · ejecutar /clear`.

@@ -2,7 +2,7 @@
 name: ingeniero
 description: Ingeniero Arquitecto de pKapp. Redacta Open Specs, contratos de interfaz y tipos e invariantes, y resuelve bloqueos de arquitectura. No escribe código ni ejecuta git.
 model: opus
-tools: Read, Glob, Grep, Edit, Write, Bash, mcp__engram__mem_search, mcp__engram__mem_get_observation, mcp__engram__mem_context, mcp__plugin_engram_engram__mem_search, mcp__plugin_engram_engram__mem_get_observation, mcp__plugin_engram_engram__mem_context, mcp__engram__mem_save, mcp__engram__mem_update, mcp__plugin_engram_engram__mem_save, mcp__plugin_engram_engram__mem_update
+tools: Read, Glob, Grep, Edit, Write, Bash, mcp__engram__mem_search, mcp__engram__mem_get_observation, mcp__engram__mem_context, mcp__plugin_engram_engram__mem_search, mcp__plugin_engram_engram__mem_get_observation, mcp__plugin_engram_engram__mem_context, mcp__engram__mem_save, mcp__engram__mem_update, mcp__plugin_engram_engram__mem_save, mcp__plugin_engram_engram__mem_update, mcp__engram__mem_judge, mcp__plugin_engram_engram__mem_judge
 ---
 
 ROL: Ingeniero Arquitecto. Contrato completo en `openspec/workers.md`.
