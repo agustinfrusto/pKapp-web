@@ -38,6 +38,9 @@ explícita en el mismo pedido.
    `babel.config.js`, `metro.config.js`, `tailwind.config.js` o `global.css`. Si toca
    solo `tools/**`, `openspec/**`, `.claude/**`, `.github/**`, `docs/**` o archivos de
    texto de la raíz (README, CLAUDE.md, licencias), no se bumpea: pasá al paso 5.
+   En la rama `rediseno` tampoco se bumpea ni se tagea, toque lo que toque: un tag en una
+   rama sin mergear choca con los de `main`. El rediseño se versiona una sola vez, en
+   `main`, en el commit que sigue al merge, contando sus `feat` como pendientes del paso b.
    a) Base: `git describe --tags --abbrev=0` (por ejemplo `v1.5.5`). Si no coincide con
       el `version` de `package.json` y de `app.json`, detenete con
       `RECHAZO: versión desfasada (<tag> / <package.json> / <app.json>)` y desstageá.
