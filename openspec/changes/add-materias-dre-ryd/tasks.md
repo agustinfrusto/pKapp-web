@@ -70,11 +70,11 @@ mismo rol que van seguidas comparten terminal.
 
 ## 3. Taxonomía de temas [Ingeniero → Programador]
 
-- [ ] 3.1 [Ingeniero] Extraer los 21 PDFs únicos en una corrida de prueba y escribir
+- [x] 3.1 [Ingeniero] Extraer los 21 PDFs únicos en una corrida de prueba y escribir
   `TOPICS` de `dre` y de `ryd` (unos 8 temas cada uno), leyendo las preguntas reales
   (D8). Verificar: cada pregunta de la muestra cae en algún tema y ningún tema queda
   vacío.
-- [ ] 3.2 [Programador] Indexar las reglas de `tools/ingesta/enriquecer.py` por
+- [x] 3.2 [Programador] Indexar las reglas de `tools/ingesta/enriquecer.py` por
   materia y agregar las de `dre` y `ryd` (D7). Verificar: una materia sin reglas
   falla con un error explícito, y CyR asigna los mismos topics que antes.
 
@@ -91,7 +91,8 @@ mismo rol que van seguidas comparten terminal.
   archivos, usando `cyr` como molde: `examSize` 50 y 20, `parciales: null`,
   `questions.js` vacío con el encabezado legal, los `TOPICS` de 3.1 y el ícono y el
   color de 4.2. Verificar: `node tools/ingesta/js/read-materia.mjs dre` y `… ryd`
-  responden sin error.
+  responden sin error, y las claves de `TOPICS` de cada materia coinciden exactamente
+  con las de sus reglas en `enriquecer.py` (3.2) y con la tabla de D8.
 - [ ] 4.4 [Programador] Todavía sin registrar en `src/materias/index.js`: la UI no las muestra
   hasta el grupo 7. Verificar: `npm run build:web` pasa y el selector sigue con
   cuatro materias.

@@ -122,6 +122,75 @@ preguntas reales. Son unos 8 temas por materia, con la granularidad de CyR. Lo
 escribe el Ingeniero (Opus), porque define la taxonomía que el usuario va a ver; el
 Programador solo traslada ese mapa a reglas de palabra clave.
 
+**Resultado (tarea 3.1).** Taxonomía definida sobre las 484 preguntas únicas de DRE y las
+191 de RyD de una corrida de prueba de los 21 PDFs. Son 9 temas por materia, no 8: con
+8, un tema habría mezclado disciplinas que el estudiante repasa por separado. Los ids
+son definitivos: las preguntas que crea el usuario guardan su `topic` en la base local
+(`user_questions` en `src/db/database.*.js`), así que renombrar un id después de
+publicar deja esas preguntas con un tema que ya no existe en `TOPICS`.
+
+`dre` (por defecto: `metabolismo-energetico`):
+
+| id | Etiqueta | Cubre |
+|---|---|---|
+| `funcion-digestiva` | Motilidad, secreciones, digestión y absorción | motilidad, gastrina, secreción gástrica y pancreática, enzimas digestivas, sales biliares, absorción de nutrientes |
+| `histologia-digestiva` | Histología del tubo digestivo y glándulas anexas | cavidad bucal, lengua, glándulas salivales, esófago a colon, hígado, vía biliar, páncreas exócrino |
+| `fisiologia-renal` | Filtración, función tubular y balance hidrosalino | líquidos corporales, Gibbs-Donnan, filtración, clearance, procesos tubulares, ADH, aldosterona, renina, gradiente corticomedular |
+| `histologia-renal-endocrina` | Histología renal y de glándulas endócrinas | corpúsculo, túbulos, mesangio, aparato yuxtaglomerular, vejiga, hipófisis, tiroides, paratiroides, suprarrenal |
+| `endocrinologia` | Ejes endócrinos, hormonas y señalización | retroalimentación, ejes hipotálamo-hipofisarios, GH, prolactina, oxitocina, tiroides, calcemia y vitamina D, receptores y segundos mensajeros |
+| `metabolismo-energetico` | Metabolismo energético, ayuno e ingesta | regulación de vías, glucólisis, gluconeogénesis, glucógeno, β-oxidación, síntesis de ácidos grasos, cuerpos cetónicos, insulina y glucagón como efectores, diabetes |
+| `lipoproteinas-tejido-adiposo` | Lipoproteínas, tejido adiposo y síndrome metabólico | quilomicrones, VLDL, LDL, HDL, apolipoproteínas, LPL, ateroma, adipoquinas, síndrome metabólico |
+| `metabolismo-proteico` | Recambio proteico, aminoácidos y ciclo de la urea | proteosoma y ubiquitina, vida media de proteínas, transaminación, desaminación, glutamina, ciclo de la urea |
+| `acido-base` | Equilibrio ácido-base | buffers, gasometría, acidosis y alcalosis, manejo renal de H⁺ y HCO₃⁻, glutaminasa renal |
+
+`ryd` (por defecto: `biologia-desarrollo`):
+
+| id | Etiqueta | Cubre |
+|---|---|---|
+| `histologia-masculina` | Histología masculina y espermatogénesis | testículo, Sertoli, Leydig, barrera hematotesticular, espermatogénesis, espermiogénesis, espermatozoide, epidídimo, deferente, glándulas anexas |
+| `histologia-femenina` | Histología femenina y ovogénesis | ovario, folículos, atresia, cuerpo lúteo, ovogénesis, oviducto, útero, endometrio, vagina |
+| `glandula-mamaria-lactancia` | Glándula mamaria y lactancia | histología de la mama, cambios en la gestación, prolactina, oxitocina, lactogénesis, succión |
+| `eje-gonadal-masculino` | Eje hipotálamo-hipófiso-testicular y respuesta sexual | GnRH, LH, FSH, inhibina y testosterona en el varón, respuesta sexual masculina |
+| `ciclo-sexual-femenino` | Eje hipotálamo-hipófiso-ovárico y ciclo sexual | gonadotrofinas, estrógenos y progesterona, ciclo ovárico y endometrial, desarrollo folicular hormonal, eje a lo largo de la vida |
+| `fecundacion-implantacion` | Fecundación, segmentación e implantación | capacitación, reacción acrosómica y cortical, bloqueo de la polispermia, cigoto, mórula, compactación, blastocisto, implantación |
+| `gastrulacion-organogenesis` | Gastrulación, hojas embrionarias y notocorda | línea primitiva, hojas germinativas y sus derivados, notocorda, celoma, ejes corporales, células germinales primordiales |
+| `placenta-anexos` | Placenta y anexos embrionarios | trofoblasto, vellosidades, barrera placentaria, decidua, amnios, espacio intervelloso |
+| `biologia-desarrollo` | Diferenciación, inducción y genes del desarrollo | potencialidad, diferenciación, inducción y competencia, genes maternos, gap, de regla par, Hox y homeóticos |
+
+Criterios de frontera, que se aplican en este orden:
+
+1. Estructura, tipo celular, epitelio, localización o imagen al microscopio → el tema de
+   histología del órgano. Función, regulación o respuesta → el tema fisiológico o
+   bioquímico.
+2. DRE: el receptor, la transducción o el eje de una hormona → `endocrinologia`; su
+   efecto sobre una vía metabólica → `metabolismo-energetico`.
+3. DRE: todo lo ácido-base va a `acido-base`, incluido su manejo renal.
+4. DRE: lipoproteínas, tejido adiposo, síndrome metabólico y ateroma →
+   `lipoproteinas-tejido-adiposo`. β-oxidación, síntesis de ácidos grasos y cuerpos
+   cetónicos → `metabolismo-energetico`.
+5. RyD: la gametogénesis va a la histología del sexo que corresponde. La regulación
+   hormonal del folículo va a `ciclo-sexual-femenino`. Todo lo de la mama va a
+   `glandula-mamaria-lactancia`.
+6. RyD: notocorda, hojas y células germinales primordiales →
+   `gastrulacion-organogenesis`, aunque el enunciado diga "induce". La inducción y la
+   competencia como concepto, o la expresión génica → `biologia-desarrollo`, aunque se
+   mencione la mórula.
+7. El órgano se decide por el enunciado; las opciones se miran solo si el enunciado no
+   nombra ninguno. En DRE y RyD, las palabras clave matchean al comienzo de una palabra
+   (`renal` no matchea dentro de `suprarrenal`).
+8. DRE: la glutaminasa va a `acido-base` solo con un indicio renal o ácido-base; si no,
+   va a `metabolismo-proteico`. La oxitocina, o la síntesis o la liberación
+   hipotalámica o neurohipofisaria de una hormona → `endocrinologia` (criterio 2).
+9. RyD: si el enunciado nombra la placenta o una estructura placentaria (decidua, placa
+   basal, vellosidad), va a `placenta-anexos`, incluido el mesodermo extraembrionario.
+   Si nombra el eje hipotálamo-hipófiso-ovárico, va a `ciclo-sexual-femenino`; también
+   va ahí el eje gonadal a lo largo de la vida, salvo que haya un marcador masculino.
+10. DRE: preguntar en qué segmento ocurre una función (reabsorción, secreción,
+    filtración) es función, no estructura. Las palabras estructurales genéricas
+    ("se caracteriza", "preparado", "pared de") indican histología solo en el
+    enunciado y junto con un órgano, y no cuando el sujeto del enunciado es una hormona
+    (una hormona entre sus primeras 4 palabras: "El cortisol… se caracteriza por").
+
 ### D9. Reparto de roles (ver `openspec/workers.md`)
 
 | Trabajo | Rol | Por qué |
