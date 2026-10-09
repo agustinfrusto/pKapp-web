@@ -8,7 +8,7 @@ Cada objeto de pregunta dentro del arreglo `QUESTIONS` de `src/materias/<id>/que
 
 ```javascript
 {
-  id: 'A-2024-T1-Q1',           // Identificador único y estable (ej: <PREFIJO>-<EXAMEN>-Q<n>)
+  id: 'A-2024-T1-Q1',           // Identificador único y estable (ej: `DRE-SEGUNDO-PERIODO-2025-Q51`, esquema D12: `<MATERIA>-<slug(archivo_origen)>-Q<n>`)
   source: 'exam',               // 'exam' | 'generated' | 'user'
   exam: '2024 Turno 1',         // Nombre legible del examen fuente
   topic: 'snc',                 // Slug existente en src/materias/<id>/topics.js
@@ -84,9 +84,12 @@ El directorio `tools/ingesta/referencia/` almacena muestras de explicaciones ya 
    - `intercambio.py expl-input <dir>` lee `enriquecidas-ciega.jsonl` y escribe `expl-input.jsonl` (`ref`, `question`, `options`, `correctIndex`). No corre sin la ciega cerrada.
    - `reparos.py <dir> --modelo <id>` lee `enriquecidas-ciega.jsonl` y `expl-output.jsonl` y escribe `enriquecidas-final.jsonl`, la entrada de `validar`. El `--modelo` es obligatorio: el id sale de la corrida, no de una constante. `ciega-discrepancias.jsonl` es opcional y solo alimenta el conteo impreso.
 
-   Orden de la corrida: `extraer` → `consolidar` → `enriquecer` → `ciega-input` → [modelo] → `ciega-cerrar` → `expl-input` → [modelo] → `reparos` → `validar` → `emitir`.
+   Orden de la corrida: `extraer` → `consolidar` → `enriquecer` → `ciega-input` → [modelo] → `ciega-cerrar` → `expl-input` → [modelo] → `reparos` → `validar` → `auditoria aplicar` → `emitir`.
 4. **`validar`**: Aplica gates deterministas en código (estructura, no material visual, no ambigüedad, no duplicados, fiabilidad de explicaciones). Emite `banco.jsonl`, `descartadas.jsonl`, `revision-manual.jsonl`, `explicaciones-dudosas.jsonl` y `reporte-calidad.md`.
-5. **`emitir`**: Helper Node que inserta las preguntas de `banco.jsonl` en `src/materias/<id>/questions.js` sin alterar el encabezado legal ni las preguntas preexistentes.
+   - **Id de pregunta (D12):** `<MATERIA>-<slug(stem de archivo_origen)>-Q<numero_original>` en mayúsculas, por ejemplo `DRE-SEGUNDO-PERIODO-2025-Q51`. Sin `archivo_origen` se usa el esquema anterior, `<MATERIA>-<slug(exam)>-Q<n>`. `exam` no cambia. Si dos admitidas comparten id, o una usa un id ya publicado en el `questions.js` de la materia, `validar` sale con código 1, lista los ids en stderr y no escribe nada.
+   - **`revision-aprobada.jsonl` (D13):** opcional, en el directorio de salida. Una línea JSON por pregunta que el Ingeniero aprobó tras revisarla a mano: `{"archivo_origen", "numero_original", "motivo"}`, con `motivo` string no vacío. Una pregunta listada saltea solo el gate de ambigua (`forzar_revision`) y el de casi-duplicado; estructura, dependencia visual y duplicado exacto siguen aplicando. Si pasa los demás se admite como cualquier otra y su trazabilidad suma `"revision_aprobada": "<motivo>"`. Sin el archivo el comportamiento no cambia. Con código 1, listando los defectos en stderr y sin escribir ninguna salida, sale si una línea no es un objeto JSON, falta un campo o `motivo` está vacío, archivo_origen no es texto o numero_original no es un entero, un par se repite, o un par no corresponde a ninguna pregunta del lote.
+5. **`auditoria.py aplicar <dir> --modelo <id>`** (D13): lee `banco.jsonl` y `auditoria.jsonl` y escribe `banco-auditado.jsonl` (la entrada de `emitir`, con el orden del banco) y `auditoria-descartadas.jsonl` (`id`, `motivo`). `auditoria.jsonl` lleva una línea por id: `{"id", "accion": "mantener" | "reescribir" | "descartar", "explanation"?, "motivo"}`. Los ids del banco sin entrada se mantienen. `reescribir` pone la nueva `explanation`, `estado_explicacion: "auditada"`, `fiabilidad_explicacion: "alta"` (la explicación quedó auditada por el Ingeniero), el `--modelo` y `reparos: []`. Sale con código 1, nombra los ids y no escribe nada si hay un id desconocido o repetido, una acción fuera de dominio, un `reescribir` sin `explanation`, un `motivo` vacío, una línea que no es un objeto JSON, un `id` que no es texto, o falta `auditoria.jsonl` o `--modelo`. Imprime mantenidas, reescritas, descartadas y total final.
+6. **`emitir`**: Helper Node que recibe la ruta del banco por argumento: `node tools/ingesta/js/emit-materia.mjs <materia> <dir>/banco-auditado.jsonl`. Inserta sus preguntas en `src/materias/<id>/questions.js` sin alterar el encabezado legal ni las preguntas preexistentes.
 
 Fuera del flujo, `render_revision.py` convierte `revision-manual.jsonl` en un
 markdown legible para decidir la cola a mano, con los casi-duplicados de a pares:

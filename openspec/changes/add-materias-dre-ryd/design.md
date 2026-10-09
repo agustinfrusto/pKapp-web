@@ -290,6 +290,54 @@ Lo que sí fija la spec son restricciones técnicas, no estéticas:
 - Menos de 150 KB por imagen: va dentro del PWA y se descarga con el selector.
 - El color de la tarjeta pasa el chequeo de contraste de `tools/ui`.
 
+### D12. El id de pregunta sale del archivo de origen, no del título del examen
+
+`validar.py` arma el id como `<MATERIA>-<slug(exam)>-Q<n>`. Con un corpus consolidado
+el título no es único: en `dre` doce archivos se reparten tres títulos ("Primer
+periodo", "Segundo periodo", "Tercer periodo") y el banco de 448 preguntas tiene 185
+ids distintos. Un id repetido rompe el progreso guardado, que se indexa por id.
+
+El id pasa a ser `<MATERIA>-<slug(stem de archivo_origen)>-Q<numero_original>`, en
+mayúsculas (por ejemplo `DRE-SEGUNDO-PERIODO-2025-Q51`). El nombre de archivo es único
+dentro de la carpeta de una materia, y el número es único dentro del archivo. Sin
+`archivo_origen`, se conserva el esquema anterior. `validar.py` falla con código 1 y
+lista los ids si dos admitidas comparten id, o si una admitida usa un id ya publicado
+en el `questions.js` de la materia. Los ids ya publicados de BCYT, Anatomía, Neuro y CyR
+no cambian, porque no se re-emiten. El campo `exam` que muestra la app no cambia.
+
+### D13. La auditoría de la 7.1 se aplica con una herramienta, no a mano
+
+La cola de riesgo que audita el Ingeniero en Opus tiene tres partes:
+- `revision-manual.jsonl` completo;
+- las admitidas con fiabilidad `baja` (dos o más reparos, contando
+  `sin_control_estabilidad`);
+- las claves dudosas que reportó el Investigador y que la ciega no había derivado.
+
+Las admitidas con fiabilidad `media` solo por `sin_control_estabilidad` quedan cubiertas
+por la excepción de una sola generación (D11), y la auditoría toma de ellas una muestra al azar.
+
+Las decisiones van a `auditoria.jsonl` en el directorio del corpus, una línea por id:
+`{"id", "accion": "mantener" | "reescribir" | "descartar", "explanation"?, "motivo"}`.
+`reescribir` exige `explanation`. Una clave equivocada se resuelve con `descartar`,
+nunca cambiando `correctIndex` (D11). Las entradas de `revision-manual.jsonl` no están
+en el banco. La mayoría se descarta, pero el gate de casi-duplicado da falsos positivos
+(lengua contra píloro, vellosidades contra microvellosidades) y algunas ambiguas tienen
+una sola respuesta defendible. Las que el Ingeniero aprueba van a
+`revision-aprobada.jsonl` en el directorio del corpus:
+`{"archivo_origen", "numero_original", "motivo"}`. `validar.py` lo lee si existe, y una
+pregunta listada saltea solo los gates de ambigua (`forzar_revision`) y de
+casi-duplicado. Los de estructura, material visual y duplicado exacto siguen
+aplicando. Una entrada que no corresponde a ninguna pregunta del lote hace que salga con
+código 1. Cada decisión, aprobada o descartada, consta en
+`openspec/changes/add-materias-dre-ryd/auditoria-7.1.md`.
+
+`tools/ingesta/auditoria.py aplicar <dir>` lee `banco.jsonl` y `auditoria.jsonl` y
+escribe `banco-auditado.jsonl`, que es la entrada de `emitir`. Las guardas son las de
+D11: un id desconocido o repetido en `auditoria.jsonl`, una acción fuera de dominio o
+un `reescribir` sin explicación hacen que salga con código 1 y no escriba nada. Una
+explicación reescrita queda con `estado_explicacion: "auditada"` y su modelo en la
+trazabilidad. El orden del banco se conserva.
+
 ## Risks / Trade-offs
 
 - [Una opción marcada con un rectángulo que se desborda a la línea de la opción

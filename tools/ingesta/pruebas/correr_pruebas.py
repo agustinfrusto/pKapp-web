@@ -1125,6 +1125,292 @@ def caso_consolidar_espia(_pdf):
             else '; '.join(fallas))
 
 
+# ---- Ids por archivo de origen (D12) y auditoria (D13) ----
+
+def _validar_corrida(items, publicadas=(), aprobada=None):
+    """Corre validar_lote con la materia simulada. `aprobada` es una lista de dicts o un
+    texto crudo que se escribe como revision-aprobada.jsonl. Devuelve un dict."""
+    import validar
+    original = validar.get_materia_info
+    validar.get_materia_info = lambda m: {'topics': {'t': 'T'}, 'questions': list(publicadas)}
+    try:
+        with tempfile.TemporaryDirectory() as t:
+            d = Path(t) / 'out'
+            d.mkdir()
+            ent = Path(t) / 'enriquecidas-final.jsonl'
+            _escribir_jsonl(ent, items)
+            if isinstance(aprobada, str):
+                (d / 'revision-aprobada.jsonl').write_text(aprobada, encoding='utf-8')
+            elif aprobada is not None:
+                _escribir_jsonl(d / 'revision-aprobada.jsonl', aprobada)
+            antes = sorted(p.name for p in d.iterdir())
+            codigo = 0
+            e = io.StringIO()
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(e):
+                try:
+                    validar.validar_lote(ent, 'prueba', d)
+                except SystemExit as x:
+                    codigo = x.code
+            leer = lambda n: leer_jsonl(d / n) if (d / n).exists() else []
+            return {'codigo': codigo, 'err': e.getvalue(), 'banco': leer('banco.jsonl'),
+                    'revision': leer('revision-manual.jsonl'),
+                    'descartadas': leer('descartadas.jsonl'),
+                    'nuevos': sorted(set(p.name for p in d.iterdir()) - set(antes)),
+                    'salidas': sorted(p.name for p in d.iterdir()),
+                    'bytes': {p.name: p.read_bytes() for p in d.iterdir()}}
+    finally:
+        validar.get_materia_info = original
+
+
+def _validar_con(items, publicadas=()):
+    """(codigo, ids_admitidos, nombres_de_salida, stderr) de validar_lote con la materia simulada."""
+    r = _validar_corrida(items, publicadas)
+    return r['codigo'], [b['pregunta']['id'] for b in r['banco']], r['salidas'], r['err']
+
+
+def _item_v(n, archivo, texto, exam='Primer periodo'):
+    return {'archivo_origen': archivo, 'exam': exam, 'numero_original': n,
+            'question': texto, 'options': ['uno', 'dos', 'tres'], 'correctIndex': 0,
+            'topic': 't', 'explanation': 'Explicacion suficientemente larga.',
+            'estado_explicacion': 'generada', 'modelo': 'm'}
+
+
+def caso_id_por_archivo(_pdf):
+    codigo, ids, _, _ = _validar_con([
+        _item_v(5, 'Primer Periodo 2024.pdf', 'Enunciado alfa sobre tiroides'),
+        _item_v(5, 'Primer Periodo 2025.pdf', 'Enunciado beta sobre suprarrenal')])
+    ok = (codigo == 0 and ids == ['PRUEBA-PRIMER-PERIODO-2024-Q5', 'PRUEBA-PRIMER-PERIODO-2025-Q5'])
+    return ok, f'ids {ids}'
+
+
+def caso_id_sin_archivo(_pdf):
+    it = _item_v(7, '', 'Enunciado gamma sobre hipofisis')
+    codigo, ids, _, _ = _validar_con([it])
+    return codigo == 0 and ids == ['PRUEBA-PRIMER-PERIODO-Q7'], f'ids {ids}'
+
+
+def caso_id_colision_lote(_pdf):
+    codigo, ids, salidas, err = _validar_con([
+        _item_v(5, 'a.pdf', 'Enunciado alfa sobre tiroides'),
+        _item_v(5, 'a.pdf', 'Zzz distinto totalmente: ritmo circadiano de melatonina')])
+    ok = codigo == 1 and salidas == [] and 'PRUEBA-A-Q5' in err
+    return ok, f'codigo {codigo}, salidas {salidas}'
+
+
+def caso_id_colision_publicada(_pdf):
+    pub = [{'id': 'PRUEBA-A-Q5', 'question': 'otra cosa totalmente distinta'}]
+    codigo, ids, salidas, err = _validar_con(
+        [_item_v(5, 'a.pdf', 'Enunciado alfa sobre tiroides')], publicadas=pub)
+    ok = codigo == 1 and salidas == [] and 'PRUEBA-A-Q5' in err
+    return ok, f'codigo {codigo}, salidas {salidas}'
+
+
+def _par_aprob(n, archivo='a.pdf', motivo='aprobada por el Ingeniero'):
+    return {'archivo_origen': archivo, 'numero_original': n, 'motivo': motivo}
+
+
+def caso_aprobada_sin_archivo(_pdf):
+    items = [dict(_item_v(1, 'a.pdf', 'Enunciado alfa sobre tiroides'), forzar_revision='ambigua'),
+             _item_v(2, 'a.pdf', 'Zzz distinto totalmente: ritmo circadiano de melatonina')]
+    r = _validar_corrida(items)
+    ok = (r['codigo'] == 0 and [b['pregunta']['id'] for b in r['banco']] == ['PRUEBA-A-Q2']
+          and [x['motivo'] for x in r['revision']] == ['ambigua']
+          and not any('revision_aprobada' in b['trazabilidad'] for b in r['banco']))
+    return ok, f"codigo {r['codigo']}, salidas {r['salidas']}"
+
+
+def caso_aprobada_ambigua(_pdf):
+    items = [dict(_item_v(1, 'a.pdf', 'Enunciado alfa sobre tiroides'), forzar_revision='ambigua'),
+             dict(_item_v(2, 'a.pdf', 'Zzz distinto totalmente: ritmo circadiano de melatonina'),
+                  forzar_revision='ambigua')]
+    r = _validar_corrida(items, aprobada=[_par_aprob(1, motivo='una sola defendible')])
+    ids = [b['pregunta']['id'] for b in r['banco']]
+    tr = r['banco'][0]['trazabilidad'] if r['banco'] else {}
+    ok = (r['codigo'] == 0 and ids == ['PRUEBA-A-Q1'] and len(r['revision']) == 1
+          and tr.get('revision_aprobada') == 'una sola defendible'
+          and tr.get('numero_original') == 1)
+    return ok, f"codigo {r['codigo']}, ids {ids}, trazabilidad {tr}"
+
+
+def caso_aprobada_casi_duplicada(_pdf):
+    a = _item_v(1, 'a.pdf', 'Con respecto a la secrecion de insulina en el pancreas endocrino, marque la correcta')
+    b = _item_v(2, 'a.pdf', 'Con respecto a la secrecion de insulina en el pancreas endocrino, marque la correcta.')
+    b['question'] = 'Con respecto a la secrecion de insulina en el pancreas endocrino, marque la opcion correcta'
+    sin = _validar_corrida([a, b])
+    con = _validar_corrida([a, b], aprobada=[_par_aprob(1), _par_aprob(2)])
+    ids = [x['pregunta']['id'] for x in con['banco']]
+    ok = (sorted(x['motivo'] for x in sin['revision']) == ['casi_duplicado', 'casi_duplicado']
+          and con['codigo'] == 0 and ids == ['PRUEBA-A-Q1', 'PRUEBA-A-Q2'] and not con['revision']
+          and all('revision_aprobada' in x['trazabilidad'] for x in con['banco']))
+    return ok, f"sin: {[x['motivo'] for x in sin['revision']]}, con: ids {ids}"
+
+
+def caso_aprobada_no_salta_otros_gates(_pdf):
+    visual = dict(_item_v(1, 'a.pdf', 'Segun la figura 3, cual es el punto señalado'), forzar_revision='ambigua')
+    estruct = dict(_item_v(2, 'a.pdf', 'Enunciado sin correcta valida'), forzar_revision='ambigua')
+    estruct['correctIndex'] = 9
+    base = _item_v(3, 'a.pdf', 'Enunciado repetido exacto sobre hipofisis')
+    dup = dict(_item_v(4, 'a.pdf', 'Enunciado repetido exacto sobre hipofisis'), forzar_revision='ambigua')
+    r = _validar_corrida([visual, estruct, base, dup],
+                         aprobada=[_par_aprob(1), _par_aprob(2), _par_aprob(4)])
+    motivos = sorted(d['motivo'] for d in r['descartadas'])
+    ids = [b['pregunta']['id'] for b in r['banco']]
+    # la aprobada (4) es la segunda copia: tiene que caer como duplicado_mismo_lote
+    ok_lote = (r['codigo'] == 0 and 'dependencia_visual' in motivos and 'invalido_estructural' in motivos
+               and ids == ['PRUEBA-A-Q3'] and motivos.count('duplicado_mismo_lote') == 1)
+    pub = [{'id': 'PRUEBA-X-Q9', 'question': 'Enunciado repetido exacto sobre hipofisis'}]
+    r2 = _validar_corrida([dup], publicadas=pub, aprobada=[_par_aprob(4)])
+    ok_banco = (r2['codigo'] == 0 and not r2['banco']
+                and [d['motivo'] for d in r2['descartadas']] == ['duplicado_banco_existente'])
+    return ok_lote and ok_banco, f"descartadas {motivos}, ids {ids}, banco existente {[d['motivo'] for d in r2['descartadas']]}"
+
+
+def _guarda_aprobada(aprobada, items=None, ancla=''):
+    items = items or [dict(_item_v(1, 'a.pdf', 'Enunciado alfa sobre tiroides'), forzar_revision='ambigua')]
+    r = _validar_corrida(items, aprobada=aprobada)
+    ok = (r['codigo'] == 1 and not r['nuevos'] and ancla in r['err']
+          and r['bytes'].get('revision-aprobada.jsonl') is not None)
+    return ok, f"codigo {r['codigo']}, nuevos {r['nuevos']}, err {r['err'].strip()[:90]!r}"
+
+
+def caso_aprobada_guarda_json(_pdf):
+    return _guarda_aprobada('{"archivo_origen": "a.pdf"\n', ancla='linea 1')
+
+
+def caso_aprobada_guarda_no_objeto(_pdf):
+    return _guarda_aprobada('["a.pdf", 1, "m"]\n', ancla='linea 1')
+
+
+def caso_aprobada_guarda_campo_faltante(_pdf):
+    ok1, d1 = _guarda_aprobada([{'archivo_origen': 'a.pdf', 'motivo': 'm'}], ancla='a.pdf')
+    ok2, d2 = _guarda_aprobada([{'archivo_origen': 'a.pdf', 'numero_original': 1}], ancla='a.pdf')
+    return ok1 and ok2, f'{d1} | {d2}'
+
+
+def caso_aprobada_guarda_motivo_vacio(_pdf):
+    ok1, d1 = _guarda_aprobada([_par_aprob(1, motivo='')], ancla='a.pdf')
+    ok2, d2 = _guarda_aprobada([_par_aprob(1, motivo='   ')], ancla='a.pdf')
+    ok3, d3 = _guarda_aprobada([_par_aprob(1, motivo=5)], ancla='a.pdf')
+    return ok1 and ok2 and ok3, f'{d1} | {d2} | {d3}'
+
+
+def caso_aprobada_guarda_tipos(_pdf):
+    malas = [[{'archivo_origen': ['a.pdf'], 'numero_original': 1, 'motivo': 'm'}],
+             [{'archivo_origen': {'x': 1}, 'numero_original': 1, 'motivo': 'm'}],
+             [{'archivo_origen': 'a.pdf', 'numero_original': [1], 'motivo': 'm'}],
+             [{'archivo_origen': 'a.pdf', 'numero_original': '1', 'motivo': 'm'}],
+             [{'archivo_origen': 'a.pdf', 'numero_original': 1.5, 'motivo': 'm'}],
+             [{'archivo_origen': 'a.pdf', 'numero_original': True, 'motivo': 'm'}]]
+    res = [_guarda_aprobada(m, ancla='linea 1') for m in malas]
+    return all(ok for ok, _ in res), ' | '.join(d for ok, d in res if not ok) or 'tipos invalidos, codigo 1 y sin escribir'
+
+
+def caso_aprobada_guarda_repetido(_pdf):
+    return _guarda_aprobada([_par_aprob(1), _par_aprob(1, motivo='otra')], ancla='a.pdf')
+
+
+def caso_aprobada_guarda_sin_pregunta(_pdf):
+    return _guarda_aprobada([_par_aprob(1), _par_aprob(99, archivo='b.pdf')], ancla='b.pdf')
+
+
+def _banco_aud(d, n=4):
+    regs = [{'pregunta': {'id': f'P-{i}', 'question': f'q{i}', 'explanation': f'e{i}'},
+             'trazabilidad': {'estado_explicacion': 'generada', 'modelo': 'orig',
+                              'fiabilidad_explicacion': 'baja',
+                              'reparos': ['sin_control_estabilidad']}} for i in range(n)]
+    _escribir_jsonl(d / 'banco.jsonl', regs)
+
+
+def _aud(d, lineas):
+    (d / 'auditoria.jsonl').write_text(
+        ''.join((l if isinstance(l, str) else json.dumps(l, ensure_ascii=False)) + '\n' for l in lineas),
+        encoding='utf-8')
+
+
+def caso_auditoria_acciones(_pdf):
+    import auditoria
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        _banco_aud(d)
+        _aud(d, [{'id': 'P-3', 'accion': 'descartar', 'motivo': 'clave dudosa'},
+                 {'id': 'P-1', 'accion': 'reescribir', 'explanation': 'nueva', 'motivo': 'imprecisa'},
+                 {'id': 'P-0', 'accion': 'mantener', 'motivo': 'ok'}])
+        codigo, err = _correr_cli(auditoria, ['aplicar', str(d), '--modelo', 'opus-x'])
+        aud = leer_jsonl(d / 'banco-auditado.jsonl')
+        desc = leer_jsonl(d / 'auditoria-descartadas.jsonl')
+        ids = [r['pregunta']['id'] for r in aud]
+        r1 = aud[1]
+        ok = (codigo == 0 and ids == ['P-0', 'P-1', 'P-2']
+              and r1['pregunta']['explanation'] == 'nueva'
+              and r1['trazabilidad'] == {'estado_explicacion': 'auditada', 'modelo': 'opus-x',
+                                     'fiabilidad_explicacion': 'alta', 'reparos': []}
+              and aud[0]['trazabilidad']['modelo'] == 'orig'
+              and aud[0]['trazabilidad']['fiabilidad_explicacion'] == 'baja'
+              and aud[2]['pregunta']['explanation'] == 'e2'
+              and desc == [{'id': 'P-3', 'motivo': 'clave dudosa'}])
+        return ok, f'codigo {codigo}, ids {ids}'
+
+
+def caso_auditoria_guarda_tipos(_pdf):
+    import auditoria
+    malas = [[{'id': ['P-1'], 'accion': 'mantener', 'motivo': 'm'}],
+             [{'id': {'x': 1}, 'accion': 'mantener', 'motivo': 'm'}],
+             [{'id': 5, 'accion': 'mantener', 'motivo': 'm'}]]
+    fallos = []
+    for i, lineas in enumerate(malas):
+        with tempfile.TemporaryDirectory() as t:
+            d = Path(t)
+            _banco_aud(d)
+            _aud(d, lineas)
+            antes = _instantanea(d)
+            codigo, err = _correr_cli(auditoria, ['aplicar', str(d), '--modelo', 'm'])
+            if codigo != 1 or _instantanea(d) != antes or 'linea 1' not in err:
+                fallos.append(f'{i} (codigo {codigo}, err {err.strip()[:80]!r})')
+    return not fallos, f'fallan: {fallos}' if fallos else 'id no texto, codigo 1 y sin escribir'
+
+
+def caso_auditoria_guardas(_pdf):
+    import auditoria
+    malas = {
+        'id desconocido': [{'id': 'X', 'accion': 'mantener', 'motivo': 'm'}],
+        'id repetido': [{'id': 'P-1', 'accion': 'mantener', 'motivo': 'm'},
+                        {'id': 'P-1', 'accion': 'descartar', 'motivo': 'm'}],
+        'accion invalida': [{'id': 'P-1', 'accion': 'borrar', 'motivo': 'm'}],
+        'reescribir sin explanation': [{'id': 'P-1', 'accion': 'reescribir', 'motivo': 'm'}],
+        'reescribir explanation vacia': [{'id': 'P-1', 'accion': 'reescribir', 'explanation': ' ', 'motivo': 'm'}],
+        'motivo ausente': [{'id': 'P-1', 'accion': 'mantener'}],
+        'motivo vacio': [{'id': 'P-1', 'accion': 'mantener', 'motivo': ' '}],
+        'no es json': ['{no json'],
+        'no es objeto': ['[1]'],
+    }
+    fallos = []
+    for nombre, lineas in malas.items():
+        with tempfile.TemporaryDirectory() as t:
+            d = Path(t)
+            _banco_aud(d)
+            _aud(d, lineas)
+            antes = _instantanea(d)
+            codigo, err = _correr_cli(auditoria, ['aplicar', str(d), '--modelo', 'm'])
+            if codigo != 1 or _instantanea(d) != antes:
+                fallos.append(nombre)
+            elif nombre in ('id desconocido', 'id repetido') and not ('X' in err or 'P-1' in err):
+                fallos.append(nombre + ' (no nombra el id)')
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        _banco_aud(d)
+        codigo, _ = _correr_cli(auditoria, ['aplicar', str(d), '--modelo', 'm'])
+        if codigo != 1 or (d / 'banco-auditado.jsonl').exists():
+            fallos.append('auditoria.jsonl ausente')
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        _banco_aud(d)
+        _aud(d, [{'id': 'P-1', 'accion': 'reescribir', 'explanation': 'n', 'motivo': 'm'}])
+        codigo, _ = _correr_cli(auditoria, ['aplicar', str(d)])
+        if codigo != 1 or (d / 'banco-auditado.jsonl').exists():
+            fallos.append('reescribir sin --modelo')
+    return not fallos, f'fallan: {fallos}' if fallos else 'todas las guardas, sin escribir'
+
+
 CASOS = [
     ('marca_una_linea', 'marca de una linea', caso_una_linea),
     ('marca_dos_lineas', 'marca de dos lineas', caso_dos_lineas),
@@ -1195,6 +1481,24 @@ CASOS = [
     ('intercambio', 'intercambio: consolidar que falla en directorio nuevo no lo deja (T1b)', caso_consolidar_fallo_dir_nuevo),
     ('intercambio', 'intercambio: fallo de rename conserva el final preexistente (T1a)', caso_escribir_todo_rollback_previo),
     ('intercambio', 'reparos: U+2028 en expl-output no rompe la lectura (T1c)', caso_reparos_separadores),
+    ('validar', 'validar: mismo exam y numero, distinto archivo, ids distintos (D12)', caso_id_por_archivo),
+    ('validar', 'validar: sin archivo_origen conserva el esquema por exam (D12)', caso_id_sin_archivo),
+    ('validar', 'validar: colision de ids en el lote, codigo 1 y sin salidas (D12)', caso_id_colision_lote),
+    ('validar', 'validar: id ya publicado, codigo 1 y sin salidas (D12)', caso_id_colision_publicada),
+    ('validar', 'validar: sin revision-aprobada la salida no cambia (D13)', caso_aprobada_sin_archivo),
+    ('validar', 'validar: una ambigua aprobada se admite con revision_aprobada (D13)', caso_aprobada_ambigua),
+    ('validar', 'validar: una casi-duplicada aprobada se admite (D13)', caso_aprobada_casi_duplicada),
+    ('validar', 'validar: aprobada no salta estructura, visual ni duplicado exacto (D13)', caso_aprobada_no_salta_otros_gates),
+    ('validar', 'validar: revision-aprobada con linea que no es JSON, codigo 1 (D13)', caso_aprobada_guarda_json),
+    ('validar', 'validar: revision-aprobada con linea que no es objeto, codigo 1 (D13)', caso_aprobada_guarda_no_objeto),
+    ('validar', 'validar: revision-aprobada con campo faltante, codigo 1 (D13)', caso_aprobada_guarda_campo_faltante),
+    ('validar', 'validar: revision-aprobada con motivo vacio, codigo 1 (D13)', caso_aprobada_guarda_motivo_vacio),
+    ('validar', 'validar: revision-aprobada con valores no hashables o de tipo invalido, codigo 1 (D13)', caso_aprobada_guarda_tipos),
+    ('validar', 'validar: revision-aprobada con par repetido, codigo 1 (D13)', caso_aprobada_guarda_repetido),
+    ('validar', 'validar: revision-aprobada con par sin pregunta, codigo 1 (D13)', caso_aprobada_guarda_sin_pregunta),
+    ('auditoria', 'auditoria: mantener, reescribir, descartar y orden conservado (D13)', caso_auditoria_acciones),
+    ('auditoria', 'auditoria: id de tipo invalido, codigo 1 y sin escribir (D13)', caso_auditoria_guarda_tipos),
+    ('auditoria', 'auditoria: cada guarda sale con codigo 1 y no escribe (D13)', caso_auditoria_guardas),
 ]
 
 

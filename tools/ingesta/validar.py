@@ -92,6 +92,56 @@ def detectar_casi_duplicados(items: list) -> dict:
     return pares
 
 
+def leer_revision_aprobada(path: Path, items: list) -> dict:
+    """
+    D13: pares (archivo_origen, numero_original) que el Ingeniero aprobo tras revisar a
+    mano. Si el archivo no existe no hay aprobaciones. Cualquier defecto detiene la
+    etapa antes de escribir nada. Devuelve {(archivo_origen, numero_original): motivo}.
+    """
+    if not path.exists():
+        return {}
+    errores, aprobadas = [], {}
+    with open(path, 'r', encoding='utf-8') as f:
+        texto = f.read()
+    for n, linea in enumerate(texto.split('\n'), 1):
+        if not linea.strip():
+            continue
+        try:
+            reg = json.loads(linea)
+        except ValueError:
+            errores.append(f"linea {n}: no es JSON")
+            continue
+        if not isinstance(reg, dict):
+            errores.append(f"linea {n}: no es un objeto JSON")
+            continue
+        motivo = reg.get('motivo')
+        if ('archivo_origen' not in reg or 'numero_original' not in reg
+                or not isinstance(motivo, str) or not motivo.strip()):
+            errores.append(f"linea {n}: falta archivo_origen, numero_original o motivo no vacio "
+                           f"({reg.get('archivo_origen')!r}, {reg.get('numero_original')!r})")
+            continue
+        if (not isinstance(reg['archivo_origen'], str) or isinstance(reg['numero_original'], bool)
+                or not isinstance(reg['numero_original'], int)):
+            errores.append(f"linea {n}: archivo_origen debe ser texto y numero_original un entero "
+                           f"({reg['archivo_origen']!r}, {reg['numero_original']!r})")
+            continue
+        par = (reg['archivo_origen'], reg['numero_original'])
+        if par in aprobadas:
+            errores.append(f"linea {n}: par repetido {par[0]!r} #{par[1]!r}")
+            continue
+        aprobadas[par] = motivo
+    del_lote = {(it.get('archivo_origen', ''), it.get('numero_original')) for it in items}
+    for par in aprobadas:
+        if par not in del_lote:
+            errores.append(f"par sin pregunta en el lote: {par[0]!r} #{par[1]!r}")
+    if errores:
+        print(f"Error: revision-aprobada.jsonl invalido ({len(errores)}); no se escribe nada:", file=sys.stderr)
+        for e in errores:
+            print(f"   - {e}", file=sys.stderr)
+        raise SystemExit(1)
+    return aprobadas
+
+
 def validar_lote(enriquecidas_path: Path, materia_id: str, salida_dir: Path):
     info = get_materia_info(materia_id)
     topics_validos = info.get('topics', {})
@@ -114,11 +164,15 @@ def validar_lote(enriquecidas_path: Path, materia_id: str, salida_dir: Path):
         items = [json.loads(l) for l in f if l.strip()]
 
     pares_casi_dup = detectar_casi_duplicados(items)
+    aprobadas_manual = leer_revision_aprobada(salida_dir / 'revision-aprobada.jsonl', items)
 
     for idx, item in enumerate(items):
             
+            par_item = (item.get('archivo_origen', ''), item.get('numero_original'))
+            motivo_aprobado = aprobadas_manual.get(par_item)
+
             # Derivacion forzada desde una etapa previa (p. ej. validacion ciega).
-            if item.get('forzar_revision'):
+            if item.get('forzar_revision') and motivo_aprobado is None:
                 revision_manual.append({
                     'numero_original': item.get('numero_original'),
                     'archivo_origen': item.get('archivo_origen', ''),
@@ -228,7 +282,7 @@ def validar_lote(enriquecidas_path: Path, materia_id: str, salida_dir: Path):
             hashes_lote[h] = q_num
 
             # 5b. Gate Casi-Duplicado: el par entero va a revision, sin decidir
-            if idx in pares_casi_dup:
+            if idx in pares_casi_dup and motivo_aprobado is None:
                 vecinos = [{
                     'numero_original': items[j].get('numero_original'),
                     'exam': items[j].get('exam'),
@@ -251,8 +305,12 @@ def validar_lote(enriquecidas_path: Path, materia_id: str, salida_dir: Path):
 
             # 6. Identificador Estable
             prefijo = materia_id.upper()
-            slug_ex = slugify(exam_name).upper()
-            q_id = f"{prefijo}-{slug_ex}-Q{q_num}"
+            origen = (item.get('archivo_origen') or '').strip()
+            if origen:
+                slug_id = slugify(Path(origen).stem).upper()
+            else:
+                slug_id = slugify(exam_name).upper()
+            q_id = f"{prefijo}-{slug_id}-Q{q_num}"
 
             # 7. Gate Explicación
             reparos = list(item.get('reparos', []))
@@ -294,6 +352,9 @@ def validar_lote(enriquecidas_path: Path, materia_id: str, salida_dir: Path):
                 'fecha_generacion': item.get('fecha_generacion', date.today().isoformat()),
             }
 
+            if motivo_aprobado is not None:
+                trazabilidad['revision_aprobada'] = motivo_aprobado
+
             admitidas.append({
                 'pregunta': app_pregunta,
                 'trazabilidad': trazabilidad
@@ -310,6 +371,20 @@ def validar_lote(enriquecidas_path: Path, materia_id: str, salida_dir: Path):
         print("   La etapa se detiene: no se publica una plantilla como explicacion generada.")
         for a in sin_origen:
             print(f"   - {a['pregunta']['id']}: {a['pregunta']['question'][:70]}")
+        raise SystemExit(1)
+
+    # Guarda D12: un id repetido rompe el progreso guardado, que se indexa por id.
+    ids_publicados = {p['id'] for p in preguntas_publicadas}
+    vistos, repetidos = set(), set()
+    for a in admitidas:
+        i = a['pregunta']['id']
+        if i in vistos or i in ids_publicados:
+            repetidos.add(i)
+        vistos.add(i)
+    if repetidos:
+        print(f"Error: {len(repetidos)} id(s) repetido(s) entre admitidas o ya publicados; no se escribe nada:", file=sys.stderr)
+        for i in sorted(repetidos):
+            print(f"   - {i}", file=sys.stderr)
         raise SystemExit(1)
 
     # Escribir Artefactos
