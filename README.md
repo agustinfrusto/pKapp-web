@@ -31,18 +31,18 @@ Construido con **Expo / React Native**. Esta es la **versión web** del proyecto
 
 ## Qué hace pKapp
 
-pKapp está pensado para estudiar de forma práctica y enfocada. La app ayuda a repasar materias del plan de la Escuela Técnica de Medicina —BCYT, Anatomía, Neurobiología y Cardiovascular y Respiratorio— con un banco de preguntas estructurado, explicaciones útiles y seguimiento del desempeño.
+pKapp está pensado para estudiar de forma práctica y enfocada. La app ayuda a repasar materias del plan de la Escuela Técnica de Medicina —BCYT, Anatomía, Neurobiología, Cardiovascular y Respiratorio, Digestivo, Renal y Endócrino, y Reproductor y Desarrollo— con un banco de preguntas estructurado, explicaciones útiles y seguimiento del desempeño.
 
 ## Características
 
-- **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** (BCYT), **Anatomía**, **Neurobiología** y **Cardiovascular y Respiratorio** (CyR). Estructura preparada para sumar los demás módulos.
-- **Banco de preguntas** con material real y generado, según la materia: BCYT, Anatomía, Neurobiología y CyR.
-- **1.162 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025: 385 · Anatomía 2018-2025: 471 · Neurobiología: 193 · CyR: 113).
+- **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** (BCYT), **Anatomía**, **Neurobiología**, **Cardiovascular y Respiratorio** (CyR), **Digestivo, Renal y Endócrino** (DRE) y **Reproductor y Desarrollo** (RyD). Estructura preparada para sumar los demás módulos.
+- **Banco de preguntas** con material real y generado, según la materia: BCYT, Anatomía, Neurobiología, CyR, DRE y RyD.
+- **1.785 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025: 385 · Anatomía 2018-2025: 471 · Neurobiología: 193 · CyR: 113 · DRE: 451 · RyD: 172).
 - **34 preguntas adicionales** generadas con Claude a partir de los apuntes (solo BCYT).
 - **Filtros:** por fuente (examen real / generada) y por parcial, combinables.
 - **Tres modos:**
   - **Práctica por tema:** elegís un tema específico o practicás por parcial.
-  - **Examen:** preguntas al azar con tamaño igual al examen real (configurable por materia — BCYT: 75 / 40 por parcial; Anatomía: 50 / 25 por parcial; Neurobiología: 25, sin parciales; CyR: 50, sin parciales).
+  - **Examen:** preguntas al azar con tamaño igual al examen real (configurable por materia — BCYT: 75 / 40 por parcial; Anatomía: 50 / 25 por parcial; Neurobiología: 25, sin parciales; CyR: 50, sin parciales; DRE: 50, sin parciales; RyD: 20, sin parciales).
   - **Repaso de fallos:** las que respondiste mal antes.
 - **Explicaciones** tras cada respuesta o al final del cuestionario.
 - **Estadísticas** por tema y lista de preguntas más falladas.
@@ -85,6 +85,18 @@ Materia sin parciales (examen único).
 ### Cardiovascular y Respiratorio (CyR)
 
 Fisiología cardíaca, ciclo y gasto cardíaco · Electrocardiograma y dipolo · Hemodinamia, presión arterial y resistencias · Circulaciones regionales y microcirculación · Mecánica ventilatoria, presiones y compliance · Intercambio gaseoso, transporte de O2/CO2 y V/Q · Control de la respiración y quimiorreceptores · Histología cardiovascular y respiratoria.
+
+Materia sin parciales (examen único).
+
+### Digestivo, Renal y Endócrino (DRE)
+
+Motilidad, secreciones, digestión y absorción · Histología del tubo digestivo y glándulas anexas · Filtración, función tubular y balance hidrosalino · Histología renal y de glándulas endócrinas · Ejes endócrinos, hormonas y señalización · Metabolismo energético, ayuno e ingesta · Lipoproteínas, tejido adiposo y síndrome metabólico · Recambio proteico, aminoácidos y ciclo de la urea · Equilibrio ácido-base.
+
+Materia sin parciales (examen único).
+
+### Reproductor y Desarrollo (RyD)
+
+Histología masculina y espermatogénesis · Histología femenina y ovogénesis · Glándula mamaria y lactancia · Eje hipotálamo-hipófiso-testicular y respuesta sexual · Eje hipotálamo-hipófiso-ovárico y ciclo sexual · Fecundación, segmentación e implantación · Gastrulación, hojas embrionarias y notocorda · Placenta y anexos embrionarios · Diferenciación, inducción y genes del desarrollo.
 
 Materia sin parciales (examen único).
 
@@ -158,12 +170,24 @@ pKapp/
     │   │   ├── config.js           # sin parciales (examen de 25)
     │   │   ├── topics.js
     │   │   └── questions.js        # Banco de preguntas (193)
-    │   └── cyr/                    # Cardiovascular y Respiratorio
+    │   ├── cyr/                    # Cardiovascular y Respiratorio
+    │   │   ├── index.js
+    │   │   ├── metadata.js         # available: true
+    │   │   ├── config.js           # sin parciales (examen de 50)
+    │   │   ├── topics.js
+    │   │   └── questions.js        # Banco de preguntas (113)
+    │   ├── dre/                    # Digestivo, Renal y Endócrino
+    │   │   ├── index.js
+    │   │   ├── metadata.js         # available: true
+    │   │   ├── config.js           # sin parciales (examen de 50)
+    │   │   ├── topics.js
+    │   │   └── questions.js        # Banco de preguntas (451)
+    │   └── ryd/                    # Reproductor y Desarrollo
     │       ├── index.js
     │       ├── metadata.js         # available: true
-    │       ├── config.js           # sin parciales (examen de 50)
+    │       ├── config.js           # sin parciales (examen de 20)
     │       ├── topics.js
-    │       └── questions.js        # Banco de preguntas (113)
+    │       └── questions.js        # Banco de preguntas (172)
     ├── materia/
     │   └── MateriaContext.js       # Estado: materia activa, getter de data
     ├── db/
@@ -273,7 +297,7 @@ En `TopicSelectScreen` hay tres controles combinables:
 - **Solo generadas** → filtra `source === 'generated' || source === 'user'`.
 
 **Filtro de parcial** (3 opciones, los tamaños dependen de la materia):
-- **Examen** (default) → sin filtro de parcial. En modo examen sortea `examSize` preguntas (BCYT: 75; Anatomía: 50; Neurobiología: 25; CyR: 50).
+- **Examen** (default) → sin filtro de parcial. En modo examen sortea `examSize` preguntas (BCYT: 75; Anatomía: 50; Neurobiología: 25; CyR: 50; DRE: 50; RyD: 20).
 - **1er Parcial** → filtra `parcial === 'primero'`. Sortea `examSizeParcial` preguntas (BCYT: 40; Anatomía: 25).
 - **2do Parcial** → filtra `parcial === 'segundo'`. Sortea `examSizeParcial` preguntas.
 
@@ -291,7 +315,7 @@ Por transparencia, detallo en qué partes del proyecto se usó asistencia de IA 
 
 ### Contenido educativo
 
-- **1.162 preguntas reales** extraídas de parciales y exámenes oficiales. Se usó IA como apoyo para transcribir y limpiar los PDFs originales, pero cada pregunta fue revisada manualmente contra el documento fuente.
+- **1.785 preguntas reales** extraídas de parciales y exámenes oficiales. Se usó IA como apoyo para transcribir y limpiar los PDFs originales, pero cada pregunta fue revisada manualmente contra el documento fuente.
 - **34 preguntas generadas** a partir de los apuntes oficiales de BCYT. Están marcadas con `source: "generated"` y son auditables desde la app: en `TopicSelect` → filtro **Fuente: Solo generadas**.
 - **Explicaciones:** redactadas o refinadas con IA tomando como referencia los resúmenes oficiales, priorizando precisión y consistencia con el material de estudio.
 

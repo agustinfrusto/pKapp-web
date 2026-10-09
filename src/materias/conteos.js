@@ -4,7 +4,7 @@ export const CONTEOS = {
   anatomia: 471,
   bcyt: 419,
   cyr: 113,
-  dre: 0,
+  dre: 451,
   neuro: 193,
-  ryd: 0,
+  ryd: 172,
 };

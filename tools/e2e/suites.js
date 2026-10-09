@@ -167,8 +167,19 @@ async function terminarUnQuizNoPregunta(pagina, base, t) {
   t.ok('el atrás desde resultados no pregunta', pagina.dialogos.length, 0);
 }
 
+async function seisMaterias(pagina, base, t) {
+  await pagina.ir(base + '/');
+  await pagina.esperarTexto('Tus materias');
+  await cerrarNota(pagina);
+  const nombres = ['Biología Celular y Tisular', 'Anatomía', 'Neurobiología',
+    'Cardiovascular y Respiratorio', 'Digestivo, Renal y Endócrino', 'Reproductor y Desarrollo'];
+  const texto = await pagina.evaluar('document.body.innerText');
+  for (const n of nombres) t.ok(`el selector muestra "${n}"`, texto.includes(n), true);
+}
+
 module.exports = [
   { nombre: 'elegir materia sin rebotar al selector', correr: elegirMateria },
+  { nombre: 'el selector muestra seis materias', correr: seisMaterias },
   { nombre: 'atrás y adelante del navegador', correr: atrasDelNavegador },
   { nombre: 'confirmación al abandonar un quiz', correr: confirmarAlSalirDelQuiz },
   { nombre: 'la X del quiz pregunta una sola vez', correr: laXDelQuizPreguntaUnaVez },

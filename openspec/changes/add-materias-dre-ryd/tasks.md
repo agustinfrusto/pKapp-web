@@ -129,33 +129,42 @@ mismo rol que van seguidas comparten terminal.
 - [x] 6.2b [Ingeniero] `intercambio.py ciega-cerrar` y `expl-input` en ambas materias.
   Verificar: las dos salen con código 0 y `ciega-discrepancias.jsonl` queda triado en el
   reporte.
-- [ ] 6.3 Explicaciones de `dre`, en lotes, con el tono de
+- [x] 6.3 Explicaciones de `dre`, en lotes, con el tono de
   `tools/ingesta/referencia/muestras_explicaciones.json`. Verificar:
   `expl-output.jsonl` cubre todos los `ref`.
+  Hecho: 594/594 en 6 lotes. 22 claves dudosas; 15 ya derivadas por la ciega. Las 7 no
+  derivadas (189, 358, 390, 413, 433, 468, 539) se auditan a mano en 7.1; 390 y 539 dicen
+  "NAD(P)H" donde corresponde "NAD(P)+".
 - [x] 6.4 Explicaciones de `ryd`, en lotes. Verificar: ídem.
   Hecho: 198/198 en 2 lotes. Claves dudosas 10, 36, 38, 58, 69, 100, 192 y 193: todas ya
   derivadas por la ciega; se auditan en 7.1.
 
 ## 7. Validación, auditoría y publicación [Ingeniero → Programador]
 
-- [ ] 7.1 [Ingeniero] Correr `reparos.py --modelo <id>` y `validar.py` sobre
+- [x] 7.0 [Programador] D12 y D13: id de pregunta desde `archivo_origen` con guarda de
+  ids repetidos en `validar.py`, y `tools/ingesta/auditoria.py aplicar`. Verificar:
+  `correr_pruebas.py` pasa los casos nuevos; re-correr `validar.py` en `dre` y `ryd`
+  da ids únicos.
+- [x] 7.1 [Ingeniero] Correr `reparos.py --modelo <id>` y `validar.py` sobre
   `enriquecidas-final.jsonl` en ambas materias y auditar en Opus toda
   la cola de `explicaciones-dudosas.jsonl` y `revision-manual.jsonl`. Verificar:
   cada entrada queda resuelta (corregida o descartada) y consta en el reporte.
-- [ ] 7.2 [Ingeniero] Emitir los bancos a `questions.js` con `emitir`. Verificar: el
+  Hecho: `auditoria-7.1.md`. Banco final: dre 451, ryd 172.
+- [x] 7.2 [Ingeniero] Emitir los bancos a `questions.js` con `emitir`. Verificar: el
   encabezado legal queda intacto y cada pregunta tiene `source: 'exam'`, `exam`,
   `topic` válido y `explanation`.
-- [ ] 7.3 [Programador] Registrar `dre` y `ryd` en `src/materias/index.js`
+  Hecho: dre 451 y ryd 172 desde `banco-auditado.jsonl`; encabezado intacto, ids únicos, 0 inválidas.
+- [x] 7.3 [Programador] Registrar `dre` y `ryd` en `src/materias/index.js`
   (metadata, `MATERIA_LIST` y `CARGADORES`) y en `scripts/inject-preload.js`.
   Verificar: el selector muestra seis materias y `conteos.js` regenerado trae
   `dre` y `ryd`.
-- [ ] 7.4 [Programador] Actualizar el README: lista de materias, conteos y árbol.
+- [x] 7.4 [Programador] Actualizar el README: lista de materias, conteos y árbol.
   Verificar: los números del README coinciden con `conteos.js` y con el conteo de
   `source: 'exam'`.
 
 ## 8. Integración
 
-- [ ] 8.1 `npm run build:web` y `npm run e2e`. Verificar: los dos con exit 0.
+- [x] 8.1 `npm run build:web` y `npm run e2e`. Verificar: los dos con exit 0.
 - [ ] 8.2 [Ingeniero] Recorrido manual de ambas materias en `dist/`: abrir, hacer un
   examen simulado completo y comprobar el tamaño (50 y 20), la ausencia del filtro de
   parcial y que el banco se descargue recién al elegir la materia. Verificar: cada

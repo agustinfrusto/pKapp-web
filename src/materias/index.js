@@ -4,11 +4,13 @@
 // selección necesita para dibujar las tarjetas. El banco de preguntas de cada
 // materia (entre 80 y 320 kB) vive detrás de un import dinámico, así que Metro
 // lo emite como un chunk aparte y el navegador lo baja recién cuando el usuario
-// elige esa materia — no las cuatro al abrir la app.
+// elige esa materia — no las seis al abrir la app.
 import { metadata as bcyt } from './bcyt/metadata.js';
 import { metadata as anatomia } from './anatomia/metadata.js';
 import { metadata as neuro } from './neuro/metadata.js';
 import { metadata as cyr } from './cyr/metadata.js';
+import { metadata as dre } from './dre/metadata.js';
+import { metadata as ryd } from './ryd/metadata.js';
 import { CONTEOS } from './conteos.js';
 
 // El conteo de preguntas se precalcula (scripts/gen-conteos.mjs) justamente
@@ -16,13 +18,15 @@ import { CONTEOS } from './conteos.js';
 const conMeta = (m) => ({ ...m, preguntas: CONTEOS[m.id] ?? 0 });
 
 // Orden en que se muestran en MateriaSelectScreen
-export const MATERIA_LIST = [bcyt, anatomia, neuro, cyr].map(conMeta);
+export const MATERIA_LIST = [bcyt, anatomia, neuro, cyr, dre, ryd].map(conMeta);
 
 const CARGADORES = {
   bcyt:     () => import('./bcyt/index.js'),
   anatomia: () => import('./anatomia/index.js'),
   neuro:    () => import('./neuro/index.js'),
   cyr:      () => import('./cyr/index.js'),
+  dre:      () => import('./dre/index.js'),
+  ryd:      () => import('./ryd/index.js'),
 };
 
 // Materias ya resueltas, por id. El cache de módulos del bundler ya evita bajar
