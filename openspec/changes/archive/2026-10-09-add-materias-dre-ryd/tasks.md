@@ -165,7 +165,9 @@ mismo rol que van seguidas comparten terminal.
 ## 8. Integración
 
 - [x] 8.1 `npm run build:web` y `npm run e2e`. Verificar: los dos con exit 0.
-- [ ] 8.2 [Ingeniero] Recorrido manual de ambas materias en `dist/`: abrir, hacer un
+- [x] 8.2 [Ingeniero] Recorrido manual de ambas materias en `dist/`: abrir, hacer un
   examen simulado completo y comprobar el tamaño (50 y 20), la ausencia del filtro de
   parcial y que el banco se descargue recién al elegir la materia. Verificar: cada
   escenario de `specs/subject-catalog/spec.md` observado.
+  Hecho: automatizado en `tools/e2e/suites.js` (suites `dre` y `ryd`: banco bajo demanda,
+  sin filtro de parcial, examen completo de 50 y 20 hasta `/resultados`).

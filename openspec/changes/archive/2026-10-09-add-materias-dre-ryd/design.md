@@ -362,6 +362,6 @@ llegar a la UI.
 
 ## Open Questions
 
-- Si el banco de RyD queda muy chico después de deduplicar, ¿se marca
-  `bancoReducido: true` como CyR? Se decide con el número final en la mano; no cambia
-  el resto del plan.
+- ~~Si el banco de RyD queda muy chico después de deduplicar, ¿se marca
+  `bancoReducido: true` como CyR?~~ Cerrada (operador, 2026-10-09): no. RyD tiene 172
+  preguntas para un examen de 20; ni RyD ni DRE (451 para 50) llevan `bancoReducido`.

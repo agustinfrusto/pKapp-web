@@ -19,7 +19,7 @@ visto la clave. Entre una y otra, `/clear`.
      `opciones_defendibles` (lista de índices defendibles; incluye `opcion_elegida`),
      `confianza` (`alta`, `media` o `baja`; `nula` solo con `opcion_elegida` en `null`) y
      `justificacion` (una oración). Dominio completo: D11 de
-     `openspec/changes/add-materias-dre-ryd/design.md`.
+     `openspec/changes/archive/2026-10-09-add-materias-dre-ryd/design.md`.
    - Resolver cada pregunta con el propio conocimiento. No buscar la clave en ningún
      otro archivo.
 
