@@ -76,10 +76,10 @@ context: |
     número. `app.json` es la que se muestra en Ajustes vía `expo-constants`.
     Bumpea solo el commit que toca la app que se publica (src, public, scripts, build de
     la raíz, app.json, package.json), con semver estricto desde el último tag, y lleva
-    tag `vX.Y.Z`. tools, openspec, .claude y docs no bumpean. Lo hace el Auditor.
+    tag `vX.Y.Z`. tools, openspec, .claude y docs no bumpean. Lo hace el Ingeniero (`openspec/commit.md`).
   - No commitear ni pushear sin que el usuario lo pida explícitamente.
-  - Trabajo multi-agente: seis roles (Ingeniero, Diseñador, Programador, Investigador, Analista, Auditor),
-    resumen en `CLAUDE.md` y contrato en `openspec/workers.md`. Solo el Auditor commitea.
+  - Trabajo multi-agente: cinco roles (Ingeniero, Diseñador, Programador, Investigador, Analista),
+    resumen en `CLAUDE.md` y contrato en `openspec/workers.md`. Solo el Ingeniero commitea y pushea, con orden.
   - Build web: `npm run build:web` (`scripts/gen-conteos.mjs` + expo export +
     `scripts/inject-pwa.js` + `scripts/inject-preload.js`). `dist/` está gitignoreado.
     `src/materias/conteos.js` es generado y va commiteado: no editarlo a mano.

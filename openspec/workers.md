@@ -9,16 +9,15 @@ esa guía no respalde.
 
 ---
 
-## Los seis roles
+## Los cinco roles
 
 | Rol | Archivo | Modelo | Effort | Puede editar | git |
 |---|---|---|---|---|---|
-| **Ingeniero Arquitecto** | `ingeniero.md` | `opus` | `high` | `openspec/**`, `CLAUDE.md`, `.claude/agents/**` | solo lectura |
+| **Ingeniero Arquitecto** | `ingeniero.md` | `opus` | `high` | `openspec/**`, `CLAUDE.md`, `.claude/agents/**` y el campo de versión (`package.json`, `package-lock.json`, `app.json`) | `add` de la lista, `commit`, `tag` de versión y `push`, con orden (`openspec/commit.md`) |
 | **Diseñador UI/UX** | `disenador.md` | `sonnet` | `max` | `src/screens/**`, `src/components/**`, `src/theme/**`, `src/assets/**`, `referencias-diseno/**` | ninguno |
 | **Programador Ejecutor** | `programador.md` | `sonnet` | `low` | lo que su spec nombre | ninguno |
 | **Investigador** | `investigador.md` | `sonnet` | `high` | la carpeta de salida del pipeline (`tools/ingesta/salidas/**`) | ninguno |
 | **Analista de código** | `analista.md` | `sonnet` | `high` | solo su reporte (`.orca/reports/<tarea>-analisis.md`) | solo lectura |
-| **Auditor y Committer** | `auditor.md` | `haiku` | `low` | solo el campo de versión (`package.json`, `package-lock.json`, `app.json`) | `add` de la lista, `commit`, `tag` de versión, `push` con orden |
 
 **Siempre la última versión de cada familia.** En el CLI de `claude`, los alias `opus`,
 `sonnet` y `haiku` la resuelven solos (verificado en `claude --help`, 2.1.294). **En Orca,
@@ -33,8 +32,9 @@ siempre Claude Code en Opus.
 Criterios:
 
 - **Ingeniero en Opus, solo para lo caro de pensar:** specs, contratos, invariantes y
-  excepciones de arquitectura. No escribe código ni ejecuta git que modifique el repo, y
-  rechaza auditar diffs de código de más de 50 líneas: cada token de Opus va a decisiones.
+  excepciones de arquitectura. No escribe código y rechaza auditar diffs de código de más
+  de 50 líneas: cada token de Opus va a decisiones. Commitea y pushea con orden del
+  operador según `openspec/commit.md` (antes lo hacía el Auditor, rol retirado).
 - **Diseñador en Sonnet con effort `max`:** su salida son tablas de tokens y estados, pocas
   pero decisivas. **Las decisiones estéticas son suyas**: imágenes, íconos, colores,
   tipografía, espaciado y jerarquía visual. El Ingeniero fija objetivo y restricciones
@@ -42,11 +42,8 @@ Criterios:
 - **Programador en Sonnet `low`:** implementa contra una spec que ya resolvió el diseño;
   test-first, y responde solo con código o diffs. Sube a `medium` cuando la spec lo indica
   porque el algoritmo no es mecánico (por ejemplo, la geometría del lector de rellenos).
-- **Auditor en Haiku:** revisa lo que un modelo chico puede revisar bien (logs olvidados,
-  sintaxis, archivos fuera de la lista, encabezados legales) y commitea. No juzga diseño ni
-  arquitectura.
 - **Analista en Sonnet `high`:** revisa la lógica de los diffs de más de 50 líneas, que el
-  Ingeniero no audita y el Auditor no puede juzgar. Lee contra la spec: cumplimiento,
+  Ingeniero no audita. Lee contra la spec: cumplimiento,
   correctitud, contratos con todos sus llamadores, calidad de los tests e invariantes.
   Reemplaza a la revisión de Gentle AI, que el operador desactivó. `high` y no `max`: la
   tarea es leer unas cientos de líneas con razonamiento de casos borde, no generar diseño;
@@ -167,15 +164,15 @@ y actuar sobre el `projection.nextAction` literal de cada fila.
   invariantes de negocio y contratos de API, y convenciones globales del proyecto.
 - Cada entrada tiene 2 o 3 oraciones como máximo.
 - Nunca código, logs de terminal ni resultados de tests.
-- El Programador lee, sin escribir. El Diseñador, el Investigador, el Analista y el
-  Auditor no tienen acceso.
+- El Programador lee, sin escribir. El Diseñador, el Investigador y el Analista no tienen
+  acceso.
 
 ---
 
 ## Pipeline con compuertas y reparto
 
 ```
-Ingeniero ──spec──▶ Programador ──compuerta en verde──▶ revisión de lógica ──▶ Auditor ──commit──▶ /clear
+Ingeniero ──spec──▶ Programador ──compuerta en verde──▶ revisión de lógica ──▶ Ingeniero ──commit──▶ /clear
                           ▲                                    │                   │
                           └──────── bloqueante ────────────────┘                   │
                           └── spec imposible o contradictoria ─────────────────────┴──▶ Ingeniero (excepción)
@@ -194,7 +191,7 @@ generados):
 
 Un RECHAZADO vuelve al Programador con el reporte. Las advertencias del Analista las
 decide el Ingeniero: se arreglan antes del commit o quedan registradas como deuda. Recién
-con la revisión cerrada se lanza al Auditor.
+con la revisión cerrada, y con orden del operador, el Ingeniero commitea.
 
 | Área tocada | Compuerta |
 |---|---|
@@ -214,23 +211,22 @@ Programador es una comprobación del arnés e2e o del build que el cambio vuelve
   Lo que no cumple vuelve al Diseñador con el motivo.
 - Audita código solo en diffs de hasta 50 líneas; los más largos los revisa el Analista.
 - Interviene en código solo por excepción de arquitectura.
-- No ejecuta git que modifique el repo.
+- Commitea, versiona y pushea según `openspec/commit.md`, solo con orden del operador.
 
 **Analista:**
 - Recibe la spec, la lista de archivos y el reporte del Programador.
 - Lee el diff del árbol de trabajo, nunca del staging, y no edita nada fuera de su reporte.
 - El que encuentra no arregla: cada hallazgo lleva escenario concreto y evidencia.
 
-**Auditor:**
+**Commit (Ingeniero):**
 - Recibe la lista de archivos de la entrega y la orden del operador.
-- Stagea exactamente esa lista (nunca `git add -A`), revisa el diff y commitea con
-  `tipo(alcance): mensaje`.
+- Sigue `openspec/commit.md`: stagea exactamente esa lista (nunca `git add -A`), revisa el
+  diff y commitea con `tipo(alcance): mensaje`.
 - Versiona: si el commit toca la app que se publica (`src/**`, `public/**`, `scripts/**`,
   archivos de build de la raíz, `app.json` o `package.json`), bumpea `package.json`,
   `package-lock.json` y `app.json` en el mismo commit, con semver estricto desde el último
   tag (`feat` → minor; el resto → patch; breaking → major, previa consulta), y crea el
-  tag `vX.Y.Z`. `tools/**`, `openspec/**`, `.claude/**` y los docs no bumpean. Detalle en
-  `.claude/agents/auditor.md`, paso 4.
+  tag `vX.Y.Z`. `tools/**`, `openspec/**`, `.claude/**` y los docs no bumpean.
 - Pushea solo con orden explícita, y con el push van sus tags.
 - El rediseño visual se commitea en la rama `rediseno`, y el merge a `main` solo se hace
   consolidado y con orden del operador. Lo que no es diseño va a `main`.

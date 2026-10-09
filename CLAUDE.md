@@ -12,12 +12,11 @@ listas, código o diffs.
 
 | Rol | Definición | Modelo | Effort | Entrega |
 |---|---|---|---|---|
-| Ingeniero Arquitecto | `.claude/agents/ingeniero.md` | `opus` | `high` | specs, contratos, invariantes |
+| Ingeniero Arquitecto | `.claude/agents/ingeniero.md` | `opus` | `high` | specs, contratos, invariantes, commit y push con orden |
 | Diseñador UI/UX | `.claude/agents/disenador.md` | `sonnet` | `max` | layouts, tokens, matrices de estados |
 | Programador Ejecutor | `.claude/agents/programador.md` | `sonnet` | `low` | código test-first, diffs |
 | Investigador | `.claude/agents/investigador.md` | `sonnet` | `high` | validación ciega y explicaciones |
 | Analista de código | `.claude/agents/analista.md` | `sonnet` | `high` | revisión de lógica de diffs de más de 50 líneas |
-| Auditor y Committer | `.claude/agents/auditor.md` | `haiku` | `low` | revisión del diff en staging y commit |
 
 `opus`, `sonnet` y `haiku` son alias del CLI de Claude Code que siempre apuntan a la última
 versión de cada familia. En Orca se usan IDs explícitos (`claude-sonnet-5-5`, etc.): Orca no
@@ -33,7 +32,6 @@ claude --agent disenador   --model sonnet --effort max
 claude --agent programador --model sonnet --effort low
 claude --agent investigador --model sonnet --effort high
 claude --agent analista    --model sonnet --effort high
-claude --agent auditor     --model haiku  --effort low
 ```
 
 Sin sesión interactiva, con la spec como entrada:
@@ -52,7 +50,7 @@ orca orchestration worker-start --agent claude --model claude-sonnet-5-5 --effor
 ## Pipeline con compuertas
 
 ```
-Ingeniero ──spec──▶ Programador ──compuerta en verde──▶ revisión de lógica ──▶ Auditor ──commit──▶ /clear
+Ingeniero ──spec──▶ Programador ──compuerta en verde──▶ revisión de lógica ──▶ Ingeniero ──commit──▶ /clear
                           ▲                                    │                   │
                           └──────── bloqueante ────────────────┘                   │
                           └── spec imposible o contradictoria ─────────────────────┴──▶ Ingeniero (excepción)
@@ -66,8 +64,9 @@ Ingeniero ──spec──▶ Programador ──compuerta en verde──▶ revi
 3. **Revisión de lógica:** un diff de código de hasta 50 líneas lo revisa el Ingeniero; uno
    de más de 50 lo revisa el Analista. Uno de más de ~600 se parte en tandas. Un
    RECHAZADO vuelve al Programador; las advertencias las decide el Ingeniero.
-4. **Commit:** el Auditor revisa el diff en staging y commitea, solo cuando el operador lo
-   ordena. El push también requiere una orden explícita.
+4. **Commit:** el Ingeniero revisa el diff en staging, versiona y commitea según
+   `openspec/commit.md`, solo cuando el operador lo ordena. El push también requiere una
+   orden explícita, y también lo hace el Ingeniero.
 5. **Excepciones:** el Ingeniero interviene solo si la spec no se puede cumplir tal como
    está escrita. Un bug vuelve al Programador.
 
@@ -83,8 +82,8 @@ siguiente unidad. Ninguna sesión arrastra historial a la próxima tarea.
   invariantes de negocio y contratos de API, y convenciones globales del proyecto.
 - Cada entrada tiene 2 o 3 oraciones como máximo.
 - Nunca código, logs de terminal ni resultados de tests.
-- El Programador lee, sin escribir. El Diseñador, el Investigador, el Analista y el Auditor
-  no tienen acceso.
+- El Programador lee, sin escribir. El Diseñador, el Investigador y el Analista no tienen
+  acceso.
 
 ## Reglas que no cambian
 
