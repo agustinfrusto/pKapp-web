@@ -59,6 +59,24 @@ El directorio `tools/ingesta/referencia/` almacena muestras de explicaciones ya 
 
 1. **`extraer`**: Lee el PDF estructurado con PyMuPDF (tabla final de respuestas, anotaciones de highlight o relleno vectorial detrás de la opción; ver la sección siguiente). Emite `salidas/<materia>-<examen>-<ts>/crudas.jsonl`.
 2. **`enriquecer`**: Sugiere `topic`, restringido al mapa `TOPICS` de la materia, por reglas de palabra clave. Emite `enriquecidas.jsonl`.
+   Las reglas son por materia: `REGLAS_POR_MATERIA` en `enriquecer.py` las indexa por `materia_id`
+   (chequeos de prioridad, mapa de palabras clave y tema por defecto). Una materia sin entrada
+   falla con un `ValueError` que la nombra; nunca cae en las reglas de otra. Para agregar una
+   materia hay que cargar sus reglas con las claves exactas de su `TOPICS`.
+   La validación de la materia ocurre antes de leer las preguntas: una materia sin reglas falla
+   aunque `crudas.jsonl` esté vacío, y no se escribe ningún archivo. Los chequeos de prioridad
+   se aplican en orden y el primero que acierta decide. Si ninguno acierta, gana el tema con más
+   palabras clave; **el empate de puntaje lo gana el primer tema del mapa, en el orden de
+   declaración**, así que reordenar el mapa cambia resultados. En `dre` y `ryd` una palabra clave
+   matchea solo al comienzo de una palabra (`renal` no matchea en `suprarrenal`); CyR conserva el
+   matcheo por subcadena. La línea base de CyR vive en `pruebas/fixtures_cyr_topics.json`.
+   En `dre`, el órgano de una pregunta se decide por el enunciado (las opciones solo cuentan si
+   el enunciado no nombra ninguno). Las palabras de histología específicas (epitelio, tipo celular,
+   microscopio…) disparan en cualquier parte del texto; las genéricas (`caracteriza`, `se encuentran`,
+   `preparado`, `corte de`, `pared de`, `túbulo contorneado`) solo en el enunciado, junto con un
+   órgano y sin un sujeto hormonal (una hormona entre las 4 primeras palabras). En `ryd`, el eje
+   hipotálamo-hipófiso-ovárico (con o sin tilde) y el eje gonadal a lo largo de la vida o de sus
+   etapas, sin marcador masculino, van a `ciclo-sexual-femenino`.
 3. **Etapas de modelo** (validación ciega y explicaciones): no las corre el pipeline. Ver el contrato de intercambio más abajo.
 4. **`validar`**: Aplica gates deterministas en código (estructura, no material visual, no ambigüedad, no duplicados, fiabilidad de explicaciones). Emite `banco.jsonl`, `descartadas.jsonl`, `revision-manual.jsonl`, `explicaciones-dudosas.jsonl` y `reporte-calidad.md`.
 5. **`emitir`**: Helper Node que inserta las preguntas de `banco.jsonl` en `src/materias/<id>/questions.js` sin alterar el encabezado legal ni las preguntas preexistentes.

@@ -16,6 +16,7 @@ AQUI = Path(__file__).resolve().parent
 sys.path.insert(0, str(AQUI.parent))
 sys.path.insert(0, str(AQUI))
 
+import enriquecer  # noqa: E402
 import extraer  # noqa: E402
 import inventario  # noqa: E402
 from generar_fixtures import generar  # noqa: E402
@@ -410,6 +411,78 @@ def caso_borde_franja_distinta(pdf):
           and opciones.get(54) == 'Opcion C de 54, segun lo expuesto')
     return ok, 'mismo texto al pie de dos paginas a alturas que difieren mas que la tolerancia: se conserva'
 
+IDS_TOPIC = {
+    'dre': {'funcion-digestiva', 'histologia-digestiva', 'fisiologia-renal',
+            'histologia-renal-endocrina', 'endocrinologia', 'metabolismo-energetico',
+            'lipoproteinas-tejido-adiposo', 'metabolismo-proteico', 'acido-base'},
+    'ryd': {'histologia-masculina', 'histologia-femenina', 'glandula-mamaria-lactancia',
+            'eje-gonadal-masculino', 'ciclo-sexual-femenino', 'fecundacion-implantacion',
+            'gastrulacion-organogenesis', 'placenta-anexos', 'biologia-desarrollo'},
+}
+
+
+def caso_topic_sin_reglas(_pdf):
+    try:
+        enriquecer.inferir_topic('texto cualquiera', 'inexistente')
+    except ValueError as e:
+        return 'inexistente' in str(e), 'materia sin reglas: error explicito que nombra la materia'
+    return False, 'materia sin reglas: no lanzo error'
+
+
+def caso_topic_sin_reglas_sin_preguntas(_pdf):
+    with tempfile.TemporaryDirectory() as d:
+        d = Path(d)
+        crudas = d / 'crudas.jsonl'
+        crudas.write_text('', encoding='utf-8')
+        try:
+            enriquecer.enriquecer_archivo(crudas, d, 'inexistente')
+        except ValueError as e:
+            return ('inexistente' in str(e) and not (d / 'enriquecidas.jsonl').exists(),
+                    'materia sin reglas con crudas vacio: error y ningun archivo escrito')
+    return False, 'materia sin reglas con crudas vacio: no lanzo error'
+
+
+def caso_topic_cyr_igual(_pdf):
+    antes = AQUI / 'fixtures_cyr_topics.json'
+    if not antes.exists():
+        return False, 'CyR: falta la linea base fixtures_cyr_topics.json'
+    esperado = json.loads(antes.read_text(encoding='utf-8'))
+    fuente = AQUI.parent.parent.parent / 'src' / 'materias' / 'cyr' / 'questions.js'
+    qs = json.loads(subprocess.run(
+        ['node', '-e', "import(process.argv[1]).then(m=>console.log(JSON.stringify(m.QUESTIONS)))",
+         fuente.as_uri()], capture_output=True, text=True, check=True).stdout)
+    dif = [q['id'] for q in qs if enriquecer.inferir_topic(
+        q['question'] + ' ' + ' '.join(q['options']), 'cyr', q['question']) != esperado.get(q['id'])]
+    return not dif and len(qs) == len(esperado), f'CyR: {len(qs)} preguntas con el mismo topic que antes (difieren: {dif})'
+
+
+def caso_topic_claves_d8(_pdf):
+    ok = all(set(enriquecer.REGLAS_POR_MATERIA[m]['reglas']) == ids
+             and all(t in ids for t, _ in enriquecer.REGLAS_POR_MATERIA[m]['prioridad'])
+             and enriquecer.REGLAS_POR_MATERIA[m]['default'] in ids
+             for m, ids in IDS_TOPIC.items())
+    d = enriquecer.REGLAS_POR_MATERIA
+    ok = ok and d['dre']['default'] == 'metabolismo-energetico' and d['ryd']['default'] == 'biologia-desarrollo'
+    return ok, 'dre y ryd: claves de reglas = ids de D8, y el default de D8'
+
+
+def caso_topic_limite_palabra(_pdf):
+    r = enriquecer.REGLAS_POR_MATERIA
+    ok = (r['cyr']['limite_palabra'] is False and r['dre']['limite_palabra'] is True
+          and r['ryd']['limite_palabra'] is True)
+    return ok, 'limite de palabra: False en cyr, True en dre y ryd'
+
+
+def caso_topic_frontera(_pdf):
+    casos = json.loads((AQUI / 'fixtures_topic.json').read_text(encoding='utf-8'))
+    mal = []
+    for c in casos:
+        texto = c['question'] + ' ' + ' '.join(c['options'])
+        topic = enriquecer.inferir_topic(texto, c['materia'], c['question'])
+        if topic != c['topic']:
+            mal.append((c['comienzo'][:40], topic))
+    return not mal, f'{len(casos)} casos de frontera de D8 (fallan: {mal})'
+
 
 CASOS = [
     ('marca_una_linea', 'marca de una linea', caso_una_linea),
@@ -450,6 +523,12 @@ CASOS = [
     ('solape_40', 'solape: 40 % de la linea siguiente', caso_solape_40),
     ('inventario_sin_apartado', 'inventario sin falso positivo de clave', caso_inventario_sin_apartado),
     ('apartado_con_relleno', 'inventario con apartado real', caso_inventario_con_apartado),
+    ('topic_sin_reglas', 'topic: materia sin reglas falla', caso_topic_sin_reglas),
+    ('topic_sin_reglas_vacio', 'materia sin reglas con crudas vacio', caso_topic_sin_reglas_sin_preguntas),
+    ('topic_cyr', 'topic: CyR igual que antes', caso_topic_cyr_igual),
+    ('topic_claves', 'topic: claves de dre y ryd = D8', caso_topic_claves_d8),
+    ('topic_limite', 'topic: limite de palabra por materia', caso_topic_limite_palabra),
+    ('topic_frontera', 'topic: casos de frontera de D8', caso_topic_frontera),
 ]
 
 

@@ -1,0 +1,705 @@
+[
+ {
+  "materia": "dre",
+  "comienzo": "Sobre el mecanismo de acción de la hormona insulina",
+  "topic": "endocrinologia",
+  "question": "Sobre el mecanismo de acción de la hormona insulina, es correcto afirmar:",
+  "options": [
+   "Se une a un receptor de membrana acoplado a proteína G, que genera AMP cíclico",
+   "La unión de la hormona genera la autofosforilación del receptor con actividad quinasa intrínseca que lleva a la activación de una proteína quinasa",
+   "Se une a un receptor intracelular y el complejo hormona-receptor se une al ADN en sitios específicos llevando a la síntesis de nuevas proteínas"
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "¿Qué efecto tiene la insulina sobre el metabolismo de la glucosa en el hígado?",
+  "topic": "metabolismo-energetico",
+  "question": "¿Qué efecto tiene la insulina sobre el metabolismo de la glucosa en el hígado?",
+  "options": [
+   "Activa la síntesis de glucógeno, la síntesis de ácidos grasos y estimula la glucólisis",
+   "Activa la degradación del glucógeno, la síntesis de nueva glucosa e inhibe la glucólisis",
+   "Genera la translocación de receptores Glut4 a la membrana e inhibe la síntesis de glucógeno"
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "¿Cuál es el mecanismo principal por el cual el riñón puede reabsorber el bicarbonato",
+  "topic": "acido-base",
+  "question": "¿Cuál es el mecanismo principal por el cual el riñón puede reabsorber el bicarbonato filtrado y generar nuevo bicarbonato?",
+  "options": [
+   "Por intercambio de Na+ y H+ hacia el espacio tubular",
+   "Mediante la secreción activa al espacio tubular renal de Na+",
+   "Mediante la secreción activa al espacio tubular renal de HCO3-"
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "En condiciones de acidosis la enzima glutaminasa",
+  "topic": "acido-base",
+  "question": "En condiciones de acidosis la enzima glutaminasa aumenta su concentración a nivel renal. ¿Por qué mecanismo ocurre?",
+  "options": [
+   "Aumenta la velocidad de traducción del ARNm de la glutaminasa",
+   "Aumenta la transcripción del gen para la glutaminasa",
+   "Se estabiliza el ARNm de la glutaminasa"
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "¿Dónde se encuentran localizadas las células que sintetizan, almacenan y liberan a la sangre renina?",
+  "topic": "histologia-renal-endocrina",
+  "question": "¿Dónde se encuentran localizadas las células que sintetizan, almacenan y liberan a la sangre renina?",
+  "options": [
+   "En la pared del túbulo distal próximo al glomérulo.",
+   "En la pared de la arteriola glomerular aferente.",
+   "En el mesangio extraglomerular."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "La secreción de renina se estimula cuando",
+  "topic": "fisiologia-renal",
+  "question": "La secreción de renina se estimula cuando:",
+  "options": [
+   "Se produce una caída de la volemia mayor al 10%.",
+   "Aumentan los niveles plasmáticos de aldosterona.",
+   "Aumentan los niveles plasmáticos de angiostensina."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "Una de las consecuencias del efecto Gibbs-Donnan",
+  "topic": "fisiologia-renal",
+  "question": "Una de las consecuencias del efecto Gibbs-Donnan es:",
+  "options": [
+   "La concentración de cationes es ligeramente mayor en el plasma que en el intersticio.",
+   "Las concentraciones de iones a ambos lados del endotelio son iguales.",
+   "No hay electroneutralidad en el plasma."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "La oxitocina provoca",
+  "topic": "endocrinologia",
+  "question": "La oxitocina provoca:",
+  "options": [
+   "Síntesis de leche.",
+   "Eyección de leche.",
+   "Relajación uterina."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "Un déficit de vitamina D podría tener como consecuencia",
+  "topic": "endocrinologia",
+  "question": "Un déficit de vitamina D podría tener como consecuencia:",
+  "options": [
+   "Mayor liberación de calcitriol.",
+   "Aumento en la formación de hueso.",
+   "Disminución en la reabsorción intestinal de calcio."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "Un aumento del gasto cardíaco podría producirse como consecuencia de",
+  "topic": "endocrinologia",
+  "question": "Un aumento del gasto cardíaco podría producirse como consecuencia de:",
+  "options": [
+   "Disminución de los niveles de cortisol.",
+   "Aumento de los niveles de T3 reversa.",
+   "Aumento de los niveles de T4."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "¿Cuál es el perfil lipídico característico del síndrome metabólico?",
+  "topic": "lipoproteinas-tejido-adiposo",
+  "question": "¿Cuál es el perfil lipídico característico del síndrome metabólico?",
+  "options": [
+   "LDL bajo y triglicéridos normales.",
+   "HDL bajo y triglicéridos altos.",
+   "LDL bajo y triglicéridos bajos.",
+   "HDL alto y triglicéridos bajos."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "¿Qué componentes principales forman la placa de ateroma?",
+  "topic": "lipoproteinas-tejido-adiposo",
+  "question": "¿Qué componentes principales forman la placa de ateroma?",
+  "options": [
+   "HDL, plaquetas y glóbulos rojos.",
+   "Lípidos, células espumosas, calcio.",
+   "Colesterol libre, quilomicrones y neutrófilos."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "Indique la opción correcta acerca de la vida media",
+  "topic": "metabolismo-proteico",
+  "question": "Indique la opción correcta acerca de la vida media (tiempo de recambio) de las proteínas:",
+  "options": [
+   "En promedio la vida media de las proteínas es 50 años",
+   "La vida media varía según la función de la proteína",
+   "Es el mismo para todas las proteínas"
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "Si no hay síntesis de sales biliares",
+  "topic": "funcion-digestiva",
+  "question": "Si no hay síntesis de sales biliares, ¿qué sucederá con la absorción de las grasas de la dieta?",
+  "options": [
+   "Se absorben normalmente.",
+   "Hay un aumento en la absorción.",
+   "Hay una disminución de la absorción."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "El bloqueo de la bomba de protones presente en la célula parietal",
+  "topic": "funcion-digestiva",
+  "question": "El bloqueo de la bomba de protones presente en la célula parietal, inducirá:",
+  "options": [
+   "una disminución de la secreción ácida",
+   "una menor producción de pepsinógeno",
+   "una mayor secreción de ácido clorhídrico"
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "¿A qué se debe la característica eosinofilia del citoplasma de las células parietales",
+  "topic": "histologia-digestiva",
+  "question": "¿A qué se debe la característica eosinofilia del citoplasma de las células parietales de la mucosa gástrica?",
+  "options": [
+   "Gran cantidad de mitocondrias.",
+   "Gran cantidad de vesículas de secreción.",
+   "Abundante retículo endoplasmático rugoso."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "Los lipocitos hepáticos (células Ito)",
+  "topic": "histologia-digestiva",
+  "question": "Los lipocitos hepáticos (células Ito):",
+  "options": [
+   "Almacenan vitamina A.",
+   "Participan en la producción de bilis.",
+   "Se localizan dentro del espacio porta."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "En la neurohipófisis se localizan",
+  "topic": "histologia-renal-endocrina",
+  "question": "En la neurohipófisis se localizan:",
+  "options": [
+   "Los cuerpos de las neuronas secretoras",
+   "Dilataciones axonales que contienen oxitocina",
+   "Gran cantidad de células secretoras acidófilas y basófilas"
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "Las principales hormonas que regulan la producción y eyección de la leche",
+  "topic": "glandula-mamaria-lactancia",
+  "question": "Las principales hormonas que regulan la producción y eyección de la leche durante la lactancia son (marque la opción correcta):",
+  "options": [
+   "La prolactina y la oxitocina.",
+   "La progesterona y la oxitocina.",
+   "La prolactina y la progesterona."
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "Amamantar inhibe la liberación de",
+  "topic": "glandula-mamaria-lactancia",
+  "question": "Amamantar inhibe la liberación de:",
+  "options": [
+   "FSH y LH.",
+   "Oxitocina.",
+   "Prolactina."
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "Las células de la teca interna del folículo antral se caracterizan por",
+  "topic": "histologia-femenina",
+  "question": "Las células de la teca interna del folículo antral se caracterizan por:",
+  "options": [
+   "Secretar estrógenos en respuesta a la FSH.",
+   "Sintetizar andrógenos en respuesta a la LH.",
+   "Formar la barrera hemato-ovárica. A B"
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "Durante el desarrollo folicular, el folículo dominante",
+  "topic": "ciclo-sexual-femenino",
+  "question": "Durante el desarrollo folicular, el folículo dominante:",
+  "options": [
+   "Produce grandes cantidades de FSH.",
+   "Produce grandes cantidades de estrógenos.",
+   "Es el que tiene mayor cantidad de receptores de GnRH."
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "Según las variaciones en los niveles hormonales mostrados en la siguiente figura",
+  "topic": "ciclo-sexual-femenino",
+  "question": "Según las variaciones en los niveles hormonales mostrados en la siguiente figura:",
+  "options": [
+   "La fase “A” se corresponde con la ovulación.",
+   "La fase “B” se corresponde con la selección del folículo dominante.",
+   "La fase “C” se corresponde con la fase lútea."
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "La capacitación del espermatozoide",
+  "topic": "fecundacion-implantacion",
+  "question": "La capacitación del espermatozoide:",
+  "options": [
+   "finaliza en el epidídimo",
+   "previene la poliespermia",
+   "finaliza en el aparato genital femenino"
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "¿Dónde adquieren motilidad los espermatozoides?",
+  "topic": "histologia-masculina",
+  "question": "¿Dónde adquieren motilidad los espermatozoides?",
+  "options": [
+   "En el tracto genital femenino",
+   "En el epidídimo",
+   "En el testículo"
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "Con respecto al eje hipotálamo-hipofisario-testicular, marque",
+  "topic": "eje-gonadal-masculino",
+  "question": "Con respecto al eje hipotálamo-hipofisario-testicular, marque la opción correcta:",
+  "options": [
+   "La testosterona regula el eje por retroalimentación positiva.",
+   "La GnRH inhibe la conversión de testosterona en estrógenos.",
+   "La FSH junto con la testosterona son necesarias para la espermatogénesis."
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "La notocorda induce la formación de",
+  "topic": "gastrulacion-organogenesis",
+  "question": "La notocorda induce la formación de:",
+  "options": [
+   "El intestino primitivo.",
+   "El tubo neural.",
+   "El tubo cardíaco."
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "Las células germinales que darán lugar a los gametos se originan",
+  "topic": "gastrulacion-organogenesis",
+  "question": "Las células germinales que darán lugar a los gametos se originan tempranamente durante desarrollo embrionario, específicamente en:",
+  "options": [
+   "el saco vitelino",
+   "la cresta genital",
+   "la corteza de la gónada"
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "Los primeros cambios en la expresión génica en el desarrollo de mamíferos",
+  "topic": "biologia-desarrollo",
+  "question": "Los primeros cambios en la expresión génica en el desarrollo de mamíferos:",
+  "options": [
+   "Se producen durante la compactación de la mórula",
+   "Se producen durante la formación del epiblasto en el blastocisto tardío",
+   "Se producen durante la formación de la masa celular interna en el blastocisto"
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "Las células deciduales placentarias provienen de",
+  "topic": "placenta-anexos",
+  "question": "Las células deciduales placentarias provienen de:",
+  "options": [
+   "El endometrio materno",
+   "El corion",
+   "El amnios"
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "Con respecto a la ovogénesis, ¿en qué etapa",
+  "topic": "histologia-femenina",
+  "question": "Con respecto a la ovogénesis, ¿en qué etapa se encuentran las células de la línea germinal en el ovario en el momento del nacimiento?",
+  "options": [
+   "hay ovogonias y ovocitos en nidos en distintas etapas de la meiosis",
+   "existen solamente ovogonias proliferando por mitosis",
+   "hay ovocitos detenidos en profase de la meiosis I"
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "Con respecto a la glándula tiroides:",
+  "topic": "histologia-renal-endocrina",
+  "origen": "Primer Periodo 2025.pdf#69",
+  "question": "Con respecto a la glándula tiroides:",
+  "options": [
+   "Las células foliculares sintetizan calcitonina",
+   "La tirotrofina es la principal hormona sintetizada por esta glándula",
+   "Las células parafoliculares se localizan por dentro de la lámina basal folicular"
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "Utilizando un anticuerpo anti-calcitonina se puede localizar",
+  "topic": "histologia-renal-endocrina",
+  "origen": "Prototipo tercer periodo DRE 20_02.pdf#36",
+  "question": "Utilizando un anticuerpo anti-calcitonina se puede localizar en un preparado de tiroides adulta humana las células que sintetizan y secretan dicha hormona. ¿Dónde esperaría encontrar células positivas para la señal del mencionado anticuerpo?:",
+  "options": [
+   "En contacto con el coloide tiroideo.",
+   "Intercalada entre las células de los folículos tiroideos.",
+   "Entre la lámina basal y el sector basal de las células foliculares tiroideas."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "En un preparado histológico, la pars distalis de la adenohip",
+  "topic": "histologia-renal-endocrina",
+  "origen": "Prototipo segundo periodo DRE 19_12_24.pdf#71",
+  "question": "En un preparado histológico, la pars distalis de la adenohipófisis se caracteriza por presentar:",
+  "options": [
+   "Células secretoras organizadas en acinos y muchos capilares continuos pequeños.",
+   "Gran cantidad de axones y cuerpos de Herring asociados a capilares discontinuos.",
+   "Células secretoras organizadas en cordones y abundantes capilares fenestrados de luz amplia."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "¿Cuál de los siguientes elementos forma parte de la membrana",
+  "topic": "histologia-renal-endocrina",
+  "origen": "Segundo Periodo 2025.pdf#100",
+  "question": "¿Cuál de los siguientes elementos forma parte de la membrana de ultrafiltración del corpúsculo renal?",
+  "options": [
+   "La lámina basal endotelial.",
+   "El ribete en cepillo del túbulo proximal.",
+   "La hoja parietal de la cápsula de Bowmann."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "A nivel de la corteza de la glándula suprarrenal se distingu",
+  "topic": "histologia-renal-endocrina",
+  "origen": "Prototipo 2023.pdf#58",
+  "question": "A nivel de la corteza de la glándula suprarrenal se distinguen 3 sectores. Indique cuál sería el orden de dichos sectores si uno observa una preparación a partir de la cápsula hacia la médula de la glándula:",
+  "options": [
+   "Glomerular - Fasciculada – Reticular.",
+   "Fasciculada - Glomerular – Reticular.",
+   "Reticular - Fasciculada – Glomerular."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "Con respecto a la corteza de la glándula suprarrenal:",
+  "topic": "histologia-renal-endocrina",
+  "origen": "Prototipo segundo periodo DRE 21_12 - turno A.pdf#100",
+  "question": "Con respecto a la corteza de la glándula suprarrenal:",
+  "options": [
+   "Se origina a partir de la cresta neural",
+   "Está formada por células ganglionares y células cromafines",
+   "Todas sus regiones sintetizan hormonas a partir de colesterol"
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "Las células que constituyen la zona fasciculada de la cortez",
+  "topic": "histologia-renal-endocrina",
+  "origen": "Prototipo tercer periodo DRE 20_02.pdf#35",
+  "question": "Las células que constituyen la zona fasciculada de la corteza de la glándula suprarrenal tienen propiedades morfológicas llamativas. ¿Cuál de las siguientes opciones la menciona una de ellas?",
+  "options": [
+   "Tienen núcleo bi-lobulado.",
+   "Presentan mitocondrias con crestas tubulares.",
+   "Presentan vesículas de secreción de tamaño grande y núcleo denso."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "¿Cuál es la característica de las células que componen la mé",
+  "topic": "histologia-renal-endocrina",
+  "origen": "Prototipo tercer periodo DRE.pdf#57",
+  "question": "¿Cuál es la característica de las células que componen la médula de la glándula suprarrenal?",
+  "options": [
+   "Tener gotas de lípidos.",
+   "Tener gránulos de catecolaminas.",
+   "Tener masas densas de pigmentos lipocrómicos."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "Las células cromafines de la médula suprarrenal almacenan no",
+  "topic": "histologia-renal-endocrina",
+  "origen": "Prototipo-examen-dre-2023.pdf#61",
+  "question": "Las células cromafines de la médula suprarrenal almacenan noradrenalina y adrenalina en:",
+  "options": [
+   "lisosomas de contenido heterogéneo",
+   "gránulos electrondensos",
+   "inclusiones lipídicas"
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "¿En cuál de las siguientes capas de la corteza suprarrenal s",
+  "topic": "histologia-renal-endocrina",
+  "origen": "Segundo Periodo 2025.pdf#98",
+  "question": "¿En cuál de las siguientes capas de la corteza suprarrenal se identifican los espongiocitos?",
+  "options": [
+   "Capa reticular.",
+   "Capa glomerular.",
+   "Capa fasciculada."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "En su laboratorio, usted quiere obtener el grupo amino del a",
+  "topic": "metabolismo-proteico",
+  "origen": "Segundo Periodo 2025.pdf#74",
+  "question": "En su laboratorio, usted quiere obtener el grupo amino del aminoácido lisina. Cuenta con las siguientes enzimas purificadas y todo lo necesario para sus reacciones: - cetoglutarato-glutamato transaminasa, glutamato deshidrogenasa, glutaminasa, piruvato-alanina transaminasa, glutamina sintasa. ¿Qué enzimas tendría que utilizar para obtener el grupo amino libre?",
+  "options": [
+   "-cetoglutarato-glutamato transaminasa y la glutamato deshidrogenasa",
+   "piruvato-alanina transaminasa y la glutamato deshidrogenasa",
+   "-cetoglutarato-glutamato transaminasa y la glutaminasa",
+   "Glutamato deshidrogenasa y la glutaminasa."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "¿Cuál es el primer paso en la metabolización de los aminoáci",
+  "topic": "metabolismo-proteico",
+  "origen": "Tercer periodo 2026.pdf#63",
+  "question": "¿Cuál es el primer paso en la metabolización de los aminoácidos?",
+  "options": [
+   "La aminación oxidativa por acción de la glutamato deshidrogenasa",
+   "La desaminación oxidativa del glutamato a un alfa cetoácido y un grupo amino, por acción de la glutamato deshidrogenasa",
+   "La desaminación de un alfa cetoácido por transferencia de su grupo carboxilo a un aminoácido, catalizado por la glutaminasa.",
+   "La desaminación de una aminoácido por transferencia de su grupo amino a un alfa cetoácido, catalizado por las transaminasas."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "El óxido nítrico (•NO) es un mediador producido en el endote",
+  "topic": "endocrinologia",
+  "origen": "Prototipo tercer periodo DRE.pdf#80",
+  "question": "El óxido nítrico (•NO) es un mediador producido en el endotelio vascular que promueve la vasodilatación aumentando la actividad guanilato ciclasa. El mecanismo de acción del viagra consiste en la inhibición de la actividad fosfodiesterasa de GMPc. ¿Cuál será el efecto de esta droga en el músculo liso vascular?",
+  "options": [
+   "Aumento de [GMPc]",
+   "Disminución de [AMPc]",
+   "Activación de la protein-quinasa C, PKC"
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "En la placa basal de la placenta podemos encontrar:",
+  "topic": "placenta-anexos",
+  "origen": "Prototipo segundo periodo Reproductor y Desarrollo 23_12.pdf#116",
+  "question": "En la placa basal de la placenta podemos encontrar:",
+  "options": [
+   "Mesodermo extraembrionario",
+   "Vasos sánguineos fetales",
+   "Células deciduales"
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "¿Cuál de estas estructuras placentarias posee vasos sanguíne",
+  "topic": "placenta-anexos",
+  "origen": "Prototipo tercer periodo 4 UTIS-1.pdf#110",
+  "question": "¿Cuál de estas estructuras placentarias posee vasos sanguíneos?",
+  "options": [
+   "El citotrofoblasto",
+   "El sincitiotrofoblasto",
+   "El mesodermo extraembrionario"
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "Respecto al eje hipotálamo-adenohipófisis-ovario, señale la ",
+  "topic": "ciclo-sexual-femenino",
+  "origen": "Tercer periodo 2026.pdf#102",
+  "question": "Respecto al eje hipotálamo-adenohipófisis-ovario, señale la opción correcta:",
+  "options": [
+   "El pico de estrógenos es posterior a la ovulación.",
+   "En la adenohipófisis se sintetizan las gonadotrofinas.",
+   "La GnRH inhibe la fase lútea al actuar sobre las células de la teca."
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "¿Cuál de las siguientes afirmaciones es correcta sobre la fa",
+  "topic": "histologia-masculina",
+  "origen": "Primer Periodo 2025.pdf#105",
+  "question": "¿Cuál de las siguientes afirmaciones es correcta sobre la fase espermatocítica?",
+  "options": [
+   "Durante ella ocurre dos duplicaciones del ADN sucesivas.",
+   "Las células se replican por mitosis.",
+   "Da origen a las espermátidas.",
+   "Se forma el acrosoma."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "Con respecto a la prolactina (fuera del periodo de lactancia)",
+  "topic": "endocrinologia",
+  "question": "Con respecto a la prolactina (fuera del periodo de lactancia), es correcto afirmar que:",
+  "options": [
+   "Es regulada por un eje de retroalimentación positiva.",
+   "Es sintetizada y liberada por la neurohipófisis.",
+   "La dopamina inhibe su síntesis y liberación."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "La oxitocina y la ADH tienen una de las siguientes",
+  "topic": "endocrinologia",
+  "question": "La oxitocina y la ADH tienen una de las siguientes características:",
+  "options": [
+   "Son liberadas desde la adenohipófisis.",
+   "Son sintetizadas principalmente en el núcleo supraquiasmático.",
+   "Son liberadas frente a la llegada de un potencial de acción a la terminal axónica."
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "Respecto al eje hipotálamo-hipófiso-ovárico, señal",
+  "topic": "ciclo-sexual-femenino",
+  "question": "Respecto al eje hipotálamo-hipófiso-ovárico, señale la opción correcta:",
+  "options": [
+   "Células de la teca interna",
+   "Células de la granulosa",
+   "Ovocitos primarios"
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "Respecto al eje hipotálamo-hipofisario-ovárico, se",
+  "topic": "ciclo-sexual-femenino",
+  "question": "Respecto al eje hipotálamo-hipofisario-ovárico, señale la opción correcta:",
+  "options": [
+   "Células de la teca interna",
+   "Células de la granulosa",
+   "Ovocitos primarios"
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "Respecto al eje hipotálamo hipófiso ovárico, señal",
+  "topic": "ciclo-sexual-femenino",
+  "question": "Respecto al eje hipotálamo hipófiso ovárico, señale la opción correcta:",
+  "options": [
+   "Células de la teca interna",
+   "Células de la granulosa",
+   "Ovocitos primarios"
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "En la nefrona, el agua se reabsorbe principalmente",
+  "topic": "fisiologia-renal",
+  "question": "En la nefrona, el agua se reabsorbe principalmente en:",
+  "options": [
+   "El túbulo proximal.",
+   "El túbulo contorneado distal.",
+   "El segmento ascendente delgado del asa de Henle."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "Con relación a la circulación sanguínea renal:",
+  "topic": "fisiologia-renal",
+  "question": "Con relación a la circulación sanguínea renal:",
+  "options": [
+   "Representa menos del 0.5% del gasto cardíaco.",
+   "Se caracteriza por presentar un único lecho capilar (microcirculatorio).",
+   "La caída de presión hidrostática de mayor magnitud ocurre a nivel de la circulación glomerular."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "La hormona tiroidea se caracteriza por:",
+  "topic": "endocrinologia",
+  "question": "La hormona tiroidea se caracteriza por:",
+  "options": [
+   "Aumentar el consumo de oxígeno y la producción de calor",
+   "Disminuir la frecuencia cardíaca",
+   "Inhibir la lipólisis"
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "El cortisol, producido en la corteza suprarrenal, ",
+  "topic": "endocrinologia",
+  "question": "El cortisol, producido en la corteza suprarrenal, se caracteriza por:",
+  "options": [
+   "Inhibir la liberación de ACTH por retroalimentación negativa",
+   "Unirse a un receptor intracelular",
+   "Aumentar la glucemia"
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "Con respecto al eje endócrino hipotálamo-hipofisar",
+  "topic": "ciclo-sexual-femenino",
+  "question": "Con respecto al eje endócrino hipotálamo-hipofisario-gonadal a lo largo de la vida (prepubertad, pubertad y adultez), marque la opción correcta:",
+  "options": [
+   "En la adultez los picos de LH tienen una mayor amplitud durante el día.",
+   "En la pubertad el perfil de liberación de las hormonas gonadotropas es continuo.",
+   "En la prepubertad el eje tiene una sensibilidad aumentada a las hormonas gonadales."
+  ]
+ },
+ {
+  "materia": "ryd",
+  "comienzo": "Con respecto a los cambios del eje hipotálamo-hipo",
+  "topic": "ciclo-sexual-femenino",
+  "question": "Con respecto a los cambios del eje hipotálamo-hipofisario-gonadal durante las etapas de crecimiento:",
+  "options": [
+   "La amplitud de los picos de GnRH es mayor durante el día en cualquier etapa de la vida.",
+   "La LH y FSH tienen un patrón de liberación continuo durante toda la vida.",
+   "El patrón de liberación pulsátil de la GnRH se establece en la pubertad."
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "¿Qué epitelio reviste la vejiga?",
+  "topic": "histologia-renal-endocrina",
+  "question": "¿Qué epitelio reviste la vejiga?",
+  "options": [
+   "Epitelio del intestino delgado",
+   "Epitelio del esófago",
+   "Epitelio del colon"
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "La neurohipófisis libera una hormona que actúa sob",
+  "topic": "endocrinologia",
+  "question": "La neurohipófisis libera una hormona que actúa sobre el músculo liso uterino:",
+  "options": [
+   "Aumenta la diuresis",
+   "Aumenta la reabsorción de agua",
+   "Aumenta la natriuresis"
+  ]
+ },
+ {
+  "materia": "dre",
+  "comienzo": "La liberación en el hipotálamo de la sustancia que",
+  "topic": "endocrinologia",
+  "question": "La liberación en el hipotálamo de la sustancia que regula la excreción de agua:",
+  "options": [
+   "Aumenta la diuresis",
+   "Aumenta la reabsorción de agua",
+   "Aumenta la natriuresis"
+  ]
+ }
+]
