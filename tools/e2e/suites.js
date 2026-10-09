@@ -17,11 +17,11 @@ async function cerrarNota(pagina) {
 
 // La carga de la materia baja un chunk aparte, así que se espera por la URL y
 // no por un tiempo fijo.
-async function entrarAMateria(pagina, base) {
+async function entrarAMateria(pagina, base, nombre = MATERIA) {
   await pagina.ir(base + '/');
   await pagina.esperarTexto('Tus materias');
   await cerrarNota(pagina);
-  await pagina.clic(MATERIA);
+  await pagina.clic(nombre);
   return pagina.esperarUrl('/inicio');
 }
 
@@ -177,6 +177,57 @@ async function seisMaterias(pagina, base, t) {
   for (const n of nombres) t.ok(`el selector muestra "${n}"`, texto.includes(n), true);
 }
 
+// Examen simulado completo de una materia sin parciales (dre, ryd). El banco
+// es un chunk aparte: tiene que aparecer recién al elegir la materia.
+const recursosJs = `performance.getEntriesByType('resource').map((r) => r.name).filter((n) => /\\.js(\\?|$)/.test(n))`;
+
+function suiteExamenSinParciales(nombre, total) {
+  return async function (pagina, base, t) {
+    await pagina.ir(base + '/');
+    await pagina.esperarTexto('Tus materias');
+    await cerrarNota(pagina);
+    const antes = await pagina.evaluar(recursosJs);
+
+    await pagina.clic(nombre);
+    t.ok(`${nombre}: elegir la materia lleva a /inicio`, await pagina.esperarUrl('/inicio'), true);
+    const despues = await pagina.evaluar(recursosJs);
+    t.ok(`${nombre}: el banco se baja recién al elegirla (JS nuevo)`,
+      despues.some((n) => !antes.includes(n)), true);
+
+    await pagina.clic('Modo examen');
+    t.ok(`${nombre}: modo examen`, await pagina.esperarUrl('/temas/exam'), true);
+    // El texto se muestra en mayúsculas por CSS: se compara sin distinguir caso.
+    t.ok(`${nombre}: sin filtro de parcial`,
+      (await pagina.evaluar('document.body.innerText')).toLowerCase().includes('parcial:'), false);
+
+    await pagina.clic('Comenzar examen');
+    t.ok(`${nombre}: el quiz arrancó`, await pagina.esperarUrl('/quiz'), true);
+    t.ok(`${nombre}: el examen tiene ${total} preguntas`,
+      await pagina.esperarTexto(`1 / ${total}`), true);
+
+    for (let i = 0; i < total + 2; i++) {
+      if (await pagina.url() !== '/quiz') break;
+      const opcionA = await pagina.evaluar(`(function () {
+        const nodos = Array.from(document.querySelectorAll('[tabindex]')).filter((n) => {
+          const r = n.getBoundingClientRect();
+          return /^A\\s/.test((n.innerText || '').trim()) && r.width > 0 && r.height > 0;
+        });
+        if (!nodos.length) return null;
+        nodos[0].scrollIntoView({ block: 'center' });
+        const r = nodos[0].getBoundingClientRect();
+        return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+      })()`);
+      if (opcionA) await pagina.clicEn(opcionA.x, opcionA.y);
+      await pagina.esperarA(async () =>
+        !!(await pagina.ubicar('Siguiente')) || !!(await pagina.ubicar('Ver resultados')),
+        { limite: 5000 });
+      if (!await pagina.clic('Ver resultados')) await pagina.clic('Siguiente');
+    }
+    t.ok(`${nombre}: completar el examen lleva a /resultados`,
+      await pagina.esperarUrl('/resultados'), true);
+  };
+}
+
 module.exports = [
   { nombre: 'elegir materia sin rebotar al selector', correr: elegirMateria },
   { nombre: 'el selector muestra seis materias', correr: seisMaterias },
@@ -185,4 +236,6 @@ module.exports = [
   { nombre: 'la X del quiz pregunta una sola vez', correr: laXDelQuizPreguntaUnaVez },
   { nombre: 'URLs profundas abiertas en frío', correr: urlsProfundasEnFrio },
   { nombre: 'terminar un quiz no pide confirmación', correr: terminarUnQuizNoPregunta },
+  { nombre: 'dre: examen de 50 sin filtro de parcial', correr: suiteExamenSinParciales('Digestivo, Renal y Endócrino', 50) },
+  { nombre: 'ryd: examen de 20 sin filtro de parcial', correr: suiteExamenSinParciales('Reproductor y Desarrollo', 20) },
 ];

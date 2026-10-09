@@ -37,7 +37,7 @@ pKapp está pensado para estudiar de forma práctica y enfocada. La app ayuda a 
 
 - **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** (BCYT), **Anatomía**, **Neurobiología**, **Cardiovascular y Respiratorio** (CyR), **Digestivo, Renal y Endócrino** (DRE) y **Reproductor y Desarrollo** (RyD). Estructura preparada para sumar los demás módulos.
 - **Banco de preguntas** con material real y generado, según la materia: BCYT, Anatomía, Neurobiología, CyR, DRE y RyD.
-- **1.785 preguntas reales** extraídas de parciales y exámenes oficiales (BCYT 2022/2024/2025: 385 · Anatomía 2018-2025: 471 · Neurobiología: 193 · CyR: 113 · DRE: 451 · RyD: 172).
+- **1.785 preguntas reales** extraídas de parciales, exámenes y prototipos oficiales (BCYT 2022/2024/2025: 385 · Anatomía 2018-2025: 471 · Neurobiología: 193 · CyR: 113 · DRE: 451 · RyD: 172).
 - **34 preguntas adicionales** generadas con Claude a partir de los apuntes (solo BCYT).
 - **Filtros:** por fuente (examen real / generada) y por parcial, combinables.
 - **Tres modos:**
@@ -315,7 +315,7 @@ Por transparencia, detallo en qué partes del proyecto se usó asistencia de IA 
 
 ### Contenido educativo
 
-- **1.785 preguntas reales** extraídas de parciales y exámenes oficiales. Se usó IA como apoyo para transcribir y limpiar los PDFs originales, pero cada pregunta fue revisada manualmente contra el documento fuente.
+- **1.785 preguntas reales** extraídas de parciales, exámenes y prototipos oficiales. Se usó IA como apoyo para transcribir y limpiar los PDFs originales, pero cada pregunta fue revisada manualmente contra el documento fuente.
 - **34 preguntas generadas** a partir de los apuntes oficiales de BCYT. Están marcadas con `source: "generated"` y son auditables desde la app: en `TopicSelect` → filtro **Fuente: Solo generadas**.
 - **Explicaciones:** redactadas o refinadas con IA tomando como referencia los resúmenes oficiales, priorizando precisión y consistencia con el material de estudio.
 
