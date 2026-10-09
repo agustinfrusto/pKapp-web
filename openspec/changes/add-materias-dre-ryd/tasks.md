@@ -99,31 +99,42 @@ mismo rol que van seguidas comparten terminal.
 
 ## 5. Corrida del pipeline [Programador → Ingeniero]
 
-- [ ] 5.0 [Programador] Implementar `tools/ingesta/intercambio.py` (`consolidar`,
+- [x] 5.0 [Programador] Implementar `tools/ingesta/intercambio.py` (`consolidar`,
   `ciega-input`, `ciega-cerrar`, `expl-input`) y adaptar `reparos.py` según D11, con
   fixtures en `tools/ingesta/pruebas/` y el contrato ampliado en el README. Verificar:
   `correr_pruebas.py` pasa los casos nuevos (cobertura incompleta, `ref` desconocido o
   repetido, campo fuera de dominio, las tres derivaciones y su prioridad, `correctIndex`
   intacto, orden de líneas intacto, `expl-input` sin la ciega cerrada) y los viejos.
-- [ ] 5.1 [Ingeniero] Extraer los 21 PDFs únicos y consolidar por materia (el de 4 UTIs
+- [x] 5.1 [Ingeniero] Extraer los 21 PDFs únicos y consolidar por materia (el de 4 UTIs
   entra en las dos). Verificar: un directorio `<materia>-corpus-<ts>` por materia con
   `crudas.jsonl` y `abortados.jsonl`; cada aborto, triado.
-- [ ] 5.2 [Ingeniero] Enriquecer y emitir la entrada de validación ciega. Verificar:
+  Hecho: `dre` 594 crudas y 6 abortos, todos `anulada` y previstos en D5; `ryd` 198
+  crudas y 2 abortos `marca_doble` (Primer periodo 2024, 109 y 112), que son rellenos
+  reales sobre a) y c) en el PDF fuente. Los 8 abortos son legítimos y quedan fuera.
+- [x] 5.2 [Ingeniero] Enriquecer y emitir la entrada de validación ciega. Verificar:
   `ciega-input.jsonl` no contiene `correctIndex`, `correct_letter` ni `explanation`,
   comprobado con `rg`.
 
 ## 6. Validación ciega y explicaciones [Investigador, terminal compartida]
 
-- [ ] 6.1 Validación ciega de `dre`, en lotes. Verificar: `ciega-output.jsonl` cubre
+- [x] 6.1 Validación ciega de `dre`, en lotes. Verificar: `ciega-output.jsonl` cubre
   todos los `ref` de la entrada.
-- [ ] 6.2 Validación ciega de `ryd`, en lotes. Verificar: ídem.
-- [ ] 6.2b [Ingeniero] `intercambio.py ciega-cerrar` y `expl-input` en ambas materias.
+  Hecho: 594/594 en 6 lotes; `ciega-cerrar` deriva 36 (20 ambiguas, 16 no resolubles a
+  ciegas) y 0 discrepancias directas. Chequeo de filtración: un Sonnet sin herramientas
+  sobre 60 refs al azar coincide con la clave en 59/60; el único desvío (331) ya estaba
+  derivado como ambiguo.
+- [x] 6.2 Validación ciega de `ryd`, en lotes. Verificar: ídem.
+  Hecho: 198/198 en 2 lotes; `ciega-cerrar` deriva 21 (15 ambiguas, 6 no resolubles a
+  ciegas) y 0 discrepancias directas.
+- [x] 6.2b [Ingeniero] `intercambio.py ciega-cerrar` y `expl-input` en ambas materias.
   Verificar: las dos salen con código 0 y `ciega-discrepancias.jsonl` queda triado en el
   reporte.
 - [ ] 6.3 Explicaciones de `dre`, en lotes, con el tono de
   `tools/ingesta/referencia/muestras_explicaciones.json`. Verificar:
   `expl-output.jsonl` cubre todos los `ref`.
-- [ ] 6.4 Explicaciones de `ryd`, en lotes. Verificar: ídem.
+- [x] 6.4 Explicaciones de `ryd`, en lotes. Verificar: ídem.
+  Hecho: 198/198 en 2 lotes. Claves dudosas 10, 36, 38, 58, 69, 100, 192 y 193: todas ya
+  derivadas por la ciega; se auditan en 7.1.
 
 ## 7. Validación, auditoría y publicación [Ingeniero → Programador]
 

@@ -484,6 +484,647 @@ def caso_topic_frontera(_pdf):
     return not mal, f'{len(casos)} casos de frontera de D8 (fallan: {mal})'
 
 
+# ---- Intercambio con el modelo (D11) ----
+
+def _import_intercambio():
+    import intercambio
+    return intercambio
+
+
+def _escribir_jsonl(ruta, registros):
+    ruta.write_text(''.join(json.dumps(r, ensure_ascii=False) + '\n' for r in registros),
+                    encoding='utf-8')
+
+
+def _item(n, correcta=0, exam='PROTOTIPO 1'):
+    return {'materia': 'prueba', 'archivo_origen': 'a.pdf', 'exam': exam,
+            'numero_original': n, 'question': f'Pregunta {n}',
+            'options': ['uno', 'dos', 'tres'], 'correct_letter': 'ABC'[correcta],
+            'correctIndex': correcta, 'detection_method': 'apartado',
+            'topic': 't', 'explanation': f'expl {n}'}
+
+
+def _resp(ref, elegida=0, defendibles='auto', confianza='alta', just='porque si'):
+    if defendibles == 'auto':
+        defendibles = [] if elegida is None else [elegida]
+    return {'ref': ref, 'opcion_elegida': elegida, 'opciones_defendibles': defendibles,
+            'confianza': confianza, 'justificacion': just}
+
+
+def _correr_cli(modulo, argv):
+    """(codigo, stderr) de main(argv) de un modulo, sin ruido en stdout."""
+    err = io.StringIO()
+    with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+        try:
+            codigo = modulo.main(argv)
+        except SystemExit as e:
+            codigo = e.code
+    return codigo, err.getvalue()
+
+
+def _instantanea(d):
+    return {p.name: p.read_bytes() for p in sorted(d.iterdir())}
+
+
+def caso_consolidar(_pdf):
+    ix = _import_intercambio()
+    with tempfile.TemporaryDirectory() as t:
+        t = Path(t)
+        a, b, out = t / 'a', t / 'b', t / 'out'
+        a.mkdir(); b.mkdir(); out.mkdir()
+        _escribir_jsonl(a / 'crudas.jsonl', [{'k': 'a1'}, {'k': 'a2'}])
+        _escribir_jsonl(b / 'crudas.jsonl', [{'k': 'b1'}])
+        _escribir_jsonl(a / 'abortados.jsonl', [{'k': 'xa'}])
+        _escribir_jsonl(b / 'abortados.jsonl', [{'k': 'xb'}])
+        _escribir_jsonl(a / 'descartes-borde.jsonl', [{'k': 'da'}])   # b sin descartes-borde
+        _escribir_jsonl(a / 'sospechas-borde.jsonl', [{'k': 'sa'}])
+        _escribir_jsonl(b / 'sospechas-borde.jsonl', [{'k': 'sb'}])
+        originales = ix.crear_directorio_salida
+        ix.crear_directorio_salida = lambda m, n: out
+        try:
+            codigo, err = _correr_cli(ix, ['consolidar', 'prueba', str(a), str(b)])
+        finally:
+            ix.crear_directorio_salida = originales
+        ok = (codigo == 0
+              and [r['k'] for r in leer_jsonl(out / 'crudas.jsonl')] == ['a1', 'a2', 'b1']
+              and [r['k'] for r in leer_jsonl(out / 'abortados.jsonl')] == ['xa', 'xb']
+              and [r['k'] for r in leer_jsonl(out / 'descartes-borde.jsonl')] == ['da']
+              and [r['k'] for r in leer_jsonl(out / 'sospechas-borde.jsonl')] == ['sa', 'sb'])
+        return ok, f'codigo {codigo}, cuatro archivos concatenados en orden, descartes ausente tolerado'
+
+
+def caso_ciega_input(_pdf):
+    ix = _import_intercambio()
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        _escribir_jsonl(d / 'enriquecidas.jsonl', [_item(7, 1), _item(8, 2), _item(9, 0)])
+        codigo, err = _correr_cli(ix, ['ciega-input', str(d)])
+        filas = leer_jsonl(d / 'ciega-input.jsonl')
+        crudo = (d / 'ciega-input.jsonl').read_text(encoding='utf-8') if filas else ''
+        sin_clave = bool(crudo) and not any(
+            k in crudo for k in ('correctIndex', 'correct_letter', 'explanation'))
+        ok = (codigo == 0 and [f['ref'] for f in filas] == [0, 1, 2] and sin_clave
+              and set(filas[0]) == {'ref', 'exam', 'n', 'question', 'options'}
+              and [f['n'] for f in filas] == [7, 8, 9])
+        return ok, f'codigo {codigo}, ref 0..{len(filas) - 1}, sin correctIndex/correct_letter/explanation'
+
+
+def caso_ciega_cerrar_derivaciones(_pdf):
+    ix = _import_intercambio()
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        items = [_item(n, 0) for n in range(1, 6)]
+        _escribir_jsonl(d / 'enriquecidas.jsonl', items)
+        _escribir_jsonl(d / 'ciega-output.jsonl', [
+            _resp(0, 0),                              # coincide con la clave: limpia
+            _resp(1, None, [], 'nula'),               # null
+            _resp(2, 1, [0, 1], 'media'),             # ambigua (y ademas discrepa)
+            _resp(3, 2, [2], 'alta'),                 # discrepancia
+            _resp(4, None, [1, 2], 'nula'),           # null gana a ambigua
+        ])
+        codigo, err = _correr_cli(ix, ['ciega-cerrar', str(d)])
+        fin = leer_jsonl(d / 'enriquecidas-ciega.jsonl')
+        disc = leer_jsonl(d / 'ciega-discrepancias.jsonl')
+        motivos = [f.get('forzar_revision') for f in fin]
+        ok = (codigo == 0 and len(fin) == 5
+              and motivos == [None, 'no_resoluble_a_ciegas', 'ambigua',
+                              'discrepancia_validacion_ciega', 'no_resoluble_a_ciegas']
+              and [f['correctIndex'] for f in fin] == [i['correctIndex'] for i in items]
+              and [f['numero_original'] for f in fin] == [1, 2, 3, 4, 5]
+              and 'detalle_revision' in fin[2] and 'detalle_revision' not in fin[0]
+              and [x['ref'] for x in disc] == [1, 2, 3, 4]
+              and set(disc[0]) == {'ref', 'exam', 'numero_original', 'question', 'options',
+                                   'clave_documento', 'resolucion_ciega', 'confianza',
+                                   'justificacion', 'motivo'}
+              and disc[1]['motivo'] == 'ambigua' and disc[1]['clave_documento'] == 0
+              and disc[1]['resolucion_ciega'] == 1)
+        return ok, f'codigo {codigo}, motivos {motivos}'
+
+
+def caso_ciega_cerrar_guardas(_pdf):
+    ix = _import_intercambio()
+    base = [_resp(0, 0), _resp(1, 1), _resp(2, 2)]
+    malos = {
+        'ref faltante': ([_resp(0, 0), _resp(1, 1)], '2'),
+        'ref desconocido': (base + [_resp(9, 0)], '9'),
+        'ref repetido': (base + [_resp(1, 1)], '1'),
+        'opcion fuera de rango': ([_resp(0, 0), _resp(1, 7), _resp(2, 2)], '1'),
+        'confianza fuera de dominio': ([_resp(0, 0), _resp(1, 1, confianza='altisima'),
+                                        _resp(2, 2)], '1'),
+        'nula con opcion no nula': ([_resp(0, 0), _resp(1, 1, confianza='nula'),
+                                     _resp(2, 2)], '1'),
+        'defendibles sin la elegida': ([_resp(0, 0), _resp(1, 1, [0]), _resp(2, 2)], '1'),
+    }
+    fallas = []
+    for nombre, (salida, ref) in malos.items():
+        with tempfile.TemporaryDirectory() as t:
+            d = Path(t)
+            _escribir_jsonl(d / 'enriquecidas.jsonl', [_item(1), _item(2), _item(3)])
+            _escribir_jsonl(d / 'ciega-output.jsonl', salida)
+            antes = _instantanea(d)
+            codigo, err = _correr_cli(ix, ['ciega-cerrar', str(d)])
+            if codigo != 1 or ref not in err or _instantanea(d) != antes:
+                fallas.append(f'{nombre} (codigo {codigo}, stderr {err.strip()!r})')
+    return (not fallas,
+            'siete guardas: codigo 1, nombra el ref, no escribe' if not fallas else '; '.join(fallas))
+
+
+def caso_expl_input_sin_ciega(_pdf):
+    ix = _import_intercambio()
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        _escribir_jsonl(d / 'enriquecidas.jsonl', [_item(1)])
+        codigo, err = _correr_cli(ix, ['expl-input', str(d)])
+        ok = codigo == 1 and not (d / 'expl-input.jsonl').exists()
+        return ok, f'codigo {codigo}, sin expl-input.jsonl'
+
+
+def caso_expl_input_cubre_todo(_pdf):
+    ix = _import_intercambio()
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        fin = [_item(1, 2), dict(_item(2, 1), forzar_revision='ambigua')]
+        _escribir_jsonl(d / 'enriquecidas-ciega.jsonl', fin)
+        codigo, err = _correr_cli(ix, ['expl-input', str(d)])
+        filas = leer_jsonl(d / 'expl-input.jsonl')
+        ok = (codigo == 0 and [f['ref'] for f in filas] == [0, 1]
+              and [f['correctIndex'] for f in filas] == [2, 1]
+              and set(filas[0]) == {'ref', 'question', 'options', 'correctIndex'})
+        return ok, f'codigo {codigo}, ref 0..1 con los derivados incluidos'
+
+
+def _preparar_reparos(d, n=3):
+    _escribir_jsonl(d / 'enriquecidas-ciega.jsonl', [_item(i + 1, i % 3) for i in range(n)])
+    _escribir_jsonl(d / 'expl-output.jsonl',
+                    [{'ref': i, 'explanation': f'La opcion {i} es correcta.'}
+                     for i in reversed(range(n))])
+
+
+def caso_reparos_guardas(_pdf):
+    import reparos
+    fallas = []
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        _preparar_reparos(d)
+        antes = _instantanea(d)
+        codigo, err = _correr_cli(reparos, [str(d)])
+        if codigo != 1 or _instantanea(d) != antes:
+            fallas.append(f'sin --modelo (codigo {codigo})')
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        _preparar_reparos(d)
+        _escribir_jsonl(d / 'expl-output.jsonl',
+                        [{'ref': 0, 'explanation': 'x'}, {'ref': 2, 'explanation': 'y'}])
+        antes = _instantanea(d)
+        codigo, err = _correr_cli(reparos, [str(d), '--modelo', 'm-1'])
+        if codigo != 1 or '1' not in err or _instantanea(d) != antes:
+            fallas.append(f'incompleto (codigo {codigo}, stderr {err.strip()!r})')
+    return (not fallas,
+            'sin --modelo e incompleto: codigo 1, sin archivo' if not fallas else '; '.join(fallas))
+
+
+def caso_reparos_completo(_pdf):
+    import reparos
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        _preparar_reparos(d)
+        codigo, err = _correr_cli(reparos, [str(d), '--modelo', 'modelo-de-prueba'])
+        fin = leer_jsonl(d / 'enriquecidas-final.jsonl')
+        ok = (codigo == 0 and len(fin) == 3
+              and [f['numero_original'] for f in fin] == [1, 2, 3]
+              and all(f['modelo'] == 'modelo-de-prueba' for f in fin)
+              and all(f['estado_explicacion'] == 'generada' for f in fin)
+              and all('sin_control_estabilidad' in f['reparos'] for f in fin)
+              and [f['explanation'] for f in fin] == [f'La opcion {i} es correcta.' for i in range(3)]
+              and [f['correctIndex'] for f in fin] == [0, 1, 2])
+        return ok, f'codigo {codigo}, 3 lineas en orden de entrada'
+
+
+def caso_ciega_cerrar_atomico(_pdf):
+    ix = _import_intercambio()
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        _escribir_jsonl(d / 'enriquecidas.jsonl', [_item(1, 0), _item(2, 0)])
+        _escribir_jsonl(d / 'ciega-output.jsonl', [_resp(0, 0), _resp(1, 1, [1], 'alta')])
+        (d / 'ciega-discrepancias.jsonl').mkdir()   # imposible de escribir
+        codigo, err = _correr_cli(ix, ['ciega-cerrar', str(d)])
+        sobrantes = sorted(p.name for p in d.iterdir() if p.name.endswith('.tmp'))
+        ok = (codigo == 1 and not (d / 'enriquecidas-ciega.jsonl').exists() and not sobrantes)
+        return ok, f'codigo {codigo}, sin enriquecidas-ciega.jsonl ni .tmp ({sobrantes})'
+
+
+def caso_ciega_cerrar_rename_restaura(_pdf):
+    """N2: si falla un rename con archivos previos, los previos vuelven con su contenido."""
+    ix = _import_intercambio()
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        _escribir_jsonl(d / 'enriquecidas.jsonl', [_item(1, 0), _item(2, 0)])
+        _escribir_jsonl(d / 'ciega-output.jsonl', [_resp(0, 0), _resp(1, 1, [1], 'alta')])
+        (d / 'enriquecidas-ciega.jsonl').write_text('VIEJO-A\n', encoding='utf-8')
+        (d / 'ciega-discrepancias.jsonl').write_text('VIEJO-B\n', encoding='utf-8')
+        original = ix.os.replace
+
+        def falla_discrepancias(src, dst):
+            if Path(dst).name == 'ciega-discrepancias.jsonl' and str(src).endswith('.tmp'):
+                raise PermissionError(13, 'Permission denied')
+            return original(src, dst)
+        ix.os.replace = falla_discrepancias
+        try:
+            codigo, err = _correr_cli(ix, ['ciega-cerrar', str(d)])
+        finally:
+            ix.os.replace = original
+        previos = {n: (d / n).read_text(encoding='utf-8') for n in
+                   ('enriquecidas-ciega.jsonl', 'ciega-discrepancias.jsonl') if (d / n).exists()}
+        sobrantes = sorted(p.name for p in d.iterdir() if p.name.endswith(('.tmp', '.bak')))
+        ok = (codigo == 1 and previos == {'enriquecidas-ciega.jsonl': 'VIEJO-A\n',
+                                          'ciega-discrepancias.jsonl': 'VIEJO-B\n'}
+              and not sobrantes)
+        return ok, f'codigo {codigo}, previos {previos}, sobrantes {sobrantes}'
+
+
+def caso_escribir_todo_bak_no_borra_falla(_pdf):
+    """Corr. 5: un `.bak` que no se puede borrar no deshace un commit ya completo."""
+    ix = _import_intercambio()
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        a, b = d / 'a.jsonl', d / 'b.jsonl'
+        a.write_text('VIEJO-A\n', encoding='utf-8')
+        b.write_text('VIEJO-B\n', encoding='utf-8')
+        original = Path.unlink
+
+        def falla_bak(self, *args, **kwargs):
+            if self.name.endswith('.bak'):
+                raise PermissionError(13, 'Permission denied')
+            return original(self, *args, **kwargs)
+        Path.unlink = falla_bak
+        try:
+            error = None
+            try:
+                ix.escribir_todo({a: [{'x': 'NUEVO-A'}], b: [{'x': 'NUEVO-B'}]})
+            except BaseException as e:
+                error = repr(e)
+        finally:
+            Path.unlink = original
+        textos = (a.read_text(encoding='utf-8'), b.read_text(encoding='utf-8'))
+        ok = error is None and all('NUEVO' in x for x in textos)
+        return ok, f'error {error}, contenidos {textos}'
+
+
+def caso_reparos_atomico(_pdf):
+    import reparos
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        _preparar_reparos(d)
+        original = reparos.json.dumps
+        llamadas = []
+
+        def falla_a_mitad(obj, *a, **k):
+            llamadas.append(1)
+            if len(llamadas) >= 2:
+                raise OSError(28, 'No space left on device')
+            return original(obj, *a, **k)
+        reparos.json.dumps = falla_a_mitad
+        try:
+            try:
+                codigo, err = _correr_cli(reparos, [str(d), '--modelo', 'm-1'])
+            except OSError:
+                codigo = 'excepcion'
+        finally:
+            reparos.json.dumps = original
+        sobrantes = [p.name for p in d.iterdir() if p.name.endswith('.tmp')]
+        ok = not (d / 'enriquecidas-final.jsonl').exists() and not sobrantes
+        return ok, f'codigo {codigo}, sin enriquecidas-final.jsonl ni .tmp ({sobrantes})'
+
+
+def caso_ciega_input_separadores(_pdf):
+    ix = _import_intercambio()
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        item = _item(1, 0)
+        item['question'] = 'a\u2028b\u2029c\u0085d'
+        _escribir_jsonl(d / 'enriquecidas.jsonl', [item])
+        codigo, err = _correr_cli(ix, ['ciega-input', str(d)])
+        return codigo == 0, f'codigo {codigo} con U+2028/U+2029/U+0085 en la pregunta'
+
+
+def _consolidar_con_fallo_de_escritura(ix, out, dirs):
+    """Corre consolidar con `out` como salida y la 2.a escritura forzada a fallar."""
+    llamadas = []
+    original_esc, original_dir = ix.escribir_jsonl, ix.crear_directorio_salida
+
+    def falla(ruta, registros):
+        llamadas.append(ruta)
+        if len(llamadas) >= 2:
+            raise OSError(28, 'No space left on device')
+        return original_esc(ruta, registros)
+    ix.escribir_jsonl = falla
+    ix.crear_directorio_salida = lambda m, n: out
+    try:
+        try:
+            return _correr_cli(ix, ['consolidar', 'prueba'] + [str(x) for x in dirs])[0]
+        except OSError:
+            return 'excepcion'
+    finally:
+        ix.escribir_jsonl, ix.crear_directorio_salida = original_esc, original_dir
+
+
+def _corpus_minimo(a):
+    a.mkdir()
+    for nombre in ('crudas.jsonl', 'abortados.jsonl'):
+        _escribir_jsonl(a / nombre, [{'k': 1}])
+
+
+def caso_consolidar_rollback_ajeno(_pdf):
+    """N1: el rollback no borra el directorio ni los archivos de otra corrida."""
+    ix = _import_intercambio()
+    with tempfile.TemporaryDirectory() as t:
+        t = Path(t)
+        a, out = t / 'a', t / 'out'
+        _corpus_minimo(a)
+        out.mkdir()
+        (out / 'crudas.jsonl').write_text('{"ajeno": 1}\n', encoding='utf-8')
+        codigo = _consolidar_con_fallo_de_escritura(ix, out, [a])
+        ok = (out.is_dir() and (out / 'crudas.jsonl').read_text(encoding='utf-8') == '{"ajeno": 1}\n'
+              and sorted(p.name for p in out.iterdir()) == ['crudas.jsonl'])
+        return ok, f'codigo {codigo}; crudas.jsonl ajeno intacto y sin .tmp'
+
+
+def caso_consolidar_fallo_dir_nuevo(_pdf):
+    """T1b: si consolidar falla en un directorio nuevo, no queda ni vacio."""
+    ix = _import_intercambio()
+    with tempfile.TemporaryDirectory() as t:
+        t = Path(t)
+        a, out = t / 'a', t / 'out'
+        _corpus_minimo(a)
+        out.mkdir()
+        codigo = _consolidar_con_fallo_de_escritura(ix, out, [a])
+        return not out.exists(), f'codigo {codigo}; out existe: {out.exists()}'
+
+
+def caso_escribir_todo_rollback_previo(_pdf):
+    """T1a: un fallo en el rename no borra un archivo final preexistente."""
+    ix = _import_intercambio()
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        previo = d / 'a.jsonl'
+        previo.write_text('{"viejo": 1}\n', encoding='utf-8')
+        (d / 'b.jsonl').mkdir()   # el rename de b falla
+        try:
+            ix.escribir_todo({previo: [{'nuevo': 1}], d / 'b.jsonl': [{'x': 1}]})
+            lanzo = False
+        except OSError:
+            lanzo = True
+        sobrantes = sorted(p.name for p in d.iterdir() if p.name.endswith('.tmp'))
+        ok = lanzo and previo.exists() and not sobrantes
+        return ok, f'lanzo {lanzo}; a.jsonl previo existe: {previo.exists()}; .tmp {sobrantes}'
+
+
+def caso_reparos_separadores(_pdf):
+    """T1c: U+2028/U+2029 dentro de un registro de expl-output no parten la linea."""
+    import reparos
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        _preparar_reparos(d, n=1)
+        _escribir_jsonl(d / 'expl-output.jsonl',
+                        [{'ref': 0, 'explanation': 'La opcion a\u2028b\u2029c es correcta.'}])
+        codigo, err = _correr_cli(reparos, [str(d), '--modelo', 'm-1'])
+        return codigo == 0, f'codigo {codigo} con U+2028/U+2029 en expl-output'
+
+
+def caso_lineas_malas(_pdf):
+    """#4: linea no JSON, no objeto o sin `opcion_elegida` sale por la guarda, no por traceback."""
+    import reparos
+    ix = _import_intercambio()
+    fallas = []
+    sin_clave = {'ref': 1, 'opciones_defendibles': [], 'confianza': 'nula', 'justificacion': 'x'}
+    malas = {
+        'json invalido': ('{no es json', '2'),
+        'no es objeto': ('[1, 2]', '2'),
+        'sin opcion_elegida': (json.dumps(sin_clave), 'ref 1'),
+    }
+    for nombre, (linea, ref) in malas.items():
+        with tempfile.TemporaryDirectory() as t:
+            d = Path(t)
+            _escribir_jsonl(d / 'enriquecidas.jsonl', [_item(1), _item(2)])
+            buenas = [json.dumps(_resp(0, 0)), linea]
+            (d / 'ciega-output.jsonl').write_text('\n'.join(buenas) + '\n', encoding='utf-8')
+            antes = _instantanea(d)
+            try:
+                codigo, err = _correr_cli(ix, ['ciega-cerrar', str(d)])
+            except Exception as e:
+                codigo, err = 'traceback', repr(e)
+            if codigo != 1 or ref not in err or _instantanea(d) != antes:
+                fallas.append(f'ciega {nombre} (codigo {codigo}, stderr {err.strip()!r})')
+    for nombre, linea in (('json invalido', '{no es json'), ('no es objeto', '5')):
+        with tempfile.TemporaryDirectory() as t:
+            d = Path(t)
+            _preparar_reparos(d, 2)
+            buenas = [json.dumps({'ref': 0, 'explanation': 'x'}), linea]
+            (d / 'expl-output.jsonl').write_text('\n'.join(buenas) + '\n', encoding='utf-8')
+            antes = _instantanea(d)
+            try:
+                codigo, err = _correr_cli(reparos, [str(d), '--modelo', 'm-1'])
+            except Exception as e:
+                codigo, err = 'traceback', repr(e)
+            if codigo != 1 or '2' not in err or _instantanea(d) != antes:
+                fallas.append(f'reparos {nombre} (codigo {codigo}, stderr {err.strip()!r})')
+    return (not fallas,
+            'cinco lineas malas: codigo 1, nombra la linea, sin traceback ni escritura'
+            if not fallas else '; '.join(fallas))
+
+
+def caso_defendibles_repetidos(_pdf):
+    """#5: indices repetidos en `opciones_defendibles` se rechazan."""
+    ix = _import_intercambio()
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        _escribir_jsonl(d / 'enriquecidas.jsonl', [_item(1, 0), _item(2, 0)])
+        _escribir_jsonl(d / 'ciega-output.jsonl', [_resp(0, 0), _resp(1, 0, [0, 0])])
+        antes = _instantanea(d)
+        codigo, err = _correr_cli(ix, ['ciega-cerrar', str(d)])
+        ok = codigo == 1 and 'ref 1' in err and _instantanea(d) == antes
+        return ok, f'codigo {codigo}, defendibles [0, 0] rechazado, stderr {err.strip()!r}'
+
+
+def caso_consolidar_dir_repetido(_pdf):
+    """#6: un directorio repetido (por Path.resolve()) se rechaza y no escribe."""
+    ix = _import_intercambio()
+    with tempfile.TemporaryDirectory() as t:
+        t = Path(t)
+        a, out = t / 'a', t / 'out'
+        a.mkdir(); out.mkdir()
+        for nombre in ('crudas.jsonl', 'abortados.jsonl'):
+            _escribir_jsonl(a / nombre, [{'k': 1}])
+        originales = ix.crear_directorio_salida
+        ix.crear_directorio_salida = lambda m, n: out
+        try:
+            codigo, err = _correr_cli(ix, ['consolidar', 'prueba', str(a), str(a / '..' / 'a')])
+        finally:
+            ix.crear_directorio_salida = originales
+        ok = codigo == 1 and 'repetido' in err and not any(out.iterdir())
+        return ok, f'codigo {codigo}, mismo directorio por otra ruta rechazado, stderr {err.strip()!r}'
+
+
+def caso_consolidar_obligatorios(_pdf):
+    """#7: solo los dos bordes pueden faltar; sin crudas o sin abortados, codigo 1."""
+    ix = _import_intercambio()
+    fallas = []
+    for faltante in ('crudas.jsonl', 'abortados.jsonl'):
+        with tempfile.TemporaryDirectory() as t:
+            t = Path(t)
+            a, out = t / 'a', t / 'out'
+            a.mkdir(); out.mkdir()
+            for nombre in ('crudas.jsonl', 'abortados.jsonl'):
+                if nombre != faltante:
+                    _escribir_jsonl(a / nombre, [{'k': 1}])
+            originales = ix.crear_directorio_salida
+            ix.crear_directorio_salida = lambda m, n: out
+            try:
+                codigo, err = _correr_cli(ix, ['consolidar', 'prueba', str(a)])
+            finally:
+                ix.crear_directorio_salida = originales
+            if codigo != 1 or faltante not in err or any(out.iterdir()):
+                fallas.append(f'sin {faltante} (codigo {codigo}, stderr {err.strip()!r})')
+    return (not fallas,
+            'sin crudas o sin abortados: codigo 1 y nada escrito' if not fallas else '; '.join(fallas))
+
+
+def caso_consolidar_materia_invalida(_pdf):
+    """#11: materia invalida o fallo al leerla -> `Error: ...` y codigo 1, sin traceback."""
+    ix = _import_intercambio()
+    fallas = []
+    with tempfile.TemporaryDirectory() as t:
+        a = Path(t) / 'a'
+        a.mkdir()
+        for nombre in ('crudas.jsonl', 'abortados.jsonl'):
+            _escribir_jsonl(a / nombre, [])
+        for nombre, exc in (('inexistente', None), ('lectura fallida', RuntimeError('node fallo')),
+                            ('json roto', json.JSONDecodeError('x', 'y', 0))):
+            originales = ix.crear_directorio_salida
+            if exc is not None:
+                def falla(m, n, exc=exc):
+                    raise exc
+                ix.crear_directorio_salida = falla
+            try:
+                codigo, err = _correr_cli(ix, ['consolidar', 'materia-que-no-existe', str(a)])
+            except Exception as e:
+                codigo, err = 'traceback', repr(e)
+            finally:
+                ix.crear_directorio_salida = originales
+            if codigo != 1 or not err.startswith('Error:'):
+                fallas.append(f'{nombre} (codigo {codigo}, stderr {err.strip()!r})')
+    return (not fallas,
+            'tres fallos de materia: Error: y codigo 1' if not fallas else '; '.join(fallas))
+
+
+def caso_ciega_cerrar_dominio(_pdf):
+    """#8: bool, negativos, ref string, justificacion vacia, nula sin null y rangos."""
+    ix = _import_intercambio()
+    ok0, ok2 = _resp(0, 0), _resp(2, 2)
+    malos = {
+        'bool como opcion_elegida': (_resp(1, True, [True]), '1'),
+        'opcion_elegida negativa': (_resp(1, -1, [-1]), '1'),
+        'justificacion vacia': (_resp(1, 1, just='  '), '1'),
+        'confianza distinta de nula con opcion null': (_resp(1, None, [], 'alta'), '1'),
+        'defendibles fuera de rango': (_resp(1, 1, [1, 9]), '1'),
+        'defendibles con bool': (_resp(1, 1, [True]), '1'),
+        'ref string': (_resp('1', 1), '1'),
+    }
+    fallas = []
+    for nombre, (resp, ref) in malos.items():
+        with tempfile.TemporaryDirectory() as t:
+            d = Path(t)
+            _escribir_jsonl(d / 'enriquecidas.jsonl', [_item(1), _item(2), _item(3)])
+            _escribir_jsonl(d / 'ciega-output.jsonl', [ok0, resp, ok2])
+            antes = _instantanea(d)
+            codigo, err = _correr_cli(ix, ['ciega-cerrar', str(d)])
+            if codigo != 1 or ref not in err or _instantanea(d) != antes:
+                fallas.append(f'{nombre} (codigo {codigo}, stderr {err.strip()!r})')
+    return (not fallas,
+            'siete casos de dominio: codigo 1, nombra el ref, no escribe' if not fallas else '; '.join(fallas))
+
+
+def caso_reparos_cobertura(_pdf):
+    """#9: ref repetido, desconocido, explanation vacia; las marcas de la ciega se conservan."""
+    import reparos
+    malos = {
+        'ref repetido': ([{'ref': 0, 'explanation': 'a'}, {'ref': 1, 'explanation': 'b'},
+                          {'ref': 2, 'explanation': 'c'}, {'ref': 1, 'explanation': 'd'}], 'repetidos'),
+        'ref desconocido': ([{'ref': 0, 'explanation': 'a'}, {'ref': 1, 'explanation': 'b'},
+                             {'ref': 2, 'explanation': 'c'}, {'ref': 9, 'explanation': 'd'}], 'desconocidos'),
+        'ref string': ([{'ref': 0, 'explanation': 'a'}, {'ref': '1', 'explanation': 'b'},
+                        {'ref': 2, 'explanation': 'c'}], 'desconocidos'),
+        'explanation vacia': ([{'ref': 0, 'explanation': 'a'}, {'ref': 1, 'explanation': '  '},
+                               {'ref': 2, 'explanation': 'c'}], 'vacia'),
+    }
+    fallas = []
+    for nombre, (salida, palabra) in malos.items():
+        with tempfile.TemporaryDirectory() as t:
+            d = Path(t)
+            _preparar_reparos(d)
+            _escribir_jsonl(d / 'expl-output.jsonl', salida)
+            antes = _instantanea(d)
+            codigo, err = _correr_cli(reparos, [str(d), '--modelo', 'm-1'])
+            if codigo != 1 or palabra not in err or _instantanea(d) != antes:
+                fallas.append(f'{nombre} (codigo {codigo}, stderr {err.strip()!r})')
+    with tempfile.TemporaryDirectory() as t:
+        d = Path(t)
+        _preparar_reparos(d, 2)
+        _escribir_jsonl(d / 'enriquecidas-ciega.jsonl', [
+            dict(_item(1, 0), forzar_revision='ambigua', detalle_revision='detalle uno'),
+            _item(2, 1)])
+        codigo, err = _correr_cli(reparos, [str(d), '--modelo', 'm-1'])
+        fin = leer_jsonl(d / 'enriquecidas-final.jsonl')
+        if not (codigo == 0 and len(fin) == 2 and fin[0].get('forzar_revision') == 'ambigua'
+                and fin[0].get('detalle_revision') == 'detalle uno'
+                and 'forzar_revision' not in fin[1]):
+            fallas.append(f'marcas de revision (codigo {codigo}, {fin})')
+    return (not fallas,
+            'repetido, desconocido, vacia y marcas conservadas' if not fallas else '; '.join(fallas))
+
+
+def caso_consolidar_espia(_pdf):
+    """#10: llama a crear_directorio_salida con (materia, 'corpus'); sin entradas validas no la llama."""
+    ix = _import_intercambio()
+    fallas = []
+    with tempfile.TemporaryDirectory() as t:
+        t = Path(t)
+        a, out = t / 'a', t / 'out'
+        a.mkdir(); out.mkdir()
+        for nombre in ('crudas.jsonl', 'abortados.jsonl'):
+            _escribir_jsonl(a / nombre, [{'k': 1}])
+        llamadas = []
+
+        def espia(m, n):
+            llamadas.append((m, n))
+            return out
+        originales = ix.crear_directorio_salida
+        ix.crear_directorio_salida = espia
+        try:
+            codigo, err = _correr_cli(ix, ['consolidar', 'prueba', str(a)])
+        finally:
+            ix.crear_directorio_salida = originales
+        if codigo != 0 or llamadas != [('prueba', 'corpus')]:
+            fallas.append(f'llamada (codigo {codigo}, llamadas {llamadas})')
+        sin_crudas = t / 'b'
+        sin_crudas.mkdir()
+        _escribir_jsonl(sin_crudas / 'abortados.jsonl', [])
+        for nombre, dirs, texto in (('directorio inexistente', [t / 'no-existe'], 'no es un directorio'),
+                                    ('sin crudas.jsonl', [sin_crudas], 'crudas.jsonl')):
+            llamadas.clear()
+            antes = _instantanea(out)
+            ix.crear_directorio_salida = espia
+            try:
+                codigo, err = _correr_cli(ix, ['consolidar', 'prueba'] + [str(x) for x in dirs])
+            finally:
+                ix.crear_directorio_salida = originales
+            if codigo != 1 or texto not in err or llamadas or _instantanea(out) != antes:
+                fallas.append(f'{nombre} (codigo {codigo}, llamadas {llamadas}, stderr {err.strip()!r})')
+    return (not fallas,
+            "espia: ('prueba', 'corpus'); inexistente y sin crudas: codigo 1 sin crear nada" if not fallas
+            else '; '.join(fallas))
+
+
 CASOS = [
     ('marca_una_linea', 'marca de una linea', caso_una_linea),
     ('marca_dos_lineas', 'marca de dos lineas', caso_dos_lineas),
@@ -529,6 +1170,31 @@ CASOS = [
     ('topic_claves', 'topic: claves de dre y ryd = D8', caso_topic_claves_d8),
     ('topic_limite', 'topic: limite de palabra por materia', caso_topic_limite_palabra),
     ('topic_frontera', 'topic: casos de frontera de D8', caso_topic_frontera),
+    ('intercambio', 'intercambio: consolidar concatena en orden y tolera descartes ausente', caso_consolidar),
+    ('intercambio', 'intercambio: ciega-input sin clave y ref 0..N-1', caso_ciega_input),
+    ('intercambio', 'intercambio: ciega-cerrar, tres derivaciones y su prioridad', caso_ciega_cerrar_derivaciones),
+    ('intercambio', 'intercambio: ciega-cerrar, guardas de cobertura y dominio', caso_ciega_cerrar_guardas),
+    ('intercambio', 'intercambio: expl-input sin la ciega cerrada', caso_expl_input_sin_ciega),
+    ('intercambio', 'intercambio: expl-input cubre todos los ref', caso_expl_input_cubre_todo),
+    ('intercambio', 'reparos: sin --modelo o incompleto, codigo 1 y sin archivo', caso_reparos_guardas),
+    ('intercambio', 'reparos: completo escribe enriquecidas-final en orden', caso_reparos_completo),
+    ('intercambio', 'intercambio: ciega-cerrar atomico si una escritura falla', caso_ciega_cerrar_atomico),
+    ('intercambio', 'intercambio: un rename que falla restaura los archivos previos (N2)', caso_ciega_cerrar_rename_restaura),
+    ('intercambio', 'intercambio: un .bak que no se borra no deshace el commit', caso_escribir_todo_bak_no_borra_falla),
+    ('intercambio', 'reparos: escritura que falla no deja enriquecidas-final', caso_reparos_atomico),
+    ('intercambio', 'intercambio: U+2028 en la pregunta no rompe la lectura', caso_ciega_input_separadores),
+    ('intercambio', 'intercambio: linea mala sale por la guarda, no por traceback (#4)', caso_lineas_malas),
+    ('intercambio', 'intercambio: opciones_defendibles repetidas se rechazan (#5)', caso_defendibles_repetidos),
+    ('intercambio', 'intercambio: consolidar rechaza un directorio repetido (#6)', caso_consolidar_dir_repetido),
+    ('intercambio', 'intercambio: consolidar exige crudas y abortados (#7)', caso_consolidar_obligatorios),
+    ('intercambio', 'intercambio: materia invalida sale con Error: y codigo 1 (#11)', caso_consolidar_materia_invalida),
+    ('intercambio', 'intercambio: ciega-cerrar, dominio de indices, ref y justificacion (#8)', caso_ciega_cerrar_dominio),
+    ('intercambio', 'reparos: ref repetido, desconocido, vacia y marcas conservadas (#9)', caso_reparos_cobertura),
+    ('intercambio', 'intercambio: consolidar llama a crear_directorio_salida(materia, corpus) (#10)', caso_consolidar_espia),
+    ('intercambio', 'intercambio: el rollback de consolidar respeta un directorio ajeno (N1)', caso_consolidar_rollback_ajeno),
+    ('intercambio', 'intercambio: consolidar que falla en directorio nuevo no lo deja (T1b)', caso_consolidar_fallo_dir_nuevo),
+    ('intercambio', 'intercambio: fallo de rename conserva el final preexistente (T1a)', caso_escribir_todo_rollback_previo),
+    ('intercambio', 'reparos: U+2028 en expl-output no rompe la lectura (T1c)', caso_reparos_separadores),
 ]
 
 

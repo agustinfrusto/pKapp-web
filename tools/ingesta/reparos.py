@@ -3,10 +3,13 @@ Gates de contenido sobre las explicaciones (fase 6).
 No generan texto: clasifican el que ya vino del agente. Una explicacion que falla
 un control se publica igual, marcada (D6).
 """
+import argparse
 import json
+import os
 import re
 import sys
 import unicodedata
+from collections import Counter
 from pathlib import Path
 
 STOP = set("""el la los las un una unos unas de del al a en y o que se su sus por para
@@ -95,31 +98,96 @@ def aplicar(item: dict, explicacion: str, reparos_previos=None) -> dict:
     return {'reparos': reparos, 'detalle_reparos': detalle}
 
 
-if __name__ == '__main__':
-    d = Path(sys.argv[1])
-    items = [json.loads(l) for l in open(d / 'enriquecidas.jsonl', encoding='utf-8')]
-    expl = {json.loads(l)['ref']: json.loads(l)['explanation']
-            for l in open(d / 'expl-output.jsonl', encoding='utf-8')}
-    revisar = {json.loads(l)['ref'] for l in open(d / 'ciega-discrepancias.jsonl', encoding='utf-8')}
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(description='Cierra el intercambio de explicaciones (D11).')
+    ap.add_argument('dir')
+    ap.add_argument('--modelo', help='id del modelo que generó las explicaciones (obligatorio)')
+    args = ap.parse_args(argv)
+    if not args.modelo or not args.modelo.strip():
+        print('Error: falta --modelo <id>: el id sale de la corrida, no de una constante', file=sys.stderr)
+        return 1
+    d = Path(args.dir)
+
+    def leer(nombre, obligatorio=True):
+        ruta = d / nombre
+        if not ruta.exists():
+            if obligatorio:
+                print(f"Error: falta {ruta}", file=sys.stderr)
+                raise SystemExit(1)
+            return []
+        registros = []
+        for n, linea in enumerate(ruta.read_text(encoding='utf-8').split('\n'), start=1):
+            if not linea.strip():
+                continue
+            try:
+                r = json.loads(linea)
+            except ValueError as e:
+                print(f"Error: {ruta.name} linea {n}: no es JSON valido ({e})", file=sys.stderr)
+                raise SystemExit(1)
+            if not isinstance(r, dict):
+                print(f"Error: {ruta.name} linea {n}: no es un objeto JSON", file=sys.stderr)
+                raise SystemExit(1)
+            registros.append(r)
+        return registros
+
+    items = leer('enriquecidas-ciega.jsonl')
+    crudas = leer('expl-output.jsonl')
+    revisar = leer('ciega-discrepancias.jsonl', obligatorio=False)
+
+    # Guarda de cobertura: no se rellena, no se descarta, no se reordena.
+    expl, repetidos, desconocidos = {}, [], []
+    for r in crudas:
+        ref = r.get('ref')
+        if not isinstance(ref, int) or isinstance(ref, bool) or not 0 <= ref < len(items):
+            desconocidos.append(ref)
+        elif ref in expl:
+            repetidos.append(ref)
+        else:
+            expl[ref] = r.get('explanation')
+    faltantes = [ref for ref in range(len(items)) if ref not in expl]
+    vacias = [ref for ref, t in expl.items() if not isinstance(t, str) or not t.strip()]
+    problemas = []
+    if faltantes:
+        problemas.append(f"ref faltantes: {faltantes}")
+    if desconocidos:
+        problemas.append(f"ref desconocidos: {desconocidos}")
+    if repetidos:
+        problemas.append(f"ref repetidos: {sorted(set(repetidos))}")
+    if vacias:
+        problemas.append(f"explanation vacia o no es texto en ref: {sorted(vacias)}")
+    if problemas:
+        print("Error: expl-output.jsonl no cumple el contrato: " + ' | '.join(problemas), file=sys.stderr)
+        return 1
 
     salida = []
-    for ref, texto in expl.items():
-        it = dict(items[ref])
+    for ref, base in enumerate(items):
+        it = dict(base)
         # Excepcion registrada de esta corrida: una sola generacion, sin control de estabilidad.
-        res = aplicar(it, texto, ['sin_control_estabilidad'])
-        it['explanation'] = texto
+        res = aplicar(it, expl[ref], ['sin_control_estabilidad'])
+        it['explanation'] = expl[ref]
         it['reparos'] = res['reparos']
         it['detalle_reparos'] = res['detalle_reparos']
-        it['modelo'] = 'claude-opus-5 (sesion Claude Code)'
+        it['modelo'] = args.modelo
         it['estado_explicacion'] = 'generada'
         salida.append(it)
 
-    with open(d / 'enriquecidas-v2.jsonl', 'w', encoding='utf-8') as f:
-        for it in salida:
-            f.write(json.dumps(it, ensure_ascii=False) + '\n')
+    final = d / 'enriquecidas-final.jsonl'
+    tmp = final.with_name(final.name + '.tmp')
+    try:
+        with open(tmp, 'w', encoding='utf-8') as f:
+            for it in salida:
+                f.write(json.dumps(it, ensure_ascii=False) + '\n')
+        os.replace(tmp, final)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
 
-    from collections import Counter
     c = Counter(r for it in salida for r in it['reparos'])
     print(f"explicaciones procesadas: {len(salida)} | derivadas a revision antes de fase 6: {len(revisar)}")
     for k, v in c.most_common():
         print(f"  {k}: {v}")
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

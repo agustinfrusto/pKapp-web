@@ -77,7 +77,14 @@ El directorio `tools/ingesta/referencia/` almacena muestras de explicaciones ya 
    órgano y sin un sujeto hormonal (una hormona entre las 4 primeras palabras). En `ryd`, el eje
    hipotálamo-hipófiso-ovárico (con o sin tilde) y el eje gonadal a lo largo de la vida o de sus
    etapas, sin marcador masculino, van a `ciclo-sexual-femenino`.
-3. **Etapas de modelo** (validación ciega y explicaciones): no las corre el pipeline. Ver el contrato de intercambio más abajo.
+3. **`intercambio.py`** (`consolidar`, `ciega-input`, `ciega-cerrar`, `expl-input`) y `reparos.py`: preparan la entrada de las etapas de modelo y cierran sus respuestas. El pipeline no corre el modelo: ver el contrato de intercambio más abajo.
+   - `intercambio.py consolidar <materia> <dir>...` concatena `crudas.jsonl`, `abortados.jsonl`, `descartes-borde.jsonl` y `sospechas-borde.jsonl` de cada `<dir>` de `extraer`, en el orden de los argumentos, en `salidas/<materia>-corpus-<ts>/`. Solo `descartes-borde.jsonl` y `sospechas-borde.jsonl` pueden faltar; sin `crudas.jsonl` o sin `abortados.jsonl` sale con código 1. Un directorio repetido (por `Path.resolve()`) también se rechaza.
+   - `intercambio.py ciega-input <dir>` lee `enriquecidas.jsonl` y escribe `ciega-input.jsonl` (`ref`, `exam`, `n`, `question`, `options`), sin clave ni explicación.
+   - `intercambio.py ciega-cerrar <dir>` lee `enriquecidas.jsonl` y `ciega-output.jsonl`, y escribe `enriquecidas-ciega.jsonl` y `ciega-discrepancias.jsonl`.
+   - `intercambio.py expl-input <dir>` lee `enriquecidas-ciega.jsonl` y escribe `expl-input.jsonl` (`ref`, `question`, `options`, `correctIndex`). No corre sin la ciega cerrada.
+   - `reparos.py <dir> --modelo <id>` lee `enriquecidas-ciega.jsonl` y `expl-output.jsonl` y escribe `enriquecidas-final.jsonl`, la entrada de `validar`. El `--modelo` es obligatorio: el id sale de la corrida, no de una constante. `ciega-discrepancias.jsonl` es opcional y solo alimenta el conteo impreso.
+
+   Orden de la corrida: `extraer` → `consolidar` → `enriquecer` → `ciega-input` → [modelo] → `ciega-cerrar` → `expl-input` → [modelo] → `reparos` → `validar` → `emitir`.
 4. **`validar`**: Aplica gates deterministas en código (estructura, no material visual, no ambigüedad, no duplicados, fiabilidad de explicaciones). Emite `banco.jsonl`, `descartadas.jsonl`, `revision-manual.jsonl`, `explicaciones-dudosas.jsonl` y `reporte-calidad.md`.
 5. **`emitir`**: Helper Node que inserta las preguntas de `banco.jsonl` en `src/materias/<id>/questions.js` sin alterar el encabezado legal ni las preguntas preexistentes.
 
@@ -186,8 +193,28 @@ Entre ambos pasos trabaja el agente que esté conduciendo, con el modelo que ten
 
 | Etapa | Entrada que emite | Respuestas que espera | Campos de la respuesta |
 | :--- | :--- | :--- | :--- |
-| Validación ciega | `ciega-input.jsonl` | `ciega-output.jsonl` | `ref`, `opcion_elegida`, `confianza`, `justificacion` |
+| Validación ciega | `ciega-input.jsonl` | `ciega-output.jsonl` | `ref`, `opcion_elegida`, `opciones_defendibles`, `confianza`, `justificacion` |
 | Explicaciones | `expl-input.jsonl` | `expl-output.jsonl` | `ref`, `explanation` |
+
+`ref` es el índice, base 0, de la línea en `enriquecidas.jsonl`. Ninguna etapa reordena ni filtra líneas de un `enriquecidas*.jsonl`: una pregunta derivada se marca, no se saca. La clave del documento no se toca nunca: `ciega-cerrar` solo agrega `forzar_revision` y `detalle_revision`.
+
+Dominio de `ciega-output.jsonl`:
+
+| Campo | Dominio |
+| :--- | :--- |
+| `ref` | entero de la entrada |
+| `opcion_elegida` | índice válido de `options`, o `null` si no se puede resolver sin material ausente |
+| `opciones_defendibles` | lista de índices válidos y sin repetidos; incluye `opcion_elegida` cuando no es `null` |
+| `confianza` | `alta`, `media`, `baja` o `nula`; `nula` si y solo si `opcion_elegida` es `null` |
+| `justificacion` | texto no vacío |
+
+`ciega-cerrar` deriva cada `ref` con la primera regla que acierta; el motivo va a `forzar_revision` y el detalle, con ambas respuestas y la justificación, a `detalle_revision`:
+
+1. `opcion_elegida` es `null` → `no_resoluble_a_ciegas`.
+2. `opciones_defendibles` tiene dos o más índices → `ambigua`.
+3. `opcion_elegida` distinta de `correctIndex` → `discrepancia_validacion_ciega`.
+
+`ciega-discrepancias.jsonl` lista los `ref` derivados con `ref`, `exam`, `numero_original`, `question`, `options`, `clave_documento`, `resolucion_ciega`, `confianza`, `justificacion` y `motivo`. `expl-input` cubre todos los `ref`, también los derivados.
 
 `ciega-input.jsonl` se emite **sin** `correctIndex` ni `explanation`, y la omisión
 es verificable con un grep sobre el archivo en lugar de depender de cómo esté
@@ -200,8 +227,12 @@ Cerrado el intercambio, `reparos.py` clasifica cada explicación (`no_discrimina
 
 ### Las dos guardas
 
-- **No se rellena.** Si el archivo de respuestas falta o no cubre toda la entrada,
-  la etapa se detiene y nombra los registros faltantes.
+- **No se rellena.** Si el archivo de respuestas falta, no cubre todos los `ref`, trae
+  un `ref` desconocido o repetido, o un campo fuera de dominio, la etapa sale con código 1,
+  nombra los `ref` y no escribe ningún archivo. Si la escritura falla (disco lleno), no
+  queda ningún archivo nuevo ni `.tmp`. Si falla un `rename` (permisos, destino que es
+  directorio), los archivos previos se reponen desde su `.bak` y no queda ningún `.tmp`
+  ni `.bak`. Un `<archivo>.bak` preexistente en el directorio se pisa.
 - **No se disfraza.** Una explicación que no venga de una etapa de modelo no
   puede publicarse con el mismo `estado_explicacion` que una generada. `validar.py`
   aborta y lista los ids en lugar de emitir el banco.
