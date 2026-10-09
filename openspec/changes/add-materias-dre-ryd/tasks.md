@@ -80,20 +80,20 @@ mismo rol que van seguidas comparten terminal.
 
 ## 4. Identidad visual y scaffold [Diseñador → Programador]
 
-- [ ] 4.1 [Diseñador] Elegir la imagen de tarjeta de `dre` y de `ryd` entre los
+- [x] 4.1 [Diseñador] Elegir la imagen de tarjeta de `dre` y de `ryd` entre los
   originales de `Imagenes materias/` y dejarlas en `src/assets/materias/` (D10).
   Verificar: el reporte justifica la elección frente a las cuatro tarjetas
   publicadas, `sips` informa 220×220 y cada archivo pesa menos de 150 KB.
-- [ ] 4.2 [Diseñador] Definir ícono y color de cada tarjeta. Verificar: el color pasa
+- [x] 4.2 [Diseñador] Definir ícono y color de cada tarjeta. Verificar: el color pasa
   el chequeo de contraste de `tools/ui` y el reporte deja los valores exactos para
   `metadata.js`.
-- [ ] 4.3 [Programador] Crear `src/materias/dre/` y `src/materias/ryd/` con los cinco
+- [x] 4.3 [Programador] Crear `src/materias/dre/` y `src/materias/ryd/` con los cinco
   archivos, usando `cyr` como molde: `examSize` 50 y 20, `parciales: null`,
   `questions.js` vacío con el encabezado legal, los `TOPICS` de 3.1 y el ícono y el
   color de 4.2. Verificar: `node tools/ingesta/js/read-materia.mjs dre` y `… ryd`
   responden sin error, y las claves de `TOPICS` de cada materia coinciden exactamente
   con las de sus reglas en `enriquecer.py` (3.2) y con la tabla de D8.
-- [ ] 4.4 [Programador] Todavía sin registrar en `src/materias/index.js`: la UI no las muestra
+- [x] 4.4 [Programador] Todavía sin registrar en `src/materias/index.js`: la UI no las muestra
   hasta el grupo 7. Verificar: `npm run build:web` pasa y el selector sigue con
   cuatro materias.
 
