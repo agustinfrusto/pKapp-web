@@ -240,6 +240,12 @@ Ninguna pregunta SHALL quedar fuera del banco por la calidad de su explicación.
 - **THEN** se generan tres versiones en contextos independientes y se
   compara el razonamiento central, no la redacción
 
+#### Scenario: Corrida de una sola generación
+- **WHEN** el operador decide una corrida de una sola generación por pregunta
+- **THEN** cada explicación se publica marcada con el reparo
+  `sin_control_estabilidad`, y la excepción queda registrada en el diseño del change
+  que la decidió
+
 #### Scenario: Razonamiento divergente
 - **WHEN** las tres versiones divergen en mecanismo, causa o definición
 - **THEN** se publica una de las versiones, la explicación queda marcada con el

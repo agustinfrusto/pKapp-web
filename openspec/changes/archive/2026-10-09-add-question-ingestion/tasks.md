@@ -64,7 +64,7 @@ revisarlos.
 ## 6. Explicaciones
 
 - [x] 6.1 (excepción CyR 2026-08-27: una sola generación, ver design.md) Implementar la generación en tres contextos independientes, con el prompt tomando de `referencia/` solo tono y extensión; verificar que el artefacto enriquecido tiene tres versiones por pregunta
-- [ ] 6.2 Implementar la comparación del razonamiento central (mecanismo, causa, definición) y el reparo `consistencia_baja`, publicando igual una de las versiones; verificar que dos redacciones distintas del mismo razonamiento no se marcan como divergentes
+- [x] 6.2 DIFERIDA (conciliación 2026-10-09): no se implementó. Todas las corridas publicadas usaron una sola generación por decisión del operador (CyR 2026-08-27; DRE/RyD, D11 de add-materias-dre-ryd) y `reparos.py` marca cada explicación con `sin_control_estabilidad`. Se retoma si se vuelve a la triple generación. Texto original: Implementar la comparación del razonamiento central (mecanismo, causa, definición) y el reparo `consistencia_baja`, publicando igual una de las versiones; verificar que dos redacciones distintas del mismo razonamiento no se marcan como divergentes
 - [x] 6.3 Implementar el pase de coherencia contra la clave y el reparo `no_discrimina` (no argumenta por la opción marcada o no distingue distractores); verificar inyectando una explicación genérica y otra que argumente por otra opción
 - [x] 6.4 Implementar el reparo `dato_no_verificable` (valor numérico, porcentaje, rango de referencia, fecha, epónimo o cita ausentes del enunciado), registrando el dato concreto; verificar inyectando una explicación con una cifra inventada
 - [x] 6.5 Implementar el cálculo determinista de fiabilidad por conteo de reparos (0 → `alta`, 1 → `media`, ≥2 → `baja`); verificar sobre casos construidos de cero, uno y tres reparos
@@ -77,26 +77,26 @@ revisarlos.
 - [x] 7.2 Implementar el chequeo de colisión contra los ids publicados y verificar que una colisión con otra pregunta impide publicar esa pregunta y se reporta
 - [x] 7.3 Emitir `banco.jsonl` con la pregunta en el formato de la app (`source: 'exam'`, materia destino) y la trazabilidad en un campo hermano (archivo de origen, número original, método de detección de respuesta, estado de la explicación, fiabilidad, reparos, modelo y fecha); verificar que ningún campo de trazabilidad se mezcla con los de la app
 - [x] 7.4 Emitir descartadas y revisión manual, cada registro con su motivo y su texto extraído; verificar que un descarte cualquiera es trazable hasta el texto que lo originó
-- [ ] 7.5 Verificar que toda pregunta detectada en un archivo no abortado aparece exactamente en uno de los tres destinos, y que un archivo abortado no aporta ninguna al banco
+- [x] 7.5 (verificada 2026-10-09 sobre los corpus de DRE y RyD: banco + descartadas + revisión = entrada, 594 y 198; ningún examen abortado aporta al banco) Verificar que toda pregunta detectada en un archivo no abortado aparece exactamente en uno de los tres destinos, y que un archivo abortado no aporta ninguna al banco
 - [x] 7.6 Verificar que una segunda corrida no sobrescribe el directorio de salidas de la primera
 - [x] 7.7 Emitir el reporte con desglose **por archivo**: extraídas, descartadas por motivo y derivadas a revisión por motivo, más los archivos abortados con su causa; verificar que los conteos cuadran con los artefactos
 - [x] 7.8 Agregar al reporte el desglose de fiabilidad de explicaciones y el señalamiento del umbral: más del 20% en consistencia baja marca el lote como calidad degradada y recomienda revisar el registro; verificar forzando el umbral sobre un lote de prueba
 
 ## 8. Piloto
 
-- [ ] 8.1 Corrida completa sobre **un solo archivo**, elegido entre los que el inventario marcó como procesables
-- [ ] 8.2 Revisión manual de 20 salidas contra el PDF, comprobando enunciado, opciones y clave una por una; verificar en particular que ninguna pregunta quedó con la clave de la vecina
-- [ ] 8.3 Verificar que el conteo de descartes por `dependencia_visual` es coherente con la materia: una materia con mucha imagen debe descartar mucho, y una sin imágenes casi nada. Un conteo fuera de lo esperado indica patrones mal calibrados en 3.9
-- [ ] 8.4 Revisar la cola de revisión manual y el registro de explicaciones dudosas del piloto buscando motivos sobre-representados
-- [ ] 8.5 Corregir lo que aparezca y repetir el piloto hasta que las 20 salidas coincidan con el PDF
-- [ ] 8.6 **GATE**: aprobación explícita antes del corpus completo. Un parser desfasado por una pregunta no deja señal en ningún reporte
-- [ ] 8.7 Dejar anotado en el README que el piloto se repite ante cada PDF de origen o formato de marcado nuevo
+- [x] 8.1 SUPERADA (conciliación 2026-10-09): el piloto de 20 salidas se reemplazó por la validación ciega de cada pregunta y la auditoría en Opus de la cola de riesgo (D11 y D13 de add-materias-dre-ryd), que controlan la clave de todas las preguntas y no de una muestra. Texto original: Corrida completa sobre **un solo archivo**, elegido entre los que el inventario marcó como procesables
+- [x] 8.2 SUPERADA (conciliación 2026-10-09): el piloto de 20 salidas se reemplazó por la validación ciega de cada pregunta y la auditoría en Opus de la cola de riesgo (D11 y D13 de add-materias-dre-ryd), que controlan la clave de todas las preguntas y no de una muestra. Texto original: Revisión manual de 20 salidas contra el PDF, comprobando enunciado, opciones y clave una por una; verificar en particular que ninguna pregunta quedó con la clave de la vecina
+- [x] 8.3 SUPERADA (conciliación 2026-10-09): el piloto de 20 salidas se reemplazó por la validación ciega de cada pregunta y la auditoría en Opus de la cola de riesgo (D11 y D13 de add-materias-dre-ryd), que controlan la clave de todas las preguntas y no de una muestra. Texto original: Verificar que el conteo de descartes por `dependencia_visual` es coherente con la materia: una materia con mucha imagen debe descartar mucho, y una sin imágenes casi nada. Un conteo fuera de lo esperado indica patrones mal calibrados en 3.9
+- [x] 8.4 SUPERADA (conciliación 2026-10-09): el piloto de 20 salidas se reemplazó por la validación ciega de cada pregunta y la auditoría en Opus de la cola de riesgo (D11 y D13 de add-materias-dre-ryd), que controlan la clave de todas las preguntas y no de una muestra. Texto original: Revisar la cola de revisión manual y el registro de explicaciones dudosas del piloto buscando motivos sobre-representados
+- [x] 8.5 SUPERADA (conciliación 2026-10-09): el piloto de 20 salidas se reemplazó por la validación ciega de cada pregunta y la auditoría en Opus de la cola de riesgo (D11 y D13 de add-materias-dre-ryd), que controlan la clave de todas las preguntas y no de una muestra. Texto original: Corregir lo que aparezca y repetir el piloto hasta que las 20 salidas coincidan con el PDF
+- [x] 8.6 SUPERADA (conciliación 2026-10-09): el piloto de 20 salidas se reemplazó por la validación ciega de cada pregunta y la auditoría en Opus de la cola de riesgo (D11 y D13 de add-materias-dre-ryd), que controlan la clave de todas las preguntas y no de una muestra. Texto original: **GATE**: aprobación explícita antes del corpus completo. Un parser desfasado por una pregunta no deja señal en ningún reporte
+- [x] 8.7 SUPERADA (conciliación 2026-10-09): el piloto de 20 salidas se reemplazó por la validación ciega de cada pregunta y la auditoría en Opus de la cola de riesgo (D11 y D13 de add-materias-dre-ryd), que controlan la clave de todas las preguntas y no de una muestra. Texto original: Dejar anotado en el README que el piloto se repite ante cada PDF de origen o formato de marcado nuevo
 
 ## 9. Corrida completa
 
-- [ ] 9.1 Procesar el corpus completo y verificar que los archivos abortados coinciden con los que el inventario anticipó
-- [ ] 9.2 Revisar el reporte consolidado buscando tasas anómalas por archivo respecto de las del piloto
-- [ ] 9.3 Revisar la cola de revisión manual y el registro de explicaciones dudosas del corpus
+- [x] 9.1 CUMPLIDA en las corridas publicadas: CyR (1.4.0) y DRE/RyD (1.6.0, change add-materias-dre-ryd, auditoria-7.1.md). Texto original: Procesar el corpus completo y verificar que los archivos abortados coinciden con los que el inventario anticipó
+- [x] 9.2 CUMPLIDA en las corridas publicadas: CyR (1.4.0) y DRE/RyD (1.6.0, change add-materias-dre-ryd, auditoria-7.1.md). Texto original: Revisar el reporte consolidado buscando tasas anómalas por archivo respecto de las del piloto
+- [x] 9.3 CUMPLIDA en las corridas publicadas: CyR (1.4.0) y DRE/RyD (1.6.0, change add-materias-dre-ryd, auditoria-7.1.md). Texto original: Revisar la cola de revisión manual y el registro de explicaciones dudosas del corpus
 
 ## 10. Emisión y verificación en la app
 
@@ -104,5 +104,5 @@ revisarlos.
 - [x] 10.2 Implementar la inserción de las preguntas nuevas antes del cierre de `QUESTIONS`, sin tocar encabezado, comentarios de sección ni formato de lo publicado; verificar con `git diff` que solo aparecen líneas agregadas y ninguna modificada
 - [x] 10.3 Verificar que las preguntas emitidas contienen únicamente los campos del formato de la app, sin trazabilidad ni fiabilidad
 - [x] 10.4 Verificar que las etapas 3 a 9 no modifican ningún archivo de `src/`, y que el contenido publicado solo cambia al correr la emisión
-- [ ] 10.5 Levantar la app con `npm run web` y verificar que las preguntas nuevas aparecen en el quiz, con su topic legible y su filtro de origen como preguntas de examen
-- [ ] 10.6 Revisar el diff completo antes de dejarlo para publicación, dejando el commit y el bump de versión a decisión del usuario
+- [x] 10.5 CUMPLIDA: e2e de DRE y RyD (examen completo, topic y origen) en tools/e2e/suites.js. Texto original: Levantar la app con `npm run web` y verificar que las preguntas nuevas aparecen en el quiz, con su topic legible y su filtro de origen como preguntas de examen
+- [x] 10.6 CUMPLIDA: commit y bump decididos por el operador en 1.4.0 y 1.6.0. Texto original: Revisar el diff completo antes de dejarlo para publicación, dejando el commit y el bump de versión a decisión del usuario
