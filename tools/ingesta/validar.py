@@ -10,10 +10,18 @@ from pathlib import Path
 
 from comun import get_project_root, get_materia_info, slugify
 
+_SOPORTE = r'(figura|gr[aá]fic[ao]|imagen|esquema|tabla|curva|diagrama|micrograf[ií]a|fotograf[ií]a)'
+_NO_TERAPEUTICO = r'(?!\s+(terap[eé]utic|de\s+tratamiento))'
+
 VISUAL_PATTERNS = [
     re.compile(r'\b(en\s+la\s+(siguiente\s+)?(figura|gr[aá]fic[ao]|imagen|tabla|fotograf[ií]a|curva)|en\s+el\s+(siguiente\s+)?(esquema|diagrama|gr[aá]fico|preparado|recuadro))\b', re.IGNORECASE),
     re.compile(r'\b(se\s+muestra\s+(un[a]?\s+)?(diagrama|figura|gr[aá]fic[ao]|esquema)|a\s+partir\s+de\s+la\s+figura|las\s+siguientes\s+curvas\s+\([a-dA-D]\s*,\s*[a-dA-D]\)|el\s+gr[aá]fico\s+representa|en\s+la\s+gráfica\s+se\s+observa)\b', re.IGNORECASE),
     re.compile(r'\b(punto\s+se[ñn]alado|curva\s+[a-dA-D]|se[ñn]alad[ao]\s+por\s+la\s+flecha|la\s+flecha\s+indica|diagrama\s+p-v|figura\s+\d+|gr[aá]fic[ao]\s+\d+|tabla\s+\d+)\b', re.IGNORECASE),
+    # Referencias deicticas a un soporte visual que la app no muestra (G9).
+    re.compile(rf'\b(siguiente|adjunt[ao])\s+{_SOPORTE}\b{_NO_TERAPEUTICO}', re.IGNORECASE),
+    re.compile(rf'\b{_SOPORTE}\s+(adjunt[ao]|siguiente)\b', re.IGNORECASE),
+    re.compile(rf'\b(el|la|este|esta)\s+{_SOPORTE}\s+(muestra|indica|representa|esquematiza|ilustra|presenta)n?\b', re.IGNORECASE),
+    re.compile(rf'\bse\s+(muestra|representa|esquematiza|observa|indica|ilustra)n?\b[^.?!]*?\b(el|la|un|una|este|esta)\s+{_SOPORTE}\b{_NO_TERAPEUTICO}', re.IGNORECASE),
 ]
 
 CONTEXT_PATTERNS = [

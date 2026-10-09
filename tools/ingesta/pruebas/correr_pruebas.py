@@ -1265,6 +1265,36 @@ def caso_aprobada_no_salta_otros_gates(_pdf):
     return ok_lote and ok_banco, f"descartadas {motivos}, ids {ids}, banco existente {[d['motivo'] for d in r2['descartadas']]}"
 
 
+def caso_visual_deicticos(_pdf):
+    textos = [
+        'Los datos de la siguiente gráfica fueron obtenidos de un individuo sano',
+        'El gráfico muestra cómo varían las concentraciones de glucosa en sangre',
+        'A continuación se muestra el resultado de la curva de tolerancia obtenido de un individuo sano.',
+        'El esquema indica los niveles de ARNm maternos (arriba) y de las proteínas',
+        'En la figura adjunta se indican las regiones de expresión del gen',
+        'Según las variaciones en los niveles hormonales mostrados en la siguiente figura:',
+        'Dada la siguiente imagen de la desaminación de los aminoácidos, indique la correcta',
+        'En la siguiente tabla se esquematizan los principales sustratos de la gluconeogénesis',
+    ]
+    r = _validar_corrida([_item_v(i + 1, 'a.pdf', t) for i, t in enumerate(textos)])
+    vis = sorted(d['numero_original'] for d in r['descartadas'] if d['motivo'] == 'dependencia_visual')
+    return vis == list(range(1, 9)), f'descartadas como visual {vis}, banco {len(r["banco"])}'
+
+
+def caso_visual_sin_soporte(_pdf):
+    textos = [
+        '¿Qué representa la curva de disociación de la hemoglobina?',
+        'Respecto del esquema terapéutico de la insulina, marque la correcta',
+        'Cuál de los siguientes esquemas terapéuticos es el indicado en la diabetes tipo 1',
+        'La tabla periódica ubica al yodo en el grupo de los halógenos, marque la correcta',
+        'Con respecto a la curva de tolerancia a la glucosa, marque la correcta',
+        'En el hígado se observa mayor actividad de la glucoquinasa, marque la correcta',
+    ]
+    r = _validar_corrida([_item_v(i + 1, 'a.pdf', t) for i, t in enumerate(textos)])
+    vis = sorted(d['numero_original'] for d in r['descartadas'] if d['motivo'] == 'dependencia_visual')
+    return not vis and len(r['banco']) == len(textos), f'descartadas como visual {vis}, banco {len(r["banco"])}'
+
+
 def _guarda_aprobada(aprobada, items=None, ancla=''):
     items = items or [dict(_item_v(1, 'a.pdf', 'Enunciado alfa sobre tiroides'), forzar_revision='ambigua')]
     r = _validar_corrida(items, aprobada=aprobada)
@@ -1489,6 +1519,8 @@ CASOS = [
     ('validar', 'validar: una ambigua aprobada se admite con revision_aprobada (D13)', caso_aprobada_ambigua),
     ('validar', 'validar: una casi-duplicada aprobada se admite (D13)', caso_aprobada_casi_duplicada),
     ('validar', 'validar: aprobada no salta estructura, visual ni duplicado exacto (D13)', caso_aprobada_no_salta_otros_gates),
+    ('validar', 'validar: referencias deicticas a un soporte visual se descartan (G9)', caso_visual_deicticos),
+    ('validar', 'validar: enunciados sin soporte visual no se descartan (G9)', caso_visual_sin_soporte),
     ('validar', 'validar: revision-aprobada con linea que no es JSON, codigo 1 (D13)', caso_aprobada_guarda_json),
     ('validar', 'validar: revision-aprobada con linea que no es objeto, codigo 1 (D13)', caso_aprobada_guarda_no_objeto),
     ('validar', 'validar: revision-aprobada con campo faltante, codigo 1 (D13)', caso_aprobada_guarda_campo_faltante),
