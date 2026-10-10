@@ -20,7 +20,7 @@ La dirección ya está aprobada: el **híbrido Plancha + campo de filamentos**
   `metadata.js` en la UI.
 - **Tipografía propia**: IBM Plex Sans 400/600 y Plex Mono 400/500, con presupuesto de peso
   propio.
-- **Sin emojis en la interfaz**: los reemplazan texto o glifos de trazo. El contenido de los
+- **Sin emojis en la interfaz**: cada uno pasa a un glifo SVG de trazo; el texto acompaña, no sustituye. El contenido de los
   `questions.js` no se toca.
 - **Control de tema** en forma de selector de texto "Claro | Oscuro". Conserva clave,
   valores y alcance.
@@ -59,5 +59,5 @@ Ninguna.
 
 ## Open questions (operador)
 
-1. **Copy de resultados**: el boceto saca el "¡" ("Muy bien. Vas por buen camino."). Es
-   copy y lo decide el operador. Mientras no decida, el copy actual queda intacto.
+1. ~~**Copy de resultados**~~: resuelta el 2026-10-10. El usuario aprobó RESULTS-P2 ("Muy
+   bien. Vas por buen camino.", sin "¡") junto con el resto de las propuestas de copy.

@@ -7,8 +7,9 @@
   `src/components/HeaderMarca.js`.
 - Superficies: 8 pantallas (`src/screens/*.js`) y 2 componentes (`DonationBox`,
   `HeaderMarca`).
-- Boceto aprobado (material de trabajo, sin versionar): `referencias-diseno/propuestas/hibrido/hibrido.html`
-  y sus tableros PNG.
+- Boceto aprobado y brief, congelados y versionados en `diseno/referencia/` (`hibrido.html`,
+  `REFERENCIAS.md`). Los tableros PNG, `ref1–6.jpg` y los conceptos descartados siguen sin
+  versionar en `referencias-diseno/`.
 - Contratos de diseño versionados, en `openspec/changes/rediseno-plancha/diseno/`:
   `tokens.md`, `NOTAS.md`, `pantallas/`, `svg/` (ilustraciones y glifos) y `favicon/`.
 
@@ -17,7 +18,8 @@
 **Goals**: llevar el híbrido aprobado a las 10 superficies, en ambos temas, sin tocar datos
 ni comportamiento.
 
-**Non-Goals**: cambiar copy (salvo el que reemplaza emojis), umbrales, navegación, lógica
+**Non-Goals**: cambiar copy (salvo el que reemplaza emojis y las propuestas de copy que
+aprobó el usuario el 2026-10-10), umbrales, navegación, lógica
 del quiz o bancos; agregar pantallas; animaciones.
 
 ## Decisions
@@ -43,8 +45,22 @@ Las ilustraciones usan `currentColor` y tienen que seguir el tema. Un PNG por te
 los assets y pierde nitidez; un SVG estático en `<Image>` no se renderiza en nativo.
 
 - Se instala con `npx expo install react-native-svg` (versión fijada por el SDK 54).
-- Un componente `Ilustracion` recibe `id`, `color` y `size`. El color sale del token del
-  tema activo, nunca de un literal.
+- Un componente `Ilustracion` recibe `datos` (el objeto de D3), `color`, `colorAcento`
+  (opcional) y el tamaño: `size` (cuadrado, alto proporcional al viewBox) o `ancho` y
+  `alto` independientes (`ancho` admite `'100%'` para llenar la columna sin medirla). Los colores salen de tokens del tema activo, nunca de un literal.
+  No importa el registro de materias: quien lo usa le pasa los datos.
+- Contrato de datos (D3), sin JSX ni dependencias de plataforma:
+  `{ viewBox, trazo: { ancho, union, extremo }, elementos: [{ tipo, props, tono? }] }`.
+  `tipo` es `path`, `circle`, `ellipse`, `rect`, `line`, `polyline` o `polygon`; `props`
+  usa los nombres camelCase de SVG (`d`, `cx`, `strokeWidth`, `strokeDasharray`,
+  `opacity`…), válidos en `react-native-svg` y en el DOM de React. `tono: 'acento'` pinta
+  el elemento con `colorAcento`; `relleno: true` en `props` lo rellena con su color. Ningún
+  color literal en los datos. Campo opcional `encuadre`: `'meet'` (por defecto), `'slice'`
+  o `'none'`, que se traduce a `preserveAspectRatio`; el campo de filamentos usa `'none'`
+  como el boceto (estiramiento acotado por `columna`: si `columna` supera 448 o aparece un
+  ancho de escritorio propio, se revisa y por encima de ~1,4× pasa a `'slice'`). `strokeOpacity` vale solo en el campo de filamentos (jerarquía de
+  trazo del boceto); nunca en controles, texto, estados ni ilustraciones de materia, que
+  son monocromas y sin `tono`.
 - **Compuerta**: si `react-native-svg` suma más de **25 KB gzip** al bundle web, se adopta
   el plan B: `Ilustracion.web.js` emite `<svg>` del DOM con `React.createElement` (lo admite
   react-native-web) y `react-native-svg` queda solo en nativo, con la misma resolución por
@@ -53,6 +69,12 @@ los assets y pierde nitidez; un SVG estático en `<Image>` no se renderiza en na
 
 ### D3. Ilustración por materia, en la materia
 
+- Acceso estático: el registro (`src/materias/index.js`) importa cada `ilustracion.js`
+  junto a `metadata.js` y la expone en cada elemento de `MATERIA_LIST`, porque el
+  selector la dibuja sin cargar el banco (lazy). El `index.js` de la materia no la
+  reexporta. `cargarMateria(id)` devuelve la materia con la misma forma que su elemento de
+  `MATERIA_LIST` (metadata, `preguntas` e `ilustracion`) más el banco, así cualquier
+  pantalla la lee de `useMateria()`.
 - Archivo nuevo: `src/materias/<id>/ilustracion.js`, que exporta los datos de trazo de la
   materia (paths y opacidades) sin JSX de plataforma. `Ilustracion` los dibuja.
 - La materia sigue autocontenida; agregar una materia exige su ilustración (delta de
@@ -144,7 +166,9 @@ tablet, PC, Mac, iPhone y Android.
 - **Base de comparación**: el boceto es la base del lenguaje visual (color, tipografía,
   marcos, disposición); `main` es la base de las funciones, los datos, el copy y el orden
   de uso. Conservar una función, un dato o un texto de `main` que el boceto omite no es
-  una propuesta: es obligatorio (Non-Goals y D10). Agregar un texto del boceto que `main`
+  una propuesta: es obligatorio (Non-Goals y D10), pero su aspecto lo fija la ficha con
+  tokens Plancha, nunca `main`. Si disposición (boceto) y orden de uso (`main`) chocan,
+  gana el orden de uso y el Diseñador resuelve la disposición dentro de él. Agregar un texto del boceto que `main`
   no tiene sí es una propuesta, y si se rechaza queda el texto de `main`.
 - **Anchos**: cada ficha define el layout en tres anchos: teléfono (390 px), tablet
   (768 px) y escritorio (1280 px). En tablet y escritorio, el contenido no se estira a
