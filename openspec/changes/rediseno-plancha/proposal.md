@@ -25,7 +25,7 @@ La dirección ya está aprobada: el **híbrido Plancha + campo de filamentos**
 - **Control de tema** en forma de selector de texto "Claro | Oscuro". Conserva clave,
   valores y alcance.
 - **Estados semánticos por forma además de color** en quiz, resultados y estadísticas.
-- **Ícono, favicon y manifest** nuevos (`referencias-diseno/propuestas/favicon/`). El navy
+- **Ícono, favicon y manifest** nuevos (`openspec/changes/rediseno-plancha/diseno/favicon/`). El navy
   `#1a3f6f` y el `#6366f1` salen de `app.json`, del manifest y de `inject-pwa.js`.
 - **Pantallas que el boceto no cubre**: el Diseñador las resuelve antes de implementarlas
   (agregar pregunta, revisión de respuestas, examen en curso, ajustes, donaciones y estados

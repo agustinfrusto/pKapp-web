@@ -60,17 +60,9 @@ ESFUNO/
 # Originales en alta de las imagenes de materias: al repo va solo la version reducida
 Imagenes materias/
 # Referencias visuales para el Diseñador: material de terceros, no se distribuye
-referencias-diseno/*
-# Excepción: los contratos de diseño propios (tabla de tokens, fichas, notas y SVG
-# fuente) se versionan, porque la implementación se audita contra ellos.
-!referencias-diseno/propuestas/
-referencias-diseno/propuestas/*
-!referencias-diseno/propuestas/hibrido/
-referencias-diseno/propuestas/hibrido/*
-!referencias-diseno/propuestas/hibrido/tokens.md
-!referencias-diseno/propuestas/hibrido/NOTAS.md
-!referencias-diseno/propuestas/hibrido/pantallas/
-!referencias-diseno/propuestas/hibrido/svg/
+referencias-diseno/
+# PNG regenerables por diseno/favicon/generar.py; los publicados viven en public/
+openspec/changes/*/diseno/favicon/*.png
 tools/ingesta/salidas/
 tools/ingesta/.venv/
 .venv/

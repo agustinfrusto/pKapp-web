@@ -7,8 +7,10 @@
   `src/components/HeaderMarca.js`.
 - Superficies: 8 pantallas (`src/screens/*.js`) y 2 componentes (`DonationBox`,
   `HeaderMarca`).
-- Insumos del Diseñador: `referencias-diseno/propuestas/hibrido/` (boceto de 6 pantallas,
-  `NOTAS.md` y `svg/<id>.svg`) y `referencias-diseno/propuestas/favicon/`.
+- Boceto aprobado (material de trabajo, sin versionar): `referencias-diseno/propuestas/hibrido/hibrido.html`
+  y sus tableros PNG.
+- Contratos de diseño versionados, en `openspec/changes/rediseno-plancha/diseno/`:
+  `tokens.md`, `NOTAS.md`, `pantallas/`, `svg/` (ilustraciones y glifos) y `favicon/`.
 
 ## Goals / Non-Goals
 
@@ -26,7 +28,7 @@ del quiz o bancos; agregar pantallas; animaciones.
 |---|---|---|
 | Valores de tokens (color, tipografía, espaciado, bordes) | Diseñador | Diseñador, en `src/theme/colores.js` y en la tabla de tokens |
 | Escalas de `tailwind.config.js` (fuentes, radios, familias) | Diseñador (valores) | Programador |
-| Layout y matriz de estados por pantalla | Diseñador | Diseñador, en `referencias-diseno/propuestas/hibrido/pantallas/<pantalla>.md` |
+| Layout y matriz de estados por pantalla | Diseñador | Diseñador, en `openspec/changes/rediseno-plancha/diseno/pantallas/<pantalla>.md` |
 | Código de pantallas y componentes | — | Programador, contra la ficha de su pantalla |
 | Dependencias, módulos por plataforma, `App.js`, `app.json`, `scripts/**` | Ingeniero (contrato) | Programador |
 | Ilustraciones SVG | Diseñador (dibujo) | Programador (conversión a componente) |
@@ -122,6 +124,36 @@ El brief excluye las interfaces redondeadas. Los tokens de radio pasan a los val
 fije el Diseñador (se espera 0) y `src/theme/sombras.js` se vacía o se borra: la elevación
 se expresa con filete, no con sombra. Una pantalla migrada no conserva `rounded-*` ni
 `sombras.*` que contradigan la ficha.
+
+### D10. Continuidad de uso y cobertura de dispositivos
+
+Pedido del usuario (2026-10-10): la web está en uso y las métricas muestran tráfico desde
+tablet, PC, Mac, iPhone y Android.
+
+- **Continuidad**: el rediseño cambia la piel, no el uso. Se conservan el flujo de
+  pantallas, el orden y la ubicación relativa de las acciones principales, los rótulos
+  que el usuario ya reconoce y la cantidad de gestos de cada recorrido. Un control que
+  cambia de lugar o de forma de uso es una ruptura y necesita aprobación del usuario.
+- **Propuestas**: el Diseñador es libre de proponer cambios de UI, incluidos los de uso
+  (pedido del usuario, 2026-10-10). Todo cambio que no esté en el boceto híbrido ya
+  aprobado ni sea su traslado directo a la pantalla, visual o de uso, es una propuesta:
+  va en la tabla "Propuestas" de su ficha con el motivo y queda pendiente hasta que el
+  usuario la apruebe. La ficha describe también la variante sin el cambio, que es la
+  que se implementa si no se aprueba. Ninguna tarea 3.x arranca con propuestas pendientes
+  en su ficha.
+- **Base de comparación**: el boceto es la base del lenguaje visual (color, tipografía,
+  marcos, disposición); `main` es la base de las funciones, los datos, el copy y el orden
+  de uso. Conservar una función, un dato o un texto de `main` que el boceto omite no es
+  una propuesta: es obligatorio (Non-Goals y D10). Agregar un texto del boceto que `main`
+  no tiene sí es una propuesta, y si se rechaza queda el texto de `main`.
+- **Anchos**: cada ficha define el layout en tres anchos: teléfono (390 px), tablet
+  (768 px) y escritorio (1280 px). En tablet y escritorio, el contenido no se estira a
+  todo el ancho: la ficha fija su ancho máximo y su alineación.
+- **Entrada**: táctil (iPhone, Android, tablet) con objetivo mínimo de 44 × 44 pt;
+  puntero (PC, Mac) con hover solo bajo `@media (hover: hover)`, como hoy en
+  `webStyles.js`; teclado con foco visible (token `foco`).
+- **Plataforma**: áreas seguras de iOS y Android (`react-native-safe-area-context`, ya en
+  uso); nada depende de una fuente o gesto de un solo sistema.
 
 ## Risks / Trade-offs
 

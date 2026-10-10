@@ -7,7 +7,7 @@ Archivos: `hibrido.html` (seis pantallas a 390 px, claro y oscuro; `#oscuro` y `
 - **Cabecera fuera del patrón navy:** las pantallas internas ya no llevan banda navy; llevan una barra con filete inferior. El navy actual deja de existir como identidad.
 - **Seis materias** con ilustración propia. `dre` (riñón en corte) y `ryd` (blastocisto y estadios de segmentación) son nuevas. Las tarjetas de `dre` y `ryd` dicen "En preparación" porque la app aún no las tiene; no inventé conteos.
 - **Interruptor de tema:** el sol emoji pasa a un selector de texto "Claro | Oscuro".
-- **Emojis de la app actual** (🎲, 📋, 🔄, 🏠, 💡, el sol y los íconos de acción) desaparecen: texto, o glifos de trazo de 1,5 px para las cuatro acciones del inicio.
+- **Emojis de la app actual** (🎲, 📋, 🔄, 🏠, 💡, el sol y los íconos de acción) desaparecen: cada uno pasa a un glifo SVG de trazo de 1,5 px (inventario en `pantallas/comun.md` §9); ninguno se retira solo con texto, que puede acompañar al glifo pero no lo reemplaza.
 - **Resultados:** el porcentaje pasa a mono grande; añadí una tira de 24 casillas donde el error es más bajo **y** rojo (estado por forma, no solo por color). Retiré el "¡" del mensaje ("Muy bien. Vas por buen camino."): es copy, decide el usuario.
 - **Estadísticas:** las barras son tinta neutra; solo ≥ 80 % va en verde y < 65 % en rojo (hoy hay también ámbar, que se pierde). Una marca en 80 % lo hace legible. Ese umbral es una suposición mía: verificar contra el código.
 - **Datos de estadísticas y resultados:** son ilustrativos (coherentes entre sí: 76/97 = 78 %), no datos reales.

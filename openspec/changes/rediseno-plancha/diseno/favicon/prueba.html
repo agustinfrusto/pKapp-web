@@ -1,0 +1,58 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Prueba de favicon</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;border-radius:0}
+body{width:1340px;height:680px;background:#f4f5f6;font-family:'IBM Plex Sans',sans-serif;color:#14181d;padding:28px 36px}
+h1{font:500 13px 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px}
+.cols{display:flex;gap:28px;align-items:flex-start}
+.pan{width:380px;padding:18px;border:1px solid #9aa2ab}
+.pan.d{background:#17191c;color:#e6e9ed;border-color:#2b323a}.pan.l{background:#fff}
+.lb{font:11px 'IBM Plex Mono',monospace;letter-spacing:.07em;text-transform:uppercase;opacity:.8;margin:14px 0 8px}
+.lb:first-child{margin-top:0}
+.tabbar{height:40px;display:flex;align-items:flex-end;padding:0 8px}
+.l .tabbar{background:#dee1e6}.d .tabbar{background:#202124}
+.tab{height:32px;width:230px;display:flex;align-items:center;gap:8px;padding:0 12px;font:12px Arial,sans-serif}
+.l .tab{background:#fff;color:#202124}.d .tab{background:#35363a;color:#e8eaed}
+.tab img{width:16px;height:16px;display:block}
+.row{display:flex;align-items:center;gap:16px}
+.row img{display:block}
+.zoom img{image-rendering:pixelated}
+.right{width:428px}
+.home{display:grid;grid-template-columns:192px 192px;gap:18px 8px;padding:18px;background:#aeb6bf}
+.home figure{font:11px 'IBM Plex Mono',monospace;color:#14181d;letter-spacing:.05em;text-transform:uppercase}
+.home figcaption{margin-top:8px}
+.tile{width:192px;height:192px;display:block}
+.ios{width:180px;height:180px;border-radius:22.37%;overflow:hidden}
+.ios img{width:180px;height:180px;display:block}
+.mask{width:192px;height:192px;overflow:hidden;position:relative}
+.mask.c{border-radius:50%}
+.mask.sq{clip-path:url(#sq)}
+.mask img{width:192px;height:192px;display:block}
+.guide{position:absolute;inset:0;width:192px;height:192px}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><defs><clipPath id="sq" clipPathUnits="objectBoundingBox"><path d="M0.5,0 C0.9545,0 1,0.0455 1,0.5 C1,0.9545 0.9545,1 0.5,1 C0.0455,1 0,0.9545 0,0.5 C0,0.0455 0.0455,0 0.5,0 Z"/></clipPath></defs></svg>
+<h1>pKapp · favicon "pK" · prueba de legibilidad (tamaños reales, sin suavizado extra)</h1>
+<div class="cols">
+ <section class="pan l"><div class="lb">Pestaña clara · 16 px real</div>
+  <div class="tabbar"><div class="tab"><img src="favicon-16.png" alt=""><span>pKapp · Banco de preguntas</span></div></div>
+  <div class="lb">32 px real · 48 px real</div>
+  <div class="row"><img src="favicon-32.png" width="32" height="32" alt=""><img src="favicon.png" width="48" height="48" alt=""></div>
+  <div class="lb">Ampliado ×8 (16 px) y ×4 (32 px)</div>
+  <div class="row zoom"><img src="favicon-16.png" width="128" height="128" alt=""><img src="favicon-32.png" width="128" height="128" alt=""></div></section>
+ <section class="pan d"><div class="lb">Pestaña oscura · 16 px real</div>
+  <div class="tabbar"><div class="tab"><img src="favicon-16.png" alt=""><span>pKapp · Banco de preguntas</span></div></div>
+  <div class="lb">32 px real · 48 px real</div>
+  <div class="row"><img src="favicon-32.png" width="32" height="32" alt=""><img src="favicon.png" width="48" height="48" alt=""></div>
+  <div class="lb">Ampliado ×8 (16 px) y ×4 (32 px)</div>
+  <div class="row zoom"><img src="favicon-16.png" width="128" height="128" alt=""><img src="favicon-32.png" width="128" height="128" alt=""></div></section>
+ <section class="right">
+  <div class="home">
+   <figure><img class="tile" src="icon-192.png" alt=""><figcaption>icon-192 · "any"</figcaption></figure>
+   <figure><div class="ios"><img src="apple-touch-icon.png" alt=""></div><figcaption style="margin-top:20px">apple-touch-icon · iOS 180</figcaption></figure>
+   <figure><div class="mask c"><img src="icon-maskable-512.png" alt=""><svg class="guide" viewBox="0 0 192 192" fill="none"><circle cx="96" cy="96" r="76.8" stroke="#5cc3d6" stroke-width="1" stroke-dasharray="3 3"/></svg></div><figcaption>maskable · círculo 80 %</figcaption></figure>
+   <figure><div class="mask sq"><img src="icon-maskable-512.png" alt=""><svg class="guide" viewBox="0 0 192 192" fill="none"><circle cx="96" cy="96" r="76.8" stroke="#5cc3d6" stroke-width="1" stroke-dasharray="3 3"/></svg></div><figcaption>maskable · squircle</figcaption></figure>
+  </div>
+ </section>
+</div>
+<div class="lb" style="margin-top:18px">Ícono de app instalada: «any» a 192 px; apple-touch-icon a 180 px con las esquinas de iOS (aproximación, radio 22,4 %); maskable de 512 px recortado en círculo, con la guía del 80 %, y en squircle de Android (aproximación, superelipse de grado 4).</div>
+</body></html>

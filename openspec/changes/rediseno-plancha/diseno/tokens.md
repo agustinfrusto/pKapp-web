@@ -154,6 +154,14 @@ La escala por defecto de Tailwind (base 4 px) ya contiene todos los pasos del bo
 | `6` | 24 | Separación entre bloques |
 | `8` | 32 | Separación entre secciones |
 | `10` | 40 | Lado del cuadro de glifo |
+| `11` | 44 | Objetivo táctil mínimo (D10, 44 × 44 pt): alto de fila de control, filtro y barra; lado del cuadrado de paso; ancho de la celda de letra de una opción |
+| `12` | 48 | Lado de la ilustración de materia en la tarjeta del selector; también el lado de la ilustración del estado vacío |
+| `16` | 64 | Ancho de la celda de ilustración en la tarjeta del selector; lado de la ilustración de materia en la tarjeta de Home |
+| `20` | 80 | Ancho mínimo del valor del temporizador del quiz |
+| `24` | 96 | Ancho de la celda de ilustración en la tarjeta de materia de Home; relleno inferior del scroll del quiz (más el área segura inferior) |
+| `28` | 112 | Alto del campo de filamentos del selector |
+
+Los pasos `11`, `12`, `16`, `20`, `24` y `28` no estaban en la lista original; salen de la escala por defecto de Tailwind y se aceptaron en la corrección de 1.2. `spacing` sigue sin cambios.
 
 | Valor del boceto | Paso final |
 |---|---|
@@ -162,6 +170,14 @@ La escala por defecto de Tailwind (base 4 px) ya contiene todos los pasos del bo
 | 18 | 16 |
 
 Sin valores arbitrarios `[Npx]`: la deuda actual (`mb-[18px]`, `py-[11px]`) se normaliza al migrar cada pantalla.
+
+**Ancho máximo.** El ancho de la columna de contenido es un token de `maxWidth`, aparte de `spacing`:
+
+| Token | px | Clase | Rol |
+|---|---|---|---|
+| `columna` | 448 | `max-w-columna` | Ancho máximo de la columna única de contenido en tablet (768 px) y escritorio (1280 px), centrada en horizontal y anclada arriba. Los fondos y los filetes de barra van a todo el ancho; el contenido, dentro de la columna. Con ancho de teléfono (390 px) no actúa: la columna es el ancho disponible menos el margen lateral `5` |
+
+Un ancho distinto para escritorio sería otro token con nombre propio, no una variante de `columna`. Ninguna ficha usa una clase `max-w-*` de Tailwind sin token.
 
 ---
 
@@ -195,10 +211,15 @@ borderRadius: {
 borderWidth: {
   DEFAULT: '1px', 0: '0px', 1: '1px', 2: '2px', 3: '3px',
 },
+maxWidth: {
+  // Columna única de contenido en tablet y escritorio (c.3).
+  // Uso: `w-full max-w-columna self-center`.
+  columna: '448px',
+},
 // spacing: sin cambios (escala por defecto de Tailwind, base 4 px).
 ```
 
-Los pasos `cuerpo-fuerte` y `rotulo-medio` reutilizan `text-cuerpo` y `text-rotulo` con otra familia: no necesitan clave de `fontSize`. Los nombres de `fontSize` no chocan con ninguna clave de color ni con las claves actuales (`xxs`, `xs`, `sm`, `base`, `md`, `lg`, `xl`, `display-sm`, `display-md`, `display-lg`), que siguen hasta que las tareas 3.x retiren su último uso. Verificado en seco con Tailwind 3.4.19 y el preset de NativeWind, en una configuración temporal fuera del repo: `text-rotulo` emite `font-size: 11px; line-height: 16px; letter-spacing: 0.66px`, `border-l-3` emite `3px`, `rounded-full` emite `0px`, `font-plex-sans-semibold` emite `PlexSans-SemiBold, system-ui, sans-serif` y `dark:bg-fondoD` resuelve con la variante `.dark`.
+Los pasos `cuerpo-fuerte` y `rotulo-medio` reutilizan `text-cuerpo` y `text-rotulo` con otra familia: no necesitan clave de `fontSize`. Los nombres de `fontSize` no chocan con ninguna clave de color ni con las claves actuales (`xxs`, `xs`, `sm`, `base`, `md`, `lg`, `xl`, `display-sm`, `display-md`, `display-lg`), que siguen hasta que las tareas 3.x retiren su último uso. Verificado en seco con Tailwind 3.4.19 y el preset de NativeWind, en una configuración temporal fuera del repo: `text-rotulo` emite `font-size: 11px; line-height: 16px; letter-spacing: 0.66px`, `border-l-3` emite `3px`, `rounded-full` emite `0px`, `font-plex-sans-semibold` emite `PlexSans-SemiBold, system-ui, sans-serif`, `dark:bg-fondoD` resuelve con la variante `.dark` y `max-w-columna` emite `max-width: 448px` (misma comprobación en seco, con `maxWidth.columna` en `theme.extend`).
 
 ### d.2 Color (cableado propuesto, lo decide 2.3)
 
@@ -285,6 +306,7 @@ node -e "const {plancha:p}=require('./src/theme/colores');const l=h=>{const c=[1
 | N17 | `acento` sobre `fondo` | Contorno de chip y marco de 2 px del panel de mezcla sobre la página | 5,40 | 9,48 | sí |
 | N18 | `acento` sobre `superficie` | Borde izquierdo de la nota y marco del panel de mezcla sobre superficie | 5,90 | 8,84 | sí |
 | N19 | `tintaSec` sobre `fondo` | Chevron y regla graduada (trazo 1,5 px) sobre la página | 7,25 | 7,51 | sí |
+| N20 | `tintaSec` sobre `superficie` | Chevron de acción en tarjeta o panel; cerrar de notas y donación (trazo 1,5 px) sobre superficie | 7,91 | 7,01 | sí |
 
 ### E3 · Fuera de umbral por regla (informativo)
 
@@ -301,7 +323,7 @@ node -e "const {plancha:p}=require('./src/theme/colores');const l=h=>{const c=[1
 | # | Par | Umbral | Uso | Razón | Cumple |
 |---|---|---|---|---|---|
 | A1 | `oscuro.tintaSec` sobre `iconoFondo` | 4,50:1 | Tagline del splash nativo (`App.js`) sobre el fondo de app | 7,51 | sí |
-| A2 | `oscuro.tinta` sobre `iconoFondo` | 3,00:1 | Trazo de la "p" del ícono sobre su fondo (logotipo: informativo) | 15,97 | sí |
+| A2 | `oscuro.tinta` sobre `iconoFondo` | 3,00:1 | Trazo de la "pK" del ícono sobre su fondo (logotipo: informativo) | 15,97 | sí |
 | A3 | `oscuro.acento` sobre `iconoFondo` | 3,00:1 | Punto teal del ícono sobre su fondo (informativo) | 9,48 | sí |
 
 
@@ -310,7 +332,7 @@ node -e "const {plancha:p}=require('./src/theme/colores');const l=h=>{const c=[1
 | Medida | Resultado |
 |---|---|
 | Filas de texto (T1–T19) bajo 4,5:1 | 0 |
-| Filas no textuales (N1–N19) bajo 3:1 | 0 |
+| Filas no textuales (N1–N20) bajo 3:1 | 0 |
 | Filas de borde de app (A1–A3) bajo su umbral | 0 |
 | Holgura mínima | `borde` sobre `fondo` en claro: 3,47 contra 3,00 (N3) |
 | Valor del boceto que no pasa y se cambió | Ninguno de color de texto ni de marca. `--hair` no pasa 3:1 como borde de control: se separa `borde` (f, fila 3) |

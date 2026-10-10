@@ -39,12 +39,17 @@ Los estados de acierto, error y la banda intermedia de rendimiento SHALL disting
 
 ### Requirement: Interfaz sin emojis
 
-La interfaz de la app NO SHALL usar emojis como íconos, rótulos ni decoración. Los reemplazan texto o glifos vectoriales del sistema visual. El contenido de los bancos de preguntas queda fuera de este requisito.
+La interfaz de la app NO SHALL usar emojis como íconos, rótulos ni decoración. Cada emoji que la interfaz muestra SHALL reemplazarse por un glifo vectorial (SVG) dibujado con el lenguaje del sistema visual y sus referencias de diseño; el texto puede acompañar al glifo, pero no lo sustituye. El contenido de los bancos de preguntas queda fuera de este requisito.
 
 #### Scenario: Búsqueda de emojis en la UI
 
 - **WHEN** se buscan caracteres emoji en `src/screens/`, `src/components/` y `App.js`
 - **THEN** no aparece ninguno
+
+#### Scenario: Emoji retirado de un botón
+
+- **WHEN** una superficie migrada muestra un control que antes llevaba un emoji
+- **THEN** en su lugar aparece el glifo SVG que le asigna su ficha, en el color del tema activo
 
 ### Requirement: Presupuesto de recursos visuales
 

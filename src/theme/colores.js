@@ -105,7 +105,7 @@ module.exports = { colores, oscuro };
 // ---------------------------------------------------------------------------
 // Plancha: tokens del rediseño (change rediseno-plancha, tarea 1.1).
 // Usos, justificación y pares de contraste:
-// referencias-diseno/propuestas/hibrido/tokens.md
+// openspec/changes/rediseno-plancha/diseno/tokens.md
 //
 // Convive con `colores` y `oscuro` hasta que las tareas 3.x migren las pantallas y
 // los retiren; tailwind.config.js no lo lee hasta la tarea 2.3. A diferencia de
