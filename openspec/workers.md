@@ -229,7 +229,9 @@ Programador es una comprobación del arnés e2e o del build que el cambio vuelve
   tag `vX.Y.Z`. `tools/**`, `openspec/**`, `.claude/**` y los docs no bumpean.
 - Pushea solo con orden explícita, y con el push van sus tags.
 - El rediseño visual se commitea en la rama `rediseno`, y el merge a `main` solo se hace
-  consolidado y con orden del operador. Lo que no es diseño va a `main`.
+  consolidado y con orden del operador. Lo que no es diseño va a `main`, y después de
+  cada push a `main` se sincroniza `main` → `rediseno` (`openspec/commit.md`,
+  "Sincronización de `rediseno`").
 
 Ningún otro rol toca git. Un worker que cree que su trabajo está listo manda
 `worker_done` y se detiene.
