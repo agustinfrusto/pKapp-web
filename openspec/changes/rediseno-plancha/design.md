@@ -75,10 +75,10 @@ los assets y pierde nitidez; un SVG estático en `<Image>` no se renderiza en na
 
 ### D5. Presupuesto de peso del bundle
 
-- Línea de base: el gzip de JS+CSS de `dist/` medido en la tarea 0.1 sobre `rediseno`, con
-  el método de D8 de `add-design-tokens-nativewind` (lo que viaja por la red, sin PNG ni
-  fuentes).
-- Presupuesto del change: **+35 KB gzip** sobre esa base. Incluye `react-native-svg` o su
+- Línea de base: el gzip del **shell** (el JS y el CSS que carga `dist/index.html`),
+  medido en la tarea 0.1: **221.379 bytes** (`evidencia/base.md`). Los bancos lazy quedan
+  fuera: crecen con el contenido, no con el diseño.
+- Presupuesto del change: **+35 KB gzip** sobre esa base, o sea ≤ 256.379 bytes. Incluye `react-native-svg` o su
   plan B, las seis ilustraciones y el campo de filamentos.
 - Al quitar sombras y la banda navy, el CSS debería bajar. Si el total supera los +35 KB, se
   detiene la migración de pantallas y se reporta con la medición, igual que en D8.

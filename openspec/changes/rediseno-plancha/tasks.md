@@ -3,8 +3,8 @@ Rama: `rediseno`. Una tarea por despacho, en orden, un commit por tarea. Compuer
 
 ## 0. Línea de base (Ingeniero)
 
-- [ ] 0.1 En `rediseno`, `npm run build:web`. Registrar en `evidencia/base.md` el gzip de JS+CSS de `dist/` (método de D8 de `add-design-tokens-nativewind`) y el crudo como control
-- [ ] 0.2 Capturar las 8 pantallas a 390 px en claro y oscuro (`npm run screenshots` si cubre ambos temas) y guardarlas en `evidencia/antes/`
+- [x] 0.1 En `rediseno`, `npm run build:web`. Registrar en `evidencia/base.md` el gzip del shell (base de D5) y el crudo como control. Shell gzip: 221.379 bytes
+- [ ] 0.2 (después de 2.4) Capturar las pantallas a 390 px en claro y oscuro desde un build de `main` y guardarlas en `evidencia/antes/`. Bloqueada el 2026-10-09: `npm run screenshots` se cuelga (`evidencia/base.md`)
 
 ## 1. Fichas de diseño (Diseñador, `claude-sonnet-5-5`, `max`)
 
@@ -19,6 +19,7 @@ Rama: `rediseno`. Una tarea por despacho, en orden, un commit por tarea. Compuer
 - [ ] 2.1 `npx expo install react-native-svg`. Componente `src/components/Ilustracion.js` (D2/D3) y `src/materias/<id>/ilustracion.js` para las 6 materias, más `src/assets/filamentos.js`, convertidos desde `hibrido/svg/`. Medir el delta gzip del bundle: si supera 25 KB, implementar el plan B de D2 y volver a medir. Aceptación: build y e2e en verde, y el delta reportado con su medición
 - [ ] 2.2 `npx expo install expo-font`. Fuentes Plex con subset latin (`woff2` web, `ttf` nativo, con licencia OFL) en `src/assets/fuentes/`, y `src/theme/fuentes.js` / `fuentes.web.js` según D4. Familias en `tailwind.config.js`. Aceptación: 4 `woff2` ≤ 100 KB en total y, con la red throttled a "Slow 3G", el primer render muestra texto con la fuente del sistema
 - [ ] 2.3 Aplicar a `tailwind.config.js` las escalas de la tabla 1.1 (tipografía, radios) y vaciar o borrar `src/theme/sombras.js` según D9, sin migrar pantallas todavía. Aceptación: build y e2e en verde. Las pantallas pueden verse a medio camino: es esperable en la rama
+- [ ] 2.4 Reparar `scripts/capturar-screenshots.js`, que hoy se cuelga en "1. Materia Select". Agregar argumentos de tema (`claro` / `oscuro`, aplicado por la preferencia `tema` y no por el SO), de ancho (por defecto 390) y de carpeta de salida (por defecto `docs/screenshots/`, sin cambiar su comportamiento actual). Aceptación: con `--tema oscuro --salida <dir>` guarda las 6 capturas en `<dir>` con el tema oscuro aplicado, y sin argumentos produce las mismas 6 capturas en claro que antes
 
 ## 3. Pantallas (Programador, `low`; una tarea por superficie, cada una contra su ficha)
 
