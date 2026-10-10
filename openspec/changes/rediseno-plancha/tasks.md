@@ -8,11 +8,12 @@ Rama: `rediseno`. Una tarea por despacho, en orden, un commit por tarea. Compuer
 
 ## 1. Fichas de diseño (Diseñador, `claude-sonnet-5-5`, `max`)
 
-- [ ] 1.1 Tabla de tokens final, claro y oscuro: colores con su nombre en `colores.js`, familias y escala tipográfica, radios, filetes y espaciado. Incluye la tabla de contraste de cada par texto/fondo en ambos temas (≥ 4,5:1 normal, ≥ 3:1 grande). Escribe `colores.js` y entrega los valores de `tailwind.config.js` en la tabla
+- [x] 1.1 Tabla de tokens final, claro y oscuro: colores con su nombre en `colores.js`, familias y escala tipográfica, radios, filetes y espaciado. Incluye la tabla de contraste de cada par texto/fondo en ambos temas (≥ 4,5:1 normal, ≥ 3:1 grande). Escribe `colores.js` y entrega los valores de `tailwind.config.js` en la tabla. Entregado en `hibrido/tokens.md` y el export `plancha` (19 claves); contraste recalculado por el Ingeniero, holgura mínima 3,47 (N3)
 - [ ] 1.2 Fichas de las pantallas del boceto (`MateriaSelect`, `Home`, `TopicSelect`, `Quiz`, `Results`, `Stats`) en `referencias-diseno/propuestas/hibrido/pantallas/<pantalla>.md`: layout, tokens por elemento y matriz de estados. Debe respetar D6: cortes 80/60 con la banda intermedia distinguible, conteos reales de `dre` y `ryd` y origen generado visible
 - [ ] 1.3 Fichas de lo que el boceto no cubre: `AddQuestion`, revisión de respuestas, examen en curso, `Settings`, `DonationBox`, estados vacíos y el banner de banco reducido. Más la distinción entre 1.er y 2.do parcial sin pasteles
 - [ ] 1.4 Glifos de trazo de 1,5 px para cada emoji que hoy usa la UI (inventario: `rg` de emojis en `src/screens`, `src/components` y `App.js`), en `referencias-diseno/propuestas/hibrido/svg/glifos/`
-- [ ] 1.5 Auditoría del Ingeniero: fichas 1.1–1.4 contra el brief, `REFERENCIAS.md`, D6 y la tabla de contraste. Lo que no cumple vuelve al Diseñador. **Ninguna tarea 2.x ni 3.x arranca sin 1.5 aprobada**
+- [ ] 1.6 Ícono con "pK" (pedido del usuario, 2026-10-10): rehacer favicon, ícono y maskable en `referencias-diseno/propuestas/favicon/` con "pK" en vez de la "p" sola, legible a 16 px. La 4.1 integra estas piezas
+- [ ] 1.5 Auditoría del Ingeniero: fichas 1.1–1.4 y 1.6 contra el brief, `REFERENCIAS.md`, D6 y la tabla de contraste. Lo que no cumple vuelve al Diseñador. **Ninguna tarea 2.x ni 3.x arranca sin 1.5 aprobada**
 
 ## 2. Infraestructura (Programador, `claude-sonnet-5-5`, `low`)
 
@@ -40,7 +41,7 @@ al Analista.
 
 ## 4. Bordes de la app (Programador, `low`)
 
-- [ ] 4.1 Íconos y favicon desde `propuestas/favicon/` a `public/` y `src/assets/`. `manifest.json` con los propósitos `any`/`maskable` separados y los colores de D8. `inject-pwa.js` y `app.json` sin `#1a3f6f` ni `#6366f1`. Aceptación: `rg -i '1a3f6f|6366f1'` vacío fuera de `openspec/` y `referencias-diseno/`, y el meta `theme-color` sigue al tema activo
+- [ ] 4.1 Íconos y favicon desde `propuestas/favicon/` a `public/` y `src/assets/`. `manifest.json` con los propósitos `any`/`maskable` separados y los colores de D8. `inject-pwa.js` y `app.json` sin `#1a3f6f` ni `#6366f1`; los valores salen de `plancha.manifestTema`, `manifestFondo` e `iconoFondo` (`tokens.md`, a.1). En `App.js`, el splash y la `StatusBar` usan tokens `plancha` (contenido oscuro en claro y claro en oscuro, `tokens.md` a.2) y no quedan literales de color. Aceptación: `rg -i '1a3f6f|6366f1'` vacío fuera de `openspec/` y `referencias-diseno/`, y el meta `theme-color` sigue al tema activo
 
 ## 5. Cierre (Ingeniero)
 
