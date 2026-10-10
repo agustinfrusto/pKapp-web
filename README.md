@@ -48,6 +48,7 @@ pKapp está pensado para estudiar de forma práctica y enfocada. La app ayuda a 
 - **Estadísticas** por tema y lista de preguntas más falladas.
 - **Agregar tus propias preguntas** al banco (se guardan localmente).
 - **Timer** opcional para poner un tiempo a los cuestionarios (hasta dos horas).
+- **Tema claro y oscuro**, que se cambia desde el encabezado y se recuerda entre sesiones.
 - **PWA instalable** en cualquier dispositivo, con ícono propio y experiencia tipo app.
 
 ## Cómo se construye pKapp
@@ -196,7 +197,7 @@ pKapp/
     │   └── sqlite-stub.js          # Stub vacío de expo-sqlite para web
     ├── components/
     │   ├── DonationBox.js          # Bloque de donación (Mercado Pago)
-    │   └── HeaderMarca.js          # Header compartido (logo + título)
+    │   └── HeaderMarca.js          # Header compartido (logo, título y control de tema)
     ├── theme/
     │   ├── colores.js              # Tokens de color del sistema visual
     │   ├── sombras.js              # Elevación y sombras
@@ -217,7 +218,7 @@ pKapp/
         ├── ResultsScreen.js        # Resultados + revisión
         ├── AddQuestionScreen.js    # Formulario para agregar preguntas
         ├── StatsScreen.js          # Estadísticas
-        └── SettingsScreen.js       # Ajustes (filtro de fuente, import/export, reset)
+        └── SettingsScreen.js       # Ajustes (resultado al final, mis preguntas, respaldo y reseteo)
 ```
 
 ---
@@ -269,8 +270,10 @@ npm run screenshots
 Semver según el prefijo del commit (aplicado a partir de `v1.0.33`; hasta la `v1.0.32` se usaba patch para todo):
 
 - `feat` → minor (1.**x**.0)
-- `fix` / `ui` / `chore` / `docs` / `refactor` / `perf` → patch (1.0.**x**)
+- `fix` / `refactor` / `style` / `chore` → patch (1.0.**x**)
 - breaking change → major
+
+Solo cambia la versión un commit que toca la app publicada (`src/`, `public/`, `scripts/`, `App.js` o la configuración de build). Los commits de documentación, specs y herramientas no la cambian. El procedimiento completo está en [`openspec/commit.md`](openspec/commit.md).
 
 Cada release se taggea `vX.Y.Z`. La versión vive en `package.json` **y** `app.json` (esta última es la que se muestra en Ajustes → Acerca de).
 
@@ -315,7 +318,7 @@ Por transparencia, detallo en qué partes del proyecto se usó asistencia de IA 
 
 ### Contenido educativo
 
-- **1.785 preguntas reales** extraídas de parciales, exámenes y prototipos oficiales. Se usó IA como apoyo para transcribir y limpiar los PDFs originales, pero cada pregunta fue revisada manualmente contra el documento fuente.
+- **1.785 preguntas reales** extraídas de parciales, exámenes y prototipos oficiales. Se usó IA como apoyo para transcribir y limpiar los PDFs originales. La respuesta correcta de cada pregunta se toma del documento fuente y se contrasta con una validación ciega hecha por IA; las preguntas en las que ambas no coinciden, o que resultan ambiguas, se revisan manualmente antes de publicarse.
 - **34 preguntas generadas** a partir de los apuntes oficiales de BCYT. Están marcadas con `source: "generated"` y son auditables desde la app: en `TopicSelect` → filtro **Fuente: Solo generadas**.
 - **Explicaciones:** redactadas o refinadas con IA tomando como referencia los resúmenes oficiales, priorizando precisión y consistencia con el material de estudio.
 
