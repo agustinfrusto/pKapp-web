@@ -25,7 +25,7 @@ como los pide la spec.
 PROHIBIDO
 - Escribir en Engram: el acceso es de solo lectura.
 - git que modifique el repositorio: add, commit, push, checkout de rama. Commitea el
-  Auditor.
+  Ingeniero.
 - Tocar archivos fuera de la propiedad que fija la spec.
 - Decisiones de diseño o de arquitectura. Ante una spec contradictoria o imposible:
   `--type question` al Ingeniero y detenerse.
