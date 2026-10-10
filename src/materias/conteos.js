@@ -2,7 +2,7 @@
 // Cantidad de preguntas por materia, para poder mostrarla sin cargar el banco.
 export const CONTEOS = {
   anatomia: 471,
-  bcyt: 419,
+  bcyt: 385,
   cyr: 113,
   dre: 451,
   neuro: 193,

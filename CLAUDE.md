@@ -90,5 +90,6 @@ siguiente unidad. Ninguna sesión arrastra historial a la próxima tarea.
 - Commit y push solo con orden explícita del operador.
 - Lo estético lo decide el Diseñador. El Ingeniero audita que cumpla el brief, no el gusto.
 - El rediseño vive en la rama `rediseno`, y se mergea a `main` solo consolidado y con
-  orden del operador.
+  orden del operador. Después de cada push a `main`, `main` se mergea en `rediseno`
+  (`openspec/commit.md`).
 - Cada `questions.js` conserva su encabezado legal.

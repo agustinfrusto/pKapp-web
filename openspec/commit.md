@@ -65,7 +65,24 @@ explícita en el mismo pedido.
 ## Prohibido
 
 Reescribir historia (amend, rebase, reset); mergear ramas, salvo `rediseno` → `main` con
-orden del operador; cambiar de rama sin orden; mover o borrar tags; `push --force`.
+orden del operador y la sincronización `main` → `rediseno` (abajo); cambiar de rama sin
+orden; mover o borrar tags; `push --force`.
+
+## Sincronización de `rediseno`
+
+Convención autorizada por el operador el 2026-10-10, para que el merge final no acumule
+conflictos:
+
+1. Después de cada push a `main`, se mergea `main` en `rediseno` (`git merge main`, sin
+   fast-forward forzado ni rebase), sin bump ni tag. Si hay conflictos, se resuelven en
+   ese merge y se reportan antes de commitear.
+2. Antes de cada commit en `rediseno`, simulación de solo lectura:
+   `git merge-tree --write-tree --name-only main rediseno`. Si reporta conflictos, se
+   avisan al operador antes de commitear.
+3. `main` evita tocar la superficie del rediseño (`src/screens/**`, `src/components/**`,
+   `src/theme/**`, `tailwind.config.js`, `App.js`, `public/` de íconos y manifest). Si un
+   arreglo la necesita, se sincroniza a `rediseno` en el mismo momento.
+4. `rediseno` no bumpea ni tagea (paso 4).
 
 ## Salida
 
