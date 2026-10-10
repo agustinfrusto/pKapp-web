@@ -31,15 +31,14 @@ Construido con **Expo / React Native**. Esta es la **versión web** del proyecto
 
 ## Qué hace pKapp
 
-pKapp está pensado para estudiar de forma práctica y enfocada. La app ayuda a repasar materias del plan de la Escuela Técnica de Medicina —BCYT, Anatomía, Neurobiología, Cardiovascular y Respiratorio, Digestivo, Renal y Endócrino, y Reproductor y Desarrollo— con un banco de preguntas estructurado, explicaciones útiles y seguimiento del desempeño.
+pKapp está pensado para estudiar de forma práctica y enfocada. La app ayuda a repasar materias de ESFUNO —BCYT, Anatomía, Neurobiología, Cardiovascular y Respiratorio, Digestivo, Renal y Endócrino, y Reproductor y Desarrollo— con un banco de preguntas estructurado, explicaciones útiles y seguimiento del desempeño.
 
 ## Características
 
 - **Multimateria** (ESFUNO): hoy con **Biología Celular y Tisular** (BCYT), **Anatomía**, **Neurobiología**, **Cardiovascular y Respiratorio** (CyR), **Digestivo, Renal y Endócrino** (DRE) y **Reproductor y Desarrollo** (RyD). Estructura preparada para sumar los demás módulos.
-- **Banco de preguntas** con material real y generado, según la materia: BCYT, Anatomía, Neurobiología, CyR, DRE y RyD.
+- **Banco de preguntas** con material real de exámenes en todas las materias: BCYT, Anatomía, Neurobiología, CyR, DRE y RyD.
 - **1.785 preguntas reales** extraídas de parciales, exámenes y prototipos oficiales (BCYT 2022/2024/2025: 385 · Anatomía 2018-2025: 471 · Neurobiología: 193 · CyR: 113 · DRE: 451 · RyD: 172).
-- **34 preguntas adicionales** generadas con Claude a partir de los apuntes (solo BCYT).
-- **Filtros:** por fuente (examen real / generada) y por parcial, combinables.
+- **Filtros:** por fuente (examen real / tus preguntas) y por parcial, combinables.
 - **Tres modos:**
   - **Práctica por tema:** elegís un tema específico o practicás por parcial.
   - **Examen:** preguntas al azar con tamaño igual al examen real (configurable por materia — BCYT: 75 / 40 por parcial; Anatomía: 50 / 25 por parcial; Neurobiología: 25, sin parciales; CyR: 50, sin parciales; DRE: 50, sin parciales; RyD: 20, sin parciales).
@@ -158,7 +157,7 @@ pKapp/
     │   │   ├── metadata.js         # id, nombre, icono, color, imagen
     │   │   ├── config.js           # examSize, parciales, etc.
     │   │   ├── topics.js           # TOPICS de BCYT
-    │   │   └── questions.js        # Banco de preguntas (419)
+    │   │   └── questions.js        # Banco de preguntas (385)
     │   ├── anatomia/               # Anatomía
     │   │   ├── index.js
     │   │   ├── metadata.js
@@ -289,7 +288,7 @@ La migración desde el host anterior (**Vercel**, dominio `pkapp-web.vercel.app`
 
 Cada pregunta tiene un campo `source`:
 - `"exam"` → pregunta real extraída de un parcial anterior (con campo `exam` indicando cuál).
-- `"generated"` → pregunta generada a partir de los apuntes.
+- `"generated"` → pregunta generada a partir de los apuntes. Hoy ningún banco publicado tiene preguntas de este tipo.
 - `"user"` → pregunta agregada por el usuario.
 
 En `TopicSelectScreen` hay tres controles combinables:
@@ -297,7 +296,7 @@ En `TopicSelectScreen` hay tres controles combinables:
 **Filtro de fuente** (3 opciones):
 - **Todas** (default).
 - **Solo preguntas reales** → filtra `source === 'exam'`.
-- **Solo generadas** → filtra `source === 'generated' || source === 'user'`.
+- **Solo generadas** → filtra `source === 'generated' || source === 'user'`. Sin generadas en los bancos, hoy muestra solo las preguntas que agregaste vos.
 
 **Filtro de parcial** (3 opciones, los tamaños dependen de la materia):
 - **Examen** (default) → sin filtro de parcial. En modo examen sortea `examSize` preguntas (BCYT: 75; Anatomía: 50; Neurobiología: 25; CyR: 50; DRE: 50; RyD: 20).
@@ -319,7 +318,7 @@ Por transparencia, detallo en qué partes del proyecto se usó asistencia de IA 
 ### Contenido educativo
 
 - **1.785 preguntas reales** extraídas de parciales, exámenes y prototipos oficiales. Se usó IA como apoyo para transcribir y limpiar los PDFs originales. La respuesta correcta de cada pregunta se toma del documento fuente y se contrasta con una validación ciega hecha por IA; las preguntas en las que ambas no coinciden, o que resultan ambiguas, se revisan manualmente antes de publicarse.
-- **34 preguntas generadas** a partir de los apuntes oficiales de BCYT. Están marcadas con `source: "generated"` y son auditables desde la app: en `TopicSelect` → filtro **Fuente: Solo generadas**.
+- **Preguntas generadas:** BCYT llegó a tener 34 preguntas generadas a partir de los apuntes oficiales. Se retiraron en octubre de 2026: hoy todos los bancos son de exámenes reales.
 - **Explicaciones:** redactadas o refinadas con IA tomando como referencia los resúmenes oficiales, priorizando precisión y consistencia con el material de estudio.
 
 ### Código
@@ -329,7 +328,6 @@ Asistencia para refactors, debugging, configuración del soporte web (PWA, split
 ### Lo que NO se delegó a IA
 
 - La curaduría de qué preguntas reales incluir y de qué exámenes provienen.
-- La validación de las preguntas generadas contra el material original.
 - Las decisiones de diseño, arquitectura, UX y la revisión final de cada cambio.
 
 ---
