@@ -10,6 +10,7 @@
     "conteos": "node scripts/gen-conteos.mjs",
     "build:web": "node scripts/gen-conteos.mjs && expo export -p web && node scripts/inject-pwa.js && node scripts/inject-preload.js",
     "screenshots": "node scripts/capturar-screenshots.js",
+    "pree2e": "node tools/ui/ilustraciones.mjs",
     "e2e": "node tools/e2e/correr.js"
   },
   "dependencies": {
@@ -28,6 +29,7 @@
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.8.0",
     "react-native-screens": "~4.26.2",
+    "react-native-svg": "15.12.1",
     "react-native-web": "^0.21.0",
     "react-native-worklets": "0.5.1",
     "tailwindcss": "^3.4.19"
