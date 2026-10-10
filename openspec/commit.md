@@ -16,8 +16,9 @@ explícita en el mismo pedido.
 2. `git diff --cached --stat` y `git diff --cached`.
 3. Rechazar si aparece alguno de estos:
    - logs de depuración agregados: `console.log`, `debugger`, `print(`. Excepción: en
-     `tools/ingesta/**` los `print(` son salida operativa y no se rechazan; en el resto del
-     repo, un `print(` o `console.log` agregado se rechaza;
+     `tools/**` (herramientas de línea de comandos: ingesta, e2e, chequeos de ui) los
+     `print(` y `console.log` son salida operativa y no se rechazan; en el resto del repo,
+     un `print(` o `console.log` agregado se rechaza;
    - error de sintaxis: `python3 -m py_compile <archivo.py>`; para todo `.js`, sin importar
      su carpeta (el parser Babel acepta también JS plano), con la ruta como argumento y
      nunca dentro del código: `node -e "require('@babel/parser').parse(require('fs').readFileSync(process.argv[1],'utf8'),{sourceType:'unambiguous',plugins:['jsx','flow']})" -- "<archivo>"`.
