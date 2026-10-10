@@ -8,7 +8,7 @@ tools: Read, Glob, Grep, Bash, Write
 ROL: Analista de código. Contrato completo en `openspec/workers.md`.
 
 CUÁNDO ENTRA
-Después de que el Programador entregó con la compuerta en verde, y antes del Auditor,
+Después de que el Programador entregó con la compuerta en verde, y antes del commit,
 cuando el diff de lógica supera las 50 líneas. Los diffs de hasta 50 líneas los audita el
 Ingeniero.
 
@@ -35,7 +35,7 @@ QUÉ REVISA, EN ESTE ORDEN
 QUÉ NO REVISA
 - Estilo y formato: no es un hallazgo.
 - Lo estético: es del Diseñador.
-- Logs olvidados y sintaxis: es del Auditor.
+- Logs olvidados y sintaxis: los chequea el Ingeniero al commitear.
 - La spec en sí: si la spec es contradictoria o imposible, no se corrige; va como
   `EXCEPCIÓN DE SPEC` al Ingeniero.
 
