@@ -17,11 +17,16 @@ import { metadata as dre } from './dre/metadata.js';
 import { ilustracion as dreIlustracion } from './dre/ilustracion.js';
 import { metadata as ryd } from './ryd/metadata.js';
 import { ilustracion as rydIlustracion } from './ryd/ilustracion.js';
-import { CONTEOS } from './conteos.js';
+import { CONTEOS, GENERADAS } from './conteos.js';
 
 // El conteo de preguntas se precalcula (scripts/gen-conteos.mjs) justamente
 // para no tener que abrir el banco solo para mostrar un número.
-const conMeta = ([m, ilustracion]) => ({ ...m, ilustracion, preguntas: CONTEOS[m.id] ?? 0 });
+const conMeta = ([m, ilustracion]) => ({
+  ...m,
+  ilustracion,
+  preguntas: CONTEOS[m.id] ?? 0,
+  generadas: GENERADAS[m.id] ?? 0,
+});
 
 // Orden en que se muestran en MateriaSelectScreen
 export const MATERIA_LIST = [
@@ -52,7 +57,11 @@ export async function cargarMateria(id) {
   const cargar = CARGADORES[id];
   if (!cargar) return null;
   const mod = await cargar();
-  const materia = { ...mod.default, preguntas: CONTEOS[id] ?? 0 };
+  const materia = {
+    ...mod.default,
+    preguntas: CONTEOS[id] ?? 0,
+    generadas: GENERADAS[id] ?? 0,
+  };
   cargadas.set(id, materia);
   return materia;
 }
