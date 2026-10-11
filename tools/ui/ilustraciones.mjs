@@ -7,7 +7,10 @@
 //   - claves de primer nivel, de `trazo`, de elemento y de `props` dentro de listas
 //     blancas; `viewBox` presente, `trazo` completo, `elementos` no vacío;
 //   - `tipo` dentro de la lista permitida, `encuadre` ∈ meet | slice | none;
-//   - ningún valor string es un color literal (#, rgb/hsl…, nombre CSS).
+//   - ningún valor string es un color literal (#, rgb/hsl…, nombre CSS);
+//   - fidelidad (tarea 2.7): cada materia tiene su diseno/svg/<id>.svg, con el mismo
+//     número y tipo de elementos, y datos idénticos a la conversión actual del SVG
+//     (un SVG editado sin regenerar, o un ilustracion.js a mano, falla).
 //
 // Uso:
 //   node tools/ui/ilustraciones.mjs              chequea el árbol real
@@ -17,6 +20,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { DIR_SVG, leerMateria } from './convertir-ilustraciones.mjs';
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -113,6 +117,27 @@ export function validar(nombre, datos, falla) {
   }
 }
 
+// Fidelidad de `datos` contra diseno/svg/<id>.svg. El SVG se lee siempre del árbol real
+// (las copias de las mutaciones solo llevan `src`). El conteo de elementos es
+// independiente del convertidor: sale del texto del SVG.
+export function fidelidad(id, datos, falla, dir = DIR_SVG) {
+  const archivo = path.join(dir, `${id}.svg`);
+  if (!fs.existsSync(archivo)) return falla(id, `falta el SVG fuente (${path.relative(RAIZ, archivo)})`);
+  const texto = fs.readFileSync(archivo, 'utf8');
+  const tipos = [...texto.matchAll(/<(path|rect|circle|ellipse|line|polyline|polygon|g|use|text)\b/g)].map((m) => m[1]);
+  const obtenidos = (datos?.elementos ?? []).map((e) => e.tipo);
+  if (tipos.join() !== obtenidos.join()) {
+    falla(id, `elementos distintos al SVG (svg: ${tipos.length} [${tipos}], datos: ${obtenidos.length} [${obtenidos}])`);
+  }
+  try {
+    if (JSON.stringify(leerMateria(id, dir)) !== JSON.stringify(datos)) {
+      falla(id, 'los datos difieren de la conversión del SVG (regenerar con tools/ui/convertir-ilustraciones.mjs)');
+    }
+  } catch (e) {
+    falla(id, e.message);
+  }
+}
+
 // Copia a un directorio temporal lo que el registro necesita para importarse (sin los
 // bancos de preguntas) y lo marca como ESM: el árbol real no declara "type": "module".
 function aislar(raiz) {
@@ -140,6 +165,7 @@ async function chequear(raiz = RAIZ) {
     } else {
       for (const m of lista) {
         validar(m?.id ?? '(sin id)', m?.ilustracion, falla);
+        if (m?.id) fidelidad(m.id, m.ilustracion, falla);
         const idx = path.join(raiz, 'src', 'materias', String(m?.id), 'index.js');
         if (fs.existsSync(idx) && /\bilustracion\b/.test(fs.readFileSync(idx, 'utf8'))) {
           falla(m.id, 'index.js no debe reexportar `ilustracion` (D3: la lleva el registro)');
@@ -178,6 +204,8 @@ const MUTACIONES = {
     `${s}\nMATERIA_LIST[2] = { ...MATERIA_LIST[2], ilustracion: undefined };\n`),
   'materia nueva en el registro, sin ilustracion': editar('src/materias/index.js', (s) =>
     `${s}\nMATERIA_LIST.push({ id: 'nueva', name: 'Nueva' });\n`),
+  'ilustracion desfasada del SVG (coordenada cambiada)': editar('src/materias/neuro/ilustracion.js', (s) =>
+    s.replace(/(cx: )[\d.]+/, '$199.9')),
   'encuadre inválido': editar('src/assets/filamentos.js', (s) =>
     s.replace("encuadre: 'none'", "encuadre: 'stretch'")),
   'index.js de la materia reexporta ilustracion': editar('src/materias/bcyt/index.js', (s) =>

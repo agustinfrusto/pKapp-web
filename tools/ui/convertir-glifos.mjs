@@ -31,7 +31,9 @@ function atributos(etiqueta) {
 }
 
 // Devuelve { viewBox, trazo, elementos } de un SVG de glifo; lanza si algo no encaja.
-export function leerSvg(texto, nombre = '(svg)') {
+// Con `trazoPropio` (ilustraciones de materia) admite `stroke-width` por elemento y lo
+// convierte a `props.strokeWidth`; los glifos lo rechazan (todos van al ancho de la raíz).
+export function leerSvg(texto, nombre = '(svg)', { trazoPropio = false } = {}) {
   const raiz = texto.match(/<svg\b[^>]*>/);
   if (!raiz) throw new Error(`${nombre}: sin <svg>`);
   const r = atributos(raiz[0]);
@@ -51,7 +53,14 @@ export function leerSvg(texto, nombre = '(svg)') {
       if (a[k] === undefined) throw new Error(`${nombre}: <${tipo}> sin ${k}`);
       props[k] = NUMERICOS.has(k) ? Number(a[k]) : a[k];
     }
-    const sobran = Object.keys(a).filter((k) => !ATRIBUTOS[tipo].includes(k));
+    if (trazoPropio && a['stroke-width'] !== undefined) {
+      const w = Number(a['stroke-width']);
+      if (!Number.isFinite(w)) throw new Error(`${nombre}: <${tipo}> con stroke-width no numérico`);
+      props.strokeWidth = w;
+    }
+    const sobran = Object.keys(a).filter(
+      (k) => !ATRIBUTOS[tipo].includes(k) && !(trazoPropio && k === 'stroke-width'),
+    );
     if (sobran.length) throw new Error(`${nombre}: <${tipo}> con atributos no convertidos (${sobran})`);
     return { tipo, props };
   });

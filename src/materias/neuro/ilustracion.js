@@ -1,22 +1,19 @@
 // Ilustración de la materia neuro: datos de trazo, sin JSX ni dependencias de plataforma.
 // Contrato en openspec/changes/rediseno-plancha/design.md (D2/D3). El color lo pone Ilustracion.
+// GENERADO — no editar a mano.
+// Regenerar: node tools/ui/convertir-ilustraciones.mjs neuro
+// Fuente: openspec/changes/rediseno-plancha/diseno/svg/neuro.svg
 export const ilustracion = {
   viewBox: '0 0 64 64',
   trazo: { ancho: 1.1, union: 'miter', extremo: 'square' },
   elementos: [
-    { tipo: 'polygon', props: { points: '25,29 31,23 39,25 41,33 34,39 26,36' } },
-    { tipo: 'circle', props: { cx: 33, cy: 31, r: 2.2 } },
-    { tipo: 'path', props: { d: 'M25 29 L15 22 L9 14 M15 22 L6 24 M31 23 L28 12 L22 6 M28 12 L33 5 M39 25 L47 17 L55 14 M47 17 L52 8 M26 36 L15 41 L8 49 M15 41 L6 40' } },
-    { tipo: 'path', props: { d: 'M41 33 L56 52' } },
-    { tipo: 'rect', props: { x: 43.5, y: 35, width: 5, height: 3, transform: 'rotate(50 46 36.5)' } },
-    { tipo: 'rect', props: { x: 48.5, y: 41, width: 5, height: 3, transform: 'rotate(50 51 42.5)' } },
-    { tipo: 'circle', props: { cx: 9, cy: 14, r: 1 } },
-    { tipo: 'circle', props: { cx: 6, cy: 24, r: 1 } },
-    { tipo: 'circle', props: { cx: 22, cy: 6, r: 1 } },
-    { tipo: 'circle', props: { cx: 33, cy: 5, r: 1 } },
-    { tipo: 'circle', props: { cx: 55, cy: 14, r: 1 } },
-    { tipo: 'circle', props: { cx: 52, cy: 8, r: 1 } },
-    { tipo: 'circle', props: { cx: 8, cy: 49, r: 1 } },
-    { tipo: 'circle', props: { cx: 6, cy: 40, r: 1 } },
+    { tipo: 'path', props: { d: 'M14.5 31.5 L18 25.6 L24.8 25.6 L28.2 31.5 L24.8 37.4 L18 37.4Z' } },
+    { tipo: 'circle', props: { cx: 21.4, cy: 31.5, r: 2.4 } },
+    { tipo: 'path', props: { d: 'M16.5 27.5 C15.8 26.5 13.8 23.4 12.5 21.5 C11.2 19.6 9.2 16.9 8.5 16 M21.5 25.8 C21.4 24.7 20.6 21.2 21 19 C21.4 16.8 23.5 13.6 24 12.5 M14.6 31.5 C13.7 31.7 10.6 32.7 9 32.5 C7.4 32.3 5.5 30.8 4.8 30.5 M16.8 36 C16.1 37.1 13.7 40.3 12.5 42.5 C11.3 44.7 10 47.9 9.5 49 M22 37.6 C22.3 38.8 23.6 42.6 23.5 45 C23.4 47.4 21.8 50.8 21.5 52' } },
+    { tipo: 'path', props: { d: 'M12.2 21 C11.5 21.2 9.2 22.3 8 22 C6.8 21.8 5.3 19.9 4.8 19.5 M8.5 16 C8 15.3 6 13.3 5.5 12 C5 10.7 5.5 8.7 5.5 8 M8.5 16 C9 15.2 11.2 12.5 11.5 11 C11.8 9.5 10.7 7.7 10.5 7 M21 19 C20.3 18.4 17.7 16.9 16.5 15.5 C15.3 14.1 14.4 11.3 14 10.5 M24 12.5 C23.7 11.8 22.2 9.3 22 8 C21.8 6.7 22.8 5.1 23 4.5 M24 12.5 C24.8 12 27.2 10.2 28.5 9.5 C29.8 8.8 31.4 8.7 32 8.5 M8.5 32.2 C8 32.9 6.1 35 5.5 36.5 C4.9 38 4.9 40.3 4.8 41 M12.2 42.8 C11.4 42.9 8.8 43.6 7.5 43.5 C6.2 43.4 5.1 42.3 4.6 42 M9.5 49 C8.8 49.9 6.1 53 5.5 54.5 C4.9 56 5.9 57.4 6 58 M9.5 49 C10.2 49.9 13 53 13.5 54.5 C14 56 12.7 57.4 12.5 58 M23.2 44.5 C24.1 45 27.2 46.2 28.5 47.5 C29.8 48.8 30.6 51.7 31 52.5 M21.5 52 C20.8 52.7 18.1 54.9 17.5 56 C16.9 57.1 17.9 58.1 18 58.5', strokeWidth: 0.9 } },
+    { tipo: 'path', props: { d: 'M28.2 31.5 L34 32 M34 32 L52 32', strokeWidth: 0.9 } },
+    { tipo: 'path', props: { d: 'M34.3 29.2 L42.9 29.2 L42.9 34.8 L34.3 34.8Z M45.5 29.2 L54.1 29.2 L54.1 34.8 L45.5 34.8Z', strokeWidth: 0.9 } },
+    { tipo: 'path', props: { d: 'M55.5 32 C55.8 31.6 56.6 30.6 57.2 29.8 C57.8 29 58.9 27.5 59.2 27 M55.5 32 C55.9 32.3 56.9 32.9 57.6 33.6 C58.3 34.3 59.3 35.6 59.6 36', strokeWidth: 0.7 } },
+    { tipo: 'path', props: { d: 'M4 62 H60 M4 59 V62 M60 59 V62', strokeWidth: 0.6 } },
   ],
 };

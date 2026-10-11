@@ -1,21 +1,23 @@
 // Ilustración de la materia bcyt: datos de trazo, sin JSX ni dependencias de plataforma.
 // Contrato en openspec/changes/rediseno-plancha/design.md (D2/D3). El color lo pone Ilustracion.
+// GENERADO — no editar a mano.
+// Regenerar: node tools/ui/convertir-ilustraciones.mjs bcyt
+// Fuente: openspec/changes/rediseno-plancha/diseno/svg/bcyt.svg
 export const ilustracion = {
   viewBox: '0 0 64 64',
   trazo: { ancho: 1.1, union: 'miter', extremo: 'square' },
   elementos: [
-    { tipo: 'path', props: { d: 'M9 33 C7 19 19 8 33 9 C48 9 57 21 55 34 C54 48 43 57 31 55 C18 55 10 46 9 33Z' } },
-    { tipo: 'circle', props: { cx: 31, cy: 30, r: 9.5 } },
-    { tipo: 'circle', props: { cx: 33.5, cy: 27.5, r: 3 } },
-    { tipo: 'ellipse', props: { cx: 16.5, cy: 38, rx: 5.5, ry: 2.6, transform: 'rotate(-40 16.5 38)' } },
-    { tipo: 'path', props: { d: 'M13 41 L20 35' } },
-    { tipo: 'ellipse', props: { cx: 47.5, cy: 21, rx: 5.5, ry: 2.6, transform: 'rotate(32 47.5 21)' } },
-    { tipo: 'path', props: { d: 'M43.5 18.5 L51.5 23.5' } },
-    { tipo: 'path', props: { d: 'M38 46 C41 44 44 44 47 46 M37 49.5 C40 47.5 44 47.5 48 49.5 M36.5 53 C40 51 44 51 47 53' } },
-    { tipo: 'path', props: { d: 'M22 20 C25 17 28 18 30 16' } },
-    { tipo: 'circle', props: { cx: 21, cy: 46, r: 0.9 } },
-    { tipo: 'circle', props: { cx: 50, cy: 35, r: 0.9 } },
-    { tipo: 'circle', props: { cx: 18, cy: 26, r: 0.9 } },
-    { tipo: 'path', props: { d: 'M2 62 H62 M2 59 V62 M62 59 V62', strokeWidth: 0.6 } },
+    { tipo: 'path', props: { d: 'M4.9 23.8 L3.9 15.3 M3.9 15.3 L10.7 9.8 M10.7 9.8 L17.1 13.9 M17.1 13.9 L18.5 22.2 M18.5 22.2 L11 27.5 M11 27.5 L4.9 23.8 M17.1 13.9 L25.6 10.5 M25.6 10.5 L30.1 13.9 M30.1 13.9 L29.4 22.5 M29.4 22.5 L25.2 24.7 M25.2 24.7 L18.5 22.2 M30.1 13.9 L39 10.4 M39 10.4 L43.8 15.3 M43.8 15.3 L42.3 24.6 M42.3 24.6 L39.2 26.9 M39.2 26.9 L29.4 22.5 M43.8 15.3 L52.3 13 M52.3 13 L56.8 16.3 M56.8 16.3 L57.1 23.9 M57.1 23.9 L51.8 27.6 M51.8 27.6 L42.3 24.6 M12.3 34.3 L11 27.5 M25.2 24.7 L24.5 33.8 M24.5 33.8 L18.7 37.3 M18.7 37.3 L12.3 34.3 M39.2 26.9 L38.1 34.4 M38.1 34.4 L32.8 37.4 M32.8 37.4 L24.5 33.8 M51.8 27.6 L52.9 36.8 M52.9 36.8 L44.9 40.1 M44.9 40.1 L38.1 34.4 M5.6 45.4 L5 40.4 M5 40.4 L12.3 34.3 M18.7 37.3 L20.4 47.6 M20.4 47.6 L10.2 50 M10.2 50 L5.6 45.4 M32.8 37.4 L30.9 46.9 M30.9 46.9 L22.6 49.1 M22.6 49.1 L20.4 47.6 M44.9 40.1 L44.3 47 M44.3 47 L36.8 51 M36.8 51 L30.9 46.9', strokeWidth: 0.9 } },
+    { tipo: 'circle', props: { cx: 11, cy: 18.8, r: 1.6 } },
+    { tipo: 'circle', props: { cx: 24.3, cy: 17.9, r: 1.6 } },
+    { tipo: 'circle', props: { cx: 37.3, cy: 18.9, r: 1.6 } },
+    { tipo: 'circle', props: { cx: 50.7, cy: 20.1, r: 1.6 } },
+    { tipo: 'circle', props: { cx: 18.4, cy: 29.9, r: 2.4 } },
+    { tipo: 'circle', props: { cx: 31.5, cy: 29.9, r: 1.6 } },
+    { tipo: 'circle', props: { cx: 44.9, cy: 31.7, r: 1.6 } },
+    { tipo: 'circle', props: { cx: 12, cy: 42.5, r: 1.6 } },
+    { tipo: 'circle', props: { cx: 25, cy: 42, r: 1.6 } },
+    { tipo: 'circle', props: { cx: 38, cy: 42.8, r: 1.6 } },
+    { tipo: 'path', props: { d: 'M4 62 H60 M4 59 V62 M60 59 V62', strokeWidth: 0.6 } },
   ],
 };
