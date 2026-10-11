@@ -84,3 +84,4 @@ openspec/changes/*/diseno/svg/glifos/*.png
 # Evidencia del rediseño: se versiona solo el ancho de referencia (390); el resto se regenera con npm run screenshots
 openspec/changes/*/evidencia/**/*.png
 !openspec/changes/*/evidencia/**/*-390-*.png
+openspec/changes/*/diseno/svg/variantes/*.png
