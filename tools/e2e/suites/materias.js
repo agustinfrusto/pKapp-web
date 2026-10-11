@@ -99,9 +99,37 @@ async function svgDelDom(pagina, base, t) {
   if (volver) comparar('Home glifo-volver', volver, GLIFO_24, 'path');
 }
 
+// Instagram y otros agregan parámetros al link (?utm_*, ?fbclid). Parsear la
+// query pasa por query-string -> decode-uri-component, que es CommonJS: una
+// versión ESM pura deja la página en blanco con "n is not a function".
+async function urlsConQueryString(pagina, base, t) {
+  const aperturas = [
+    '/?utm_source=ig&utm_medium=social&utm_content=link_in_bio',
+    '/?fbclid=abc',
+    '/?q=%C3%A1rbol',
+  ];
+  for (const ruta of aperturas) {
+    pagina.errores.length = 0;
+    await pagina.ir(base + ruta);
+    t.ok(`${ruta}: renderiza el selector`, await pagina.esperarTexto('Tus materias'), true);
+    t.ok(`${ruta}: sin excepciones de JS`, pagina.errores.length, 0);
+    if (pagina.errores.length) t.nota('  ' + pagina.errores[0]);
+  }
+
+  // La materia no persiste entre cargas: en frío /inicio vuelve al selector.
+  pagina.errores.length = 0;
+  await pagina.ir(base + '/inicio?x=1');
+  const volvio = await pagina.esperarA(async () =>
+    await pagina.url() === '/' && (await pagina.texto(400)).includes('Tus materias'));
+  t.ok('/inicio?x=1 en frío vuelve al selector', volvio, true);
+  t.ok('/inicio?x=1: sin excepciones de JS', pagina.errores.length, 0);
+  if (pagina.errores.length) t.nota('  ' + pagina.errores[0]);
+}
+
 module.exports = [
   { nombre: 'elegir materia sin rebotar al selector', correr: elegirMateria },
   { nombre: 'el selector muestra seis materias', correr: seisMaterias },
   { nombre: 'URLs profundas abiertas en frío', correr: urlsProfundasEnFrio },
   { nombre: 'Ilustracion: svg del DOM conserva atributos y estructura', correr: svgDelDom },
+  { nombre: 'URLs con query string abiertas en frío', correr: urlsConQueryString },
 ];
