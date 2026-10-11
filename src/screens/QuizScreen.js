@@ -168,7 +168,7 @@ export default function QuizScreen({ route, navigation }) {
   if (sinQuiz) return null;
 
   return (
-    <View className="flex-1 bg-slate-100 dark:bg-slate-900">
+    <View className="flex-1 bg-slate-100 dark:bg-slate-900" style={{ paddingTop: insets.top }}>
       {/* Header con progreso */}
       <View className="flex-row items-center bg-brand px-3 py-3 dark:bg-brandD-deep">
         <TouchableOpacity onPress={handleQuit}>
