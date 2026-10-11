@@ -11,11 +11,15 @@ import { metadata as neuro } from './neuro/metadata.js';
 import { metadata as cyr } from './cyr/metadata.js';
 import { metadata as dre } from './dre/metadata.js';
 import { metadata as ryd } from './ryd/metadata.js';
-import { CONTEOS } from './conteos.js';
+import { CONTEOS, GENERADAS } from './conteos.js';
 
 // El conteo de preguntas se precalcula (scripts/gen-conteos.mjs) justamente
 // para no tener que abrir el banco solo para mostrar un número.
-const conMeta = (m) => ({ ...m, preguntas: CONTEOS[m.id] ?? 0 });
+const conMeta = (m) => ({
+  ...m,
+  preguntas: CONTEOS[m.id] ?? 0,
+  generadas: GENERADAS[m.id] ?? 0,
+});
 
 // Orden en que se muestran en MateriaSelectScreen
 export const MATERIA_LIST = [bcyt, anatomia, neuro, cyr, dre, ryd].map(conMeta);
@@ -39,7 +43,11 @@ export async function cargarMateria(id) {
   const cargar = CARGADORES[id];
   if (!cargar) return null;
   const mod = await cargar();
-  const materia = { ...mod.default, preguntas: CONTEOS[id] ?? 0 };
+  const materia = {
+    ...mod.default,
+    preguntas: CONTEOS[id] ?? 0,
+    generadas: GENERADAS[id] ?? 0,
+  };
   cargadas.set(id, materia);
   return materia;
 }

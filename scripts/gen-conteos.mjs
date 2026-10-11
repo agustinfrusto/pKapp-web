@@ -21,23 +21,29 @@ const ids = fs
   .sort();
 
 const conteos = {};
+const generadas = {};
 for (const id of ids) {
   const archivo = path.join(materiasDir, id, 'questions.js');
   if (!fs.existsSync(archivo)) continue;
   const mod = await import(pathToFileURL(archivo).href);
-  conteos[id] = (mod.QUESTIONS || []).length;
+  const preguntas = mod.QUESTIONS || [];
+  conteos[id] = preguntas.length;
+  generadas[id] = preguntas.filter((q) => q.source === 'generated').length;
 }
 
-const cuerpo = Object.entries(conteos)
-  .map(([id, n]) => `  ${id}: ${n},`)
-  .join('\n');
+const bloque = (obj) =>
+  Object.entries(obj)
+    .map(([id, n]) => `  ${id}: ${n},`)
+    .join('\n');
 
 fs.writeFileSync(
   salida,
   `// GENERADO por scripts/gen-conteos.mjs — no editar a mano.\n` +
     `// Cantidad de preguntas por materia, para poder mostrarla sin cargar el banco.\n` +
-    `export const CONTEOS = {\n${cuerpo}\n};\n`,
+    `export const CONTEOS = {\n${bloque(conteos)}\n};\n\n` +
+    `// Cuántas de esas preguntas son source: 'generated' (hoy ninguna en los bancos publicados).\n` +
+    `export const GENERADAS = {\n${bloque(generadas)}\n};\n`,
   'utf-8'
 );
 
-console.log(`conteos.js actualizado: ${JSON.stringify(conteos)}`);
+console.log(`conteos.js actualizado: ${JSON.stringify(conteos)} generadas: ${JSON.stringify(generadas)}`);
