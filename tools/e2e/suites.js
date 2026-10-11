@@ -170,8 +170,13 @@ async function terminarUnQuizNoPregunta(pagina, base, t) {
 async function seisMaterias(pagina, base, t) {
   await pagina.ir(base + '/');
   await pagina.esperarTexto('Tus materias');
+  await pagina.evaluar('localStorage.clear()');
+  await pagina.ir(base + '/');
+  await pagina.esperarTexto('Tus materias');
+  const nota = await pagina.esperarTexto('Ahora estoy trabajando en la estética de la página');
+  t.ok('la nota del creador anuncia el trabajo en la estética', nota, true);
   await cerrarNota(pagina);
-  const nombres = ['Biología Celular y Tisular', 'Anatomía', 'Neurobiología',
+  const nombres =['Biología Celular y Tisular', 'Anatomía', 'Neurobiología',
     'Cardiovascular y Respiratorio', 'Digestivo, Renal y Endócrino', 'Reproductor y Desarrollo'];
   const texto = await pagina.evaluar('document.body.innerText');
   for (const n of nombres) t.ok(`el selector muestra "${n}"`, texto.includes(n), true);
