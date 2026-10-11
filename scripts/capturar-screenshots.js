@@ -1,3 +1,12 @@
+// Captura las seis pantallas de la app web sobre CDP.
+//
+//   npm run screenshots -- [--tema claro|oscuro] [--ancho 390[,768,...]] [--salida <dir>]
+//
+// Sin argumentos: las seis capturas en claro a 390 px en docs/screenshots/.
+// Con --tema o --ancho explícito, los archivos llevan siempre ancho y tema en el
+// nombre (01-materia-select-320-claro.png), aunque sea uno solo. El script termina siempre: cada paso tiene
+// su tope y cualquier falla sale con código distinto de cero.
+
 const fs = require('fs');
 const path = require('path');
 const { servirEstatico, lanzarChrome } = require('../tools/e2e/entorno');
@@ -5,288 +14,276 @@ const { conectarNavegador, abrirPagina, esperar } = require('../tools/e2e/cdp');
 
 const RAIZ = path.resolve(__dirname, '..');
 const DIST = path.join(RAIZ, 'dist');
-const SCREENSHOTS_DIR = path.join(RAIZ, 'docs', 'screenshots');
 const PUERTO_WEB = 8199;
 const PUERTO_CDP = 9322;
+const ALTO = 691;
+const LIMITE_PASO_MS = 90000;
+const USO = 'Uso: npm run screenshots -- [--tema claro|oscuro] [--ancho 390[,768,...]] [--salida <dir>]';
 
-async function capturar(navegador, sessionId, rutaArchivo) {
+function leerArgumentos(argv) {
+  const opciones = {
+    tema: 'claro', anchos: [], explicito: false, salida: path.join(RAIZ, 'docs', 'screenshots'),
+  };
+  for (let i = 0; i < argv.length; i++) {
+    const nombre = argv[i];
+    const valor = argv[++i];
+    if (valor === undefined || valor.startsWith('--')) {
+      throw new Error(`Falta el valor de ${nombre}. ${USO}`);
+    }
+    if (nombre === '--tema') {
+      if (valor !== 'claro' && valor !== 'oscuro') {
+        throw new Error(`--tema acepta claro u oscuro, no "${valor}".`);
+      }
+      opciones.tema = valor;
+      opciones.explicito = true;
+    } else if (nombre === '--ancho') {
+      opciones.explicito = true;
+      for (const parte of valor.split(',')) {
+        const ancho = Number(parte);
+        if (!Number.isInteger(ancho) || ancho < 200 || ancho > 4000) {
+          throw new Error(`--ancho espera enteros entre 200 y 4000, no "${parte}".`);
+        }
+        if (!opciones.anchos.includes(ancho)) opciones.anchos.push(ancho);
+      }
+    } else if (nombre === '--salida') {
+      opciones.salida = path.resolve(valor);
+    } else {
+      throw new Error(`Argumento desconocido: ${nombre}. ${USO}`);
+    }
+  }
+  if (!opciones.anchos.length) opciones.anchos.push(390);
+  return opciones;
+}
+
+// Un paso que no termina en el tope es una falla, no una espera infinita.
+function conTope(nombre, trabajo) {
+  let reloj;
+  const tope = new Promise((_, falla) => {
+    reloj = setTimeout(
+      () => falla(new Error(`El paso "${nombre}" no terminó en ${LIMITE_PASO_MS / 1000}s`)),
+      LIMITE_PASO_MS,
+    );
+  });
+  return Promise.race([trabajo(), tope]).finally(() => clearTimeout(reloj));
+}
+
+// Las esperas de cdp.js devuelven false al agotarse; acá eso es un error, porque
+// seguir capturaría una pantalla que no es la que dice el nombre del archivo.
+function exigir(cumplido, mensaje) {
+  if (!cumplido) throw new Error(mensaje);
+}
+
+async function capturar(navegador, pagina, rutaArchivo) {
   const { data } = await navegador.enviar('Page.captureScreenshot', {
     format: 'png',
     fromSurface: true,
     captureBeyondViewport: false,
-  }, sessionId);
+  }, pagina.sessionId);
   fs.writeFileSync(rutaArchivo, Buffer.from(data, 'base64'));
   console.log(`📸 Guardada: ${path.relative(RAIZ, rutaArchivo)}`);
 }
 
-async function cerrarNota(pagina) {
-  if (await pagina.ubicar('✕')) {
-    await pagina.clic('✕');
-    await pagina.esperarA(async () => !await pagina.ubicar('✕'), { limite: 3000 });
-    await esperar(300);
+// Estadísticas realistas para Biología Celular y Tisular y banderas que evitan
+// el banner de donación y la nota del creador.
+const SEMILLA_STATS = `(function () {
+  const ahora = Date.now();
+  const fila = (a, c) => ({ times_answered: a, times_correct: c, last_answered_at: ahora });
+  const stats = {
+    'P1-QA-001': fila(5, 5), 'P1-QA-002': fila(4, 4), 'P1-QA-003': fila(5, 4),
+    'P1-QA-004': fila(6, 5), 'P1-QA-005': fila(4, 1),
+    'P1-AA-001': fila(4, 4), 'P1-AA-002': fila(3, 3), 'P1-AA-003': fila(4, 3), 'P1-AA-004': fila(3, 1),
+    'P1-LC-001': fila(5, 4), 'P1-LC-002': fila(4, 3), 'P1-LC-003': fila(3, 3), 'P1-LC-004': fila(4, 1),
+    'P1-ENZ-001': fila(4, 3), 'P1-ENZ-002': fila(3, 3), 'P1-ENZ-003': fila(3, 1),
+    'P1-MET-001': fila(5, 4), 'P1-MET-002': fila(4, 3),
+  };
+  localStorage.setItem('pkapp_question_stats:bcyt', JSON.stringify(stats));
+  localStorage.setItem('pkapp_donation_count', '2');
+  localStorage.setItem('pkapp_about_seen_at', String(ahora));
+})()`;
+
+// El tema se aplica por la preferencia `tema` de la app (src/db/database.web.js
+// guarda los settings en pkapp_settings), no por el sistema operativo.
+const fijarTema = (tema) => `(function () {
+  const ajustes = JSON.parse(localStorage.getItem('pkapp_settings') || '{}');
+  ajustes.tema = ${JSON.stringify(tema)};
+  localStorage.setItem('pkapp_settings', JSON.stringify(ajustes));
+})()`;
+
+const OPCION_DE_QUIZ = `(function () {
+  const nodos = Array.from(document.querySelectorAll('[tabindex]')).filter((n) => {
+    const r = n.getBoundingClientRect();
+    return /^[A-D]\\s/.test((n.innerText || '').trim()) && r.width > 0 && r.height > 0;
+  });
+  if (!nodos.length) return null;
+  const r = nodos[0].getBoundingClientRect();
+  return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+})()`;
+
+const responderPregunta = (mapa, fallar) => `(function (answerMap, shouldFail) {
+  const cardNodos = Array.from(document.querySelectorAll('div, span')).filter((n) => {
+    const t = (n.innerText || '').trim().replace(/\\s+/g, ' ');
+    return answerMap[t];
+  });
+  const correctOptionText = cardNodos.length
+    ? answerMap[cardNodos[0].innerText.trim().replace(/\\s+/g, ' ')] : null;
+
+  const optionElements = Array.from(document.querySelectorAll('[tabindex]')).filter((n) => {
+    const r = n.getBoundingClientRect();
+    return /^[A-D]\\s/.test((n.innerText || '').trim()) && r.width > 0 && r.height > 0;
+  });
+  if (!optionElements.length) return null;
+
+  let target = optionElements[0];
+  if (correctOptionText && !shouldFail) {
+    const match = optionElements.find((el) => (el.innerText || '').includes(correctOptionText));
+    if (match) target = match;
+  } else if (shouldFail && correctOptionText) {
+    const wrong = optionElements.find((el) => !(el.innerText || '').includes(correctOptionText));
+    if (wrong) target = wrong;
   }
+
+  const r = target.getBoundingClientRect();
+  return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+})(${JSON.stringify(mapa)}, ${fallar})`;
+
+async function mapaDeRespuestas() {
+  const { QUESTIONS } = await import('../src/materias/bcyt/questions.js');
+  const mapa = {};
+  QUESTIONS.forEach((q) => {
+    const texto = q.question.trim().replace(/\s+/g, ' ');
+    mapa[texto] = q.options[q.correctIndex].trim().replace(/\s+/g, ' ');
+  });
+  return mapa;
 }
 
-async function main() {
-  if (!fs.existsSync(SCREENSHOTS_DIR)) {
-    fs.mkdirSync(SCREENSHOTS_DIR, { recursive: true });
-  }
-
-  const servidor = await servirEstatico(DIST, PUERTO_WEB);
-  const chrome = await lanzarChrome(PUERTO_CDP);
-  const navegador = await conectarNavegador(PUERTO_CDP);
-  const base = `http://localhost:${PUERTO_WEB}`;
+async function capturarAncho({ navegador, base, ancho, tema, salida, sufijo }) {
+  const pagina = await abrirPagina(navegador, { ancho, alto: ALTO, escala: 2, movil: ancho < 768 });
+  const archivo = (nombre) => path.join(salida, `${nombre}${sufijo ? `-${ancho}-${tema}` : ''}.png`);
+  const paso = (nombre, trabajo) => {
+    console.log(`\n--- ${nombre} (${ancho}px, ${tema}) ---`);
+    return conTope(nombre, trabajo);
+  };
 
   try {
-    // Abrir página con viewport móvil estándar (400 x 691 @ 2x = 800 x 1382)
-    const { targetId } = await navegador.enviar('Target.createTarget', { url: 'about:blank' });
-    const { sessionId } = await navegador.enviar('Target.attachToTarget', { targetId, flatten: true });
-
-    await navegador.enviar('Page.enable', {}, sessionId);
-    await navegador.enviar('Runtime.enable', {}, sessionId);
-    await navegador.enviar('Emulation.setDeviceMetricsOverride', {
-      width: 400,
-      height: 691,
-      deviceScaleFactor: 2,
-      mobile: true,
-    }, sessionId);
-
-    const pagina = {
-      dialogos: [],
-      errores: [],
-      respuestaDialogo: 'cancelar',
-    };
-
-    pagina.evaluar = async (expr) => {
-      const r = await navegador.enviar('Runtime.evaluate',
-        { expression: expr, returnByValue: true, awaitPromise: true }, sessionId);
-      if (r.exceptionDetails) throw new Error(r.exceptionDetails.text);
-      return r.result.value;
-    };
-
-    pagina.ir = (url) => navegador.enviar('Page.navigate', { url }, sessionId);
-    pagina.url = () => pagina.evaluar('location.pathname');
-    pagina.texto = (n = 160) =>
-      pagina.evaluar(`document.body.innerText.replace(/\\s+/g,' ').slice(0, ${n})`);
-
-    const FN_UBICAR = `(function (t) {
-      const cands = Array.from(document.querySelectorAll('[tabindex]')).filter((n) => {
-        const r = n.getBoundingClientRect();
-        return (n.innerText || '').includes(t) && r.width > 0 && r.height > 0;
-      });
-      if (!cands.length) return null;
-      cands.sort((a, b) => (a.innerText || '').length - (b.innerText || '').length);
-      const el = cands[0];
-      el.scrollIntoView({ block: 'center' });
-      const r = el.getBoundingClientRect();
-      return {
-        x: Math.round(r.left + r.width / 2),
-        y: Math.round(r.top + r.height / 2),
-        texto: (el.innerText || '').trim().replace(/\\s+/g, ' ').slice(0, 45),
-      };
-    })`;
-
-    pagina.ubicar = (texto) => pagina.evaluar(`${FN_UBICAR}(${JSON.stringify(texto)})`);
-
-    pagina.clicEn = async (x, y) => {
-      for (const type of ['mousePressed', 'mouseReleased']) {
-        await navegador.enviar('Input.dispatchMouseEvent',
-          { type, x, y, button: 'left', clickCount: 1, buttons: type === 'mousePressed' ? 1 : 0 },
-          sessionId);
-        await esperar(50);
-      }
-    };
-
-    pagina.clic = async (texto) => {
-      if (!await pagina.ubicar(texto)) return null;
-      await esperar(400);
-      const p = await pagina.ubicar(texto);
-      if (!p) return null;
-      await pagina.clicEn(p.x, p.y);
-      return p.texto;
-    };
-
-    pagina.esperarA = async (fn, { intento = 100, limite = 15000 } = {}) => {
-      const hasta = Date.now() + limite;
-      for (;;) {
-        if (await fn()) return true;
-        if (Date.now() > hasta) return false;
-        await esperar(intento);
-      }
-    };
-
-    pagina.esperarUrl = (esperada, opts) =>
-      pagina.esperarA(async () => await pagina.url() === esperada, opts);
-
-    pagina.esperarTexto = (txt, opts) =>
-      pagina.esperarA(async () => (await pagina.texto(4000)).includes(txt), opts);
-
-    // Sembrar estadísticas realistas para la materia Biología Celular y Tisular
-    await pagina.ir(base + '/');
-    await pagina.esperarTexto('Tus materias');
-
-    await pagina.evaluar(`
-      (function() {
-        const statsBcyt = {
-          // quimica-agua
-          'P1-QA-001': { times_answered: 5, times_correct: 5, last_answered_at: Date.now() },
-          'P1-QA-002': { times_answered: 4, times_correct: 4, last_answered_at: Date.now() },
-          'P1-QA-003': { times_answered: 5, times_correct: 4, last_answered_at: Date.now() },
-          'P1-QA-004': { times_answered: 6, times_correct: 5, last_answered_at: Date.now() },
-          'P1-QA-005': { times_answered: 4, times_correct: 1, last_answered_at: Date.now() },
-          // aminoacidos
-          'P1-AA-001': { times_answered: 4, times_correct: 4, last_answered_at: Date.now() },
-          'P1-AA-002': { times_answered: 3, times_correct: 3, last_answered_at: Date.now() },
-          'P1-AA-003': { times_answered: 4, times_correct: 3, last_answered_at: Date.now() },
-          'P1-AA-004': { times_answered: 3, times_correct: 1, last_answered_at: Date.now() },
-          // lipidos-glucidos
-          'P1-LC-001': { times_answered: 5, times_correct: 4, last_answered_at: Date.now() },
-          'P1-LC-002': { times_answered: 4, times_correct: 3, last_answered_at: Date.now() },
-          'P1-LC-003': { times_answered: 3, times_correct: 3, last_answered_at: Date.now() },
-          'P1-LC-004': { times_answered: 4, times_correct: 1, last_answered_at: Date.now() },
-          // enzimas
-          'P1-ENZ-001': { times_answered: 4, times_correct: 3, last_answered_at: Date.now() },
-          'P1-ENZ-002': { times_answered: 3, times_correct: 3, last_answered_at: Date.now() },
-          'P1-ENZ-003': { times_answered: 3, times_correct: 1, last_answered_at: Date.now() },
-          // metabolismo
-          'P1-MET-001': { times_answered: 5, times_correct: 4, last_answered_at: Date.now() },
-          'P1-MET-002': { times_answered: 4, times_correct: 3, last_answered_at: Date.now() },
-        };
-        localStorage.setItem('pkapp_question_stats:bcyt', JSON.stringify(statsBcyt));
-        localStorage.setItem('pkapp_donation_count', '2'); // Evitar banner de donación
-        localStorage.setItem('pkapp_about_seen_at', String(Date.now())); // No tapar con nota del creador
-      })()
-    `);
-
-    // 1. Materia Select Screen
-    console.log('\n--- 1. Materia Select ---');
-    await pagina.ir(base + '/');
-    await pagina.esperarTexto('Tus materias');
-    await esperar(500);
-    await capturar(navegador, sessionId, path.join(SCREENSHOTS_DIR, '01-materia-select.png'));
-
-    // 2. Home Screen
-    console.log('\n--- 2. Home Screen ---');
-    await pagina.clic('Biología Celular y Tisular');
-    await pagina.esperarUrl('/inicio');
-    await esperar(500);
-    await capturar(navegador, sessionId, path.join(SCREENSHOTS_DIR, '02-home.png'));
-
-    // 3. Topic Select Screen
-    console.log('\n--- 3. Topic Select Screen ---');
-    await pagina.clic('Entrena Temas/Parciales');
-    await pagina.esperarUrl('/temas/practice');
-    await esperar(600);
-    await capturar(navegador, sessionId, path.join(SCREENSHOTS_DIR, '03-topic-select.png'));
-
-    // 4. Quiz Screen (con respuesta seleccionada y explicación visible)
-    console.log('\n--- 4. Quiz Screen ---');
-    await pagina.clic('Química del agua');
-    await pagina.esperarUrl('/quiz');
-    await esperar(600);
-
-    // Responder la primera pregunta haciendo click en la opción correcta (opción A "Se lisan")
-    const clickOpcion = await pagina.evaluar(`(function () {
-      const nodos = Array.from(document.querySelectorAll('[tabindex]')).filter((n) => {
-        const r = n.getBoundingClientRect();
-        return /^[A-D]\\s/.test((n.innerText || '').trim()) && r.width > 0 && r.height > 0;
-      });
-      if (!nodos.length) return null;
-      const r = nodos[0].getBoundingClientRect();
-      return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
-    })()`);
-
-    if (clickOpcion) {
-      await pagina.clicEn(clickOpcion.x, clickOpcion.y);
-      await esperar(600);
-    }
-    await capturar(navegador, sessionId, path.join(SCREENSHOTS_DIR, '04-quiz.png'));
-
-    // 5. Results Screen
-    console.log('\n--- 5. Results Screen ---');
-    const { QUESTIONS } = await import('../src/materias/bcyt/questions.js');
-    const correctAnswersMap = {};
-    QUESTIONS.forEach(q => {
-      const qText = q.question.trim().replace(/\s+/g, ' ');
-      const correctText = q.options[q.correctIndex].trim().replace(/\s+/g, ' ');
-      correctAnswersMap[qText] = correctText;
+    await paso('0. Semilla', async () => {
+      await pagina.ir(base + '/');
+      exigir(await pagina.esperarTexto('Tus materias'), 'La app no mostró "Tus materias" al cargar');
+      await pagina.evaluar(SEMILLA_STATS);
+      await pagina.evaluar(fijarTema(tema));
     });
 
-    // Completar el quiz respondiendo con ~88% de aciertos (21 de 24)
-    for (let i = 0; i < 30; i++) {
-      if (await pagina.url() === '/resultados') break;
+    await paso('1. Materia Select', async () => {
+      await pagina.ir(base + '/');
+      exigir(await pagina.esperarTexto('Tus materias'), 'La app no mostró "Tus materias" tras recargar');
+      const oscuro = await pagina.evaluar("document.documentElement.classList.contains('dark')");
+      exigir(oscuro === (tema === 'oscuro'),
+        `El tema aplicado no es ${tema} (clase dark: ${oscuro})`);
+      await esperar(500);
+      await capturar(navegador, pagina, archivo('01-materia-select'));
+    });
 
-      const btnSigYa = await pagina.ubicar('Ver resultados') || await pagina.ubicar('Siguiente');
-      if (btnSigYa) {
-        await pagina.clicEn(btnSigYa.x, btnSigYa.y);
-        await esperar(150);
-        continue;
-      }
+    await paso('2. Home', async () => {
+      exigir(await pagina.clic('Biología Celular y Tisular'), 'No se encontró la materia Biología Celular y Tisular');
+      exigir(await pagina.esperarUrl('/inicio'), 'No se llegó a /inicio');
+      await esperar(500);
+      await capturar(navegador, pagina, archivo('02-home'));
+    });
 
-      // Buscar el texto de la pregunta actual y responder la opción correcta (salvo en 3 preguntas)
-      const shouldFail = (i === 5 || i === 12 || i === 18);
-      await pagina.evaluar(`(function (answerMap, shouldFail) {
-        // Encontrar texto de la pregunta
-        const cardNodos = Array.from(document.querySelectorAll('div, span')).filter(n => {
-          const t = (n.innerText || '').trim().replace(/\\s+/g, ' ');
-          return answerMap[t];
-        });
-        const correctOptionText = cardNodos.length ? answerMap[cardNodos[0].innerText.trim().replace(/\\s+/g, ' ')] : null;
+    await paso('3. Topic Select', async () => {
+      exigir(await pagina.clic('Entrena Temas/Parciales'), 'No se encontró "Entrena Temas/Parciales"');
+      exigir(await pagina.esperarUrl('/temas/practice'), 'No se llegó a /temas/practice');
+      await esperar(600);
+      await capturar(navegador, pagina, archivo('03-topic-select'));
+    });
 
-        // Encontrar opciones A, B, C...
-        const optionElements = Array.from(document.querySelectorAll('[tabindex]')).filter((n) => {
-          const r = n.getBoundingClientRect();
-          return /^[A-D]\\s/.test((n.innerText || '').trim()) && r.width > 0 && r.height > 0;
-        });
-        if (!optionElements.length) return null;
+    await paso('4. Quiz', async () => {
+      exigir(await pagina.clic('Química del agua'), 'No se encontró el tema "Química del agua"');
+      exigir(await pagina.esperarUrl('/quiz'), 'No se llegó a /quiz');
+      await esperar(600);
+      const opcion = await pagina.evaluar(OPCION_DE_QUIZ);
+      exigir(opcion, 'El quiz no mostró opciones');
+      await pagina.clicEn(opcion.x, opcion.y);
+      await esperar(600);
+      await capturar(navegador, pagina, archivo('04-quiz'));
+    });
 
-        let target = optionElements[0];
-        if (correctOptionText && !shouldFail) {
-          const match = optionElements.find(el => (el.innerText || '').includes(correctOptionText));
-          if (match) target = match;
-        } else if (shouldFail && correctOptionText) {
-          const wrong = optionElements.find(el => !(el.innerText || '').includes(correctOptionText));
-          if (wrong) target = wrong;
+    await paso('5. Results', async () => {
+      const mapa = await mapaDeRespuestas();
+      // ~88% de aciertos: tres respuestas incorrectas a propósito.
+      for (let i = 0; i < 30; i++) {
+        if (await pagina.url() === '/resultados') break;
+
+        const avanzar = await pagina.ubicar('Ver resultados') || await pagina.ubicar('Siguiente');
+        if (avanzar) {
+          await pagina.clicEn(avanzar.x, avanzar.y);
+          await esperar(150);
+          continue;
         }
 
-        const r = target.getBoundingClientRect();
-        return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
-      })(${JSON.stringify(correctAnswersMap)}, ${shouldFail})`).then(async (coord) => {
+        const fallar = i === 5 || i === 12 || i === 18;
+        const coord = await pagina.evaluar(responderPregunta(mapa, fallar));
         if (coord) {
           await pagina.clicEn(coord.x, coord.y);
           await esperar(120);
         }
-      });
 
-      const btnSig = await pagina.ubicar('Ver resultados') || await pagina.ubicar('Siguiente');
-      if (btnSig) {
-        await pagina.clicEn(btnSig.x, btnSig.y);
-        await esperar(150);
+        const sig = await pagina.ubicar('Ver resultados') || await pagina.ubicar('Siguiente');
+        if (sig) {
+          await pagina.clicEn(sig.x, sig.y);
+          await esperar(150);
+        }
       }
+      exigir(await pagina.esperarUrl('/resultados'), 'El quiz no llegó a /resultados');
+      await esperar(600);
+      await capturar(navegador, pagina, archivo('05-results'));
+    });
+
+    await paso('6. Stats', async () => {
+      exigir(await pagina.clic('Inicio'), 'No se encontró el botón "Inicio"');
+      exigir(await pagina.esperarUrl('/inicio'), 'No se volvió a /inicio');
+      await esperar(500);
+      exigir(await pagina.clic('Mis estadísticas'), 'No se encontró "Mis estadísticas"');
+      exigir(await pagina.esperarUrl('/estadisticas'), 'No se llegó a /estadisticas');
+      await esperar(800);
+      await capturar(navegador, pagina, archivo('06-stats'));
+    });
+  } finally {
+    // Con Chrome caído, cerrar la pestaña esperaría el tope de comando entero.
+    await Promise.race([pagina.cerrar().catch(() => {}), esperar(3000)]);
+  }
+}
+
+async function main() {
+  const { tema, anchos, explicito, salida } = leerArgumentos(process.argv.slice(2));
+  if (!fs.existsSync(path.join(DIST, 'index.html'))) {
+    throw new Error('No hay dist/. Corré npm run build:web antes de capturar.');
+  }
+  fs.mkdirSync(salida, { recursive: true });
+
+  const servidor = await servirEstatico(DIST, PUERTO_WEB);
+  let chrome;
+  let navegador;
+  try {
+    chrome = await lanzarChrome(PUERTO_CDP);
+    navegador = await conectarNavegador(PUERTO_CDP);
+    const base = `http://localhost:${PUERTO_WEB}`;
+    const sufijo = explicito || anchos.length > 1;
+
+    for (const ancho of anchos) {
+      await capturarAncho({ navegador, base, ancho, tema, salida, sufijo });
     }
-    await pagina.esperarUrl('/resultados');
-    await esperar(600);
-    await capturar(navegador, sessionId, path.join(SCREENSHOTS_DIR, '05-results.png'));
-
-    // 6. Stats Screen
-    console.log('\n--- 6. Stats Screen ---');
-    await pagina.clic('Inicio');
-    await pagina.esperarUrl('/inicio');
-    await esperar(500);
-    await pagina.clic('Mis estadísticas');
-    await pagina.esperarUrl('/estadisticas');
-    await esperar(800);
-    await capturar(navegador, sessionId, path.join(SCREENSHOTS_DIR, '06-stats.png'));
-
     console.log('\n🎉 ¡Todas las capturas se generaron correctamente!');
   } finally {
-    navegador.cerrar();
-    await chrome.cerrar();
+    if (navegador) navegador.cerrar();
+    if (chrome) await chrome.cerrar();
     await servidor.cerrar();
   }
 }
 
-main().catch((err) => {
-  console.error('Error generando capturas:', err);
-  process.exit(1);
-});
+main().then(
+  () => process.exit(0),
+  (err) => {
+    console.error(`Error generando capturas: ${err.message}`);
+    process.exit(1);
+  },
+);

@@ -50,7 +50,8 @@ los assets y pierde nitidez; un SVG estático en `<Image>` no se renderiza en na
   `alto` independientes (`ancho` admite `'100%'` para llenar la columna sin medirla). Los colores salen de tokens del tema activo, nunca de un literal.
   No importa el registro de materias: quien lo usa le pasa los datos.
 - Contrato de datos (D3), sin JSX ni dependencias de plataforma:
-  `{ viewBox, trazo: { ancho, union, extremo }, elementos: [{ tipo, props, tono? }] }`.
+  `{ viewBox, trazo: { ancho, union, extremo, limiteInglete? }, elementos: [{ tipo, props, tono? }] }`
+  (`limiteInglete` se traduce a `strokeMiterlimit`; los glifos usan 2).
   `tipo` es `path`, `circle`, `ellipse`, `rect`, `line`, `polyline` o `polygon`; `props`
   usa los nombres camelCase de SVG (`d`, `cx`, `strokeWidth`, `strokeDasharray`,
   `opacity`…), válidos en `react-native-svg` y en el DOM de React. `tono: 'acento'` pinta

@@ -31,12 +31,33 @@ async function conectarNavegador(puerto) {
     }
   };
 
+  // Si Chrome deja de contestar o se cae, un comando sin respuesta dejaría la
+  // corrida colgada para siempre: cada uno tiene su tope y el cierre del
+  // socket rechaza lo que quedó pendiente.
+  const LIMITE_COMANDO_MS = 30000;
+
+  ws.onclose = () => {
+    for (const { falla } of pendientes.values()) {
+      falla(new Error('Chrome cerró la conexión de debugging'));
+    }
+    pendientes.clear();
+  };
+
   function enviar(method, params = {}, sessionId) {
     const id = proximoId++;
     const msg = { id, method, params };
     if (sessionId) msg.sessionId = sessionId;
-    ws.send(JSON.stringify(msg));
-    return new Promise((listo, falla) => pendientes.set(id, { listo, falla }));
+    return new Promise((listo, falla) => {
+      const reloj = setTimeout(() => {
+        pendientes.delete(id);
+        falla(new Error(`Chrome no contestó a ${method} en ${LIMITE_COMANDO_MS / 1000}s`));
+      }, LIMITE_COMANDO_MS);
+      pendientes.set(id, {
+        listo: (r) => { clearTimeout(reloj); listo(r); },
+        falla: (e) => { clearTimeout(reloj); falla(e); },
+      });
+      ws.send(JSON.stringify(msg));
+    });
   }
 
   return {
@@ -68,16 +89,19 @@ const FN_UBICAR = `(function (t) {
   };
 })`;
 
-async function abrirPagina(navegador, { ancho = 900, alto = 1400 } = {}) {
+// `escala` y `movil` son para quien captura imágenes (scripts/capturar-
+// screenshots.js); los defaults son los de la e2e y no cambian su comportamiento.
+async function abrirPagina(navegador, { ancho = 900, alto = 1400, escala = 1, movil = false } = {}) {
   const { targetId } = await navegador.enviar('Target.createTarget', { url: 'about:blank' });
   const { sessionId } = await navegador.enviar('Target.attachToTarget', { targetId, flatten: true });
 
   await navegador.enviar('Page.enable', {}, sessionId);
   await navegador.enviar('Runtime.enable', {}, sessionId);
   await navegador.enviar('Emulation.setDeviceMetricsOverride',
-    { width: ancho, height: alto, deviceScaleFactor: 1, mobile: false }, sessionId);
+    { width: ancho, height: alto, deviceScaleFactor: escala, mobile: movil }, sessionId);
 
   const pagina = {
+    sessionId,
     dialogos: [],
     errores: [],
     // 'aceptar' | 'cancelar': qué contestar al próximo window.confirm.
@@ -88,8 +112,10 @@ async function abrirPagina(navegador, { ancho = 900, alto = 1400 } = {}) {
     if (m.sessionId !== sessionId) return;
     if (m.method === 'Page.javascriptDialogOpening') {
       pagina.dialogos.push(m.params.message);
+      // Sin dueño, un rechazo (Chrome caído o mudo) mataría el proceso con
+      // unhandledRejection antes del finally que cierra Chrome y el servidor.
       await navegador.enviar('Page.handleJavaScriptDialog',
-        { accept: pagina.respuestaDialogo === 'aceptar' }, sessionId);
+        { accept: pagina.respuestaDialogo === 'aceptar' }, sessionId).catch(() => {});
     }
     if (m.method === 'Runtime.exceptionThrown') {
       const d = m.params.exceptionDetails;
