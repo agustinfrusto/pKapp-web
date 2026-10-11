@@ -82,6 +82,9 @@ async function abrirPagina(navegador, { ancho = 900, alto = 1400 } = {}) {
     errores: [],
     // 'aceptar' | 'cancelar': qué contestar al próximo window.confirm.
     respuestaDialogo: 'cancelar',
+    // URLs de las navegaciones pedidas por script (location.href = ...), aunque
+    // el navegador no las complete (intent://, instagram://).
+    navegaciones: [],
   };
 
   navegador.alEvento(async (m) => {
@@ -90,6 +93,9 @@ async function abrirPagina(navegador, { ancho = 900, alto = 1400 } = {}) {
       pagina.dialogos.push(m.params.message);
       await navegador.enviar('Page.handleJavaScriptDialog',
         { accept: pagina.respuestaDialogo === 'aceptar' }, sessionId);
+    }
+    if (m.method === 'Page.frameRequestedNavigation' && m.params.reason === 'scriptInitiated') {
+      pagina.navegaciones.push(m.params.url);
     }
     if (m.method === 'Runtime.exceptionThrown') {
       const d = m.params.exceptionDetails;
@@ -103,6 +109,9 @@ async function abrirPagina(navegador, { ancho = 900, alto = 1400 } = {}) {
     if (r.exceptionDetails) throw new Error(r.exceptionDetails.text);
     return r.result.value;
   };
+
+  // Comandos CDP sobre esta página (UA, scripts de arranque, etc.).
+  pagina.enviar = (method, params = {}) => navegador.enviar(method, params, sessionId);
 
   pagina.ir = (url) => navegador.enviar('Page.navigate', { url }, sessionId);
   pagina.url = () => pagina.evaluar('location.pathname');
