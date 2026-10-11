@@ -82,13 +82,13 @@ La ilustración y el campo son decorativos (`aria-hidden`). El nombre de la mate
 
 | Elemento | Reposo | Hover (web) | Presionado | Foco | Seleccionado | Deshabilitado | Cargando | Banco reducido, origen, acierto, error, intermedia |
 |---|---|---|---|---|---|---|---|---|
-| Tarjeta de materia (K6) | Borde `linea`; fondo `superficie`; texto `tinta`; ilustración `filamento` | Contorno web `linea`, `border` | Inversión total: fondo `tinta`; texto, id, cajetín e ilustración `fondo` | Contorno `foco`, `border-2`, separado `paso 0.5` | — | `materia.available` en falso: borde `filete`; texto, id e ilustración `inactivo`; celda del conteo «Próximamente»; «Banco real» sin cambio; sin toque | Celda del conteo «Cargando…» en `tintaSec`; «Banco real» sin cambio; marco y fondo como en reposo; la tarjeta no recibe toque | — |
+| Tarjeta de materia (K6) | Borde `linea`; fondo `superficie`; texto `tinta`; ilustración `filamento` | Contorno web `linea`, `border` | Inversión total: fondo `tinta`; texto, id, cajetín e ilustración `fondo` | Contorno `foco`, `border-2`, separado `paso 0.5` | — | `materia.available` en falso: borde `filete`; texto, id e ilustración `inactivo`; celda del conteo «Próximamente» a todo el ancho del cajetín, sin «Banco real» y con el mismo alto; sin toque | Celda del conteo «Cargando…» en `tintaSec`; «Banco real» se conserva y el cajetín mantiene sus dos celdas; marco y fondo como en reposo; la tarjeta no recibe toque | — |
 | Otras tarjetas durante una carga | Sin cambio visual; el toque se ignora (`cargandoId`) | Igual que reposo | — | — | — | — | — | — |
 | Control de tema | `comun.md` §2 | `comun.md` §2 | `comun.md` §2 | `comun.md` §2 | `comun.md` §2 | — | — | — |
 | Nota del creador | ver 1.3 | ver 1.3 | ver 1.3 | ver 1.3 | — | — | — | — |
 | Bloque de donación | ver 1.3 | ver 1.3 | ver 1.3 | ver 1.3 | — | — | — | — |
 
-Hoy las seis materias tienen `available` en verdadero; el estado «Próximamente» es la rama del código y se conserva.
+Hoy las seis materias tienen `available` en verdadero; el estado «Próximamente» es la rama del código y se conserva. El cajetín mantiene sus dos celdas en «Cargando…»: el toque no lo hace saltar. En «Próximamente» no hay banco que rotular, así que la celda del conteo ocupa todo el cajetín con el mismo alto.
 
 ---
 
@@ -107,7 +107,7 @@ Hoy las seis materias tienen `available` en verdadero; el estado «Próximamente
 | Disponibilidad | `materia.available` | — |
 | Textos del cajetín de la lámina | Cadenas fijas de la pantalla | Copy actual del header |
 | Texto del slot `izquierda` | Cadena fija «ESFUNO» | Texto definido por el usuario para el boceto aprobado |
-| Etiqueta «Banco real» | Cadena fija, igual en las seis tarjetas | También en las de banco reducido (`cyr` y `neuro`) |
+| Etiqueta «Banco real» | Cadena fija; aparece si la materia está disponible y no tiene preguntas generadas (el conteo de generadas lo emite `scripts/gen-conteos.mjs`, tarea 2.6) | Hoy en las seis tarjetas, también en las de banco reducido (`cyr` y `neuro`). Se conserva en «Cargando…» y no aparece en «Próximamente» |
 | Tema | `useTema()` | `comun.md` §2 |
 
 ### d.2 Invariantes
@@ -155,7 +155,7 @@ Cambios del boceto respecto de `main`, o de `main` respecto del boceto. El usuar
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
 | MATERIA-P1 | El slot `izquierda` de HeaderMarca muestra el texto «ESFUNO» en `rotulo` y `tintaSec` (T3), una línea, alineado a la izquierda y centrado en vertical dentro de la fila de alto `paso 11`. El alto del header no cambia (`comun.md` §1) | Texto del boceto aprobado por el usuario, con la cadena «ESFUNO»; `main` deja el slot vacío | visual | aprobada (usuario, 2026-10-10) |
-| MATERIA-P2 | El cajetín de cada tarjeta tiene dos celdas separadas por un filete vertical `filete`: el conteo («{N} preguntas») a la izquierda y «Banco real» a la derecha, con relleno vertical `paso 1.5` y horizontal `paso 3` por celda y el filete superior `filete` de hoy. «Banco real» aparece en las seis tarjetas, también en las de banco reducido (`cyr` y `neuro`) | Texto del boceto aprobado por el usuario; `main` solo muestra el conteo | visual | aprobada (usuario, 2026-10-10) |
+| MATERIA-P2 | El cajetín de cada tarjeta tiene dos celdas separadas por un filete vertical `filete`: el conteo («{N} preguntas») a la izquierda y «Banco real» a la derecha, con relleno vertical `paso 1.5` y horizontal `paso 3` por celda y el filete superior `filete` de hoy. «Banco real» aparece en la tarjeta de una materia disponible sin preguntas generadas: hoy las seis, también las de banco reducido (`cyr` y `neuro`). Se conserva en «Cargando…» y no aparece en «Próximamente», donde el conteo ocupa todo el cajetín (condición acordada por Ingeniero y Diseñador el 2026-10-10: `CONVENCIONES.md`, C8) | Texto del boceto aprobado por el usuario; `main` solo muestra el conteo | visual | aprobada (usuario, 2026-10-10) |
 
 Propuestas comunes que alcanzan esta pantalla: `COMUN-P1` (ilustración de materia en `filamento`) y `COMUN-P2` (estados de control).
 
