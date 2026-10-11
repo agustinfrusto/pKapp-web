@@ -43,7 +43,7 @@ Rama: `rediseno`. Una tarea por despacho, en orden, un commit por tarea. Compuer
 - [x] 3.6 (con 3.6b: DonationBox DON-P5 en Results, estados K de la revisión, `track` probado por comportamiento; suma `anchoIgual` a Segmento y `tamanoGlifo` a BotonMarco, más el arreglo de desborde del filtro de Segmento hallado por la 3.9b) `ResultsScreen`, incluida la revisión de respuestas (`Revision.md`), con los umbrales de D6 intactos. Corrige el chip de tema que hoy muestra la clave cruda (`HISTOLOGIA-CYR`): muestra `TOPICS[topic]` o «Todos los temas» (bug de `main` hallado en la maqueta, MAQUETA-P2)
 - [x] 3.7 (con 3.7b; `rotulo-medio` sumado a MarcaEstado; VAC-P2 aprobado por el usuario el 2026-10-11) `StatsScreen`, con las bandas 80/60 distinguibles sin color **Compuerta de usuario: mostrar ADD-P1/VAC-P2 implementadas al usuario antes del commit.**
 - [x] 3.8 (con 3.8b; DON-P5 y VAC-P2 aprobados por el usuario el 2026-10-11; tokens `acentoFondo` y `acentoBanda` en colores.js) `SettingsScreen` y `DonationBox` **Compuerta de usuario: mostrar ADD-P1/VAC-P2 implementadas al usuario antes del commit.**
-- [ ] 3.9 `AddQuestionScreen` **Compuerta de usuario: mostrar ADD-P1/VAC-P2 implementadas al usuario antes del commit.**
+- [ ] 3.9 (ADD-P1 rechazada por el usuario el 2026-10-11; ADD-P3 aprobada: selector de tema `Desplegable`, lista plana; implementada en 3.9c) `AddQuestionScreen` **Compuerta de usuario: mostrar ADD-P1/VAC-P2 implementadas al usuario antes del commit.**
 
 Aceptación común de 3.x: build y e2e en verde; captura en claro y oscuro a 360, 390, 768
 y 1280 px en `evidencia/despues/` (D10), y a 320 px sin recorte ni scroll horizontal;

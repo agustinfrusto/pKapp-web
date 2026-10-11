@@ -9,6 +9,7 @@
 | Variantes | Origen `exam`, `generated` y `user`; con y sin explicación; con y sin temporizador; última pregunta |
 | Fuera de alcance | Insignia de parcial (distinción de parciales) y quiz sin retroalimentación (`hideFeedback`, examen en curso): su lugar está fijado; sus fichas son `comun.md` §12 y `ExamenEnCurso.md` |
 | Propuestas | Sección f: `QUIZ-P1` y `QUIZ-P4` a `QUIZ-P10`. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Escritorio | Sección «Escritorio», al final: propuesta `ESC-P4`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.4 |
 
 ---
 
@@ -45,12 +46,12 @@ Relleno vertical `paso 2`; fila de alto `paso 11`; separación `paso 3.5` entre 
 | Nota de explicación | Relleno `paso 3.5` en las cuatro caras; el rótulo es una fila con `glifo-explicacion` (chico) y el texto separados `paso 1.5`; la explicación va a `paso 1.5` bajo el rótulo | Rótulo «Nota / Explicación» y texto de la explicación |
 | Barra inferior | Relleno superior `paso 3`; inferior área segura más `paso 4` | Un botón de ancho completo, relleno vertical `paso 3.5` y horizontal `paso 4`, texto a la izquierda y glifo a la derecha |
 
-### a.4 Tablet y escritorio (D10)
+### a.4 Tablet (D10); desde 1024 px, sección «Escritorio»
 
 | Ancho | Columna | Alineación | Particularidades |
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | Las dos barras llevan su filete a todo el ancho; su contenido va dentro de la columna. El enunciado y las opciones llenan la columna |
-| 1280 px | Igual | Igual | Igual. El botón de la barra inferior mide el ancho de la columna, no el de la ventana |
+| 1280 px (desde 1024 px) | Sección «Escritorio» de esta ficha (`ESC-P4`, aprobada): `lectura` | Igual | Barras a todo el ancho; el botón de la barra inferior mide `lectura`, no la ventana |
 | 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. En la barra del quiz, cerrar (`paso 11`), contador y tiempo conservan su tamaño y el progreso toma el espacio libre: las casillas se angostan o la barra continua se acorta, sin cambiar la regla de 40 (`QUIZ-P4`). En la fila de contexto la meta salta hasta dos líneas. El enunciado y el texto de cada opción saltan de línea; la celda de letra conserva `paso 11`. La barra inferior conserva el botón de ancho completo |
 
 ---
@@ -248,3 +249,58 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 |---|---|---|---|
 | QUIZ-P2 | «Reportar pregunta» bajo la explicación, solo tras responder, como botón de marco neutro (K3: `borde`, texto `tinta`) con `glifo-reportar`. El boceto no lo incluye | Está en uso en `main` y es el único camino para avisar de una pregunta errónea desde el quiz (`reportQuestion`, `src/utils/report.js`) | uso |
 | QUIZ-P3 | Con temporizador activo, la barra muestra `glifo-reloj` y «mm:ss» bajo el contador; con menos de 120 s, texto y glifo pasan a `error` y el bloque lleva marco `error`, `border-2`. El boceto no tiene temporizador | El temporizador se configura en TopicSelect y corta el quiz al llegar a cero (`replace` a Results); la alerta es el aviso de que se acaba el tiempo | uso |
+
+---
+
+## Escritorio · propuesta `ESC-P4` (tarea 3.10, aprobada por el usuario el 2026-10-11)
+
+| Campo | Valor |
+|---|---|
+| Estado | Aprobada (usuario, 2026-10-11; D10, `CONVENCIONES.md` C2). Base común: `comun.md` §7.2 (`ESC-P0`, aprobada) |
+| Rige desde | Corte `escritorio` (`tokens.md` c.4); sin cambio en `amplio`. Teléfono y tablet no cambian |
+| Bajo el corte | a.4 de esta ficha: una sola columna `columna`, centrada y anclada arriba. Es la que implementa la 3.x de esta pantalla; 3.11 aplica esta sección desde el corte |
+| Figuras | Maqueta: E04a (sin responder) y E04b (respondida con explicación), a 1366 y 1920 px, en claro y en oscuro (`diseno/maqueta/NOTAS-MAQUETA.md` §8) |
+| Sin cambio | Datos de d.1, copy de e, orden y gestos de d.2 (un toque responde; salida con confirmación), elementos y pares de b, estados de c, regla de 40 del progreso (`QUIZ-P4`) |
+
+### Disposición
+
+| # | Región | Contenido, en orden de DOM | Escritorio | Amplio |
+|---|---|---|---|---|
+| 1 | Barra del quiz | Cerrar, progreso, contador y tiempo (a.2) | Filete a todo el ancho; el contenido, dentro de `lectura` | Igual |
+| 2 | Fila de contexto | Insignia de parcial, chip de origen y meta (a.1) | Dentro de `lectura` | Igual |
+| 3 | Caja del enunciado | Rótulo y enunciado | Llena `lectura` | Igual |
+| 4 | Opciones | Una por entrada de `options` | Llenan `lectura`; `paso 2.5` entre opciones | Igual |
+| 5 | Nota, «Reportar pregunta» | Solo si respondió (a.1) | Dentro de `lectura` | Igual |
+| 6 | Barra inferior | «Siguiente» o «Ver resultados» | Fija abajo; filete a todo el ancho; el botón mide `lectura` | Igual |
+
+### Medidas
+
+| Elemento | Medida |
+|---|---|
+| Columna | `lectura`, centrada y anclada arriba; margen lateral `paso 8` cuando la ventana no la deja entera |
+| Medida de línea | Medida en la maqueta: enunciado (`titulo`) ≈ 64 caracteres; opción (`cuerpo`) ≈ 73; nota (`cuerpo`) ≈ 77 (`tokens.md` c.4) |
+| Progreso | Regla de 40 sin cambio (`QUIZ-P4`): casillas hasta 40, barra continua desde 41; con más ancho, las casillas son más anchas |
+| Relleno inferior | `paso 24` más área segura inferior, como en a.1 |
+| Sin región lateral | La pantalla no tiene contenido fuera de la columna: una cosa por vez. Agregar una región lateral solo para llenar el ancho sumaría ruido |
+
+### Revisado
+
+| Ancho de ventana | Qué se ve | Alto del contenido |
+|---|---|---|
+| 1024 (el corte) | Columna `lectura` entera con margen; sin scroll horizontal | — |
+| 1366 × 768 | Sin responder, cabe entera; respondida con nota de tres o cuatro líneas, el botón queda a la vista porque la barra inferior es fija | 1,1 ventanas con la nota |
+| 1920 × 1080 | Cabe entera, también con nota | 0,8 ventanas |
+
+### Orden, teclado y foco
+
+| Aspecto | Regla |
+|---|---|
+| Orden de DOM | El del teléfono, sin cambio |
+| Tab | Cerrar, opciones A, B, C…, «Reportar pregunta», «Siguiente»: el de siempre |
+| Cambia de lugar | Nada: solo el ancho de la columna |
+
+### Propuesta
+
+| Id | Qué cambia | Motivo | Tipo | Estado |
+|---|---|---|---|---|
+| `ESC-P4` | Desde el corte `escritorio`, el quiz y el examen en curso se centran en una columna `lectura` (en lugar de `columna`), con las barras a todo el ancho | Es la pantalla donde más se lee. A `lectura` el texto queda entre 64 y 77 caracteres por línea y las opciones largas saltan menos de línea; no hay región lateral porque el quiz presenta una cosa por vez | visual | aprobada (usuario, 2026-10-11) |

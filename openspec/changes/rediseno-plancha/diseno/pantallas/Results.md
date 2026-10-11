@@ -9,6 +9,7 @@
 | Variantes | Tramo alto, medio o bajo (a.2 de d); con y sin tira (hasta 40 respuestas); con y sin pedido de donación (solo web) |
 | Fuera de alcance | Revisión de respuestas (`showReview`, vista alternativa) y pedido de donación: su lugar está fijado; sus fichas son `Revision.md` y `DonationBox.md` |
 | Propuestas | Sección f: `RESULTS-P1` a `RESULTS-P3`. Sección h: conservado de main (D10). Comunes: `COMUN-P2` y `MAQUETA-P1` (aprobada, usuario, 2026-10-10) |
+| Escritorio | Sección «Escritorio», al final: propuesta `ESC-P5`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.4 |
 
 ---
 
@@ -43,12 +44,12 @@ La acción «Revisar todas las respuestas» cambia la vista a la revisión en el
 
 Tres celdas de igual ancho, relleno vertical `paso 3`, separadas por filete vertical `filete`, contenido centrado: cifra arriba (`cifra`) y rótulo debajo (`rotulo`, margen superior `paso 1.5`).
 
-### a.4 Tablet y escritorio (D10)
+### a.4 Tablet (D10); desde 1024 px, sección «Escritorio»
 
 | Ancho | Columna | Alineación | Particularidades |
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | Tarjeta, trío y botones llenan la columna. La tira sigue la regla de 40 |
-| 1280 px | Igual | Igual | Los tres botones siguen apilados: sin fila horizontal |
+| 1280 px (desde 1024 px) | Sección «Escritorio» de esta ficha (`ESC-P5`, aprobada): `hoja` | Igual | Tarjeta de resultado en la región lateral; trío, pedido y los tres botones, apilados, en la principal |
 | 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. En la tarjeta, el mensaje y el chip de tema saltan de línea; con 40 respuestas o menos la tira reparte sus casillas en el ancho disponible y la leyenda salta de línea si no entra. En el trío cada celda conserva un tercio del ancho y su rótulo salta de línea si no entra. Los tres botones siguen apilados, con el texto saltando dentro del botón si no entra |
 
 ---
@@ -232,3 +233,54 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 | RESULTS-C3 | El orden de los tres botones («Revisar todas las respuestas», «Volver a practicar», «Inicio») y sus acciones: alternar la revisión, `navigation.goBack()` y navegar a `Home` | Orden y gestos de `main` (d.3) | uso |
 | RESULTS-C4 | Los cinco mensajes de `getResultFeedback` y sus cortes 90, 75, 60 y 50, salvo el texto del tramo de 75 a 89 (`RESULTS-P2`) | D6 y copy de `main` (d.1, e) | copy |
 | RESULTS-C5 | Los eventos `simulacro_terminado`, `simulacro_aprobado` y `donacion_click` con sus payloads | D6: eventos y payloads (d.4) | dato |
+
+---
+
+## Escritorio · propuesta `ESC-P5` (tarea 3.10, aprobada por el usuario el 2026-10-11)
+
+| Campo | Valor |
+|---|---|
+| Estado | Aprobada (usuario, 2026-10-11; D10, `CONVENCIONES.md` C2). Base común: `comun.md` §7.2 (`ESC-P0`, aprobada) |
+| Rige desde | Corte `escritorio` (`tokens.md` c.4); sin cambio en `amplio`. Teléfono y tablet no cambian |
+| Bajo el corte | a.4 de esta ficha: una sola columna `columna`, centrada y anclada arriba. Es la que implementa la 3.x de esta pantalla; 3.11 aplica esta sección desde el corte |
+| Figuras | Maqueta: E05a (tramo alto con pedido de donación) y E05b (tramo bajo, sin pedido), a 1366 y 1920 px, en claro y en oscuro (`diseno/maqueta/NOTAS-MAQUETA.md` §8) |
+| Sin cambio | Umbrales y tramos de d.1, copy de e, eventos de d.4, orden y acciones de los botones (`RESULTS-C3`), pedido entre el trío y los botones (`RESULTS-C1`), elementos y pares de b |
+
+### Disposición
+
+| # | Región | Contenido, en orden de DOM | Escritorio | Amplio |
+|---|---|---|---|---|
+| 1 | Barra interna | Sin volver; el título en el margen de la hoja (`MAQUETA-P1`) | Contenido dentro de `hoja` | Igual |
+| 2 | Lateral | Tarjeta de resultado (a.2) | Ancho `lateral`, anclada arriba a la izquierda | Igual |
+| 3 | Principal | Trío (a.3), pedido de donación si toca (`DonationBox.md`) y los tres botones (b) | Ancho de la región principal. El pedido, entre el trío y los botones (`DON-C6`). Botones apilados, en su orden (`RESULTS-C3`) | Igual |
+
+### Medidas
+
+| Elemento | Medida |
+|---|---|
+| Tarjeta de resultado | Ancho `lateral`, relleno `paso 4`. La tira reparte sus casillas en ese ancho (hasta 40, `RESULTS-P3`); la leyenda y el chip de tema saltan de línea si no entran, como a 320 px (a.4) |
+| Trío | Tres celdas iguales a ancho de la región principal; relleno vertical `paso 3` |
+| Botones | Relleno vertical `paso 3.5` y texto centrado, a ancho de la región principal |
+| Separación | Entre bloques, la de a.1 |
+
+### Revisado
+
+| Ancho de ventana | Qué se ve | Alto del contenido |
+|---|---|---|
+| 1024 (el corte) | Lateral y principal sin ajuste; sin scroll horizontal | — |
+| 1366 × 768 | Tarjeta, trío, pedido de donación y los tres botones en una ventana | 1,0 ventanas (con `columna`: 1,4) |
+| 1920 × 1080 | Igual, con margen | 0,6 ventanas (con `columna`: 1,0) |
+
+### Orden, teclado y foco
+
+| Aspecto | Regla |
+|---|---|
+| Orden de DOM | El del teléfono: barra, tarjeta, trío, pedido, «Revisar todas las respuestas», «Volver a practicar», «Inicio» |
+| Tab | Descartar el pedido, montos, los tres botones, en ese orden |
+| Cambia de lugar | La tarjeta de resultado queda a la izquierda del trío, del pedido y de los botones, no encima; el pedido sigue entre el trío y los botones |
+
+### Propuesta
+
+| Id | Qué cambia | Motivo | Tipo | Estado |
+|---|---|---|---|---|
+| `ESC-P5` | Desde el corte `escritorio`, la tarjeta de resultado pasa a una región lateral y el trío, el pedido de donación y los botones a la principal | El resultado, el trío y las acciones caben en una ventana de 1366 × 768 sin desplazarse; el orden de las acciones y la posición del pedido no cambian | visual | aprobada (usuario, 2026-10-11) |

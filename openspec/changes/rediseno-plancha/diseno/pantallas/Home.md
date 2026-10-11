@@ -9,6 +9,7 @@
 | Variantes | Con y sin banner de banco reducido (`materia.bancoReducido`); con y sin nota de privacidad (solo web) |
 | Fuera de alcance | Banner de banco reducido: su lugar está fijado; su ficha es `Banners.md` |
 | Propuestas | Sección f: `HOME-P2`. Sección h: conservado de main (D10). Comunes: `COMUN-P1`, `COMUN-P2` |
+| Escritorio | Sección «Escritorio», al final: propuesta `ESC-P2`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.4 |
 
 ---
 
@@ -45,12 +46,12 @@ La primera ordenada útil debajo del header es la misma que en MateriaSelect (`c
 
 Relleno interno de la acción: `paso 3.5` en las cuatro caras.
 
-### a.4 Tablet y escritorio (D10)
+### a.4 Tablet (D10); desde 1024 px, sección «Escritorio»
 
 | Ancho | Columna | Alineación | Particularidades |
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | La tarjeta de materia y las acciones llenan la columna. La nota de privacidad queda centrada dentro de la columna |
-| 1280 px | Igual | Igual | Las seis acciones siguen en una sola columna: sin grilla, para conservar el orden |
+| 1280 px (desde 1024 px) | Sección «Escritorio» de esta ficha (`ESC-P2`, aprobada): `hoja`; `hoja-amplia` desde `amplio` | Igual | Tarjeta de materia y banner en la región lateral; las seis acciones en una columna (2 desde `amplio`), en el mismo orden |
 | 360 px | Ancho completo menos margen lateral `paso 5` | — | Sin scroll horizontal. La fila de HeaderMarca lleva el botón con glifo y texto y el control de tema, con al menos `paso 2` entre ambos (`comun.md` §1.1) |
 | 320 px | Igual | — | Sin scroll horizontal. El botón «Cambiar materia» muestra solo `glifo-volver` en un cuadrado de `paso 11` (`comun.md` §1.1); el alto de la fila no cambia. En la tarjeta de materia el nombre y los conteos saltan de línea y la celda de ilustración conserva `paso 24`. En cada acción el título y la descripción saltan de línea; el cuadro de glifo y el chevron conservan su lado |
 
@@ -187,3 +188,55 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 |---|---|---|---|
 | HOME-P1 | Seis acciones en la lista; el boceto muestra cuatro. «Agregar pregunta» (`glifo-agregar`) y «Ajustes» (`glifo-ajustes`) siguen en los lugares 5 y 6, con el tratamiento secundario (K3, `borde`) | Están en uso en `main` y son la única entrada a `AddQuestion` y `Settings` | uso |
 | HOME-P3 | La nota de privacidad («Tus estadísticas y preguntas se guardan localmente en tu navegador…») al pie, solo en web, centrada en `detalle` y `tintaSec`. El boceto no la incluye | Está en uso en `main` y es el aviso de analíticas de la app | uso |
+
+---
+
+## Escritorio · propuesta `ESC-P2` (tarea 3.10, aprobada por el usuario el 2026-10-11)
+
+| Campo | Valor |
+|---|---|
+| Estado | Aprobada (usuario, 2026-10-11; D10, `CONVENCIONES.md` C2). Base común: `comun.md` §7.2 (`ESC-P0`, aprobada) |
+| Rige desde | Corte `escritorio` (`tokens.md` c.4); `amplio` pone las acciones en 2 columnas. Teléfono y tablet no cambian |
+| Bajo el corte | a.4 de esta ficha: una sola columna `columna`, centrada y anclada arriba. Es la que implementa la 3.x de esta pantalla; 3.11 aplica esta sección desde el corte |
+| Figuras | Maqueta: E02, a 1366 y 1920 px, en claro y en oscuro (`diseno/maqueta/NOTAS-MAQUETA.md` §8) |
+| Sin cambio | Seis acciones, su orden y sus destinos (d.2), datos de d.1, copy de e, elementos y pares de contraste de b, estados de c, orden y gestos |
+
+### Disposición
+
+| # | Región | Contenido, en orden de DOM | Escritorio | Amplio |
+|---|---|---|---|---|
+| — | HeaderMarca | «Cambiar materia» con texto y control de tema (`comun.md` §1, §1.1) | Dentro de `hoja` | Dentro de `hoja-amplia` |
+| 1 | Lateral | Tarjeta de materia (a.2) y, debajo a `paso 3`, el banner de banco reducido (`Banners.md`) si `materia.bancoReducido` | Ancho `lateral`, anclada arriba a la izquierda | Igual |
+| 2 | Principal | Rótulo «Plano / Acciones» (`HOME-P2`) y las seis acciones (a.3), en su orden | Una columna; la descripción de cada acción en una línea | 2 columnas, `paso 4` entre celdas: 1 2 / 3 4 / 5 6; la primaria (`border-2`) sigue primera |
+| 3 | Principal, al pie | Nota de privacidad (solo web), a `paso 6` | Centrada en la región principal | Igual |
+
+### Medidas
+
+| Elemento | Medida |
+|---|---|
+| Tarjeta de materia | Ancho `lateral`: el nombre y los conteos saltan de línea, como a 320 px (a.4); la celda de ilustración conserva `paso 24` |
+| Banner de banco reducido | Ancho `lateral`; el botón de contacto conserva `paso 11` de alto y su correo entra en una línea |
+| Acción | Llena su celda. Cuadro de glifo `paso 10`, chevron y relleno `paso 3.5` sin cambio (a.3) |
+| «Cambiar materia» | Siempre con texto: el corte supera los 360 px de `comun.md` §1.1 |
+
+### Revisado
+
+| Ancho de ventana | Qué se ve | Alto del contenido |
+|---|---|---|
+| 1024 (el corte) | Lateral y principal sin ajuste; sin scroll horizontal | — |
+| 1366 × 768 | Tarjeta, banner y las seis acciones en la primera ventana; la nota de privacidad asoma al pie | 1,1 ventanas (con `columna`: 1,6) |
+| 1920 × 1080 | Las seis acciones en 3 filas de 2; la pantalla entera cabe | 0,5 ventanas (con `columna`: 1,1) |
+
+### Orden, teclado y foco
+
+| Aspecto | Regla |
+|---|---|
+| Orden de DOM | El del teléfono: HeaderMarca, tarjeta de materia, banner, rótulo, acciones 1 a 6, nota de privacidad |
+| Tab | «Cambiar materia», control de tema, contacto del banner, acciones fila a fila |
+| Cambia de lugar | La tarjeta de materia y el banner quedan a la izquierda de las acciones, no encima |
+
+### Propuesta
+
+| Id | Qué cambia | Motivo | Tipo | Estado |
+|---|---|---|---|---|
+| `ESC-P2` | Desde el corte `escritorio`, la tarjeta de materia y el banner pasan a una región lateral; las acciones, a la principal, en una columna (2 desde `amplio`) | Las acciones conservan su orden y su ancho de lectura, y la identidad de la materia queda a la vista sin empujarlas hacia abajo | visual | aprobada (usuario, 2026-10-11) |

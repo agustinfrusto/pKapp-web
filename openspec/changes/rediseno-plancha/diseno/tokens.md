@@ -8,6 +8,7 @@
 | Valores de `tailwind.config.js` | sección d; los aplica el Programador en la tarea 2.3 |
 | Insumos | `hibrido.html` (variables, líneas 13–16), `NOTAS.md`, `REFERENCIAS.md`, `NOTAS-FAVICON.md` |
 | Convivencia | `colores` y `oscuro` quedan intactos hasta las tareas 3.x |
+| Escritorio | `ESC-P0` (tarea 3.10), aprobada por el usuario el 2026-10-11: sección c.4 (cortes y anchos) y bloque d.3. Rige desde el corte `escritorio`; teléfono y tablet no cambian en ningún caso |
 
 ---
 
@@ -183,8 +184,9 @@ La escala por defecto de Tailwind (base 4 px) ya contiene todos los pasos del bo
 | `20` | 80 | Ancho mínimo del valor del temporizador del quiz; alto mínimo del campo multilínea de AddQuestion (enunciado y explicación) |
 | `24` | 96 | Ancho de la celda de ilustración en la tarjeta de materia de Home; relleno inferior del scroll del quiz (más el área segura inferior) |
 | `28` | 112 | Alto del campo de filamentos del selector |
+| `80` | 320 | Alto máximo de la lista del desplegable de AddQuestion (`ADD-P3`, aprobada el 2026-10-11; `comun.md` §5.3 y §8) |
 
-Los pasos `11`, `12`, `16`, `20`, `24` y `28` no estaban en la lista original; salen de la escala por defecto de Tailwind y se aceptaron en la corrección de 1.2. `spacing` sigue sin cambios.
+Los pasos `11`, `12`, `16`, `20`, `24` y `28` no estaban en la lista original; salen de la escala por defecto de Tailwind y se aceptaron en la corrección de 1.2. El paso `80` sale de la misma escala y lo suma `ADD-P3` (2026-10-11). `spacing` sigue sin cambios.
 
 | Valor del boceto | Paso final |
 |---|---|
@@ -198,9 +200,60 @@ Sin valores arbitrarios `[Npx]`: la deuda actual (`mb-[18px]`, `py-[11px]`) se n
 
 | Token | px | Clase | Rol |
 |---|---|---|---|
-| `columna` | 448 | `max-w-columna` | Ancho máximo de la columna única de contenido en tablet (768 px) y escritorio (1280 px), centrada en horizontal y anclada arriba. Los fondos y los filetes de barra van a todo el ancho; el contenido, dentro de la columna. Con ancho de teléfono (390 px) no actúa: la columna es el ancho disponible menos el margen lateral `5` |
+| `columna` | 448 | `max-w-columna` | Ancho máximo de la columna única de contenido en tablet (768 px), bajo el corte `escritorio` (c.4), centrada en horizontal y anclada arriba. Los fondos y los filetes de barra van a todo el ancho; el contenido, dentro de la columna. Con ancho de teléfono (390 px) no actúa: la columna es el ancho disponible menos el margen lateral `5` |
 
-Un ancho distinto para escritorio sería otro token con nombre propio, no una variante de `columna`. Ninguna ficha usa una clase `max-w-*` de Tailwind sin token.
+Un ancho distinto para escritorio es otro token con nombre propio, no una variante de `columna`: son los de c.4 (`ESC-P0`, aprobada). Ninguna ficha usa una clase `max-w-*` de Tailwind sin token.
+
+### c.4 Anchos de escritorio · `ESC-P0` (tarea 3.10, aprobada por el usuario el 2026-10-11)
+
+| Campo | Valor |
+|---|---|
+| Estado | Aprobada (usuario, 2026-10-11; D10, `CONVENCIONES.md` C2). Rige desde el corte `escritorio`; bajo el corte rige c.3: `columna` en tablet |
+| Alcance | Aditivo desde el corte `escritorio`. Teléfono y tablet no cambian: bajo el corte rige `comun.md` §7.1 tal como estaba |
+| Uso | `comun.md` §7.2 (composición) y la sección «Escritorio» de cada ficha (`ESC-P1` a `ESC-P8` y `ESC-P10` a `ESC-P12`; `ESC-P9` rechazada) |
+| Color, tipografía, radios, grosores | Sin cambios: ningún token ni par de contraste nuevo (E1 a E4 intactas) y los mismos pasos tipográficos en todos los anchos |
+| Peso (D5) | Sin dependencias ni assets: solo clases con prefijo `escritorio:` y `amplio:`. Estimación de CSS adicional: ≤ 2 KB gzip, que 3.11 mide contra D5 |
+
+**Cortes.** El criterio es el ancho de la ventana, no el contenido medido (`comun.md` §1.1).
+
+| Token | Ancho de ventana | Variante | Rol |
+|---|---|---|---|
+| `escritorio` | 1024 px | `escritorio:` | Desde acá rige `comun.md` §7.2: regiones, rejilla y margen lateral `paso 8`. Bajo este ancho rige §7.1 sin cambios |
+| `amplio` | 1440 px | `amplio:` | Desde acá las superficies de rejilla suman una columna y su contenido usa `hoja-amplia` |
+
+**Anchos.**
+
+| Token | px | Clase | Rol |
+|---|---|---|---|
+| `lectura` | 600 | `max-w-lectura` | Columna de lectura (quiz y examen en curso, formulario de AddQuestion, lámina de los estados vacíos) y región principal de escritorio. Es un tope: cede ancho cuando la ventana no alcanza |
+| `lateral` | 320 | `w-lateral` | Región lateral de escritorio. Ancho fijo |
+| `hoja` | 952 | `max-w-hoja` | Contenido de escritorio: `lateral` más `paso 8` más `lectura`. Centrada en horizontal; fondos y filetes de barra a todo el ancho |
+| `hoja-amplia` | 1440 | `max-w-hoja-amplia` | Contenido de las superficies de rejilla desde `amplio` (`comun.md` §7.2) |
+
+**De dónde sale cada valor.**
+
+| Token | Criterio | Comprobación |
+|---|---|---|
+| `lectura` | A lo sumo 80 caracteres por línea en los pasos de texto corrido (WCAG 1.4.8) | Medido en la maqueta con IBM Plex Sans (`NOTAS-MAQUETA.md` §8): enunciado `titulo` 64; opción `cuerpo` 73; nota y revisión `cuerpo` 77; descripción de acción `detalle` 77. Con 640 la nota y la revisión daban 86 |
+| `lateral` | El ancho de columna de un teléfono de 360 con margen lateral `paso 5` (360 − 2 × 20): la lámina con el campo de filamentos y las tarjetas ya están verificadas a ese ancho | El campo se estira 320 / 348 = 0,92× (viewBox de 348): dentro del 0,80× a 1,28× validado y bajo el ~1,4× de `design.md` D2, así que `encuadre` sigue en `'none'` |
+| `hoja` | `lateral` + `paso 8` + `lectura` | Con el margen lateral `paso 8` a cada lado entra completa desde 1016 px de ventana: en el corte (1024) no hay ajuste |
+| `hoja-amplia` | Tres celdas de rejilla del ancho de una tarjeta de teléfono junto a la región lateral | 1440 − `lateral` − `paso 8` = 1088 de región principal; con `paso 4` entre celdas, cada una mide 352 (una tarjeta de un teléfono de 390 mide 350) |
+
+**Medidas de escritorio con pasos existentes** (`spacing` no cambia).
+
+| Rol | Paso |
+|---|---|
+| Margen lateral de escritorio (HeaderMarca, barras y contenido) | `paso 8` |
+| Separación entre regiones | `paso 8` |
+| Separación entre celdas de una rejilla | `paso 4` |
+| Todo lo demás (relleno de tarjeta, entre opciones, entre bloques apilados de una región, alto de barras y controles) | El del teléfono: no cambia |
+
+| Superficie | Contenido | Escritorio | Amplio |
+|---|---|---|---|
+| MateriaSelect, Home, TopicSelect, Estadísticas | `hoja`; con rejilla o columnas | `hoja` | `hoja-amplia` |
+| Resultados, revisión de respuestas, Ajustes | `hoja`: región lateral y principal | `hoja` | `hoja` |
+| Quiz, examen en curso y Agregar pregunta | `lectura` | `lectura` | `lectura` |
+| Estados vacíos | La barra, en la hoja de su pantalla; la lámina vacía, en `lectura` | La de su pantalla | La de su pantalla |
 
 ---
 
@@ -236,7 +289,7 @@ borderWidth: {
   DEFAULT: '1px', 0: '0px', 1: '1px', 2: '2px', 3: '3px',
 },
 maxWidth: {
-  // Columna única de contenido en tablet y escritorio (c.3).
+  // Columna única de contenido en tablet y bajo el corte de escritorio (c.3).
   // Uso: `w-full max-w-columna self-center`.
   columna: '448px',
 },
@@ -262,6 +315,27 @@ colors: (() => {
 ```
 
 Los tres tokens de borde de app (`manifest*`, `iconoFondo`) no se consumen por clase: Tailwind solo emite las clases que se usan.
+
+### d.3 Bloque para escritorio (`ESC-P0`, aprobada; lo aplica 3.11)
+
+Va en `theme.extend`, junto a d.1. No cambia nada por defecto: solo se activa con los prefijos `escritorio:` y `amplio:`. Hoy ninguna clase usa `sm:` a `2xl:`, así que las claves nuevas no se pisan con las de Tailwind. Los valores son el contrato; la implementación puede usar las variantes o `useWindowDimensions` con los mismos cortes (precedente: `comun.md` §1.1).
+
+```js
+screens: {
+  // Cortes de escritorio (c.4). Ascendentes.
+  escritorio: '1024px',   // escritorio:flex-row
+  amplio: '1440px',       // amplio:columns-3
+},
+maxWidth: {
+  columna: '448px',          // c.3, sin cambio: teléfono y tablet
+  lectura: '600px',          // c.4: max-w-lectura
+  hoja: '952px',             // c.4: max-w-hoja
+  'hoja-amplia': '1440px',   // c.4: max-w-hoja-amplia
+},
+width: {
+  lateral: '320px',          // c.4: w-lateral
+},
+```
 
 ---
 
@@ -400,3 +474,4 @@ node -e "const {plancha:p}=require('./src/theme/colores');const l=h=>{const c=[1
 | Glifos de trazo de 1,5 px | 1.4 |
 | Aplicar los bloques d.1 y d.2 a `tailwind.config.js` y retirar `sombras.js` | 2.3 |
 | `StatusBar`, splash nativo, `meta theme-color` y literales de `App.js` | Tareas de bordes de app (D8) |
+| Aplicar c.4 y d.3 (cortes, anchos de escritorio y sus clases) | 3.11 (`ESC-P0` aprobada por el usuario el 2026-10-11) |

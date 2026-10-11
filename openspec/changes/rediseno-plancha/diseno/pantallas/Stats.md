@@ -9,6 +9,7 @@
 | Variantes | Con datos; fila con práctica o «Sin practicar»; con y sin «Más falladas» |
 | Fuera de alcance | Estado vacío «Sin estadísticas todavía» (`totalAnswered === 0`): su lugar está fijado; su ficha es `Vacios.md` (V1) |
 | Propuestas | Sección f: `STATS-P1`, `STATS-P2` y `STATS-P5`. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Escritorio | Sección «Escritorio», al final: propuesta `ESC-P7`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.5 |
 
 ---
 
@@ -53,12 +54,12 @@ Fila «Sin practicar» (`accuracy === null`, V7 de `Vacios.md`): sin barra ni ma
 
 Filete superior `filete`; relleno vertical `paso 3`; primera línea con «#{n}» a la izquierda y, a la derecha, la marca de banda (glifo chico) delante del valor «{pct}% ({aciertos}/{respuestas})», separados `paso 1.5`; segunda línea con el enunciado a dos líneas como máximo (margen superior `paso 1.5`); tercera línea con el tema (margen superior `paso 1`).
 
-### a.5 Tablet y escritorio (D10)
+### a.5 Tablet (D10); desde 1024 px, sección «Escritorio»
 
 | Ancho | Columna | Alineación | Particularidades |
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | Tarjeta, filas y barras llenan la columna; las marcas de umbral siguen en el 60 % y el 80 % del ancho de la barra |
-| 1280 px | Igual | Igual | Las filas siguen en una columna: sin tabla ni dos columnas |
+| 1280 px (desde 1024 px) | Sección «Escritorio» de esta ficha (`ESC-P7`, aprobada): `hoja`; `hoja-amplia` desde `amplio` | Igual | Tarjeta global y leyenda en la región lateral; filas por tema en la principal (2 columnas desde `amplio`); «Más falladas» debajo, en columnas |
 | 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. En cada fila por tema el nombre salta de línea y el valor (marca y porcentaje) conserva su ancho a la derecha; la barra llena el ancho y las marcas siguen en el 60 % y el 80 %. La leyenda de bandas salta de línea si sus tres ítems no entran en una fila. En «Más falladas» la primera línea conserva «#{n}» y el valor; el enunciado y el tema saltan de línea |
 
 ---
@@ -216,3 +217,57 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 |---|---|---|---|
 | STATS-P3 | Las filas por tema siguen el orden de los temas de la materia (el de TopicSelect). El boceto las ordena de mayor a menor porcentaje | Continuidad (D10): el usuario ubica cada tema por su posición, la misma en TopicSelect y en Stats | uso |
 | STATS-P4 | Bajo las filas por tema sigue la lista «Más falladas» (hasta 10, por acierto ascendente), con el valor «{pct}% ({aciertos}/{respuestas})» a la derecha y la marca de banda delante de él. El dato, el orden y la cantidad son los de `main`; el aspecto es Plancha (`CONVENCIONES.md`, C1 y CD-7): el valor toma el color y la marca de su banda (d.1), no el rojo único de `main`. Una fallada con 80 % o más lleva `glifo-acierto`: es la banda de su porcentaje, el mismo estado que en el resto de la app. El boceto termina en las filas por tema | Está en uso en `main`. CD-7 (acordada) fija el mismo token y la misma marca por estado, también en «Más falladas» | uso |
+
+---
+
+## Escritorio · propuesta `ESC-P7` (tarea 3.10, aprobada por el usuario el 2026-10-11)
+
+| Campo | Valor |
+|---|---|
+| Estado | Aprobada (usuario, 2026-10-11; D10, `CONVENCIONES.md` C2). Base común: `comun.md` §7.2 (`ESC-P0`, aprobada) |
+| Rige desde | Corte `escritorio` (`tokens.md` c.4); `amplio` pone las filas por tema en 2 columnas y las falladas en 3. Teléfono y tablet no cambian |
+| Bajo el corte | a.5 de esta ficha: una sola columna `columna`, centrada y anclada arriba. Es la que implementa la 3.x de esta pantalla; 3.11 aplica esta sección desde el corte |
+| Figuras | Maqueta: E07, a 1366 y 1920 px, en claro y en oscuro (`diseno/maqueta/NOTAS-MAQUETA.md` §8) |
+| Sin cambio | Bandas y cortes 80 y 60 de d.1, datos de d.2, copy de e, orden de las filas (`STATS-P3`), «Más falladas» (`STATS-P4`), elementos y pares de b, estados de c |
+
+### Disposición
+
+| # | Región | Contenido, en orden de DOM | Escritorio | Amplio |
+|---|---|---|---|---|
+| 1 | Barra interna | `comun.md` §3 | Contenido dentro de `hoja` | Dentro de `hoja-amplia` |
+| 2 | Lateral | Tarjeta global (a.2), rótulo «Por tema» y leyenda de bandas (`STATS-P2`), con la separación de a.1 | Ancho `lateral`; la leyenda es la clave de las marcas de las filas y queda junto a la tarjeta | Igual |
+| 3 | Principal | Filas por tema (a.3), en el orden de `TOPICS` | Una columna | 2 columnas con flujo por columnas, `paso 8` entre ellas |
+| 4 | Debajo, a ancho de hoja | Rótulo «Más falladas» y lista de hasta 10 (a.4) | 2 columnas con flujo por columnas | 3 columnas |
+
+El estado vacío (V1) es `Vacios.md` (`ESC-P12`).
+
+### Medidas
+
+| Elemento | Medida |
+|---|---|
+| Tarjeta global | Ancho `lateral`, relleno `paso 4`; el porcentaje en `display` con su marca de banda (`STATS-P5`) |
+| Fila por tema | Llena su columna; barra de alto `paso 2` con las marcas del 60 % y el 80 % de su ancho (`STATS-P1`); sin cambio el encabezado ni el detalle |
+| Fila de falladas | Llena su columna; enunciado a dos líneas como máximo |
+| Leyenda | Los tres ítems en una línea en el ancho `lateral` |
+
+### Revisado
+
+| Ancho de ventana | Qué se ve | Alto del contenido |
+|---|---|---|
+| 1024 (el corte) | Lateral y principal sin ajuste; sin scroll horizontal | — |
+| 1366 × 768 | Tarjeta, leyenda y las primeras filas en la primera ventana; entera pide desplazarse | 2,0 ventanas (con `columna`: 3,0) |
+| 1920 × 1080 | Tarjeta, leyenda, filas por tema en 2 columnas y falladas en 3, en una ventana | 0,9 ventanas (con `columna`: 2,0) |
+
+### Orden, teclado y foco
+
+| Aspecto | Regla |
+|---|---|
+| Orden de DOM | El del teléfono: barra, tarjeta, «Por tema», leyenda, filas, «Más falladas», lista |
+| Foco | La pantalla no tiene controles salvo el volver de la barra; las filas no son controles (c) |
+| Cambia de lugar | La tarjeta global y la leyenda quedan a la izquierda de las filas, no encima |
+
+### Propuesta
+
+| Id | Qué cambia | Motivo | Tipo | Estado |
+|---|---|---|---|---|
+| `ESC-P7` | Desde el corte `escritorio`, la tarjeta global y la leyenda pasan a una región lateral; las filas por tema, a la principal; «Más falladas», debajo a ancho de hoja y en columnas | La materia con más temas pide tres ventanas en una columna. Las filas por tema conservan su orden (`STATS-P3`: misma posición que en TopicSelect) y la clave de bandas queda a la vista junto al porcentaje global | visual | aprobada (usuario, 2026-10-11) |

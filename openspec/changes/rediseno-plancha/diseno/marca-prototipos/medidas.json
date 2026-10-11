@@ -1,0 +1,100 @@
+{
+  "V0": {
+    "archivo": "V0-vigente.svg",
+    "elementos": 59,
+    "encuadre": "none",
+    "viewBox": "0 0 348 118",
+    "svg": {
+      "crudo": 6041,
+      "gzip": 1349
+    },
+    "datos": {
+      "crudo": 7375,
+      "gzip": 1322
+    }
+  },
+  "V1": {
+    "archivo": "V1-helice.svg",
+    "elementos": 47,
+    "encuadre": "none",
+    "viewBox": "0 0 348 118",
+    "svg": {
+      "crudo": 18895,
+      "gzip": 3786
+    },
+    "datos": {
+      "crudo": 19014,
+      "gzip": 3676
+    }
+  },
+  "V2": {
+    "archivo": "V2-derivaciones.svg",
+    "elementos": 12,
+    "encuadre": "none",
+    "viewBox": "0 0 348 112",
+    "svg": {
+      "crudo": 6595,
+      "gzip": 1025
+    },
+    "datos": {
+      "crudo": 6430,
+      "gzip": 924
+    }
+  },
+  "V3": {
+    "archivo": "V3-reticulo.svg",
+    "elementos": 46,
+    "encuadre": "meet",
+    "viewBox": "0 0 348 112",
+    "svg": {
+      "crudo": 12583,
+      "gzip": 3568
+    },
+    "datos": {
+      "crudo": 12571,
+      "gzip": 3438
+    }
+  },
+  "V4": {
+    "archivo": "V4-plano.svg",
+    "elementos": 24,
+    "encuadre": "meet",
+    "viewBox": "0 0 348 112",
+    "svg": {
+      "crudo": 4244,
+      "gzip": 1181
+    },
+    "datos": {
+      "crudo": 4097,
+      "gzip": 1075
+    }
+  },
+  "V5": {
+    "archivo": "V5-fusiforme.svg",
+    "elementos": 27,
+    "encuadre": "none",
+    "viewBox": "0 0 348 118",
+    "svg": {
+      "crudo": 15306,
+      "gzip": 3750
+    },
+    "datos": {
+      "crudo": 15307,
+      "gzip": 3638
+    }
+  },
+  "V6": {
+    "archivo": "V6-penniforme.svg",
+    "elementos": 8,
+    "encuadre": "none",
+    "viewBox": "0 0 348 118",
+    "svg": {
+      "crudo": 7836,
+      "gzip": 3011
+    },
+    "datos": {
+      "crudo": 7685,
+      "gzip": 2897
+    }
+  }
+}

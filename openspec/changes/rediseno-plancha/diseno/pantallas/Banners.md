@@ -9,6 +9,7 @@
 | Variantes | Banco reducido solo en materias con `bancoReducido` (hoy `cyr` y `neuro`); nota del creador visible o descartada (reaparece a los siete días); privacidad solo en web |
 | Fuera de alcance | La lámina, la tarjeta de materia y la lista de acciones (`MateriaSelect.md`, `Home.md`) |
 | Propuestas | Sección f: `BAN-P1`, aprobada (usuario, 2026-10-10). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Escritorio | Sección «Escritorio», al final: propuesta `ESC-P11`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.4 |
 
 ---
 
@@ -46,7 +47,7 @@ Cuerpo con relleno `paso 3.5` en las cuatro caras.
 | Ancho | Columna | Alineación | Particularidades |
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | Las notas llenan la columna; la de privacidad queda centrada dentro de la columna |
-| 1280 px | Igual | Igual | Igual: sin avisos a los costados |
+| 1280 px (desde 1024 px) | Sección «Escritorio» de esta ficha (`ESC-P11`, aprobada): La de la pantalla que los aloja (`comun.md` §7.2) | Igual | Nota del creador y banner en la región lateral de su pantalla; la nota de privacidad, al pie de la principal |
 | 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` (privacidad: `paso 6`) | — | Sin scroll horizontal. El rótulo salta de línea sin pasar bajo el objetivo de descartar; el contacto salta de línea dentro del botón si el correo no entra |
 
 ---
@@ -173,3 +174,37 @@ Elementos de `main` que el boceto omite. No son propuestas: `main` es la base de
 | BAN-C2 | La nota del creador: condicional, descartable con un toque y reaparece a los siete días | Canal del creador con quien usa la app (`MATERIA-P3`) | uso |
 | BAN-C3 | La nota de privacidad al pie de Home, solo en web, con las dos oraciones | Aviso de analíticas de la app (`HOME-P3`) | copy |
 | BAN-C4 | El contacto por correo `pkappsoporte@gmail.com` abre `mailto:` | Función de `main` | uso |
+
+---
+
+## Escritorio · propuesta `ESC-P11` (tarea 3.10, aprobada por el usuario el 2026-10-11)
+
+| Campo | Valor |
+|---|---|
+| Estado | Aprobada (usuario, 2026-10-11; D10, `CONVENCIONES.md` C2). Base común: `comun.md` §7.2 (`ESC-P0`, aprobada) |
+| Rige desde | Corte `escritorio` (`tokens.md` c.4); sin cambio en `amplio`. Teléfono y tablet no cambian |
+| Bajo el corte | a.4 de esta ficha: una sola columna `columna`, centrada y anclada arriba. Es la que implementa la 3.x de esta pantalla; 3.11 aplica esta sección desde el corte |
+| Figuras | Maqueta: E01 (nota del creador) y E02 (banner de banco reducido y nota de privacidad), a 1366 y 1920 px, en claro y en oscuro (`diseno/maqueta/NOTAS-MAQUETA.md` §8) |
+| Sin cambio | Textos, condiciones, lugares relativos y estados de c (`BAN-C1` a `BAN-C4`), contacto en botón (`BAN-P1`), elementos y pares de b |
+
+### Disposición
+
+| Aviso | Región | Escritorio |
+|---|---|---|
+| Nota del creador (MateriaSelect) | Lateral, debajo de la lámina, a `paso 3` | Ancho `lateral`; descartar de `paso 11` en la esquina, a ras del marco |
+| Banner de banco reducido (Home) | Lateral, debajo de la tarjeta de materia, a `paso 3` | Ancho `lateral`; el botón de contacto en una línea; sin descartar |
+| Nota de privacidad (Home, solo web) | Principal, al pie, a `paso 6` | Centrada en la región principal |
+
+### Medidas
+
+| Elemento | Medida |
+|---|---|
+| Nota (cuerpo) | Relleno `paso 3.5` y borde izquierdo `acento` de `border-l-3`, sin cambio (a.2) |
+| Rótulo | Salta de línea sin pasar bajo el objetivo de descartar (a.2) |
+| Texto | A `lateral` el párrafo ocupa más líneas; ninguna cadena cambia |
+
+### Propuesta
+
+| Id | Qué cambia | Motivo | Tipo | Estado |
+|---|---|---|---|---|
+| `ESC-P11` | Desde el corte `escritorio`, la nota del creador y el banner de banco reducido van en la región lateral de su pantalla; la nota de privacidad, al pie de la principal | Siguen debajo del bloque de marca o de materia (`MATERIA-P3`, `BAN-C1`) y dejan de empujar la lista o las acciones hacia abajo | visual | aprobada (usuario, 2026-10-11) |

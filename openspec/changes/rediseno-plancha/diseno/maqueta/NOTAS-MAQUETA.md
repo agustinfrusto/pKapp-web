@@ -5,10 +5,10 @@
 | Change | `openspec/changes/rediseno-plancha` (D3, D6, D7, D9, D10) |
 | Rama | `rediseno` |
 | Pedido | «me gustaría ver una maqueta por parte del diseñador de las pantallas» (usuario, 2026-10-10). Primera pasada: las seis pantallas de 1.2. Segunda pasada: lo aprobado desde entonces |
-| Qué es | Las pantallas y superficies tal como las fijan las fichas aprobadas de 1.2 y 1.3. No es un boceto nuevo: lo que se vea distinto de una ficha es un defecto de la maqueta, salvo lo listado en §6. El pedido de donación es `DON-P5`, aprobada el 2026-10-11 y todavía sin implementar (tarea 3.8); la figura 09 lo compara con `DON-P1`, el aspecto anterior |
-| Fuentes | `pantallas/comun.md` y las trece fichas (1.2 y 1.3); `tokens.md`; `src/theme/colores.js` (`plancha`); `svg/<id>.svg` (familia B); `svg/glifos/` (35); `src/assets/filamentos.js`; `src/materias/*`; `src/utils/mercadopago.js` (montos); `app.json` (versión) |
-| Archivos | `maqueta.html`, `generar.mjs`, `capturar.mjs`, `maqueta-<ancho>-<tema>.png` (6), `maqueta-donacion-<ancho>-<tema>.png` (6, recorte de la figura 09), este archivo. Los PNG quedan fuera de git por la regla de `.gitignore` (`openspec/changes/*/diseno/maqueta/*.png`): existen en disco y `capturar.mjs` los regenera |
-| Fuera de alcance | Diálogos del sistema (`confirm`, `avisar`, V5 de `Vacios.md`) y el selector de archivos; la carga inicial de V1 y V2 (`VAC-P4`: solo la barra, es una ausencia); el tablero a 360 y 320 px: la maqueta dibuja 390, 768 y 1280. La variante de 320 px del botón «Cambiar materia» (`comun.md` §1.1) existe en el HTML (container query sobre el header) y se midió forzando el ancho de la pantalla (§4) |
+| Qué es | Las pantallas y superficies tal como las fijan las fichas aprobadas de 1.2 y 1.3. Las figuras E01 a E10, a 1366 y 1920 px, dibujan el escritorio de la tarea 3.10, aprobado por el usuario el 2026-10-11 (`ESC-P0` a `ESC-P8` y `ESC-P10` a `ESC-P12`; `ESC-P9`, rechazada: AddQuestion va en una columna `lectura`) (§8). El selector de tema de AddQuestion es el desplegable de `ADD-P3` (aprobada el 2026-10-11) y el campo de filamentos de MateriaSelect es V5 «Fusiforme» (elegida el 2026-10-11). No es un boceto nuevo: lo que se vea distinto de una ficha es un defecto de la maqueta, salvo lo listado en §6. El pedido de donación es `DON-P5`, aprobada el 2026-10-11 y todavía sin implementar (tarea 3.8); la figura 09 lo compara con `DON-P1`, el aspecto anterior |
+| Fuentes | `pantallas/comun.md` y las trece fichas (1.2 y 1.3); `tokens.md`; `src/theme/colores.js` (`plancha`); `svg/<id>.svg` (familia B); `svg/glifos/` (35); `src/assets/filamentos.js` (campo V5); `src/materias/*`; `src/utils/mercadopago.js` (montos); `app.json` (versión) |
+| Archivos | `maqueta.html`, `generar.mjs`, `capturar.mjs`, `verificar.mjs` (escritorio, §8), `maqueta-<ancho>-<tema>.png` (10: 390, 768, 1280, 1366 y 1920), `maqueta-donacion-<ancho>-<tema>.png` (6, recorte de la figura 09), este archivo. Los PNG quedan fuera de git por la regla de `.gitignore` (`openspec/changes/*/diseno/maqueta/*.png`): existen en disco y `capturar.mjs` los regenera |
+| Fuera de alcance | Diálogos del sistema (`confirm`, `avisar`, V5 de `Vacios.md`) y el selector de archivos; la carga inicial de V1 y V2 (`VAC-P4`: solo la barra, es una ausencia); el tablero a 360 y 320 px: la maqueta dibuja 390, 768 y 1280, y a 1366 y 1920 el escritorio (§8). La variante de 320 px del botón «Cambiar materia» (`comun.md` §1.1) existe en el HTML (container query sobre el header) y se midió forzando el ancho de la pantalla (§4) |
 
 ---
 
@@ -29,6 +29,9 @@
 | 11 | La versión de «Acerca de» sale de `app.json`: al regenerar pasó de v1.7.4 a v1.7.5. Es el único otro cambio de la salida; el trío y los botones de Results pasaron a funciones compartidas con la figura 09 sin cambiar su HTML | 08a, 08b y 12c |
 | 12 | `generar.mjs` deriva dos tokens nuevos de `acento`, `superficie` y `fondo` para dibujar `DON-P5`: `acentoFondo` (tinte B de la exploración: 12 % de `acento` sobre `superficie` en claro, #e2eef0, y 15 % en oscuro, #1d3037) y `acentoBanda` (igual que `acento` en claro, #0b6e80; 73 % de `acento` sobre `fondo` en oscuro, #4692a1). Los emite en el bloque generado, comentados como nuevos, pendientes: el archivo sigue sin escribir ningún color y el control de hexadecimales fuera del bloque generado pasa | 01, 05a, 05b y 09 |
 | 13 | Las figuras 01, 05a y 05b dibujan `DON-P5` y no `DON-P1`: la ficha vigente es `DON-P5` y «lo que se vea distinto de una ficha es un defecto de la maqueta». Cambia el pedido de donación y su alto (+21 px); nada más en esas figuras | 01, 05a y 05b |
+| 14 | `ADD-P3` (aprobada, usuario, 2026-10-11): el selector de tema de AddQuestion pasa a ser el desplegable: disparador K3 y, abierto, lámina con filas K7, en lista plana (el parcial de cada tema todavía no es un dato). 07a y 07b lo muestran cerrado (en 07b, deshabilitado porque guarda); figura nueva 07c con el selector abierto. Es lo único que cambia en 07a y 07b (comparado con el generador anterior, mismo `src/`) | 07a, 07b y 07c |
+| 15 | Campo de filamentos V5 «Fusiforme» (elegida, usuario, 2026-10-11): el generador lo lee de `src/assets/filamentos.js`, donde ya está V5; sin cambios de código. V0 queda en `src/assets/filamentos-v0.js` | 01 y E01 |
+| 16 | Escritorio aprobado (2026-10-11): E09 deja las dos columnas de `ESC-P9`, rechazada, y pasa a una columna `lectura`; se parte en E09a (selector cerrado) y E09b (abierto). `verificar.mjs` cuenta una lista abierta (`listbox`) como una sola parada de Tab. La leyenda de 1280 px dice «columna única, antes del escritorio» | E09a, E09b y 1280 px |
 
 Las cifras de §4, las decisiones de §6 y las propuestas de §7 reemplazan a las de la primera pasada.
 
@@ -39,14 +42,15 @@ Las cifras de §4, las decisiones de §6 y las propuestas de §7 reemplazan a la
 | Acción | Cómo |
 |---|---|
 | Abrir | `maqueta.html` en el navegador. Las fuentes Plex salen de Google Fonts; sin red cae a la del sistema (D4) |
-| Ancho y tema | Selector de la barra superior (390, 768, 1280 · Claro, Oscuro) o el control «Claro \| Oscuro» de Home y MateriaSelect. El estado va en el hash: `maqueta.html#768-oscuro` |
-| Ir a una figura | Botones «Ir a» de la barra superior (01 a 14) |
+| Ancho y tema | Selector de la barra superior (390, 768, 1280, 1366, 1920 · Claro, Oscuro) o el control «Claro \| Oscuro» de Home y MateriaSelect. El estado va en el hash: `maqueta.html#768-oscuro`, `maqueta.html#1920-claro` |
+| Ir a una figura | Botones «Ir a» de la barra superior (01 a 14, con 07c; a 1366 y 1920 px, E01 a E10) |
 | Estados de control | Hover (solo con puntero), presionado y foco de teclado responden como `comun.md` §5 (`COMUN-P2`): pasar el puntero, mantener presionado, Tab |
 | Regenerar | `node openspec/changes/rediseno-plancha/diseno/maqueta/generar.mjs` |
-| Recapturar los PNG | `node openspec/changes/rediseno-plancha/diseno/maqueta/capturar.mjs` (Chrome y cliente CDP de `tools/e2e/`; sin dependencias nuevas). Deja los seis tableros y, aparte, el recorte de la figura 09 en cada ancho y tema |
+| Recapturar los PNG | `node openspec/changes/rediseno-plancha/diseno/maqueta/capturar.mjs [ancho ...]` (Chrome y cliente CDP de `tools/e2e/`; sin dependencias nuevas). Sin argumentos deja los diez tableros (390, 768, 1280, 1366 y 1920, en claro y oscuro) y, aparte, el recorte de la figura 09 a 390, 768 y 1280. Con anchos, solo esos: `capturar.mjs 1366 1920` |
+| Verificar escritorio | `node openspec/changes/rediseno-plancha/diseno/maqueta/verificar.mjs`: 16 figuras en 1024, 1280, 1366 y 1920, en claro y oscuro (§8.3) |
 | Origen de los colores | Bloque entre `>>> GENERADO` y `<<< FIN GENERADO` de `maqueta.html`, generado desde `plancha.claro` y `plancha.oscuro`. Ningún otro lugar del HTML ni de `generar.mjs` escribe un color |
 
-El tablero numera 30 figuras: 24 pantallas, o estados de pantalla, y 6 de componente (01b, 04e, 09, 11c, 13 y 14). En el navegador arma las columnas que caben en la ventana; las capturas usan 4 columnas en los tres anchos. La figura 09 ocupa dos columnas.
+El tablero numera 31 figuras: 25 pantallas, o estados de pantalla, y 6 de componente (01b, 04e, 09, 11c, 13 y 14). En el navegador arma las columnas que caben en la ventana; las capturas usan 4 columnas en los tres anchos. La figura 09 ocupa dos columnas. A 1366 y 1920 px el tablero muestra solo las 16 figuras de escritorio (E01 a E10, con variantes a, b y c) y las capturas usan 2 columnas; a 1280 px muestra la columna única anterior al escritorio, para comparar.
 
 ---
 
@@ -54,7 +58,7 @@ El tablero numera 30 figuras: 24 pantallas, o estados de pantalla, y 6 de compon
 
 | Fig. | Pantalla | Estado o variante | Datos | Ficha |
 |---|---|---|---|---|
-| 01 | MateriaSelect | Reposo, seis materias; nota del creador visible y donación persistente con regla corta | Reales: `MATERIA_LIST`, `CONTEOS`, `svg/<id>.svg`, `filamentos.js`, `DONATION_AMOUNTS` | `MateriaSelect.md` a, b; `Banners.md`; `DonationBox.md` |
+| 01 | MateriaSelect | Reposo, seis materias, campo V5 «Fusiforme»; nota del creador visible y donación persistente con regla corta | Reales: `MATERIA_LIST`, `CONTEOS`, `svg/<id>.svg`, `filamentos.js`, `DONATION_AMOUNTS` | `MateriaSelect.md` a, b; `Banners.md`; `DonationBox.md` |
 | 02 | Home | CyR con banner de banco reducido, con contacto en botón (`BAN-P1`), y nota de privacidad (web) | Reales: 113 reales, 0 extra, examen de 50 | `Home.md`; `Banners.md` |
 | 03a | TopicSelect | `practice`, con grupo «Parcial» (marca de parcial, `PAR-P2`); 27 temas | Reales: BCYT, conteo por tema tras `dedupeQuestions` | `TopicSelect.md` A; `comun.md` §12.3 |
 | 03b | TopicSelect | `exam`, sin grupo «Parcial» | Reales: CyR, 113 disponibles, sorteo de 50 | `TopicSelect.md` B (`TOPIC-P5`) |
@@ -68,8 +72,9 @@ El tablero numera 30 figuras: 24 pantallas, o estados de pantalla, y 6 de compon
 | 06 | Stats | Las tres bandas, una fila «Sin practicar», «Más falladas» (8) | Reales: temas y disponibles de CyR; respuestas y aciertos de muestra | `Stats.md` |
 | 01b | MateriaSelect | Matriz de estados de la tarjeta: reposo, presionado, foco, cargando, no disponible | CyR | `MateriaSelect.md` c |
 | 04e | Quiz | Chips de origen: examen, generada, propia | Texto fijo | `Quiz.md` c.3 |
-| 07a | AddQuestion | Formulario inicial: primer tema de CyR, cuatro opciones vacías, ninguna correcta | Reales: `TOPICS` de CyR | `AddQuestion.md` c.2 |
-| 07b | AddQuestion | BCYT (27 temas): completa, correcta marcada, «Guardando...» | Reales: temas de BCYT; texto de la pregunta de muestra tomado de `2025-T1-Q15` | `AddQuestion.md` c.1, c.2 (`ADD-P1`, `ADD-P2`) |
+| 07a | AddQuestion | Formulario inicial: primer tema de CyR en el selector cerrado, cuatro opciones vacías, ninguna correcta | Reales: `TOPICS` de CyR | `AddQuestion.md` c.2 (`ADD-P3`) |
+| 07b | AddQuestion | BCYT (27 temas): completa, correcta marcada, «Guardando...», selector deshabilitado | Reales: temas de BCYT; texto de la pregunta de muestra tomado de `2025-T1-Q15` | `AddQuestion.md` c.1, c.2 (`ADD-P2`, `ADD-P3`) |
+| 07c | AddQuestion | BCYT (27 temas): selector de tema abierto, lista plana, primer tema elegido | Reales: temas de BCYT | `AddQuestion.md` a.2, c.1, c.2 (`ADD-P3`) |
 | 08a | Settings | Plegables cerrados, «No» seleccionado, «2 preguntas propias» | Versión de `app.json` (1.7.5); banco de CyR; 2 propias de muestra | `Settings.md` c.2 (`SET-P1`) |
 | 08b | Settings | Plegables abiertos, «Sí» seleccionado, dos tarjetas propias, respaldo web y «Resetear estadísticas» en `error` | Igual | `Settings.md` c.1, c.2 (`SET-P1`, `SET-P2`) |
 | 09 | Componente | Pedido de donación, antes (`DON-P1`) y `DON-P5`, aprobada, lado a lado. En cada columna: celebratoria descartable (Results, desde 80 %); persistente con regla corta bajo una tarjeta de materia (MateriaSelect); normal descartable entre el trío y los botones (Results, 60 a 79 %). `DON-P5` lleva banda `acentoBanda`, cuerpo en `acentoFondo` (tokens nuevos, pendientes) y una anotación sobre su peso frente a «Volver a practicar» | Montos de `DONATION_AMOUNTS`; tarjeta de CyR y trío de 15 de 24, de muestra | `DonationBox.md` a, b, c y f (`DON-P5`) |
@@ -106,7 +111,8 @@ El tablero numera 30 figuras: 24 pantallas, o estados de pantalla, y 6 de compon
 | `STATS-P3` orden de `TOPICS`; `STATS-P4` «Más falladas» | 06 |
 | `MAQUETA-P1` barra interna de igual alto | 03a, 03b, 05a a 05c, 06, 07, 08, 10, 12 |
 | `MAQUETA-P3` opciones del control de tema de `paso 11` (desviación por invariante, no propuesta: `comun.md` §2.4) | 01, 02 |
-| `ADD-P1` temas con salto de línea; `ADD-P2` rótulos sin dos puntos | 07a, 07b |
+| `ADD-P2` rótulos sin dos puntos; `ADD-P3` selector de tema desplegable (aprobada, usuario, 2026-10-11; reemplaza a `ADD-P1`, rechazada) | 07a, 07b, 07c, E09a y E09b |
+| `V5` campo de filamentos «Fusiforme» (elegida, usuario, 2026-10-11) | 01 y E01 |
 | `SET-P1` «No \| Sí»; `SET-P2` «Resetear estadísticas» en `error` | 08a, 08b |
 | `DON-P1` montos en K3 con marco `acento` | Reemplazada por `DON-P5`: solo en la columna «Antes» de 09 |
 | `DON-P5` marco `acento` de `border-2`, banda `acentoBanda` en el encabezado, cuerpo en `acentoFondo` y montos K2 de acento con relleno `superficie` (aprobada, usuario, 2026-10-11) | 01, 05a, 05b y 09 (columna derecha) |
@@ -123,6 +129,8 @@ El tablero numera 30 figuras: 24 pantallas, o estados de pantalla, y 6 de compon
 | `DON-P2` marco `acento` de `border-2`, tres franjas y montos K2 de acento | Descartada (el usuario eligió `DON-P5`); ya no se dibuja |
 | `DON-P4` rótulo «Donación» | Descartada por el usuario (2026-10-11); ya no se dibuja. La exploración de la segunda vuelta queda en `.orca/reports/` |
 | `DON-P3` glifo propio | Retirada de la ficha (`DonationBox.md` f.2); nunca se dibujó |
+| `ADD-P1` temas con salto de línea (filtros K4) | Rechazada (usuario, 2026-10-11): «el usuario debería scrollear demasiado»; ya no se dibuja |
+| `ESC-P9` tema a la izquierda del enunciado en AddQuestion | Rechazada (usuario, 2026-10-11); ya no se dibuja: E09a y E09b usan una columna `lectura` |
 
 ---
 
@@ -183,7 +191,7 @@ Medido en Chrome headless sobre `maqueta.html`, en 390 claro, 390 oscuro, 768 cl
 
 | Hecho | Origen |
 |---|---|
-| El contenido ocupa 448 de 1280 px y el resto es `fondo` | D10: una sola columna en los tres anchos, nada se estira |
+| El contenido ocupa 448 de 1280 px y el resto es `fondo` | Es la columna anterior al escritorio (`ESC-P0`, aprobada el 2026-10-11): se conserva para comparar. El escritorio se ve a 1366 y 1920 px (§8) |
 
 ---
 
@@ -268,8 +276,109 @@ Los da de alta el Ingeniero en `tokens.md` y `colores.js` con esta tabla (`Donat
 
 | Observación | Dónde |
 |---|---|
-| `ADD-P1` (aprobada con dudas, «revisión del usuario al implementar»): con BCYT los 27 temas ocupan cerca de la mitad del alto de la pantalla (≈ 1030 de ≈ 2060 px) antes del enunciado. La figura 07b es la que el usuario pidió ver | Figura 07b |
+| `ADD-P1` (aprobada con dudas) quedó rechazada (usuario, 2026-10-11): con BCYT los 27 temas ocupaban cerca de la mitad del alto de la pantalla antes del enunciado. Las figuras 07a a 07c dibujan `ADD-P3`, que la reemplaza | Figuras 07a a 07c |
 | `VAC-P2` (aprobada con dudas, «revisión del usuario al implementar»): se ve en 12a, 12b y 12c como K2 de ancho por contenido, centrado, bajo el texto | Figuras 12a a 12c |
-| `filamentos.js` modula cada trazo del campo con `strokeOpacity` (0,25 a 0,82). Ya declarado como única excepción en `comun.md` §0 y `CONVENCIONES.md` CD-24 | Figura 01 |
+| `filamentos.js` modula cada trazo del campo con `strokeOpacity` (0,25 a 1 en V5). Ya declarado como única excepción en `comun.md` §0 y `CONVENCIONES.md` CD-24 | Figura 01 |
 | Los glifos usan `viewBox 0 0 16 16`; `comun.md` §9 ya lo dice, y el desvío de la primera pasada (grilla de 24) quedó resuelto | Figuras 01 a 14 |
 | El texto de la nota del creador es el del usuario (`Banners.md` e): la maqueta lo copia tal cual | Figuras 01 y 13 |
+
+---
+
+## 8. Escritorio (tarea 3.10)
+
+Pedido del usuario (2026-10-11): «La UI debería adaptarse también a un monitor clásico horizontal». El escritorio (`ESC-P0` a `ESC-P8` y `ESC-P10` a `ESC-P12`, aprobados por el usuario el 2026-10-11, D10; `ESC-P9`, rechazada) está en `pantallas/comun.md` §7.2, `tokens.md` c.4 y la sección «Escritorio» de cada ficha. Esta maqueta lo dibuja con los mismos componentes que las figuras de teléfono y tablet: cambia solo la disposición, y el orden de DOM es el del teléfono.
+
+### 8.1 Qué muestra
+
+Las 16 figuras solo se ven a 1366 px (corte `escritorio`, desde 1024) y a 1920 px (corte `amplio`, desde 1440). Mismos datos que su figura de teléfono y tablet.
+
+| Fig. | Superficie | Variante | Columna | Ficha · propuesta |
+|---|---|---|---|---|
+| E01 | MateriaSelect | Lámina y nota del creador a la izquierda; rejilla de 2 columnas (3 a 1920) y pedido de donación al pie | 01 | `MateriaSelect.md` · `ESC-P1` |
+| E02 | Home | Tarjeta de materia y banner a la izquierda; seis acciones en 1 columna (2 a 1920) y nota de privacidad | 02 | `Home.md` · `ESC-P2` |
+| E03a | TopicSelect | Practicar, BCYT con parcial y 27 temas: panel de filtros en una fila, mezcla y temas en 2 columnas (3 a 1920) | 03a | `TopicSelect.md` · `ESC-P3` |
+| E03b | TopicSelect | Modo examen, CyR: panel de dos grupos y tarjeta centrada con tope `lectura` | 03b | `TopicSelect.md` · `ESC-P3` |
+| E04a | Quiz | Sin responder, en columna `lectura` | 04a | `Quiz.md` · `ESC-P4` |
+| E04b | Quiz | Respondida incorrecta con explicación | 04c | `Quiz.md` · `ESC-P4` |
+| E04c | Examen en curso | BCYT, 1.er parcial, respondida, sin retroalimentación | 11b | `ExamenEnCurso.md` · `ESC-P4` |
+| E05a | Results | Tramo alto, pedido de donación celebratorio: tarjeta a la izquierda; trío, pedido y botones a la derecha | 05a | `Results.md` · `ESC-P5` |
+| E05b | Results | Tramo bajo, sin pedido | 05c | `Results.md` · `ESC-P5` |
+| E06 | Revisión | Encabezado, «Volver» y filtro a la izquierda; cuatro tarjetas y botones finales a la derecha | 10a | `Revision.md` · `ESC-P6` |
+| E07 | Stats | Tarjeta global y leyenda a la izquierda; filas por tema (2 columnas a 1920); «Más falladas» debajo, en columnas | 06 | `Stats.md` · `ESC-P7` |
+| E08a | Ajustes | Plegables cerrados; «Acerca de» a la derecha | 08a | `Settings.md` · `ESC-P8` |
+| E08b | Ajustes | Plegables abiertos, «Sí» seleccionado | 08b | `Settings.md` · `ESC-P8` |
+| E09a | AddQuestion | BCYT completa, correcta marcada, 27 temas: una columna `lectura`; selector de tema cerrado | 07b | `AddQuestion.md` · Escritorio (`ESC-P9` rechazada) |
+| E09b | AddQuestion | BCYT, selector de tema abierto: la lámina empuja el formulario dentro de la columna | 07c | `AddQuestion.md` · Escritorio, `ADD-P3` |
+| E10 | Stats vacío | V1: barra en la hoja de su pantalla y lámina `lectura` centrada | 12a | `Vacios.md` · `ESC-P12` |
+
+El pedido de donación (`ESC-P10`) y los avisos (`ESC-P11`) se ven dentro de E01, E02 y E05a. La columna «Columna» da la figura equivalente con la columna única `columna`.
+
+### 8.2 Cómo se compara
+
+| Qué | Cómo |
+|---|---|
+| Antes | A 1280 px el tablero sigue mostrando las 31 figuras de teléfono y tablet con la columna única de `columna`: es la disposición anterior al escritorio, para comparar. La leyenda de cada figura dice «1280 px · columna única, antes del escritorio» |
+| Después | A 1366 y 1920 px, E01 a E10. La leyenda dice «escritorio (ESC)» y «amplio (ESC)» |
+| Misma pantalla | La columna «Columna» de §8.1 da la figura equivalente a 1280 |
+| Corte | `verificar.mjs` también mide 1024 y 1280 forzando el ancho de la pantalla sobre el tramo `escritorio` |
+
+### 8.3 Verificación
+
+Medido con `verificar.mjs` en Chrome headless: 16 figuras en 1024, 1280, 1366 y 1920 px, en claro y oscuro (128 combinaciones). El alto útil de la ventana es el de la pantalla menos la barra de tareas y el cromo del navegador: ≈ 640 px a 1366 × 768 y ≈ 955 px a 1920 × 1080.
+
+| Chequeo | Método | Resultado |
+|---|---|---|
+| Hexadecimales fuera del bloque generado | `generar.mjs` falla si hay alguno | Ninguno |
+| Errores de consola y excepciones | `capturar.mjs` y `verificar.mjs` | Ninguno |
+| Desborde horizontal | Rectángulo de cada elemento contra el de su pantalla | Ninguno en las 128 combinaciones: sin scroll horizontal desde el corte |
+| Objetivo táctil (D10) | Todo `button` habilitado de las 16 figuras | Ninguno bajo 44 × 44 px |
+| Propiedades prohibidas | Estilo calculado: radio, sombra, degradado, opacidad distinta de 1, cursiva, subrayado | 0 |
+| Emojis | `\p{Extended_Pictographic}` sobre el texto de cada figura | 0 |
+| Foco frente al orden visual | Cada par de paradas consecutivas en el DOM: no sube sin moverse a la derecha ni retrocede en la misma fila. Una lista abierta (`listbox`) cuenta como una parada: la fila elegida | 0 saltos hacia atrás en las 128 combinaciones |
+| Regiones (`tokens.md` c.4) | Ancho medido | `hoja`: lateral 320 y principal 600 (también a 1024: la hoja de 952 entra con margen `paso 8`); `hoja-amplia`: lateral 320 y principal 1088; AddQuestion, una columna `lectura` de 600; Ajustes, principal 600 y lateral 320 |
+| Medida de línea | Texto de prueba de 1467 caracteres en cada paso, en el ancho real | Enunciado (`titulo`) 64 caracteres por línea; opción (`cuerpo`) 73; nota y revisión (`cuerpo`) 77; descripción de acción (`detalle`) 77. Con `lectura` de 640 daban 70, 77, 86, 86 y 86 |
+| Campo de filamentos | 320 de ancho sobre 348 del dibujo | 0,92×; `encuadre: 'none'` sin cambio (límite de `design.md` D2: ~1,4×) |
+| Las figuras de teléfono y tablet | HTML de cada figura, sin espacios, entre el generador anterior y el de esta pasada, con el mismo `src/` | Idéntico salvo 07a y 07b (selector `ADD-P3`) y la figura nueva 07c; las E son las mismas, con E09 partida en E09a y E09b |
+| PNG | Alto de la página con el HTML de esta pasada, en el viewport de `capturar.mjs` | Los PNG no se regeneraron (quedan fuera de git). Tableros: 390, 1688 × 14340; 768, 3200 × 13583; 1280, 5248 × 13583; 1366, 2808 × 9875; 1920, 3916 × 9430; 31 figuras de teléfono y tablet y 16 de escritorio. Todos bajo el tope de 16 384 px: el margen mínimo es de 2 044 px, a 390 |
+
+Alto del contenido, en ventanas útiles (claro). El alto de una figura de quiz no es comparable: la maqueta le fija el alto de una ventana. En E09a, «Vigente» es la figura 07b a 1280 px, con `ADD-P3` y la columna `columna` (el 2,7 y el 1,8 de `ADD-P1` ya no rigen).
+
+| Figura | 1366 × 768 | Vigente (columna única) | 1920 × 1080 | Vigente (columna única) |
+|---|---|---|---|---|
+| E01 MateriaSelect | 1,1 | 2,1 | 0,6 | 1,4 |
+| E02 Home | 1,1 | 1,6 | 0,5 | 1,1 |
+| E03a TopicSelect, 27 temas | 2,1 | 3,8 | 1,0 | 2,5 |
+| E03b Modo examen | 0,7 | 0,9 | 0,5 | 0,6 |
+| E05a Results, tramo alto | 1,0 | 1,4 | 0,6 | 1,0 |
+| E05b Results, tramo bajo | 0,7 | 1,1 | 0,4 | 0,7 |
+| E06 Revisión, 4 respuestas | 3,4 | 4,2 | 2,3 | 2,8 |
+| E07 Stats, 8 temas | 2,0 | 3,0 | 0,9 | 2,0 |
+| E08a Ajustes, cerrados | 0,7 | 1,1 | 0,5 | 0,7 |
+| E08b Ajustes, abiertos | 1,6 | 1,9 | 1,0 | 1,3 |
+| E09a AddQuestion, 27 temas, selector cerrado | 1,4 | 1,5 | 0,9 | 1,0 |
+| E09b AddQuestion, selector abierto | 1,9 | — | 1,3 | — |
+| E10 Vacío V1 | 0,6 | 0,6 | 0,4 | 0,4 |
+
+### 8.4 Lo que resolvió la maqueta
+
+Decisiones del tablero, no propuestas. Las fija la ficha de su superficie en su sección «Escritorio».
+
+| # | Dónde | Qué resolvió la maqueta | Estado |
+|---|---|---|---|
+| 1 | Cortes | `escritorio` (1366) y `amplio` (1920) se activan por el ancho del tablero (`data-ancho`): una media query respondería al ancho de la página y no al de cada figura | Del tablero |
+| 2 | Quiz, alto | La figura fija el alto de una ventana (640 a 1366, 960 a 1920) para pegar la barra inferior abajo | Del tablero |
+| 3 | Rejilla de MateriaSelect | Las tarjetas de una fila igualan su alto y su cajetín queda abajo | Fijada: `MateriaSelect.md` · Escritorio |
+| 4 | Flujo por columnas | CSS `columns` con `break-inside: avoid`: el orden de DOM baja por la primera columna y sigue por la siguiente | Fijada: `comun.md` §7.2 |
+| 5 | Panel de filtros en fila | El divisor entre grupos pasa a filete vertical `filete`; Temporizador toma el ancho de su contenido | Fijada: `TopicSelect.md` · Escritorio |
+| 6 | Estados vacíos | La barra usa la hoja de su pantalla y la lámina, `lectura` centrada | Fijada: `Vacios.md` · Escritorio |
+| 7 | AddQuestion | En una columna `lectura` la lámina abierta del selector abre hacia abajo y empuja el formulario, como a 390 px; no hay región lateral | Fijada: `AddQuestion.md` · Escritorio |
+
+### 8.5 Observaciones sin acción propuesta
+
+| Observación | Dónde |
+|---|---|
+| Con 27 temas, TopicSelect y Estadísticas siguen pidiendo más de una ventana a 1366 × 768 (2,1 y 2,0): es el volumen de datos, no la disposición. A 1920 × 1080 caben en una ventana | E03a, E07 |
+| La revisión mide 3,4 ventanas con cuatro respuestas de muestra: una tarjeta con cuatro opciones y nota ocupa ≈ 0,8 ventanas, y la lista crece con las respuestas igual que en teléfono | E06 |
+| El pedido de donación de MateriaSelect a 1920 px mide el ancho de la región principal (1088): es `ESC-P10`; el ancho del texto no cambia | E01 |
+| Una región lateral corta deja hueco debajo cuando la principal es larga (Stats, Revisión, Home). No se ancla (`comun.md` §7.2): anclar una región más alta que la ventana ocultaría su pie | E06, E07 |
+

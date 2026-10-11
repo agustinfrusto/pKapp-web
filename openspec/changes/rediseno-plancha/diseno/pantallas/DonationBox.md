@@ -10,6 +10,7 @@
 | Fuera de alcance | La página de Mercado Pago (`Linking.openURL`) |
 | Maqueta | Figura 09 de `diseno/maqueta/`: antes (`DON-P1`) y `DON-P5`, aprobada, lado a lado, con el pedido solo y en su contexto (MateriaSelect y Results). Las figuras 01, 05a y 05b ya dibujan `DON-P5`. Capturas: `maqueta-donacion-<ancho>-<tema>.png` |
 | Propuestas | Sección f: `DON-P5`, aprobada (usuario, 2026-10-11), con un ajuste de oscuro (banda en `acentoBanda`); reemplaza a `DON-P1`, aprobada el 2026-10-10. `DON-P2` y `DON-P4`, descartadas; `DON-P3`, retirada (f.2). Tokens nuevos: `acentoFondo` y `acentoBanda`, en `tokens.md` (sección i). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Escritorio | Sección «Escritorio», al final: propuesta `ESC-P10`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.3 |
 
 ---
 
@@ -45,7 +46,7 @@ Orden de lectura: título, texto, montos, pie.
 | Ancho | Columna | Alineación | Particularidades |
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | El panel llena la columna y las tres franjas llenan su ancho; los montos siguen en una fila de celdas iguales |
-| 1280 px | Igual | Igual | Igual. El panel no se estira a la ventana; el pedido de Results sigue entre el trío y los botones |
+| 1280 px (desde 1024 px) | Sección «Escritorio» de esta ficha (`ESC-P10`, aprobada): El panel llena la región que lo aloja (`comun.md` §7.2) | Igual | El panel no se estira a la ventana; el pedido de Results sigue entre el trío y los botones |
 | 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. El título salta de línea y la banda crece (nunca baja de `paso 11`); el título no pisa el objetivo de descartar. Las celdas de monto se angostan sin bajar de `paso 11` de ancho; el texto salta de línea |
 
 ---
@@ -349,3 +350,44 @@ Cada token lleva su valor en claro y en oscuro, su uso y los pares de f.6 que cu
 | `border-2` | Sumar el pedido de donación a los usos de `border-2` de `tokens.md` c.2 |
 | Reserva (CD-8) | Solo el pedido de donación: ninguno es fondo de estados ni de otras láminas |
 | Techo | `acentoFondo`: hasta 37 % en claro y 22 % en oscuro sin bajar de 4,5:1 (`tintaSec`). `acentoBanda` en oscuro: hasta 65 % de `acento` sobre `fondo` con el título en `fondo` a 4,5:1 |
+
+---
+
+## Escritorio · propuesta `ESC-P10` (tarea 3.10, aprobada por el usuario el 2026-10-11)
+
+| Campo | Valor |
+|---|---|
+| Estado | Aprobada (usuario, 2026-10-11; D10, `CONVENCIONES.md` C2). Base común: `comun.md` §7.2 (`ESC-P0`, aprobada) |
+| Rige desde | Corte `escritorio` (`tokens.md` c.4); en `amplio` el de MateriaSelect mide el ancho de la región principal. Teléfono y tablet no cambian |
+| Bajo el corte | a.3 de esta ficha: una sola columna `columna`, centrada y anclada arriba. Es la que implementa la 3.x de esta pantalla; 3.11 aplica esta sección desde el corte |
+| Figuras | Maqueta: E01 (en MateriaSelect) y E05a (en Results), a 1366 y 1920 px, en claro y en oscuro (`diseno/maqueta/NOTAS-MAQUETA.md` §8) |
+| Sin cambio | Aspecto de `DON-P5`, copy (e), umbrales, frecuencia y eventos (d.1, d.4), montos y su orden (`DON-C1`), contraste (T20 a T22, N21 a N24) |
+
+### Disposición
+
+| Dónde | Región | Escritorio | Amplio |
+|---|---|---|---|
+| MateriaSelect | Principal, debajo de la rejilla y de la regla corta (`DON-C4`) | Llena la región principal | Llena la región principal, más ancha |
+| Results | Principal, entre el trío y los botones (`DON-C6`) | Llena la región principal | Igual |
+
+### Medidas
+
+| Elemento | Medida |
+|---|---|
+| Panel | Marco `acento` de `border-2`, banda, cuerpo y pie sin cambio (a.2); marcas de esquina sin cambio (§6) |
+| Montos | Una fila de celdas iguales (`DON-C1`) que se ensanchan con el panel; `paso 2` entre ellas; ninguna baja de `paso 11` de alto ni de ancho |
+| Texto | Una o dos líneas según el ancho; el título no pisa el objetivo de descartar (a.2) |
+| Descartar (Results) | Objetivo `paso 11` en la esquina de la banda, sin cambio |
+
+### Revisado
+
+| Ancho de ventana | Qué se ve |
+|---|---|
+| 1366 × 768 | En Results, el texto celebratorio ocupa dos líneas y los cuatro montos entran en una fila; en MateriaSelect, el texto normal ocupa una |
+| 1920 × 1080 | En MateriaSelect, título y texto en una línea y montos en celdas anchas; en Results, igual que a 1366 |
+
+### Propuesta
+
+| Id | Qué cambia | Motivo | Tipo | Estado |
+|---|---|---|---|---|
+| `ESC-P10` | Desde el corte `escritorio`, el pedido de donación llena su región principal en lugar de la columna `columna`; su aspecto, copy y lugar relativo no cambian | El pedido sigue en su lugar (`DON-C4`, `DON-C6`) y no desentona con la rejilla ni con el trío que lo rodean | visual | aprobada (usuario, 2026-10-11) |

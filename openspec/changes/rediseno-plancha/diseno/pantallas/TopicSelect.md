@@ -9,6 +9,7 @@
 | Variantes | A: `practice`, o `failed` con fallos. B: `exam`. C: `failed` sin fallos. Cada una con o sin filtro de parcial (`materia.config.parciales`) |
 | Fuera de alcance | Variante C (estado vacío): su lugar está fijado; su ficha es `Vacios.md` (V2) |
 | Propuestas | Sección f: `TOPIC-P1` a `TOPIC-P5`. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Escritorio | Sección «Escritorio», al final: propuesta `ESC-P3`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.5 |
 
 ---
 
@@ -54,12 +55,12 @@ Filtros: alto `paso 11`, relleno horizontal `paso 3`, separación `paso 2` en ho
 | Tarjeta de mezcla | Relleno vertical `paso 3`, horizontal `paso 3.5`; separación `paso 3` entre glifo y texto | `glifo-aleatorio` y, en el bloque de texto, rótulo «Mezcla» (margen inferior `paso 1.5`), título y conteo (margen superior `paso 1`) |
 | Fila de tema | Relleno vertical `paso 3`; separación `paso 3` entre columnas; alto mínimo `paso 11` | Índice, nombre con conteo debajo, chevron |
 
-### a.5 Tablet y escritorio (D10)
+### a.5 Tablet (D10); desde 1024 px, sección «Escritorio»
 
 | Ancho | Columna | Alineación | Particularidades |
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | Panel, tarjeta y filas llenan la columna. Los filtros saltan de línea cuando no entran |
-| 1280 px | Igual | Igual | La lista de temas sigue en una columna: sin grilla |
+| 1280 px (desde 1024 px) | Sección «Escritorio» de esta ficha (`ESC-P3`, aprobada): `hoja`; `hoja-amplia` desde `amplio` | Igual | Panel con sus tres grupos en una fila; temas en 2 columnas (3 desde `amplio`) con flujo por columnas |
 | 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. Los filtros saltan de línea con `paso 2` entre ellos y el nombre salta dentro del filtro si no entra; en el temporizador, los dos cuadrados de `paso 11` conservan su lado y el valor queda entre ambos. En la tarjeta de mezcla y en cada fila de tema el nombre salta de línea; el glifo, el índice y el chevron conservan su ancho. En «Modo Examen» el texto del sorteo salta de línea y «Comenzar examen» conserva su alto y salta de línea si su texto no entra |
 
 ---
@@ -203,3 +204,58 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 | TOPIC-C3 | Las opciones del temporizador (`TIMER_OPTIONS`): «Sin límite» y de 10 a 120 minutos de a 10; el cuadrado del extremo se apaga. El boceto dibuja un solo valor | Dato de `main` (d.1) | dato |
 | TOPIC-C4 | La tarjeta «Modo Examen» de la variante `exam`: título, texto del sorteo según `examSize` o `examSizeParcial`, «Disponibles: {n} preguntas» y «Comenzar examen». Su contenido es de `main`; su lámina es `TOPIC-P5` | Función y copy de `main` (d.1, e) | uso |
 | TOPIC-C5 | El orden de los temas (el de `TOPICS`), solo con los que tienen al menos una pregunta tras los filtros, y «Solo generadas» incluye las preguntas del usuario | Orden de uso y datos de `main` (c, d.1) | dato |
+
+---
+
+## Escritorio · propuesta `ESC-P3` (tarea 3.10, aprobada por el usuario el 2026-10-11)
+
+| Campo | Valor |
+|---|---|
+| Estado | Aprobada (usuario, 2026-10-11; D10, `CONVENCIONES.md` C2). Base común: `comun.md` §7.2 (`ESC-P0`, aprobada) |
+| Rige desde | Corte `escritorio` (`tokens.md` c.4); `amplio` suma una columna a la lista de temas. Teléfono y tablet no cambian |
+| Bajo el corte | a.5 de esta ficha: una sola columna `columna`, centrada y anclada arriba. Es la que implementa la 3.x de esta pantalla; 3.11 aplica esta sección desde el corte |
+| Figuras | Maqueta: E03a (practicar, con parcial, 27 temas) y E03b (modo examen), a 1366 y 1920 px, en claro y en oscuro (`diseno/maqueta/NOTAS-MAQUETA.md` §8) |
+| Sin cambio | Las tres variantes por `mode`, el toque único que inicia el quiz (d.2), filtros y valores de partida (d.1), copy de e, elementos y pares de b, estados de c, `TOPIC-C1` a `TOPIC-C5` |
+
+### Disposición
+
+| # | Región | Contenido, en orden de DOM | Escritorio | Amplio |
+|---|---|---|---|---|
+| 1 | Barra interna | `comun.md` §3 | Contenido dentro de `hoja` | Dentro de `hoja-amplia` |
+| 2 | Panel de filtros | Fuente, Parcial (si la materia tiene parciales) y Temporizador (a.3) | A ancho de hoja; los grupos en una fila, separados por un filete vertical `filete`. Fuente y Parcial reparten el ancho sobrante y Temporizador toma el de su contenido; los filtros saltan de línea dentro de su grupo | Igual; los filtros entran en una línea |
+| 3 | Tarjeta de mezcla (A) o «Modo Examen» (B) | a.4 y a.2 | Mezcla a ancho de hoja. «Modo Examen» (`TOPIC-P5`): centrada, con tope `lectura` | Igual |
+| 4 | Rótulo de sección (A) | «O elegí un tema específico:» | Sin cambio | Sin cambio |
+| 5 | Lista de temas (A) | Una fila por tema con al menos una pregunta (a.4), en el orden de `TOPICS` | Filete superior `linea` a ancho de hoja; 2 columnas con flujo por columnas, `paso 8` entre ellas | 3 columnas |
+
+La variante C (estado vacío de `failed`) es `Vacios.md` (`ESC-P12`).
+
+### Medidas
+
+| Elemento | Medida |
+|---|---|
+| Panel | Relleno `paso 3.5` y `paso 2` entre filtros (`TOPIC-P1`), como en a.3; el divisor entre grupos pasa de horizontal a vertical, con `paso 3.5` a cada lado |
+| Fila de tema | Alto mínimo `paso 11`, índice, nombre con conteo y chevron, como en a.4 |
+| Flujo de la lista | El orden baja por la primera columna y sigue por la siguiente: con 27 temas, 01 a 14 y 15 a 27 en escritorio; 01 a 09, 10 a 18 y 19 a 27 desde `amplio` |
+| Mezcla | K6 de acento sin cambio; llena su ancho |
+
+### Revisado
+
+| Ancho de ventana | Qué se ve | Alto del contenido |
+|---|---|---|
+| 1024 (el corte) | Panel con grupos que saltan de línea y 2 columnas de temas; sin scroll horizontal | — |
+| 1366 × 768 | Panel, mezcla y los primeros temas en la primera ventana; en la materia de 27 temas, la lista entera pide desplazarse | 2,1 ventanas (con `columna`: 3,8) |
+| 1920 × 1080 | Panel, mezcla y los 27 temas (3 columnas de 9) en una ventana | 1,0 ventanas (con `columna`: 2,5) |
+
+### Orden, teclado y foco
+
+| Aspecto | Regla |
+|---|---|
+| Orden de DOM | El del teléfono: barra, panel, mezcla, rótulo, temas 01 a NN |
+| Tab | Volver, filtros de fuente, de parcial, menos y más, mezcla, temas en orden: el foco baja por una columna y pasa a la siguiente, como la lectura |
+| Cambia de lugar | Los grupos del panel pasan de apilados a una fila; el panel sigue arriba de la mezcla y de los temas |
+
+### Propuesta
+
+| Id | Qué cambia | Motivo | Tipo | Estado |
+|---|---|---|---|---|
+| `ESC-P3` | Desde el corte `escritorio`, los tres grupos del panel de filtros van en una fila a ancho de hoja y la lista de temas pasa a columnas (2; 3 desde `amplio`) con flujo por columnas; el modo examen centra su tarjeta con tope `lectura` | La materia con más temas (27) pide casi cuatro ventanas en una columna. Los grupos de filtros son hermanos y caben en fila; los temas se leen como un índice, de arriba abajo y por columnas | visual | aprobada (usuario, 2026-10-11) |

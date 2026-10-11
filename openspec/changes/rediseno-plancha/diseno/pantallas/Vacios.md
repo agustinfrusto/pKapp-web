@@ -9,6 +9,7 @@
 | Variantes | Pantalla vacía (V1, V2), mensaje dentro de un plegable (V3), lista vacía (V4) |
 | Fuera de alcance | Avisos del sistema (V5): su aspecto no es del sistema visual. Estados ya cubiertos por la ficha de su pantalla (V6 a V14 de a.1) |
 | Propuestas | Sección f: `VAC-P1` a `VAC-P4`, aprobadas (usuario, 2026-10-10); `VAC-P2` con revisión del usuario al implementar. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Escritorio | Sección «Escritorio», al final: propuesta `ESC-P12`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.5 |
 
 ---
 
@@ -90,7 +91,7 @@ La tarjeta de mezcla conserva su lugar y muestra «0 preguntas»; el toque sigue
 | Ancho | Columna | Alineación | Particularidades |
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | La lámina llena la columna; no se centra en vertical en la ventana. La barra interna lleva su filete a todo el ancho |
-| 1280 px | Igual | Igual | Igual: la lámina no se estira a la ventana |
+| 1280 px (desde 1024 px) | Sección «Escritorio» de esta ficha (`ESC-P12`, aprobada): `lectura` para la lámina; la barra, en la hoja de su pantalla | Igual | Barra interna en la hoja de su pantalla; la lámina vacía mide `lectura` como tope, centrada y anclada arriba, y no se estira a la ventana |
 | 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. Título y texto saltan de línea; la acción conserva alto `paso 11` y salta de línea si su texto no entra |
 
 ---
@@ -222,3 +223,44 @@ Elementos de `main` que el boceto omite. No son propuestas: `main` es la base de
 | VAC-C4 | V4 y V5: la mezcla sigue activa con cero preguntas y el toque muestra el aviso del sistema | Comportamiento de `main` | uso |
 | VAC-C5 | Los elementos ausentes (V6 a V11 y V15 a V16) se omiten sin dejar hueco ni marcador | Comportamiento de `main` | uso |
 | VAC-C6 | V12 y V13: pantalla sin render y redirección al selector | Es la protección frente a URLs de entrada en frío (`App.js`, `QuizScreen`, `ResultsScreen`) | uso |
+
+---
+
+## Escritorio · propuesta `ESC-P12` (tarea 3.10, aprobada por el usuario el 2026-10-11)
+
+| Campo | Valor |
+|---|---|
+| Estado | Aprobada (usuario, 2026-10-11; D10, `CONVENCIONES.md` C2). Base común: `comun.md` §7.2 (`ESC-P0`, aprobada) |
+| Rige desde | Corte `escritorio` (`tokens.md` c.4); sin cambio en `amplio`. Teléfono y tablet no cambian |
+| Bajo el corte | a.5 de esta ficha: una sola columna `columna`, centrada y anclada arriba. Es la que implementa la 3.x de esta pantalla; 3.11 aplica esta sección desde el corte |
+| Figuras | Maqueta: E10 (V1, estadísticas sin datos), a 1366 y 1920 px, en claro y en oscuro (`diseno/maqueta/NOTAS-MAQUETA.md` §8) |
+| Sin cambio | Inventario y condiciones (a.1), textos (e), acciones y destinos (`VAC-P2`), carga sin parpadeo (`VAC-P4`), elementos y pares de b, estados de c, `VAC-C1` a `VAC-C6` |
+
+### Disposición
+
+| # | Bloque | Contenido | Escritorio |
+|---|---|---|---|
+| 1 | Barra interna | `comun.md` §3, con volver | En la hoja de su pantalla (la del estado con datos), para que no salte cuando llegan los datos |
+| 2 | Lámina vacía (V1 y V2) | Glifo, título, texto y acción (a.2) | Columna `lectura` centrada en horizontal y anclada arriba; margen superior `paso 6` |
+| 3 | Mensaje compacto (V3) | Dentro del cuerpo de «Mis preguntas» (`Settings.md`) | En la región principal de Ajustes, sin cambio |
+| 4 | Mensaje de lista vacía (V4) | Bajo el rótulo de sección de TopicSelect | Bajo el rótulo, a ancho de hoja y alineado a la izquierda |
+
+### Medidas
+
+| Elemento | Medida |
+|---|---|
+| Lámina | Ancho `lectura` como tope; relleno `paso 3.5` y marcas de esquina de §6 sin cambio |
+| Acción | K2 de alto `paso 11` y relleno horizontal `paso 8`, centrada (a.2) |
+| Posición | Anclada arriba: la lámina no se centra en vertical en la ventana |
+
+### Revisado
+
+| Ancho de ventana | Qué se ve |
+|---|---|
+| 1366 × 768 y 1920 × 1080 | La lámina vacía debajo de la barra, centrada; la pantalla entera cabe (0,6 y 0,4 ventanas) |
+
+### Propuesta
+
+| Id | Qué cambia | Motivo | Tipo | Estado |
+|---|---|---|---|---|
+| `ESC-P12` | Desde el corte `escritorio`, la lámina vacía mide como tope `lectura`, centrada, y la barra interna usa la hoja de su pantalla | Una lámina de la hoja entera (`hoja` o `hoja-amplia`) sería un marco vacío de ancho exagerado; la barra no cambia de lugar al llegar los datos | visual | aprobada (usuario, 2026-10-11) |

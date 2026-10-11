@@ -9,6 +9,7 @@
 | Variantes | Respuesta correcta o incorrecta; con y sin explicación; con y sin filtro (sin respuestas incorrectas no hay filtro); hasta cientos de respuestas |
 | Fuera de alcance | Tarjeta de resultado, trío y botones del resumen (`Results.md`); pedido de donación (`DonationBox.md`; no se muestra en la revisión) |
 | Propuestas | Sección f: `REV-P1`, `REV-P2` y `REV-P3`, aprobadas (usuario, 2026-10-10). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Escritorio | Sección «Escritorio», al final: propuesta `ESC-P6`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.5 |
 
 ---
 
@@ -56,7 +57,7 @@
 | Ancho | Columna | Alineación | Particularidades |
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | Tarjetas, filtro y botones llenan la columna. La barra interna lleva su filete a todo el ancho |
-| 1280 px | Igual | Igual | Sin dos columnas de tarjetas: el orden vertical se conserva. Los botones finales siguen en una fila de dos celdas |
+| 1280 px (desde 1024 px) | Sección «Escritorio» de esta ficha (`ESC-P6`, aprobada): `hoja`, la misma que el resumen de Results | Igual | Encabezado, «Volver» y filtro en la región lateral; tarjetas y botones finales en la principal, sin dos columnas de tarjetas. Los botones finales siguen en una fila de dos celdas |
 | 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. El texto de enunciados, opciones y notas salta de línea; la celda de letra conserva `paso 11`; el encabezado de la tarjeta salta de línea si «#{n}» y el estado no entran juntos |
 
 ---
@@ -228,3 +229,55 @@ Elementos de `main` que el boceto omite. No son propuestas: `main` es la base de
 | REV-C4 | «Volver» e «Inicio» al final, en ese orden | Orden y ubicación de las acciones (D10) | uso |
 | REV-C5 | La revisión muestra la explicación aunque el quiz haya corrido sin retroalimentación | Es el propósito del ajuste: «Al terminar, revisás todo junto» | uso |
 | REV-C6 | Resumen «{c} / {t} aciertos ({p}%)» | Dato y copy de `main` | dato |
+
+---
+
+## Escritorio · propuesta `ESC-P6` (tarea 3.10, aprobada por el usuario el 2026-10-11)
+
+| Campo | Valor |
+|---|---|
+| Estado | Aprobada (usuario, 2026-10-11; D10, `CONVENCIONES.md` C2). Base común: `comun.md` §7.2 (`ESC-P0`, aprobada) |
+| Rige desde | Corte `escritorio` (`tokens.md` c.4); sin cambio en `amplio`. Teléfono y tablet no cambian |
+| Bajo el corte | a.5 de esta ficha: una sola columna `columna`, centrada y anclada arriba. Es la que implementa la 3.x de esta pantalla; 3.11 aplica esta sección desde el corte |
+| Figuras | Maqueta: E06 (todas), a 1366 y 1920 px, en claro y en oscuro (`diseno/maqueta/NOTAS-MAQUETA.md` §8) |
+| Sin cambio | Datos de d.1, copy de e, orden y acciones de d.2 (`REV-C1` a `REV-C6`), estados de las respuestas (c.2), elementos y pares de b |
+
+### Disposición
+
+| # | Región | Contenido, en orden de DOM | Escritorio | Amplio |
+|---|---|---|---|---|
+| 1 | Barra interna | Sin volver; igual que en el resumen de Results | Contenido dentro de `hoja` | Igual |
+| 2 | Lateral | Encabezado (a.2), «Volver» de arriba (`REV-P2`) y filtro (`REV-P1`, si hay incorrectas), a `paso 3` entre ellos | Ancho `lateral`; el filtro, dos opciones iguales a ancho de región | Igual |
+| 3 | Principal | Tarjetas de respuesta (a.3), en orden de respuesta, y los botones finales «Volver» e «Inicio» (`REV-C4`) | Ancho de la región principal; botones finales en una fila de dos celdas iguales | Igual |
+
+Misma hoja que el resumen de Results: al alternar «Revisar todas las respuestas» y «Volver» la barra interna no se mueve; el encabezado ocupa el lugar de la tarjeta de resultado y las tarjetas, el del trío y los botones.
+
+### Medidas
+
+| Elemento | Medida |
+|---|---|
+| Tarjeta de respuesta | Ancho de la región principal; relleno `paso 3.5` y borde izquierdo `border-l-3`, como en a.3 |
+| Medida de línea | ≈ 77 caracteres por línea en enunciado y nota; celda de letra de `paso 11` |
+| Región lateral | Corta: no se ancla; se desplaza con la página (`comun.md` §7.2) |
+
+### Revisado
+
+| Ancho de ventana | Qué se ve | Alto del contenido |
+|---|---|---|
+| 1024 (el corte) | Lateral y principal sin ajuste; sin scroll horizontal | — |
+| 1366 × 768 | Encabezado, «Volver» y filtro a la vista junto a la primera tarjeta; cada tarjeta de cuatro opciones con nota mide ≈ 0,8 ventanas, y la lista crece con las respuestas, como en teléfono | 3,4 ventanas con 4 respuestas (con `columna`: 4,2) |
+| 1920 × 1080 | Igual, con margen | 2,3 ventanas (con `columna`: 2,8) |
+
+### Orden, teclado y foco
+
+| Aspecto | Regla |
+|---|---|
+| Orden de DOM | El del teléfono: encabezado, «Volver», filtro, tarjetas, botones finales |
+| Tab | «Volver», filtro (Todas, Incorrectas), «Reportar pregunta» de cada tarjeta, «Volver» e «Inicio» finales |
+| Cambia de lugar | El encabezado, «Volver» y el filtro quedan a la izquierda de las tarjetas, no encima |
+
+### Propuesta
+
+| Id | Qué cambia | Motivo | Tipo | Estado |
+|---|---|---|---|---|
+| `ESC-P6` | Desde el corte `escritorio`, el encabezado, «Volver» y el filtro pasan a una región lateral y las tarjetas y los botones finales a la principal | Comparte la hoja del resumen de Results: la barra no salta al alternar vistas. Las tarjetas conservan la medida de lectura y no se ponen en columnas, porque tienen alto desigual y se leen de a una | visual | aprobada (usuario, 2026-10-11) |

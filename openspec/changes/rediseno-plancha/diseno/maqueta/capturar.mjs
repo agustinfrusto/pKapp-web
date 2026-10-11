@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 // Captura headless de maqueta.html: un tablero PNG por ancho y tema
-// (maqueta-<ancho>-<tema>.png, seis archivos) y el recorte de la figura 09, la vigente y las
-// propuestas DON-P2 y DON-P5 del pedido de donación lado a lado (maqueta-donacion-<ancho>-<tema>.png,
-// seis archivos). También verifica que la página no emita errores de consola ni excepciones.
+// (maqueta-<ancho>-<tema>.png, diez archivos: 390, 768, 1280, 1366 y 1920 px) y el recorte de la
+// figura 09, la vigente y las propuestas DON-P2 y DON-P5 del pedido de donación lado a lado
+// (maqueta-donacion-<ancho>-<tema>.png, seis archivos: solo 390, 768 y 1280 px). A 1366 y 1920 px
+// el tablero muestra solo las figuras de escritorio E01 a E10 (tarea 3.10, ESC-P0 a ESC-P12, salvo la rechazada ESC-P9).
+// También verifica que la página no emita errores de consola ni excepciones.
 //
 // Reutiliza el Chrome headless y el cliente CDP del arnés e2e del repo
 // (tools/e2e/entorno.js, tools/e2e/cdp.js); no agrega dependencias.
 //
-// Uso: node openspec/changes/rediseno-plancha/diseno/maqueta/capturar.mjs
+// Uso: node openspec/changes/rediseno-plancha/diseno/maqueta/capturar.mjs [ancho ...]
 //      (antes: node .../generar.mjs)
 
 import fs from 'node:fs';
@@ -22,7 +24,12 @@ const { lanzarChrome } = require(path.join(RAIZ, 'tools/e2e/entorno.js'));
 const { conectarNavegador, esperar } = require(path.join(RAIZ, 'tools/e2e/cdp.js'));
 
 const HTML = path.join(AQUI, 'maqueta.html');
-const ANCHOS = [390, 768, 1280];
+// Sin argumentos captura todos; con argumentos, solo esos anchos: `node capturar.mjs 1366 1920`.
+const TODOS = [390, 768, 1280, 1366, 1920];
+const pedidos = process.argv.slice(2).map(Number).filter((a) => TODOS.includes(a));
+const ANCHOS = pedidos.length ? pedidos : TODOS;
+// Anchos del tablero con las 31 figuras de pantalla y componente; a 1366 y 1920 px se ven solo las E.
+const CON_FIGURA_09 = new Set([390, 768, 1280]);
 const TEMAS = ['claro', 'oscuro'];
 // Columnas del tablero por ancho de pantalla: el viewport se calcula para que la grilla
 // (auto-fill) arme exactamente esas columnas. Relleno lateral del tablero: 24 px.
@@ -31,7 +38,8 @@ const TEMAS = ['claro', 'oscuro'];
 // 768 y 1280 px medían 16 475 y 16 459 px. Con cuatro columnas y la figura 09 en dos (antes y
 // DON-P5) quedan, en oscuro (la anotación de la banda es más larga), en 14 360 px (390) y 13 527 px
 // (768 y 1280). Margen al tope: 2 024 px a 390 px.
-const COLUMNAS = { 390: 4, 768: 4, 1280: 4 };
+// A 1366 y 1920 px, dos columnas: son 14 figuras de unos 1000 px de alto.
+const COLUMNAS = { 390: 4, 768: 4, 1280: 4, 1366: 2, 1920: 2 };
 const viewport = (a) => COLUMNAS[a] * (a + 2) + (COLUMNAS[a] - 1) * 24 + 48;
 
 if (!fs.existsSync(HTML)) throw new Error('Falta maqueta.html: correr generar.mjs primero');
@@ -113,7 +121,8 @@ try {
       console.log(`${path.basename(archivo)}  ${estado.w}x${estado.h}  figuras ${estado.figuras}  fuentes ${fuentes}`);
 
       // Recorte de la figura 09 (pedido de donación: vigente, DON-P2 y DON-P5 lado a lado), del
-      // ancho de sus tres columnas y no de la fila entera del tablero.
+      // ancho de sus tres columnas y no de la fila entera del tablero. Solo donde la figura se ve.
+      if (CON_FIGURA_09.has(ancho)) {
       const caja = await evaluar(`(() => {
         const fig = document.getElementById('fig-09');
         const b = fig.getBoundingClientRect();
@@ -128,6 +137,7 @@ try {
       const archivoDon = path.join(AQUI, `maqueta-donacion-${ancho}-${tema}.png`);
       fs.writeFileSync(archivoDon, Buffer.from(recorte.data, 'base64'));
       console.log(`${path.basename(archivoDon)}  ${Math.round(caja.w)}x${Math.round(caja.h)}`);
+      }
 
       await nav.enviar('Target.closeTarget', { targetId });
     }

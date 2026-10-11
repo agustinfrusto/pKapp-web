@@ -8,7 +8,7 @@
 | Lo usan | `MateriaSelect.md`, `Home.md`, `TopicSelect.md`, `Quiz.md`, `Results.md`, `Stats.md` |
 | Resuelto en 1.3 | `AddQuestion.md`, `Revision.md`, `ExamenEnCurso.md`, `Settings.md`, `DonationBox.md`, `Vacios.md` y `Banners.md`; la distinción de parciales está en §12. Las referencias de las fichas de 1.2 apuntan a archivo y sección |
 | Glifos | Se nombran en §9, con su función y el porqué de su color; se dibujan en 1.4 |
-| Propuestas | §11 (`COMUN-P1`, `COMUN-P2`) y sección f de cada ficha. Aprobadas por el usuario el 2026-10-10 (D10). Lo conservado de `main` va en la sección h de cada ficha |
+| Propuestas | §11 (`COMUN-P1`, `COMUN-P2`) y sección f de cada ficha. Aprobadas por el usuario el 2026-10-10 (D10). Lo conservado de `main` va en la sección h de cada ficha. Aprobadas el 2026-10-11: el escritorio de la tarea 3.10, en §7.2 (`ESC-P0`) y en la sección «Escritorio» de cada ficha (`ESC-P1` a `ESC-P8` y `ESC-P10` a `ESC-P12`; `ESC-P9`, rechazada), y el selector de tema desplegable `ADD-P3` (§5.3 y `AddQuestion.md`; `ADD-P1`, rechazada) |
 | Orden de lectura | Primero este archivo; cada ficha lo cita por sección (§N) y por clase de control (K1 a K7) |
 
 ---
@@ -26,6 +26,8 @@
 | Fichas de 1.3 | `AddQuestion.md`, `Settings.md`, `DonationBox.md`, `Revision.md`, `ExamenEnCurso.md`, `Vacios.md` y `Banners.md`; sus propuestas llevan los prefijos `ADD-`, `SET-`, `DON-`, `REV-`, `EXA-`, `VAC-`, `BAN-` y `PAR-` |
 | «—» | No aplica |
 | `COMUN-P#`, `MATERIA-P#`, `HOME-P#`, `TOPIC-P#`, `QUIZ-P#`, `RESULTS-P#`, `STATS-P#` | Propuestas aprobadas por el usuario el 2026-10-10 (D10): §11 y sección f de cada ficha. Los ids son únicos en todo el change; 1.3 usa sus propios prefijos |
+| `ESC-P0` a `ESC-P12` | Propuestas de escritorio (tarea 3.10), aprobadas por el usuario el 2026-10-11 (D10), salvo `ESC-P9`, rechazada: §7.2 y la sección «Escritorio» de cada ficha. No están entre las aprobadas del 2026-10-10 de arriba; bajo el corte `escritorio` rige la columna de la propia ficha |
+| `ADD-P1`, `ADD-P3` | Selector de tema de AddQuestion: `ADD-P1` rechazada y `ADD-P3` aprobada por el usuario el 2026-10-11 (D10): §5.3 y `AddQuestion.md` f. `ADD-P2` es del 2026-10-10 |
 | `TOPIC-C#`, `RESULTS-C#` y los `-C#` de 1.3 | Lo conservado de `main` (sección h de la ficha). No son propuestas ni pasan por aprobación (D10, base de comparación) |
 
 | Prohibido en todas las fichas | Origen |
@@ -45,7 +47,7 @@ Fila superior compartida. Reemplaza al bloque actual (fila, logo e imagen, bloqu
 | Bloque | Contenido | Tokens y pasos | Regla |
 |---|---|---|---|
 | Contenedor | Ancho completo | Fondo `fondo`; sin borde inferior | El primer bloque de cada pantalla trae su propio marco |
-| Relleno | Superior, inferior y lateral | Superior: área segura superior más `paso 3.5`; inferior `paso 3.5`; lateral `paso 5` | D10, áreas seguras |
+| Relleno | Superior, inferior y lateral | Superior: área segura superior más `paso 3.5`; inferior `paso 3.5`; lateral `paso 5` (`paso 8` desde el corte `escritorio`: §7.2) | D10, áreas seguras |
 | Fila | Slot `izquierda`, control de tema | Alto fijo: `paso 11` de cada opción del control de tema más el `border` superior e inferior de su contenedor; distribución entre extremos; centrada en vertical | El alto no depende del contenido de `izquierda`. El botón «Cambiar materia» (`paso 11`) queda centrado en la fila |
 | Slot `izquierda` | MateriaSelect: texto «ESFUNO» (`rotulo`, `tintaSec`, una línea, centrado en vertical; `MateriaSelect.md`, `MATERIA-P1`, aprobada). Home: botón «Cambiar materia» (ficha de Home; solo glifo bajo 360 px, §1.1) | — | Texto o botón, la fila mide lo mismo |
 | Control de tema | Segmentado «Claro \| Oscuro», con glifo y texto en cada opción (§2) | Alto útil de cada opción `paso 11`; el contenedor suma su `border` arriba y abajo (§2.1) | Siempre a la derecha |
@@ -175,7 +177,7 @@ Header del Stack de las pantallas internas. Reemplaza la banda de marca y el tí
 | Quiz | El guardia `beforeRemove` y su confirmación («Salir del quiz») quedan intactos: la barra interna no interviene en la salida del quiz |
 | Pageview | `trackPageview` usa el nombre de ruta, no el título: no se altera |
 | Áreas seguras | Relleno superior: área segura superior más `paso 4`. En apaisado, márgenes laterales no menores al área segura lateral |
-| Columna | Filete y fondo de la barra a todo el ancho; volver y título dentro de la columna `columna` (§7) |
+| Columna | Filete y fondo de la barra a todo el ancho; volver y título dentro de la columna `columna` (§7.1); desde el corte `escritorio`, dentro de la hoja de la superficie (§7.2) |
 | Alto | Igual con y sin volver: relleno `paso 4` arriba y abajo y fila de `paso 11` (`MAQUETA-P1`, 3.5). El título no cambia de lugar vertical al pasar de una pantalla con volver a Results |
 
 ### 3.5 Propuestas aprobadas (D10)
@@ -237,7 +239,7 @@ Regla: ningún estado se comunica solo por color (spec `design-system`; `tokens.
 | K4 | Filtro o segmento de un grupo | Igual que K3 | Igual que K3 | Igual que K3 (anticipa el seleccionado) | Igual que K1 | Fondo `tinta`; texto `fondo` en `cuerpo-fuerte`; borde `tinta` (T7, N5) | Igual que K3 |
 | K5 | Cuadrado de paso (menos, más) | Igual que K2 (fondo `superficie`), lado `paso 11`, glifo `tinta` | Igual que K2 | Igual que K2 | Igual que K1 | — | Borde `filete`; glifo `inactivo` |
 | K6 | Tarjeta navegable | Borde `linea`, `border`; fondo `superficie`; marcas de esquina (§6). Variante de acento (tarjeta de mezcla de `TopicSelect.md`): borde `acento`, `border-2`; glifo `acento`; sin marcas | Contorno web `linea`, `border` (de acento: `acento`, `border`) | Inversión total: fondo `tinta`; texto, glifo e ilustración `fondo` | Igual que K1 | — | Borde `filete`; texto e ilustración `inactivo`; las marcas de esquina no cambian (`linea`, §6) |
-| K7 | Fila de lista o botón de glifo | Sin marco; filete inferior `filete` en listas; texto `tinta`. Botón de glifo: `tinta` (cerrar del quiz) o `tintaSec` (descartar, eliminar y quitar, N19 y N20) | Contorno web `linea`, `border` | Inversión total | Igual que K1 | — | Texto y glifo `inactivo` |
+| K7 | Fila de lista, fila de selector o botón de glifo | Sin marco; filete inferior `filete` en listas; texto `tinta`. Botón de glifo: `tinta` (cerrar del quiz) o `tintaSec` (descartar, eliminar y quitar, N19 y N20) | Contorno web `linea`, `border` | Inversión total | Igual que K1 | Solo la fila elegida de un selector (regla 2.9-10): fondo `tinta`; texto `fondo` en `cuerpo-fuerte` | Texto y glifo `inactivo` |
 
 | Combinación | Resultado |
 |---|---|
@@ -252,12 +254,60 @@ Reglas que fija la tarea 2.9 (componentes compartidos de `src/components/plancha
 | 2.9-1 Fondo | K1 presionado: `superficie`. K1 deshabilitado: el del contenedor. K2 y K5 en todo estado menos presionado: `superficie` por defecto y `fondo` donde la ficha lo pide (Home, «Cambiar materia»; Revisión, «Volver»). K3, K4 y K6: `superficie`. Un control declara su fondo; no lo hereda de un contenedor que no lo fija | Matrices c de Results, Quiz, TopicSelect, Settings, Revisión, ExamenEnCurso y AddQuestion (K1); Results, Vacíos, Banners y Settings (K2 en `superficie`); Home y Revisión (K2 en `fondo`) |
 | 2.9-2 Seleccionado de K3 | Por defecto: fondo `tinta`, texto `fondo`, borde `tinta` y estado accesible seleccionado. Excepciones de la ficha: celda de letra marcada (fondo y borde `acierto`, `border-2`, `glifo-acierto` en `fondo`: `AddQuestion.md` c) y plegable abierto, que está expandido y no seleccionado (borde `linea`, sin relleno, estado accesible expandido: `Settings.md` c) | §5.1; CD-5; `ExamenEnCurso.md` b (opción elegida) |
 | 2.9-3 K4 deshabilitada | Cada opción de un grupo puede deshabilitarse, con el aspecto de K3 deshabilitado, sin toque, hover ni foco. Si la opción marcada se deshabilita, gana el aspecto deshabilitado y conserva su estado accesible marcado | §5.2 K4; CD-5 |
-| 2.9-4 Paso tipográfico | K1, K2 y K3 con texto de acción: `cuerpo-fuerte`. K3 como opción, letra o plegable: el paso de la ficha (`cuerpo`, `dato`, `item`) con el color de estado de la clase. K4 como filtro: `cuerpo` y, seleccionado, `cuerpo-fuerte`. K4 como segmentado dentro de un contenedor (`SET-P1`): `rotulo` en reposo y seleccionado. Marca de estado (§4): `rotulo` en la línea de estado, el rótulo del trío y la leyenda (texto del estado o `tintaSec`, según la ficha); `detalle` en la correcta de «Mis preguntas»; `dato` en las filas de Estadísticas; `display` en el porcentaje, con el glifo a `paso 6` | `tokens.md` b.2; tablas b de Results, Quiz, TopicSelect, Settings, Revisión, AddQuestion y Stats |
+| 2.9-4 Paso tipográfico | K1, K2 y K3 con texto de acción: `cuerpo-fuerte`. K3 como opción, letra o plegable: el paso de la ficha (`cuerpo`, `dato`, `item`) con el color de estado de la clase. K4 como filtro: `cuerpo` y, seleccionado, `cuerpo-fuerte`. K4 como segmentado dentro de un contenedor (`SET-P1`): `rotulo` en reposo y seleccionado. K7 como fila de selector: `cuerpo` y, elegida, `cuerpo-fuerte` (2.9-10). Marca de estado (§4): `rotulo` en la línea de estado, el rótulo del trío y la leyenda (texto del estado o `tintaSec`, según la ficha); `detalle` en la correcta de «Mis preguntas»; `dato` en las filas de Estadísticas; `display` en el porcentaje, con el glifo a `paso 6` | `tokens.md` b.2; tablas b de Results, Quiz, TopicSelect, Settings, Revisión, AddQuestion y Stats |
 | 2.9-5 Relleno y alto | En §8 | §8 |
 | 2.9-6 K6 deshabilitada | Las marcas de esquina no cambian: siguen en `linea` (§6). Cambian el borde (`filete`) y el texto, el id y la ilustración (`inactivo`) | §6; `MateriaSelect.md` c |
 | 2.9-7 Teclado de K4 | El del control de tema (§2.3): flechas izquierda y arriba (anterior) y derecha y abajo (siguiente) mueven el foco y la selección, con vuelta y saltando las opciones deshabilitadas; Espacio y Enter seleccionan la opción con foco; con Alt, Ctrl o Meta no se actúa; todas las opciones siguen siendo paradas de Tab. Rol `radiogroup` y `radio` | `SET-P1` (el segmentado de Ajustes es «de la misma clase K4 que el control Claro \| Oscuro»); §2.3; `HeaderMarca.js` |
 | 2.9-8 Controles que repintan a sus hijos | K3, K6 y K7 entregan a su contenido el estado (`estado`, `invertido`, `deshabilitado`) y las claves de color del texto, del glifo y de la ilustración, porque un descendiente libre no hereda el color. Ilustración de K6: `filamento` en reposo y hover, `fondo` presionada, `inactivo` deshabilitada | §5.2 K6 y K7; `COMUN-P1`; CD-15; `MateriaSelect.md` c |
 | 2.9-9 Hover y foco | El contorno de hover y el de foco van en el mismo elemento y el foco prevalece: un solo contorno. K3 y K4 como filtro cambian el color del borde y no suman contorno; K4 como segmentado, K1, K2, K5, K6 y K7 suman el contorno de la tabla. Ninguno mueve el layout | §5.1; CD-3; CD-4; `Settings.md` c (segmentado) |
+| 2.9-10 K7 elegida | Una fila K7 de un selector (el `Desplegable`, §5.3) puede estar elegida: fondo `tinta`, texto `fondo` en `cuerpo-fuerte` y estado accesible seleccionado. Hover y presionado no la cambian: el relleno ya es el máximo. No lleva tilde: `glifo-acierto` significa «correcta» (§9) y no se reutiliza para «elegida». El disparador del selector es un K3 abierto, que está expandido y no seleccionado (2.9-2) | §5.1; `AddQuestion.md` b y c.1; usuario, 2026-10-11 (`ADD-P3`) |
+
+### 5.3 Desplegable (`ADD-P3`, aprobada por el usuario el 2026-10-11)
+
+Elegir un valor entre una lista corta, sin cambiar de pantalla. Ninguna clase K1 a K7 lo resuelve sola: el `Desplegable` compone K3, lámina (§6) y K7, sin glifo ni token nuevo. Lo usa AddQuestion (`AddQuestion.md` a.2). La lista es en línea, no flotante: sin sombra ni telón, una capa flotante se separaría del formulario solo por su borde.
+
+| Pieza | Clase | Regla |
+|---|---|---|
+| Disparador | K3 | Ancho completo; relleno `paso 3`; alto mínimo `paso 11`; el valor elegido (o el texto de ayuda) en `cuerpo` y `glifo-chevron` (chico, `tintaSec`) a la derecha: abajo cerrado, arriba abierto. Abierto está expandido y no seleccionado (regla 2.9-2): borde `linea`, sin relleno |
+| Lámina | §6 | Cuerpo `superficie`, marco `linea` y cuatro marcas de esquina; en línea, a `paso 2` del disparador; empuja lo que sigue y no tapa campos |
+| Región de scroll | — | Relleno `paso 1` (el contorno de foco, `paso 0.5` más `border-2`, no se recorta); alto máximo `paso 80`; scroll vertical propio con indicador visible, que no se encadena a la página |
+| Rótulo de grupo | — | Opcional. Relleno vertical `paso 2` y horizontal `paso 3`; fondo `fondo`; filete inferior `filete`; `rotulo` en `tintaSec`; con la marca de parcial de §12.2 delante, separada `paso 1.5`. No es un control |
+| Fila | K7 | Ancho completo; alto mínimo `paso 11`; relleno vertical `paso 2` y horizontal `paso 3`; filete inferior `filete`, salvo en la última; el nombre salta de línea y no se abrevia. Elegida: regla 2.9-10 |
+
+| Aspecto | Regla |
+|---|---|
+| Abrir | Toque, clic, Enter, Espacio o flecha abajo o arriba sobre el disparador. La lámina aparece en línea, sin animación, y el foco pasa a la fila elegida (a la primera si no hay elegida) |
+| Cerrar | Tocar el disparador abierto; elegir una fila (el foco vuelve al disparador); Escape o Tab y Shift+Tab (sin cambiar el valor; con Tab el foco sigue el orden de DOM). Tocar otro control con puntero no cierra: cerrar movería el formulario bajo el dedo |
+| Elegir | Toque, Enter o Espacio sobre una fila: llama una vez a `alCambiar(valor)`. Las flechas no cambian el valor (es la diferencia con K4, regla 2.9-7) |
+| Al abrir | La región se desplaza hasta la fila elegida y la deja centrada si no está a la vista; si la lámina no entra en la ventana, la página se desplaza lo mínimo para mostrarla completa |
+| Alto | El del contenido hasta `paso 80`; con más, scroll vertical propio. La fila cortada al pie avisa que hay más. Sin posición pegajosa: los rótulos de grupo se desplazan con la lista |
+| Deshabilitado | El disparador sin toque, hover ni foco (borde `filete`; texto y chevron `inactivo`); si estaba abierto, cierra |
+| Fuera de alcance | Multiselección, buscador (se reabre con más de unas 40 opciones) y opciones con ilustración |
+
+| Dónde | Tecla | Efecto |
+|---|---|---|
+| Disparador | Enter, Espacio, Flecha abajo, Flecha arriba | Abre; el foco pasa a la fila elegida |
+| Disparador | Tab | Sigue al control siguiente: la lista cerrada no tiene paradas |
+| Lista | Flecha abajo, Flecha arriba | Foco a la fila siguiente o anterior, saltando rótulos y filas deshabilitadas; sin vuelta en los extremos |
+| Lista | Inicio, Fin | Primera y última fila |
+| Lista | Re Pág, Av Pág | Siete filas hacia arriba o abajo, sin pasar del extremo |
+| Lista | Enter, Espacio | Elige la fila con foco, cierra y devuelve el foco al disparador |
+| Lista | Escape | Cierra sin cambiar el valor y devuelve el foco al disparador |
+| Lista | Letra o cifra | Salta a la siguiente fila cuyo nombre empieza con lo tipeado, sin distinguir mayúsculas ni tildes; el búfer se vacía tras 800 ms y, con el búfer activo, Espacio se agrega al búfer |
+| Lista | Tab, Shift+Tab | Cierra sin cambiar el valor |
+| Cualquiera | Con Alt, Ctrl o Meta | No se actúa (Alt+← y Cmd+← son «atrás» del navegador) |
+
+El foco sigue a la fila activa: dentro de la lista hay una sola parada de Tab. La selección cambia solo con Enter, Espacio o toque.
+
+| Pieza | Rol | Nombre | Estado |
+|---|---|---|---|
+| Disparador | `button` con `aria-haspopup="listbox"` y `aria-controls` hacia la lista | «{campo}: {valor}» | `aria-expanded`; `aria-disabled` si está deshabilitado |
+| Lista | `listbox` | El nombre del campo | — |
+| Rótulo de grupo | `group` que contiene sus filas | El texto del rótulo | — |
+| Fila | `option` | El nombre del valor | `aria-selected` (la elegida); `aria-disabled` si corresponde |
+| Chevron, marca de parcial, marcas de esquina | Decorativos | — | `aria-hidden`, `accessibilityElementsHidden` |
+
+Al elegir, el foco vuelve al disparador y el lector de pantalla anuncia su nombre nuevo: ese es el aviso del cambio, sin región viva. Con puntero, la rueda desplaza la lista sin arrastrar la página al llegar a un extremo y el hover dibuja el contorno `linea` en la fila. La lámina no contiene campos: no abre el teclado virtual.
 
 ---
 
@@ -275,31 +325,105 @@ La usan: lámina y tarjetas de MateriaSelect, tarjeta de materia de Home, tarjet
 
 ## 7. Anchos (D10)
 
-Una sola columna en los tres anchos. Nada se estira a todo el ancho. El orden vertical del teléfono se conserva.
+### 7.1 Teléfono y tablet (bajo el corte `escritorio`)
+
+Rige bajo el corte `escritorio` (1024 px): teléfono y tablet. Una sola columna. Nada se estira a todo el ancho. El orden vertical del teléfono se conserva. Es la disposición que implementaron las tareas 3.x; desde el corte rige §7.2 (`ESC-P0`, aprobada el 2026-10-11).
 
 | Ancho | Columna | Alineación | Fondo | Barras a sangre |
 |---|---|---|---|---|
 | 390 px (teléfono) | Ancho completo menos margen lateral `paso 5` | — | `fondo` | Barra interna y barra inferior del quiz: a ancho completo |
 | 768 px (tablet) | Una columna; ancho máximo `max-w-columna` | Centrada en horizontal; anclada arriba | `fondo` a todo el ancho | Filete a todo el ancho; contenido dentro de la columna |
-| 1280 px (escritorio) | Igual que tablet: el mismo token `columna` | Igual | Igual | Igual |
+| 1024 px y más (escritorio) | Rige §7.2: `lectura`, `hoja` o `hoja-amplia` según la superficie | Centrada en horizontal; anclada arriba | `fondo` a todo el ancho | Filete a todo el ancho; contenido dentro de la hoja |
 | 360 px y 320 px (teléfono angosto) | Ancho completo menos margen lateral `paso 5` | — | `fondo` | Igual que 390 px |
 
 | Regla | Detalle |
 |---|---|
 | Ancho mínimo | Sin recorte ni scroll horizontal desde 320 px (C3 de `CONVENCIONES.md`). Los textos, las tarjetas y los filtros saltan de línea; ningún control baja de `paso 11` ni queda a menos de `paso 2` de su vecino |
 | Fichas | Cada ficha lista en su tabla de anchos lo que salta de línea o cambia a 360 px y 320 px. Lo que no figura ahí no cambia respecto de 390 px |
-| Token de ancho | `columna` (`tokens.md` c.3 y d.1), clase `max-w-columna`. Ninguna ficha usa otra clase `max-w-*` de Tailwind |
-| Otro ancho | Si escritorio necesitara un ancho distinto, sería otro token con nombre propio en `tokens.md`, no una variante de `columna` |
-| Sin segunda columna | No hay grilla en tablet ni en escritorio |
-| Texto | Mismo paso tipográfico en los tres anchos |
+| Token de ancho | `columna` (`tokens.md` c.3 y d.1), clase `max-w-columna`. Ninguna ficha usa otra clase `max-w-*` de Tailwind que no sea un token de `tokens.md` |
+| Otro ancho | Los de escritorio son otros tokens con nombre propio (`tokens.md` c.4), no variantes de `columna` |
+| Sin segunda columna | Rige bajo el corte `escritorio` (teléfono y tablet). Desde el corte deja de valer: §7.2 |
+| Texto | Mismo paso tipográfico en todos los anchos |
 | Tarjetas y lámina | Crecen con la columna; el campo de filamentos conserva su alto (§8) |
 | Apaisado en teléfono | Con ancho de 768 o más aplica la fila de tablet |
+
+### 7.2 Escritorio · `ESC-P0` (tarea 3.10, aprobada por el usuario el 2026-10-11)
+
+Pedido del usuario (2026-10-11): «La UI debería adaptarse también a un monitor clásico horizontal». Con la columna `columna`, en 1920 px quedaba más de tres cuartos del ancho vacío.
+
+| Campo | Valor |
+|---|---|
+| Estado | Aprobada (usuario, 2026-10-11; D10, `CONVENCIONES.md` C2). Rige desde el corte `escritorio`; bajo el corte rige §7.1, que es lo que implementaron las tareas 3.x. 3.11 aplica esta sección |
+| Cortes | `escritorio` desde 1024 px y `amplio` desde 1440 px (`tokens.md` c.4). El criterio es el ancho de la ventana, no el contenido medido |
+| Revisado | 1024 (el corte), 1280, 1366 × 768 y 1920 × 1080. Figuras E01 a E10 de la maqueta, a 1366 y 1920 px en claro y en oscuro (`diseno/maqueta/NOTAS-MAQUETA.md` §8) |
+| No cambia | Teléfono y tablet; flujos, datos, gestos y copy; orden de DOM; color, tipografía, grosores y glifos; objetivos de `paso 11`; estados de control (§5); áreas seguras |
+| Aprobación | Cada `ESC-P1` a `ESC-P12` se aprobó por separado (sección «Escritorio» de su ficha); todas dependen de `ESC-P0`. El usuario aprobó `ESC-P0` a `ESC-P8` y `ESC-P10` a `ESC-P12` el 2026-10-11 y rechazó `ESC-P9`: AddQuestion va en una columna `lectura`, como el quiz |
+
+**Composición.**
+
+| Elemento | Regla |
+|---|---|
+| Hoja | El contenido va centrado en un ancho máximo con nombre: `lectura`, `hoja` o `hoja-amplia` (tabla de superficies). Margen lateral `paso 8`. Fondos y filetes de barra a todo el ancho |
+| Regiones | Una región **lateral** de ancho fijo `lateral` y una **principal**, flexible, separadas por `paso 8` y alineadas arriba. Entre sus bloques apilados rige la separación vertical de a.1 de cada ficha. Sin región lateral, el contenido ocupa la hoja de su superficie: `lectura` en el quiz y en AddQuestion, y `hoja` o `hoja-amplia` en TopicSelect |
+| Rejilla | Celdas de igual ancho separadas por `paso 4`: 2 columnas desde `escritorio` y 3 desde `amplio`. Orden de lectura fila a fila |
+| Listas de filas | Temas, «Más falladas» y, desde `amplio`, filas por tema de Estadísticas: fluyen por columnas. El orden baja por la primera columna y sigue por la siguiente |
+| Barras | HeaderMarca, barra interna y barra del quiz: filete y fondo a todo el ancho; el contenido, dentro de la hoja de la superficie, con el alto de teléfono (D6: HeaderMarca igual en MateriaSelect y Home) |
+| Barra inferior del quiz | Fija abajo, a todo el ancho; el botón mide `lectura` |
+| Tarjetas y paneles | Llenan su celda o su región |
+| Campo de filamentos | Solo en la región lateral de MateriaSelect: se estira 0,92× (`tokens.md` c.4), `encuadre` sin cambio |
+
+**Orden, teclado y foco.**
+
+| Aspecto | Regla |
+|---|---|
+| Orden de DOM | El del teléfono, sin excepción. La región lateral antecede a la principal en el DOM cuando va a la izquierda y la sigue cuando va a la derecha (Ajustes): el orden visual, de izquierda a derecha y de arriba abajo, es el orden de DOM |
+| Foco | Tab recorre el orden de DOM, que es el visual: sin saltos hacia atrás. El contorno `foco` (§5.1) no se recorta: ninguna región ni celda corta con `overflow` |
+| Lectores de pantalla | Las regiones son contenedores de disposición, sin rol ni nombre accesible propios y sin paradas nuevas. Nada se oculta ni cambia de orden |
+| Hover | Solo con puntero (§5.1) y sin cambio de layout: el hueco entre celdas (`paso 4`) supera al contorno de hover |
+| Objetivos | `paso 11` como mínimo y `paso 2` entre controles adyacentes: escritorio no los reduce (D10) |
+| Reflujo | Bajo el corte `escritorio` rige §7.1: sin recorte ni scroll horizontal desde 320 px, también con zoom del navegador |
+| Anclado | Ninguna región se ancla (sin posición pegajosa): todo se desplaza con la página, como en tablet |
+
+**Superficies.**
+
+| Superficie | Contenido | Disposición en escritorio | Desde amplio | Id |
+|---|---|---|---|---|
+| MateriaSelect | `hoja`; `hoja-amplia` | Lateral: lámina y nota del creador. Principal: rejilla de 2 columnas y, debajo, la regla corta y el pedido de donación | Rejilla de 3 columnas | `ESC-P1` |
+| Home | `hoja`; `hoja-amplia` | Lateral: tarjeta de materia y banner de banco reducido. Principal: «Plano / Acciones», las seis acciones en una columna y la nota de privacidad | Acciones en 2 columnas | `ESC-P2` |
+| TopicSelect | `hoja`; `hoja-amplia` | Sin región lateral: el panel con sus tres grupos en una fila, la mezcla a ancho de hoja y los temas en 2 columnas con flujo por columnas. Modo examen: tarjeta «Modo Examen» centrada, con tope `lectura` | Temas en 3 columnas | `ESC-P3` |
+| Quiz y examen en curso | `lectura` | Una columna; barras y botón «Siguiente» al ancho de `lectura` | Sin cambio | `ESC-P4` |
+| Results | `hoja` | Lateral: tarjeta de resultado. Principal: trío, pedido de donación y los tres botones, apilados y en su orden | Sin cambio | `ESC-P5` |
+| Revisión | `hoja` | Lateral: encabezado, «Volver» y filtro. Principal: tarjetas de respuesta y botones finales. Misma hoja que el resumen de Results | Sin cambio | `ESC-P6` |
+| Stats | `hoja`; `hoja-amplia` | Lateral: tarjeta global, «Por tema» y leyenda. Principal: filas por tema. Debajo, a ancho de hoja: «Más falladas» en 2 columnas | Filas por tema en 2 columnas; falladas en 3 | `ESC-P7` |
+| Settings | `hoja` | Principal: Cuestionario, Mis preguntas y Tus datos. Lateral, a la derecha: «Acerca de» | Sin cambio | `ESC-P8` |
+| AddQuestion | `lectura` | Una columna, como el quiz: tema (desplegable, §5.3), enunciado, opciones, explicación y «Guardar pregunta», en su orden; la barra, a todo el ancho | Sin cambio | — (`ESC-P9` rechazada) |
+| DonationBox | La de su región | Llena su región; en Results, la principal | Sin cambio | `ESC-P10` |
+| Banners | La de su región | Nota del creador y banner en la región lateral; privacidad al pie de la principal | Sin cambio | `ESC-P11` |
+| Estados vacíos | La de su pantalla; lámina en `lectura` | Barra interna en la hoja de su pantalla (no salta al llegar los datos); lámina vacía en una columna `lectura`, centrada y anclada arriba | Sin cambio | `ESC-P12` |
+
+**Qué cambia de lugar (D10).** Todo lo demás conserva su lugar relativo del teléfono.
+
+| Elemento | Teléfono | Escritorio |
+|---|---|---|
+| Lámina y nota del creador (MateriaSelect) | Arriba de la lista | A la izquierda de la lista; la nota sigue debajo de la lámina |
+| Tarjeta de materia y banner (Home) | Arriba de las acciones | A la izquierda de las acciones |
+| Grupos del panel de filtros (TopicSelect) | Apilados | En una fila; el panel sigue arriba de la mezcla y de los temas |
+| Lista de temas (TopicSelect) | Una columna | Columnas, en el mismo orden |
+| Tarjeta de resultado (Results) | Arriba del trío | A la izquierda del trío, del pedido de donación y de los botones; el pedido sigue entre el trío y los botones |
+| Tarjeta global y leyenda (Stats) | Arriba de las filas | A la izquierda de las filas |
+| «Acerca de» (Settings) | Debajo de las demás secciones | A la derecha de las demás secciones |
+| Encabezado, «Volver» y filtro (Revisión) | Arriba de las tarjetas | A la izquierda de las tarjetas; los botones finales siguen al final de la lista |
+
+| Propuestas de §7.2 | Qué cambia | Motivo | Tipo | Estado |
+|---|---|---|---|---|
+| `ESC-P0` | Cortes `escritorio` y `amplio`, tokens `lectura`, `lateral`, `hoja` y `hoja-amplia`, margen lateral `paso 8`, regiones y rejilla de esta sección; la regla «sin segunda columna» deja de valer desde el corte | Pedido del usuario (2026-10-11): Umami muestra mucho tráfico de Windows de escritorio, y en 1920 px la columna de `columna` deja más de tres cuartos del ancho vacío. Se usa el ancho sin tocar flujos, datos ni gestos | visual | aprobada (usuario, 2026-10-11) |
+| `ESC-P9` | Tema en una columna izquierda de AddQuestion y el resto del formulario en una derecha | Respondía a `ADD-P1` («la lista de temas es lo más alto de la pantalla»). Con `ADD-P3` el tema mide una fila y la columna izquierda queda casi vacía | uso | **rechazada** (usuario, 2026-10-11) |
 
 ---
 
 ## 8. Dimensiones de componente
 
-Pasos que fijan tamaños de componente. Todos figuran en `tokens.md` c.3: los pasos `11`, `12`, `16`, `20`, `24` y `28` se aceptaron como parte de la escala por defecto y están en la lista «en uso» con su rol.
+Pasos que fijan tamaños de componente. Todos figuran en `tokens.md` c.3: los pasos `11`, `12`, `16`, `20`, `24`, `28` y `80` se aceptaron como parte de la escala por defecto y están en la lista «en uso» con su rol (`80`: `ADD-P3`, 2026-10-11).
 
 | Componente | Dimensión | Paso |
 |---|---|---|
@@ -328,7 +452,10 @@ Pasos que fijan tamaños de componente. Todos figuran en `tokens.md` c.3: los pa
 | Botón estándar, K1, K2 o K3 de acción (Banners, Vacíos, Revisión, Settings, Home, AddQuestion «Agregar opción») | Alto mínimo | `paso 11` |
 | Botón, relleno horizontal | Por defecto | `paso 4` |
 | Botón, relleno horizontal ampliado («Comenzar examen» de TopicSelect y acción de Vacíos) | Relleno horizontal | `paso 8` |
-| Filtro K4 (TopicSelect, Revisión, AddQuestion) y opción del segmentado (Settings) | Relleno horizontal; alto mínimo `paso 11`; en AddQuestion, relleno vertical `paso 2` | `paso 3` |
+| Filtro K4 (TopicSelect, Revisión) y opción del segmentado (Settings) | Relleno horizontal; alto mínimo `paso 11` | `paso 3` |
+| Disparador del desplegable (K3, AddQuestion) | Relleno en las cuatro caras; alto mínimo `paso 11` | `paso 3` |
+| Fila del desplegable (K7) | Relleno vertical; relleno horizontal; alto mínimo `paso 11` | `paso 2`; `paso 3` |
+| Región de scroll del desplegable | Relleno; alto máximo | `paso 1`; `paso 80` |
 | Tarjeta navegable K6 | Sin relleno propio: el contenido fija el suyo (tarjeta de materia, `MateriaSelect.md` a.3; tarjeta de mezcla, vertical `paso 3` y horizontal `paso 3.5`) | — |
 | Glifo de una marca de estado con paso `display` (porcentaje de Results y de Estadísticas) | Lado | `paso 6` |
 
@@ -352,7 +479,7 @@ Un id por glifo; se dibujan en 1.4 (y `glifo-eliminar` en 1.4b), sin relleno, en
 | Id | Reemplaza | Lo usa | Tamaño | Función | Color y par | Por qué este color |
 |---|---|---|---|---|---|---|
 | `glifo-volver` | `←` (`HomeScreen.js:47`, `App.js:181`, `ResultsScreen.js:168`) | Home (botón «Cambiar materia»; bajo 360 px, único contenido del botón: §1.1); barra interna (TopicSelect, Stats; AddQuestion y Settings: `AddQuestion.md` a.1, `Settings.md` a.1); Results, revisión («Volver» de arriba con `REV-P2` y «Volver» final: `Revision.md` b) | grande | Acción: volver a la pantalla anterior | `tinta` sobre `fondo` (N5); presionado `fondo` sobre `tinta` (T7) | Era la flecha de texto del botón, del color de su texto. Es navegación sin carga de estado: `tinta` la deja al nivel del rótulo del botón y reserva el acento para marca e identidad |
-| `glifo-chevron` | `›` (`HomeScreen.js:159`); `▲` y `▼` de los plegables (`SettingsScreen.js:110` y `158`), girado | Home (acciones); TopicSelect (filas de tema); Settings «Ver» y «Ocultar», girado (`Settings.md` a.3) | chico | Decoración funcional: la fila abre otra pantalla; en Settings, plegado o desplegado | `tintaSec` sobre `fondo` (N19) y sobre `superficie` (N20); en Settings, `acento` sobre `superficie` (N18) | En listas es una señal secundaria: se ve sin competir con el nombre de la fila (`tinta`) y por eso va un escalón abajo. El plegable de Ajustes era texto de acento, una acción: conserva ese rol con `acento` |
+| `glifo-chevron` | `›` (`HomeScreen.js:159`); `▲` y `▼` de los plegables (`SettingsScreen.js:110` y `158`), girado | Home (acciones); TopicSelect (filas de tema); Settings «Ver» y «Ocultar», girado (`Settings.md` a.3); AddQuestion (disparador del tema, abajo cerrado y arriba abierto, girado: `AddQuestion.md` a.2) | chico | Decoración funcional: la fila abre otra pantalla; en Settings, plegado o desplegado; en AddQuestion, lista cerrada o abierta | `tintaSec` sobre `fondo` (N19) y sobre `superficie` (N20); en Settings, `acento` sobre `superficie` (N18) | En listas es una señal secundaria: se ve sin competir con el nombre de la fila (`tinta`) y por eso va un escalón abajo. El plegable de Ajustes era texto de acento, una acción: conserva ese rol con `acento` |
 | `glifo-cerrar` | `✕` (`QuizScreen.js:175`, `MateriaSelectScreen.js:92`, `ResultsScreen.js:263`, `AddQuestionScreen.js:203`) | Quiz (salir); nota del creador (`Banners.md` a.2) y pedido de donación (`DonationBox.md` a.2); AddQuestion, quitar opción (`AddQuestion.md` a.2) | grande, objetivo `paso 11` | Acción: salir, descartar o quitar | Quiz: `tinta` sobre `fondo` (N5). Notas y donación: `tintaSec` sobre `superficie` (N20). Quitar opción de AddQuestion: `tintaSec` sobre `fondo` (N19), fuera del campo (`AddQuestion.md` b) | En el quiz es la única salida visible y pierde el progreso, con confirmación: va en `tinta` y no en `error`, que está reservado a respuesta incorrecta y banda baja (a.1). Descartar una nota o quitar una opción es menor: un escalón abajo, `tintaSec` |
 | `glifo-siguiente` | `→` (`QuizScreen.js:323`) | Quiz («Siguiente», «Ver resultados») | grande | Acción: avanzar | `fondo` sobre `tinta` (T7, el par de N5) | Vive dentro del botón relleno (K1): hereda el color del texto y se lee con él como una sola acción primaria |
 | `glifo-acierto` | `✓` (`QuizScreen.js:262`, `ResultsScreen.js:105` y `138`, `AddQuestionScreen.js:175` y `186`) | Quiz (opción correcta); Results (marca del tramo alto, trío, revisión: `Revision.md` a.3); Stats (banda alta, leyenda); AddQuestion (correcta marcada: `AddQuestion.md` a.2); Settings («Mis preguntas», correcta de cada tarjeta: `Settings.md` a.4) | chico | Estado: correcta, banda alta | `acierto` sobre `fondo` (N9), `superficie` (N10) y `aciertoFondo` (N11) | Verde sobrio del boceto y el mismo token del marco y del relleno de la opción correcta: no suma un color. No depende solo del color: la silueta (tilde) y el texto «Correcta» lo sostienen en escala de grises (spec) |
@@ -394,7 +521,7 @@ El dibujo lo decidió 1.4 dentro de estas reglas (`svg/glifos/NOTAS-GLIFOS.md`):
 | Glifo | Indicación |
 |---|---|
 | `glifo-volver`, `glifo-siguiente` | Flecha horizontal de trazo recto con punta en ángulo, las del boceto: volver apunta a la izquierda, siguiente a la derecha |
-| `glifo-chevron` | Dos trazos en ángulo recto abiertos hacia la izquierda; el mismo glifo girado 90 y 270 grados sirve a los plegables |
+| `glifo-chevron` | Dos trazos en ángulo recto abiertos hacia la izquierda; el mismo glifo girado 90 y 270 grados sirve a los plegables y al disparador del desplegable |
 | `glifo-cerrar` | Dos diagonales que se cruzan, la aspa del boceto |
 | `glifo-acierto`, `glifo-error` | Las del boceto (tilde y aspa) |
 | `glifo-intermedia` | Dos trazos horizontales paralelos: no se confunde con `glifo-menos` (un trazo) ni con tilde o aspa |
@@ -491,6 +618,7 @@ No aparece en `Results`, la revisión, `Stats`, `Settings` ni `Home`.
 | Quiz y examen en curso: insignia (`Quiz.md` a.1, bloque 2; `ExamenEnCurso.md`) | A la izquierda de la fila de contexto, encima del chip de origen; marca y texto en una línea, separados por `paso 1.5`; margen inferior `paso 1` hasta el chip. Sin marco ni relleno | Texto `rotulo`, `tinta` sobre `fondo` (T1); marca `tinta` (N5) |
 | Selector de tema: filtro de parcial (`TopicSelect.md` a.3, bloque 3; `PAR-P2`) | Marca delante del texto de cada filtro de parcial, separada por `paso 2`; «Examen» no lleva marca | K4 de `TopicSelect.md` b y c: en reposo, marca `tinta` sobre `superficie` (N6); seleccionado, marca `fondo` sobre `tinta` (T7). Alto `paso 11` y estados sin cambio |
 | Selector de tema: sorteo del modo examen | Sin marca: es una oración («…de 1er Parcial») | `TopicSelect.md` e, sin cambio |
+| Selector de tema de AddQuestion: rótulo de grupo del desplegable (`AddQuestion.md` a.2; `ADD-P3`) | Marca delante del rótulo de cada parcial, separada `paso 1.5`; solo cuando el parcial de cada tema sea dato (si no, lista plana y sin marca) | `tintaSec` sobre `fondo` (N19), en banda `fondo` con filete inferior `filete`; no es un control: sin estados |
 
 La insignia no es un control: no tiene hover, presionado, foco ni deshabilitado. El filtro conserva la matriz de `TopicSelect.md` c.
 

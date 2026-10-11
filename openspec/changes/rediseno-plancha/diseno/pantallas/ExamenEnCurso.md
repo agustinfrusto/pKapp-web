@@ -10,6 +10,7 @@
 | Variantes | Con y sin temporizador; con y sin parcial; origen examen, generada o propia; última pregunta; sin responder o respondida |
 | Fuera de alcance | Lo que no cambia respecto de `Quiz.md`: barra del quiz, progreso, contador, tiempo, caja del enunciado, chip de origen, salida con confirmación |
 | Propuestas | Sección f: `EXA-P1`, aprobada (usuario, 2026-10-10). Sección h: conservado de main (D10). Comunes: `COMUN-P2` y `PAR-P1` (`comun.md` §12), aprobadas |
+| Escritorio | Sección «Escritorio», al final: propuesta `ESC-P4`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.4 |
 
 ---
 
@@ -47,7 +48,7 @@
 | Ancho | Columna | Alineación | Particularidades |
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | Igual que `Quiz.md` a.4 |
-| 1280 px | Igual | Igual | Igual. El aviso queda dentro de la columna |
+| 1280 px (desde 1024 px) | Sección «Escritorio» de esta ficha (`ESC-P4`, aprobada): `lectura` | Igual | Igual que `Quiz.md`. El aviso queda dentro de la columna |
 | 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal; igual que `Quiz.md`. El aviso salta de línea |
 
 ---
@@ -185,3 +186,37 @@ Elementos de `main` que el boceto omite. No son propuestas: `main` es la base de
 | EXA-C4 | Avance idéntico: un toque responde, «Siguiente» o «Ver resultados» solo tras responder, sin volver atrás ni cambiar la respuesta | Orden y cantidad de gestos de `main` (D10) | uso |
 | EXA-C5 | Origen de la pregunta e insignia de parcial visibles | D6: origen visible | dato |
 | EXA-C6 | Las respuestas se registran en las estadísticas como siempre | Dato de `main` | dato |
+
+---
+
+## Escritorio · propuesta `ESC-P4` (tarea 3.10, aprobada por el usuario el 2026-10-11)
+
+La propuesta es la de `Quiz.md` (sección «Escritorio»): el examen en curso es el mismo componente con `hideFeedback`.
+
+| Campo | Valor |
+|---|---|
+| Estado | Aprobada (usuario, 2026-10-11; D10, `CONVENCIONES.md` C2). Base común: `comun.md` §7.2 (`ESC-P0`, aprobada) |
+| Rige desde | Corte `escritorio` (`tokens.md` c.4); sin cambio en `amplio`. Teléfono y tablet no cambian |
+| Bajo el corte | a.4 de esta ficha: una sola columna `columna`, centrada y anclada arriba. Es la que implementa la 3.x de esta pantalla; 3.11 aplica esta sección desde el corte |
+| Figuras | Maqueta: E04c (respondida, 1.er parcial, barra continua, sin retroalimentación), a 1366 y 1920 px, en claro y en oscuro (`diseno/maqueta/NOTAS-MAQUETA.md` §8) |
+| Sin cambio | Lo de b, c y d de esta ficha: opción elegida, opciones apagadas, aviso `EXA-P1`, insignia de parcial (`PAR-P1`), orden y gestos |
+
+### Disposición
+
+| Elemento | Escritorio |
+|---|---|
+| Barra, contexto, enunciado, opciones, reporte y barra inferior | Los de `Quiz.md` · Escritorio: columna `lectura`, centrada y anclada arriba, barras a todo el ancho |
+| Aviso «Resultado oculto hasta el final» (`EXA-P1`) | Dentro de `lectura`, en el lugar de la nota, a `paso 4` de las opciones |
+| Opción elegida y apagadas | Sin cambio (c.2): relleno `tinta` y marco `filete` |
+
+### Revisado
+
+| Ancho de ventana | Qué se ve | Alto del contenido |
+|---|---|---|
+| 1366 × 768 y 1920 × 1080 | Respondida: opciones, aviso, «Reportar pregunta» y «Siguiente» en una ventana | Cabe |
+
+### Propuesta
+
+| Id | Qué cambia | Motivo | Tipo | Estado |
+|---|---|---|---|---|
+| `ESC-P4` | La de `Quiz.md`: columna `lectura` desde el corte `escritorio` | Misma pantalla, mismo ancho de lectura | visual | aprobada (usuario, 2026-10-11) |

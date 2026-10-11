@@ -9,6 +9,7 @@
 | Variantes | Plegables cerrados o abiertos; con y sin preguntas propias; web (con respaldo) o nativo (sin respaldo) |
 | Fuera de alcance | Diálogos del sistema (`confirm`, `avisar`) y el selector de archivos del navegador: su aspecto no es del sistema visual. El estado vacío de «Mis preguntas» tiene su ficha en `Vacios.md` |
 | Propuestas | Sección f: `SET-P1` y `SET-P2`, aprobadas (usuario, 2026-10-10). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Escritorio | Sección «Escritorio», al final: propuesta `ESC-P8`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.6 |
 
 ---
 
@@ -65,7 +66,7 @@ Panel con relleno `paso 3.5`; los filetes `filete` separan las tres franjas.
 | Ancho | Columna | Alineación | Particularidades |
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | Paneles, plegables y botones llenan la columna. La barra interna lleva su filete a todo el ancho |
-| 1280 px | Igual | Igual | Las cuatro secciones siguen en una sola columna: sin panel lateral ni dos columnas. Los botones de respaldo siguen apilados |
+| 1280 px (desde 1024 px) | Sección «Escritorio» de esta ficha (`ESC-P8`, aprobada): `hoja` | Igual | Cuestionario, «Mis preguntas» y «Tus datos» en la región principal; «Acerca de» en una región lateral a la derecha. Los botones de respaldo siguen apilados |
 | 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. En «Cuestionario» el bloque de texto salta de línea y el segmentado conserva su ancho; los enlaces de «Acerca de» saltan de línea y el texto de cada uno salta dentro del botón si no entra |
 
 ---
@@ -240,3 +241,53 @@ Elementos de `main` que el boceto omite. No son propuestas: `main` es la base de
 | SET-C6 | El desglose del banco por origen: exámenes, generadas y tuyas | D6: origen visible | dato |
 | SET-C7 | Eliminar una pregunta propia desde su tarjeta, con confirmación | Función de `main` | uso |
 | SET-C8 | La versión sale de `app.json` | Dato de `main`; la ficha no escribe la cifra | dato |
+
+---
+
+## Escritorio · propuesta `ESC-P8` (tarea 3.10, aprobada por el usuario el 2026-10-11)
+
+| Campo | Valor |
+|---|---|
+| Estado | Aprobada (usuario, 2026-10-11; D10, `CONVENCIONES.md` C2). Base común: `comun.md` §7.2 (`ESC-P0`, aprobada) |
+| Rige desde | Corte `escritorio` (`tokens.md` c.4); sin cambio en `amplio`. Teléfono y tablet no cambian |
+| Bajo el corte | a.6 de esta ficha: una sola columna `columna`, centrada y anclada arriba. Es la que implementa la 3.x de esta pantalla; 3.11 aplica esta sección desde el corte |
+| Figuras | Maqueta: E08a (plegables cerrados) y E08b (abiertos), a 1366 y 1920 px, en claro y en oscuro (`diseno/maqueta/NOTAS-MAQUETA.md` §8) |
+| Sin cambio | Las cuatro secciones y su orden (`SET-C1`), plegables cerrados al abrir (`SET-C2`), el ajuste que se guarda al tocarlo (`SET-C3`), respaldo y reseteo (`SET-C4`), datos de d.1, copy de e, elementos y pares de b, estados de c |
+
+### Disposición
+
+| # | Región | Contenido, en orden de DOM | Escritorio | Amplio |
+|---|---|---|---|---|
+| 1 | Barra interna | Con volver (`comun.md` §3) | Contenido dentro de `hoja` | Igual |
+| 2 | Principal | «Cuestionario» (a.2), «Mis preguntas» y «Tus datos» (plegables, a.3 y a.4), con la separación `paso 8` de a.1 | A la izquierda, hasta `lectura`; los plegables abren su cuerpo en esta región | Igual |
+| 3 | Lateral, a la derecha | «Acerca de» (a.5) | Ancho `lateral`, alineado con el rótulo de la primera sección | Igual |
+
+### Medidas
+
+| Elemento | Medida |
+|---|---|
+| Paneles y plegables | Llenan la región principal; relleno `paso 3.5` y cabecera de alto mínimo `paso 11`, como en a.2 y a.3 |
+| «Acerca de» | Ancho `lateral`: la identidad salta de línea y los dos enlaces K2 de acento, una por línea (a.5) |
+| Botones de respaldo | Apilados, a ancho de la región principal (a.4) |
+
+### Revisado
+
+| Ancho de ventana | Qué se ve | Alto del contenido |
+|---|---|---|
+| 1024 (el corte) | Principal y lateral sin ajuste; sin scroll horizontal | — |
+| 1366 × 768 | Plegables cerrados: las cuatro secciones en una ventana. Abiertos: pide desplazarse | 0,7 ventanas cerrados (con `columna`: 1,1); 1,6 abiertos (con `columna`: 1,9) |
+| 1920 × 1080 | Cerrados caben; abiertos, una ventana | 0,5 cerrados; 1,0 abiertos |
+
+### Orden, teclado y foco
+
+| Aspecto | Regla |
+|---|---|
+| Orden de DOM | El del teléfono: barra, Cuestionario, Mis preguntas, Tus datos, Acerca de. La región lateral va a la derecha porque sigue a la principal en el DOM |
+| Tab | Volver, «No» y «Sí», plegables y sus cuerpos, y al final los dos enlaces de «Acerca de»: izquierda y luego derecha |
+| Cambia de lugar | «Acerca de» queda a la derecha de las secciones, no debajo |
+
+### Propuesta
+
+| Id | Qué cambia | Motivo | Tipo | Estado |
+|---|---|---|---|---|
+| `ESC-P8` | Desde el corte `escritorio`, «Acerca de» pasa a una región lateral derecha; las otras tres secciones quedan en la principal | Con los plegables cerrados la pantalla entera cabe en una ventana; «Acerca de» es información de referencia y no compite con los ajustes | visual | aprobada (usuario, 2026-10-11) |
