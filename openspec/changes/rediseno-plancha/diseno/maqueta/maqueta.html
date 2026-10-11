@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="generator" content="generar.mjs · glifos 27/27 · huella d5282608">
+<meta name="generator" content="generar.mjs · glifos 35/35 · huella cf64b601">
 <title>pKapp · Rediseño Plancha · Maqueta de pantallas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -78,6 +78,7 @@ code{font:400 12px/16px var(--mono)}
 .t-detalle{font:400 13px/18px var(--sans)}
 .t-rotulo{font:400 11px/16px var(--mono);letter-spacing:.66px;text-transform:uppercase}
 .t-rotulo-medio{font:500 11px/16px var(--mono);letter-spacing:.66px;text-transform:uppercase}
+.t-campo{font:400 16px/22px var(--sans)}
 .t-dato{font:500 16px/20px var(--mono)}
 .t-cifra{font:500 26px/28px var(--mono)}
 .t-display{font:500 72px/72px var(--mono);letter-spacing:-2.16px}
@@ -115,12 +116,11 @@ html[data-tema="oscuro"] .txt-tema::before{content:"Oscuro"}
 .mt-1_5{margin-top:6px}.mt-3{margin-top:12px}.mt-4{margin-top:16px}.mt-6{margin-top:24px}.mb-3{margin-bottom:12px}
 .relleno-8{height:32px}.relleno-10{height:40px}
 .lista{display:flex;flex-direction:column;gap:10px}
-.reservado{border:1px solid var(--filete);padding:12px 14px;text-align:center}
 .sec-rotulo{padding-bottom:8px}.sec-4{padding-top:16px}.sec-6{padding-top:24px}
 .divisor{height:1px;background:var(--filete);margin-block:14px}
 .estados{display:flex;flex-direction:column;gap:16px;padding-block:16px}
 .estado{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
-.estado>.k6{width:100%}
+.estado>.k6,.estado>.lam,.estado>.nota,.estado>.parc-caja{width:100%}
 
 /* ===== glifos e ilustraciones ===== */
 .g{flex:none}.g-grande{width:24px;height:24px}.g-chico{width:16px;height:16px}
@@ -163,7 +163,9 @@ button:focus-visible{outline:2px solid var(--foco);outline-offset:2px}
 /* ===== HeaderMarca y control de tema (comun.md §1 y §2) ===== */
 .cab-fila{display:flex;align-items:center;justify-content:space-between;padding-block:14px}
 .cab-izq{display:flex;align-items:center;min-height:44px}
-.tema{display:inline-flex;height:44px;border:1px solid var(--linea);background:var(--fondo)}
+/* MAQUETA-P3 (aprobada): cada opción mide paso 11 (44 px) de alto útil; el contenedor suma su
+   borde: 46 px, y la fila de HeaderMarca 14 + 46 + 14 = 74 px en MateriaSelect y en Home. */
+.tema{display:inline-flex;height:46px;border:1px solid var(--linea);background:var(--fondo)}
 .tema-op{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:44px;padding-inline:8px;background:var(--fondo);color:var(--tinta)}
 html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema-op[data-op="oscuro"]{background:var(--tinta);color:var(--fondo)}
 @media (hover:hover){.tema-op:hover{outline:1px solid var(--linea);outline-offset:-1px}}
@@ -172,7 +174,8 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 
 /* ===== barra interna (comun.md §3) ===== */
 .barra-int{background:var(--fondo);border-bottom:1px solid var(--linea)}
-.barra-int-fila{display:flex;align-items:center;gap:14px;padding-block:16px}
+/* MAQUETA-P1 (aprobada): fila de contenido de paso 11 con y sin volver; 16 + 44 + 16 = 76 px. */
+.barra-int-fila{display:flex;align-items:center;gap:14px;padding-block:16px;min-height:76px}
 .btn-volver{width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex:none}
 .barra-int h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
@@ -207,7 +210,7 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 .panel{background:var(--superficie);border:1px solid var(--linea);padding:14px}
 .grupo-rot{padding-bottom:8px}
 .filtros{display:flex;flex-wrap:wrap;gap:8px}
-.filtro{height:44px;padding-inline:12px;display:flex;align-items:center}
+.filtro{height:44px;padding-inline:12px;display:flex;align-items:center;gap:8px}
 .timer{display:flex;align-items:center;gap:16px}
 .cuadrado{width:44px;height:44px;display:flex;align-items:center;justify-content:center}
 .timer-valor{min-width:80px;text-align:center}
@@ -308,6 +311,127 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 .f-enun{margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .f-tema{margin-top:4px}
 
+/* ===== 04 Quiz: insignia de parcial y sin retroalimentación (ExamenEnCurso.md, comun.md §12) ===== */
+.q-ctx-izq{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.opcion.elegida{background:var(--tinta);border-color:var(--tinta);color:var(--fondo)}
+.opcion.elegida .op-letra{color:var(--fondo);border-right-color:var(--filete)}
+.q-oculto{margin-top:16px}
+.parc{display:inline-flex;align-items:center;gap:6px}
+.parc-mk{display:inline-flex;gap:2px;flex:none}
+.parc-mk i{display:block;width:10px;height:10px;border:1px solid currentColor}
+.parc-mk i.on{background:currentColor}
+.parc-caja{display:flex;align-items:center}
+
+/* ===== Notas y avisos (Banners.md) ===== */
+.nota{position:relative;background:var(--superficie);border:1px solid var(--filete);border-left:3px solid var(--acento);padding:14px}
+.nota-rot{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.nota-cerrable .nota-rot{padding-right:44px}
+.nota p+p{margin-top:12px}
+.btn-contacto{display:inline-flex;align-items:center;gap:8px;height:44px;padding-inline:16px;margin-top:12px;max-width:100%}
+.cerrar-esq{position:absolute;top:0;right:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center}
+
+/* ===== Pedido de donación (DonationBox.md) ===== */
+.don{border-color:var(--acento);padding:14px}
+.don-regla{width:40%;height:1px;background:var(--filete);margin:0 auto 16px;align-self:center}
+.don-tit{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.don-cerrable .don-tit{padding-right:44px}
+.don-txt{margin-bottom:14px}
+.don-montos{display:flex;gap:8px;margin-bottom:12px}
+.monto{flex:1;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
+.don-pie{text-align:center}
+
+/* ===== 07 AddQuestion ===== */
+.add-rot{padding-bottom:8px}
+.add-grupo{margin-bottom:24px}
+.add-temas{display:flex;flex-wrap:wrap;gap:8px}
+.add-tema{min-height:44px;padding:8px 12px;text-align:left}
+.fld{width:100%;background:var(--superficie);border:1px solid var(--borde);padding:12px;color:var(--tinta);overflow-wrap:anywhere}
+@media (hover:hover){.fld:hover{border-color:var(--linea)}}
+.fld-multi{min-height:80px}
+.fld-op{flex:1;min-width:0;width:auto;min-height:44px}
+.op-fila{display:flex;align-items:flex-start;gap:8px}
+.op-fila+.op-fila{margin-top:10px}
+.letra-k{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center}
+.letra-k.ok{background:var(--acierto);border:2px solid var(--acierto);color:var(--fondo)}
+.quitar{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center}
+.add-ayuda{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-bottom:10px}
+.add-agregar{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:44px;margin-top:10px}
+.add-guardar{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 16px}
+.add-guardar.guardando{background:var(--fondo);color:var(--inactivo);border-color:var(--filete)}
+
+/* ===== 08 Settings ===== */
+.set-sec{margin-bottom:32px}
+.set-panel{background:var(--superficie);border:1px solid var(--linea);padding:14px}
+.set-fila{display:flex;align-items:center;gap:14px}
+.set-txt{flex:1;min-width:0}
+.set-txt>.t-detalle{margin-top:4px}
+.seg-no{display:inline-flex;flex:none;border:1px solid var(--linea);background:var(--superficie)}
+.seg-no .k4{min-width:44px;height:44px;padding-inline:12px;display:flex;align-items:center;justify-content:center;border:0}
+.pleg{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:44px;padding:12px 14px}
+.pleg.abierto{border-color:var(--linea)}
+.pleg-der{display:inline-flex;align-items:center;gap:8px;flex:none}
+.g-gira-abajo{transform:rotate(90deg)}
+.g-gira-arriba{transform:rotate(-90deg)}
+.set-cuerpo{margin-top:10px}
+.pq-lista{display:flex;flex-direction:column;gap:10px}
+.pq{background:var(--superficie);border:1px solid var(--linea);padding:14px}
+.pq-enc{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pq-del{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center}
+.pq-enun{margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pq-ok{display:flex;align-items:center;gap:8px;margin-top:6px}
+.pq-ok span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.set-resp{margin-bottom:10px}
+.set-botones{display:flex;flex-direction:column;gap:8px}
+.btn-set{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:44px;padding:10px 16px}
+.set-div{margin-block:12px}
+.k2-peligro{color:var(--error);border-color:var(--error)}
+@media (hover:hover){.k2-peligro:hover{outline-color:var(--error)}}
+.k2-peligro:active{background:var(--error);color:var(--fondo);border-color:var(--error)}
+.k2-peligro:active *{color:var(--fondo)}
+.acerca-fila{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 8px}
+.acerca-franja{border-top:1px solid var(--filete);margin-top:12px;padding-top:12px}
+.acerca-des{margin-top:4px}
+.acerca-enlaces{display:flex;flex-wrap:wrap;gap:8px}
+.btn-enlace{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 16px;text-align:left}
+
+/* ===== 10 Revisión ===== */
+.r-resumen{margin-top:4px}
+.r-filtro{display:flex;gap:8px}
+.r-filtro .filtro{flex:1;justify-content:center}
+.r-lista{display:flex;flex-direction:column;gap:10px}
+.r-card{background:var(--superficie);border:1px solid var(--linea);padding:14px}
+.r-card.ok{border-left:3px solid var(--acierto)}
+.r-card.mal{border-left:3px solid var(--error)}
+.r-enc{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.r-enun{margin-bottom:12px}
+.r-opts{display:flex;flex-direction:column;gap:10px}
+.r-op{display:flex;background:var(--superficie);border:1px solid var(--filete)}
+.r-op .op-letra{color:var(--tintaSec)}
+.r-op .op-txt{padding:10px 12px}
+.r-op.ok{border:2px solid var(--acierto);background:var(--aciertoFondo)}
+.r-op.ok .op-letra{background:var(--acierto);color:var(--fondo);border-right:2px solid var(--acierto)}
+.r-op.mal{border:2px solid var(--error);background:var(--errorFondo)}
+.r-op.mal .op-letra{background:var(--error);color:var(--fondo);border-right:2px solid var(--error)}
+.r-card .q-nota{margin-top:12px}
+.r-rep{display:inline-flex;align-items:center;gap:8px;min-height:44px;margin-top:8px}
+.r-final{display:flex;gap:10px}
+.r-final>*{flex:1}
+
+/* ===== 12 Estados vacíos ===== */
+.vac{padding:14px;text-align:center;display:flex;flex-direction:column;align-items:center}
+.g.g-vacio{width:48px;height:48px;margin-top:16px}
+.vac-tit{margin-top:16px}
+.vac-txt{margin-top:8px}
+.vac-btn{margin-top:20px;margin-bottom:16px;height:44px;padding-inline:32px;display:flex;align-items:center}
+.vac-compacto{text-align:center;display:flex;flex-direction:column;align-items:center}
+.vac-compacto .vac-btn{margin-top:12px;margin-bottom:0}
+
+/* ===== 14 Inventario de glifos ===== */
+.gl-rot{padding:16px 0 8px}
+.gl-grid{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--filete);border-left:1px solid var(--filete)}
+.gl-celda{display:flex;align-items:center;gap:10px;padding:10px 12px;min-width:0;border-right:1px solid var(--filete);border-bottom:1px solid var(--filete);overflow-wrap:anywhere}
+.gl-dib{width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex:none}
+
 </style>
 </head>
 <body>
@@ -317,44 +441,58 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
     <pattern id="regla-menor" width="10" height="9" patternUnits="userSpaceOnUse"><path d="M0.5 8.5 V5" fill="none" stroke="currentColor" stroke-width="1"/></pattern>
     <pattern id="regla-mayor" width="50" height="9" patternUnits="userSpaceOnUse"><path d="M0.5 8.5 V2" fill="none" stroke="currentColor" stroke-width="1"/></pattern>
   </defs>
-  <symbol id="ilu-bcyt" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><path d="M9 33 C7 19 19 8 33 9 C48 9 57 21 55 34 C54 48 43 57 31 55 C18 55 10 46 9 33Z"/>
-<circle cx="31" cy="30" r="9.5"/><circle cx="33.5" cy="27.5" r="3"/>
-<ellipse cx="16.5" cy="38" rx="5.5" ry="2.6" transform="rotate(-40 16.5 38)"/><path d="M13 41 L20 35"/>
-<ellipse cx="47.5" cy="21" rx="5.5" ry="2.6" transform="rotate(32 47.5 21)"/><path d="M43.5 18.5 L51.5 23.5"/>
-<path d="M38 46 C41 44 44 44 47 46 M37 49.5 C40 47.5 44 47.5 48 49.5 M36.5 53 C40 51 44 51 47 53"/>
-<path d="M22 20 C25 17 28 18 30 16"/><circle cx="21" cy="46" r=".9"/><circle cx="50" cy="35" r=".9"/><circle cx="18" cy="26" r=".9"/>
-<path d="M2 62 H62 M2 59 V62 M62 59 V62" stroke-width=".6"/></g></symbol>
-  <symbol id="ilu-anatomia" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><rect x="28.5" y="5" width="7" height="5"/><rect x="28.5" y="12" width="7" height="5"/>
-<rect x="28.5" y="19" width="7" height="5"/><rect x="28.5" y="26" width="7" height="5"/>
-<rect x="28.5" y="33" width="7" height="5"/><rect x="28.5" y="40" width="7" height="5"/>
-<rect x="28.5" y="47" width="7" height="5"/><rect x="28.5" y="54" width="7" height="5"/>
-<path d="M28.5 14 C18 13 12 21 13 29 M35.5 14 C46 13 52 21 51 29"/>
-<path d="M28.5 21 C16 20 9 30 11 40 M35.5 21 C48 20 55 30 53 40"/>
-<path d="M28.5 28 C17 28 11 37 13 46 M35.5 28 C47 28 53 37 51 46"/>
-<path d="M28.5 35 C20 36 15 42 17 50 M35.5 35 C44 36 49 42 47 50"/>
-<path d="M4 5 H9 M4 59 H9 M6.5 5 V59" stroke-width=".6"/></g></symbol>
-  <symbol id="ilu-neuro" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><polygon points="25,29 31,23 39,25 41,33 34,39 26,36"/><circle cx="33" cy="31" r="2.2"/>
-<path d="M25 29 L15 22 L9 14 M15 22 L6 24 M31 23 L28 12 L22 6 M28 12 L33 5 M39 25 L47 17 L55 14 M47 17 L52 8 M26 36 L15 41 L8 49 M15 41 L6 40"/>
-<path d="M41 33 L56 52"/>
-<rect x="43.5" y="35" width="5" height="3" transform="rotate(50 46 36.5)"/>
-<rect x="48.5" y="41" width="5" height="3" transform="rotate(50 51 42.5)"/>
-<circle cx="9" cy="14" r="1"/><circle cx="6" cy="24" r="1"/><circle cx="22" cy="6" r="1"/><circle cx="33" cy="5" r="1"/>
-<circle cx="55" cy="14" r="1"/><circle cx="52" cy="8" r="1"/><circle cx="8" cy="49" r="1"/><circle cx="6" cy="40" r="1"/></g></symbol>
-  <symbol id="ilu-cyr" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><circle cx="32" cy="32" r="26"/><circle cx="32" cy="32" r="21" stroke-dasharray="1.5 2"/>
-<circle cx="32" cy="32" r="15"/><circle cx="32" cy="32" r="11.5" stroke-width=".6"/>
-<path d="M32 4 V10 M32 54 V60 M4 32 H10 M54 32 H60" stroke-width=".7"/>
-<path d="M32 28 V36 M28 32 H36" stroke-width=".6"/><path d="M50 14 L58 6" stroke-width=".6"/></g></symbol>
-  <symbol id="ilu-dre" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><path d="M44 7 C27 4 11 16 11 32 C11 48 27 60 44 56 C48 55 48 50 44 47 C38 43 38 37 44 33 C50 29 49 24 44 20 C40 16 41 8 44 7Z"/>
-<path d="M18 21 L36 30 M16 33 L35 34 M20 46 L37 40" stroke-width=".7"/>
-<path d="M44 33 L58 27 M44 40 L55 52 L55 60" stroke-width=".9"/>
-<circle cx="30" cy="32" r="1"/><path d="M4 7 H9 M4 56 H9 M6.5 7 V56" stroke-width=".6"/></g></symbol>
-  <symbol id="ilu-ryd" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><circle cx="32" cy="27" r="22"/><circle cx="32" cy="27" r="18" stroke-width=".6"/>
-<circle cx="24" cy="20" r="3.4"/><circle cx="30" cy="16.5" r="3.4"/><circle cx="21" cy="27" r="3.4"/>
-<circle cx="36" cy="21" r="3.4"/><circle cx="27" cy="26" r="3.4"/>
-<path d="M44 24 L56 12" stroke-width=".7"/><circle cx="57" cy="11" r="1"/>
-<circle cx="8" cy="57" r="3.5"/><circle cx="23" cy="57" r="3.5"/><path d="M23 53.5 V60.5" stroke-width=".7"/>
-<circle cx="40" cy="55.5" r="2.5"/><circle cx="45" cy="55.5" r="2.5"/><circle cx="42.5" cy="59.5" r="2.5"/><circle cx="55" cy="57" r="3.5"/>
-<circle cx="54" cy="56" r=".8"/><circle cx="56.5" cy="58.5" r=".8"/><circle cx="54.5" cy="58.5" r=".8"/></g></symbol>
+  <symbol id="ilu-bcyt" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><path d="M4.9 23.8 L3.9 15.3 M3.9 15.3 L10.7 9.8 M10.7 9.8 L17.1 13.9 M17.1 13.9 L18.5 22.2 M18.5 22.2 L11 27.5 M11 27.5 L4.9 23.8 M17.1 13.9 L25.6 10.5 M25.6 10.5 L30.1 13.9 M30.1 13.9 L29.4 22.5 M29.4 22.5 L25.2 24.7 M25.2 24.7 L18.5 22.2 M30.1 13.9 L39 10.4 M39 10.4 L43.8 15.3 M43.8 15.3 L42.3 24.6 M42.3 24.6 L39.2 26.9 M39.2 26.9 L29.4 22.5 M43.8 15.3 L52.3 13 M52.3 13 L56.8 16.3 M56.8 16.3 L57.1 23.9 M57.1 23.9 L51.8 27.6 M51.8 27.6 L42.3 24.6 M12.3 34.3 L11 27.5 M25.2 24.7 L24.5 33.8 M24.5 33.8 L18.7 37.3 M18.7 37.3 L12.3 34.3 M39.2 26.9 L38.1 34.4 M38.1 34.4 L32.8 37.4 M32.8 37.4 L24.5 33.8 M51.8 27.6 L52.9 36.8 M52.9 36.8 L44.9 40.1 M44.9 40.1 L38.1 34.4 M5.6 45.4 L5 40.4 M5 40.4 L12.3 34.3 M18.7 37.3 L20.4 47.6 M20.4 47.6 L10.2 50 M10.2 50 L5.6 45.4 M32.8 37.4 L30.9 46.9 M30.9 46.9 L22.6 49.1 M22.6 49.1 L20.4 47.6 M44.9 40.1 L44.3 47 M44.3 47 L36.8 51 M36.8 51 L30.9 46.9" stroke-width=".9"/>
+<circle cx="11" cy="18.8" r="1.6"/>
+<circle cx="24.3" cy="17.9" r="1.6"/>
+<circle cx="37.3" cy="18.9" r="1.6"/>
+<circle cx="50.7" cy="20.1" r="1.6"/>
+<circle cx="18.4" cy="29.9" r="2.4"/>
+<circle cx="31.5" cy="29.9" r="1.6"/>
+<circle cx="44.9" cy="31.7" r="1.6"/>
+<circle cx="12" cy="42.5" r="1.6"/>
+<circle cx="25" cy="42" r="1.6"/>
+<circle cx="38" cy="42.8" r="1.6"/>
+<path d="M4 62 H60 M4 59 V62 M60 59 V62" stroke-width=".6"/></g></symbol>
+  <symbol id="ilu-anatomia" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><path d="M14.4 37.3 L16.7 35.1 L21 39.9 L18.7 42Z M10.2 32.5 L12.5 30.5 L16 34.3 L13.7 36.4Z M24.5 24.8 L27.5 24.3 L28.8 32.6 L25.8 33.1Z M23.5 18.2 L26.3 17.7 L27.2 23.3 L24.4 23.7Z M22.7 12.5 L25.4 12.1 L26.1 16.7 L23.4 17.1Z M31.2 22.3 L34.3 22.3 L34.5 31.7 L31.4 31.7Z M31.2 15 L34.1 15 L34.2 21.2 L31.3 21.2Z M31.2 9.1 L34 9.1 L34 13.9 L31.2 13.9Z M38.2 24.6 L41.1 24.9 L40.1 33.5 L37.1 33.1Z M39.1 17.7 L41.9 18.1 L41.2 23.8 L38.4 23.5Z M39.8 12.1 L42.5 12.4 L42 17 L39.3 16.7Z M44 29.9 L46.6 30.7 L44.8 37 L42.2 36.3Z M45.6 24.7 L48.1 25.4 L46.9 29.6 L44.4 28.9Z M47.1 19.8 L49.4 20.4 L48.3 24.3 L46 23.6Z" stroke-width=".9"/>
+<path d="M26.2 48 L20.7 41.9 M29.4 46.2 L27.5 34.2 M33.2 45.8 L33 33 M37 46.3 L38.4 34.6 M40.4 47.5 L43.2 37.9" stroke-width=".9"/>
+<path d="M26 47.8 L42 47.8 L40.8 54.4 L27.4 54.4Z" stroke-width=".9"/>
+<path d="M26.7 51 L41.4 51 M30.2 47.8 L30.4 54.4 M34 47.8 L34 54.4 M37.8 47.8 L37.6 54.4" stroke-width=".6"/>
+<path d="M27.6 54.4 L30.8 54.4 L30.8 60 L27.6 60Z M36.8 54.4 L40 54.4 L40 60 L36.8 60Z"/>
+<path d="M4 62 H60 M4 59 V62 M60 59 V62" stroke-width=".6"/></g></symbol>
+  <symbol id="ilu-neuro" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><path d="M14.5 31.5 L18 25.6 L24.8 25.6 L28.2 31.5 L24.8 37.4 L18 37.4Z"/>
+<circle cx="21.4" cy="31.5" r="2.4"/>
+<path d="M16.5 27.5 C15.8 26.5 13.8 23.4 12.5 21.5 C11.2 19.6 9.2 16.9 8.5 16 M21.5 25.8 C21.4 24.7 20.6 21.2 21 19 C21.4 16.8 23.5 13.6 24 12.5 M14.6 31.5 C13.7 31.7 10.6 32.7 9 32.5 C7.4 32.3 5.5 30.8 4.8 30.5 M16.8 36 C16.1 37.1 13.7 40.3 12.5 42.5 C11.3 44.7 10 47.9 9.5 49 M22 37.6 C22.3 38.8 23.6 42.6 23.5 45 C23.4 47.4 21.8 50.8 21.5 52"/>
+<path d="M12.2 21 C11.5 21.2 9.2 22.3 8 22 C6.8 21.8 5.3 19.9 4.8 19.5 M8.5 16 C8 15.3 6 13.3 5.5 12 C5 10.7 5.5 8.7 5.5 8 M8.5 16 C9 15.2 11.2 12.5 11.5 11 C11.8 9.5 10.7 7.7 10.5 7 M21 19 C20.3 18.4 17.7 16.9 16.5 15.5 C15.3 14.1 14.4 11.3 14 10.5 M24 12.5 C23.7 11.8 22.2 9.3 22 8 C21.8 6.7 22.8 5.1 23 4.5 M24 12.5 C24.8 12 27.2 10.2 28.5 9.5 C29.8 8.8 31.4 8.7 32 8.5 M8.5 32.2 C8 32.9 6.1 35 5.5 36.5 C4.9 38 4.9 40.3 4.8 41 M12.2 42.8 C11.4 42.9 8.8 43.6 7.5 43.5 C6.2 43.4 5.1 42.3 4.6 42 M9.5 49 C8.8 49.9 6.1 53 5.5 54.5 C4.9 56 5.9 57.4 6 58 M9.5 49 C10.2 49.9 13 53 13.5 54.5 C14 56 12.7 57.4 12.5 58 M23.2 44.5 C24.1 45 27.2 46.2 28.5 47.5 C29.8 48.8 30.6 51.7 31 52.5 M21.5 52 C20.8 52.7 18.1 54.9 17.5 56 C16.9 57.1 17.9 58.1 18 58.5" stroke-width=".9"/>
+<path d="M28.2 31.5 L34 32 M34 32 L52 32" stroke-width=".9"/>
+<path d="M34.3 29.2 L42.9 29.2 L42.9 34.8 L34.3 34.8Z M45.5 29.2 L54.1 29.2 L54.1 34.8 L45.5 34.8Z" stroke-width=".9"/>
+<path d="M55.5 32 C55.8 31.6 56.6 30.6 57.2 29.8 C57.8 29 58.9 27.5 59.2 27 M55.5 32 C55.9 32.3 56.9 32.9 57.6 33.6 C58.3 34.3 59.3 35.6 59.6 36" stroke-width=".7"/>
+<path d="M4 62 H60 M4 59 V62 M60 59 V62" stroke-width=".6"/></g></symbol>
+  <symbol id="ilu-cyr" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><path d="M30.5 3 V13 M33.5 3 V13"/>
+<path d="M30.5 6.5 H33.5 M30.5 9.5 H33.5" stroke-width=".6"/>
+<path d="M31 13.5 C26.5 15 21.5 18 18.5 23.5 M33 13.5 C38.5 15.5 44 19 47.5 25"/>
+<path d="M18.5 23.5 C15.5 19.5 12 15.5 8 13.5 M18.5 23.5 C15 24.5 11.5 25.5 7.5 25 M18.5 23.5 C19.5 29.5 18.5 35.5 14 42.5 M47.5 25 C50 20.5 53 16.5 57 14.5 M47.5 25 C47 31 47.5 37 52 44" stroke-width=".9"/>
+<path d="M12 16 L11.5 9.5 M8 13.5 L4.5 14 M8 13.5 L6.5 9 M11.5 25.5 L9 30.5 M7.5 25 L4.5 22 M18.8 31 L12.5 32 M16.5 38.5 L11 40 M14 42.5 L12.5 47 M14 42.5 L18 46.5" stroke-width=".7"/>
+<path d="M53 17.5 L53.5 10.5 M57 14.5 L60 15 M57 14.5 L58.5 10 M47.3 32 L53.5 33 M49 39.5 L55 41 M52 44 L50.5 48.5 M52 44 L56 48" stroke-width=".7"/>
+<path d="M22.3 42.3 C21.9 38.1 24.2 35.8 27.4 36.3 C29.2 36.6 30.2 36.8 32.5 36.8 C37.5 35.8 42.1 40 41.7 45.5 C41.2 49.2 39.8 52.4 38 55.2 C33.8 54.7 27.4 52.9 24.2 48.7 C22.8 46.9 22.3 44.6 22.3 42.3Z"/>
+<path d="M29.5 36.5 V30 M32.5 36.8 V30"/>
+<path d="M29.5 30 C27 28.5 23.5 28.5 20.5 30 M29.5 33.5 C27.5 32.2 24.5 32.2 22.5 33.5 M32.5 30 C35 28.5 38.5 28.5 41.5 30 M32.5 33.5 C34.5 32.2 37.5 32.2 39.5 33.5" stroke-width=".9"/>
+<path d="M31.5 38.5 C32.5 43 34 48 36.5 52" stroke-width=".7"/>
+<path d="M4 62 H60 M4 59 V62 M60 59 V62" stroke-width=".6"/></g></symbol>
+  <symbol id="ilu-dre" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><path d="M31.6 12 C31.6 12 31.6 12.3 31.6 12.5 C31.5 12.8 31.5 13.2 31.4 13.6 C31.4 13.9 31.4 14.4 31.4 14.9 C31.5 15.3 31.6 15.8 31.6 16.3 C31.7 16.8 31.7 17.3 31.7 17.8 C31.8 18.4 31.9 18.9 32 19.5 C32.1 20.1 32.3 20.7 32.5 21.3 C32.7 21.9 32.9 22.4 33.2 23.1 C33.5 23.7 33.8 24.5 34.2 25.2 C34.5 25.8 34.9 26.4 35.2 27 C35.6 27.6 35.9 28.1 36.1 28.6 C36.3 29.1 36.2 29.5 36.4 29.9 C36.6 30.4 37.1 30.9 37.3 31.3 C37.6 31.8 37.8 32.2 37.9 32.5 C38.1 32.8 38.2 33.1 38.2 33.2 C38.2 33.4 38.1 33.2 38.1 33.2 C38.2 33.3 38.4 33.3 38.5 33.5 C38.6 33.8 38.7 34.1 38.7 34.5 C38.7 34.9 38.6 35.3 38.6 35.7 C38.5 36.1 38.4 36.5 38.3 36.8 C38.2 37.2 38.2 37.4 37.9 37.7 C37.7 38.1 37.4 38.5 37 38.8 C36.6 39.2 36.1 39.6 35.7 40 C35.2 40.4 34.7 40.9 34.2 41.2 C33.7 41.5 33.2 41.7 32.7 41.9 C32.1 42.1 31.5 42.3 30.9 42.6 C30.3 42.8 29.6 43 29.1 43.3 C28.5 43.6 27.9 43.9 27.5 44.2 C27 44.6 26.7 44.9 26.3 45.3 C26 45.7 25.6 46.1 25.4 46.6 C25.2 47.1 24.9 47.7 25 48.3 C25 48.9 25.4 49.7 25.8 50.2 C26.2 50.7 26.9 50.9 27.5 51.2 C28.1 51.5 28.7 51.6 29.4 51.8 C30.1 52 30.9 52.2 31.6 52.3 C32.3 52.4 33 52.6 33.7 52.7 C34.5 52.8 35.4 52.8 36.2 52.9 C37.1 52.9 38 52.9 38.8 52.9 C39.6 52.9 40.5 52.9 41.1 53 C41.7 53 42.1 53.1 42.4 53.2 C42.7 53.3 42.9 53.4 43 53.6 C43.2 53.7 43.2 53.8 43.3 53.9 C43.4 54 43.3 54 43.3 54 C43.4 53.9 43.5 53.7 43.4 53.8 C43.3 53.8 43.1 54 42.7 54.2 C42.3 54.4 41.6 54.6 41 54.8 C40.4 55 39.6 55.2 38.9 55.4 C38.2 55.5 37.5 55.6 36.8 55.7 C36.1 55.8 35.4 55.8 34.6 55.8 C33.7 55.8 32.8 55.7 31.9 55.7 C31 55.6 30.1 55.5 29.4 55.4 C28.7 55.4 27.9 55.3 27.6 55.3 M34.4 12 C34.4 12.2 34.4 12.6 34.3 12.8 C34.3 13.1 34.3 13.4 34.2 13.8 C34.2 14.1 34.2 14.4 34.2 14.7 C34.2 15 34.2 15.3 34.4 15.7 C34.5 16 34.8 16.3 35 16.7 C35.3 17.1 35.6 17.4 35.9 17.8 C36.2 18.2 36.5 18.6 36.8 18.9 C37.1 19.3 37.4 19.6 37.8 19.9 C38.2 20.2 38.6 20.3 39.1 20.6 C39.6 20.8 40.1 21.1 40.7 21.4 C41.3 21.8 41.9 22.1 42.6 22.5 C43.2 23 44 23.6 44.6 24.1 C45.1 24.6 45.3 25 45.7 25.6 C46.1 26.1 46.6 26.7 47 27.4 C47.4 28.1 47.9 28.8 48.2 29.7 C48.5 30.6 48.9 31.8 48.9 32.8 C48.9 33.8 48.5 34.8 48.2 35.7 C47.9 36.5 47.4 37.3 47 38 C46.5 38.7 46 39.4 45.4 40 C44.9 40.5 44.3 41.1 43.7 41.6 C43.1 42.1 42.3 42.5 41.6 42.9 C40.9 43.2 40.2 43.4 39.5 43.6 C38.8 43.8 38.2 43.9 37.6 44.1 C37 44.2 36.4 44.2 35.8 44.4 C35.2 44.6 34.6 45 33.9 45.2 C33.3 45.4 32.6 45.6 32.1 45.9 C31.5 46.1 30.9 46.3 30.5 46.5 C30.1 46.6 29.8 46.8 29.5 47 C29.2 47.1 29 47.4 28.8 47.6 C28.6 47.8 28.5 48 28.4 48.1 C28.3 48.2 28.4 48.3 28.4 48.2 C28.3 48.1 28.1 47.8 28.2 47.8 C28.3 47.8 28.4 47.9 28.7 48.1 C29.1 48.2 29.7 48.4 30.3 48.5 C30.8 48.7 31.6 48.8 32.2 49 C32.9 49.1 33.6 49.2 34.3 49.3 C34.9 49.4 35.6 49.5 36.3 49.5 C37.1 49.5 38 49.5 38.9 49.5 C39.7 49.5 40.6 49.5 41.4 49.6 C42.1 49.7 42.9 49.8 43.6 50 C44.2 50.2 44.8 50.6 45.3 51 C45.7 51.4 46.1 51.9 46.4 52.5 C46.6 53 46.8 53.7 46.7 54.3 C46.6 55 46.2 55.7 45.8 56.2 C45.3 56.7 44.7 57 44.1 57.3 C43.5 57.6 42.7 57.8 42 58.1 C41.2 58.3 40.4 58.5 39.6 58.7 C38.8 58.9 38 59 37.2 59.1 C36.3 59.2 35.4 59.2 34.5 59.2 C33.6 59.2 32.6 59.1 31.7 59 C30.8 59 29.8 58.9 29.1 58.8 C28.4 58.8 27.7 58.7 27.4 58.7"/>
+<path d="M33 6.4 C31.8 6.4 29.6 3.4 28.6 3.4 C27.6 3.4 25.5 5.5 25.2 6.4 C24.9 7.3 25.5 9.8 26.2 10.4 C26.9 11 29.7 11.2 30.6 11 C31.5 10.8 32.4 9.2 33 9.2 C33.6 9.2 34.5 10.8 35.4 11 C36.3 11.2 39.1 11 39.8 10.4 C40.5 9.8 41.1 7.3 40.8 6.4 C40.5 5.5 38.4 3.4 37.4 3.4 C36.4 3.4 34.2 6.4 33 6.4Z"/>
+<path d="M8.4 30.5 C9.5 29.3 12.1 29.2 13.4 29.5 C14.7 29.8 16.7 31.4 16.8 32.6 C17 33.8 14.6 35.9 14.4 37.4 C14.2 38.9 15.6 41.1 15.2 42.6 C14.8 44.1 13 46.8 11.8 47.2 C10.6 47.6 8.3 46.5 7.4 45 C6.5 43.5 5.9 39.7 6 37.5 C6.2 35.3 7.3 31.7 8.4 30.5Z"/>
+<path d="M52.6 34.5 C53.8 33.3 56.4 33.2 57.6 33.5 C58.8 33.8 60.5 35.4 60.6 36.6 C60.7 37.8 58.4 39.9 58.2 41.4 C58 42.9 59.4 45.1 59 46.6 C58.6 48.1 56.8 50.8 55.6 51.2 C54.4 51.6 52.1 50.5 51.2 49 C50.3 47.5 49.6 43.7 49.8 41.5 C50 39.3 51.4 35.7 52.6 34.5Z"/>
+<path d="M9.4 27.8 L13 25.4 L15.6 28.2 M53.6 31.8 L57.2 29.4 L59.8 32.2" stroke-width=".9"/>
+<path d="M16 36.5 C16.8 36.7 19.3 36.9 21 37.5 C22.7 38.1 25.2 39.6 26 40 M51 43 C50.5 43 48.8 43 48 42.8 C47.3 42.6 46.8 42.1 46.5 42" stroke-width=".7"/>
+<path d="M11.5 47.5 C11.9 48.4 12.8 51.3 14 53 C15.3 54.8 18.2 57.2 19 58 M53 51.4 C53.1 52.2 53.8 54.7 53.5 56 C53.2 57.3 51.4 58.5 51 59" stroke-width=".7"/>
+<path d="M4 62 H60 M4 59 V62 M60 59 V62" stroke-width=".6"/></g></symbol>
+  <symbol id="ilu-ryd" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><circle cx="23" cy="31" r="12.4"/>
+<circle cx="23" cy="31" r="15.4" stroke-width=".6"/>
+<circle cx="21.5" cy="30" r="3.6"/>
+<circle cx="21.5" cy="30" r="0.5" stroke-width=".7"/>
+<path d="M35.7 25.9 C35.3 25.1 36.1 23.9 37.4 23.4 C38.7 22.9 40 23.2 40.3 24.1 C40.7 24.9 39.9 26.1 38.6 26.6 C37.3 27.1 36 26.8 35.7 25.9Z M38.6 36.2 C38.9 35.3 40.2 35 41.5 35.4 C42.8 35.8 43.7 36.9 43.4 37.8 C43.1 38.7 41.8 39 40.5 38.6 C39.2 38.2 38.3 37.1 38.6 36.2Z M34.4 44.1 C35.1 43.5 36.4 43.8 37.3 44.9 C38.2 45.9 38.3 47.3 37.6 47.9 C36.9 48.5 35.6 48.2 34.7 47.1 C33.8 46.1 33.7 44.7 34.4 44.1Z M34.2 19.8 C33.6 19.1 33.8 17.8 34.8 16.8 C35.8 15.8 37.1 15.6 37.8 16.2 C38.4 16.9 38.2 18.2 37.2 19.2 C36.2 20.2 34.9 20.4 34.2 19.8Z M34.9 31 C34.9 30.1 36 29.3 37.4 29.3 C38.8 29.3 39.9 30.1 39.9 31 C39.9 31.9 38.8 32.7 37.4 32.7 C36 32.7 34.9 31.9 34.9 31Z"/>
+<path d="M38 25 C38.2 24.8 38.8 24.3 39.2 23.9 C39.6 23.6 39.9 23 40.4 23 C40.9 22.9 41.6 23.3 42.3 23.6 C42.9 23.9 43.9 24.9 44.4 24.9 C45 24.9 45.3 24.4 45.6 23.8 C45.9 23.1 45.9 21.8 46.1 21 C46.3 20.2 46.4 19.2 46.9 18.9 C47.3 18.6 47.9 18.9 48.6 19.2 C49.3 19.6 50.2 20.6 50.9 21 C51.6 21.4 52.4 21.8 52.8 21.7 C53.3 21.5 53.5 20.7 53.7 19.9 C54 19.1 54.1 17.5 54.2 17 M41 37 C41.2 37.1 41.7 37.6 42.1 37.9 C42.4 38.2 42.7 38.8 43.1 38.9 C43.5 39 44 38.8 44.6 38.5 C45.1 38.2 45.9 37.2 46.5 36.9 C47 36.7 47.5 36.5 47.9 36.8 C48.2 37.1 48.4 38 48.6 38.7 C48.8 39.5 48.9 40.7 49.1 41.3 C49.3 41.9 49.6 42.5 50 42.5 C50.5 42.6 51.1 42.1 51.7 41.7 C52.3 41.3 53 40.4 53.6 39.9 C54.2 39.5 54.8 39.1 55.2 39.2 C55.7 39.3 56 40.3 56.2 40.6 M36 46 C36.2 46.1 36.7 46.5 37.2 46.7 C37.6 46.8 38.2 46.9 38.5 47.2 C38.8 47.4 39 47.8 39 48.3 C39.1 48.9 38.7 49.7 38.6 50.4 C38.5 51 38.3 51.8 38.4 52.2 C38.6 52.6 39 52.8 39.5 52.9 C40 53 40.9 52.8 41.6 52.7 C42.4 52.6 43.3 52.4 43.8 52.4 C44.4 52.5 44.9 52.6 45.1 53 C45.3 53.4 45.2 54 45.1 54.7 C44.9 55.3 44.5 56.3 44.4 56.9 C44.2 57.6 44.2 58.5 44.2 58.8 M36 18 C36.2 17.9 36.7 17.6 37.1 17.5 C37.5 17.4 38 17.4 38.4 17.2 C38.7 17 39 16.7 39.1 16.3 C39.2 15.9 38.9 15.1 38.9 14.5 C38.8 13.9 38.6 13.1 38.6 12.7 C38.7 12.2 38.9 11.9 39.3 11.7 C39.7 11.6 40.3 11.7 40.9 11.8 C41.6 11.9 42.4 12.2 43 12.3 C43.6 12.4 44.3 12.5 44.6 12.3 C45 12.2 45.2 11.9 45.3 11.4 C45.4 10.9 45.2 10.2 45.1 9.6 C45 8.9 44.7 7.9 44.6 7.5 M37.4 31 C37.5 30.9 38 30.8 38.3 30.7 C38.6 30.5 38.9 30.2 39.2 30.1 C39.4 30 39.7 29.8 40 29.9 C40.3 30 40.6 30.3 40.9 30.6 C41.2 31 41.5 31.6 41.8 31.9 C42.1 32.2 42.4 32.6 42.7 32.7 C42.9 32.8 43.2 32.8 43.5 32.6 C43.8 32.5 44.1 32.1 44.4 31.7 C44.7 31.4 45 30.8 45.3 30.4 C45.6 30.1 45.9 29.6 46.2 29.4 C46.4 29.2 46.7 29.2 47 29.2 C47.3 29.3 47.8 29.8 47.9 29.9" stroke-width=".9"/>
+<path d="M4 62 H60 M4 59 V62 M60 59 V62" stroke-width=".6"/></g></symbol>
 </svg>
 <header class="herr">
   <div class="herr-fila">
@@ -363,9 +501,9 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
       <span class="seg"><button type="button" class="seg-op t-rotulo" data-set="ancho:390">390</button><button type="button" class="seg-op t-rotulo" data-set="ancho:768">768</button><button type="button" class="seg-op t-rotulo" data-set="ancho:1280">1280</button></span></div>
     <div class="herr-grupo"><span class="t-rotulo c-sec">Tema</span>
       <span class="seg"><button type="button" class="seg-op t-rotulo" data-set="tema:claro">Claro</button><button type="button" class="seg-op t-rotulo" data-set="tema:oscuro">Oscuro</button></span></div>
-    <div class="herr-grupo"><span class="t-rotulo c-sec">Ir a</span><span class="seg"><button type="button" class="seg-op t-rotulo" data-ir="fig-01">01</button><button type="button" class="seg-op t-rotulo" data-ir="fig-02">02</button><button type="button" class="seg-op t-rotulo" data-ir="fig-03a">03a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-03b">03b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04a">04a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04b">04b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04c">04c</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04d">04d</button><button type="button" class="seg-op t-rotulo" data-ir="fig-05a">05a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-05b">05b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-05c">05c</button><button type="button" class="seg-op t-rotulo" data-ir="fig-06">06</button><button type="button" class="seg-op t-rotulo" data-ir="fig-01b">01b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04e">04e</button></span></div>
+    <div class="herr-grupo"><span class="t-rotulo c-sec">Ir a</span><span class="seg"><button type="button" class="seg-op t-rotulo" data-ir="fig-01">01</button><button type="button" class="seg-op t-rotulo" data-ir="fig-02">02</button><button type="button" class="seg-op t-rotulo" data-ir="fig-03a">03a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-03b">03b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04a">04a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04b">04b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04c">04c</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04d">04d</button><button type="button" class="seg-op t-rotulo" data-ir="fig-05a">05a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-05b">05b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-05c">05c</button><button type="button" class="seg-op t-rotulo" data-ir="fig-06">06</button><button type="button" class="seg-op t-rotulo" data-ir="fig-01b">01b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04e">04e</button><button type="button" class="seg-op t-rotulo" data-ir="fig-07a">07a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-07b">07b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-08a">08a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-08b">08b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-09">09</button><button type="button" class="seg-op t-rotulo" data-ir="fig-10a">10a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-10b">10b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-11a">11a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-11b">11b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-11c">11c</button><button type="button" class="seg-op t-rotulo" data-ir="fig-12a">12a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-12b">12b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-12c">12c</button><button type="button" class="seg-op t-rotulo" data-ir="fig-12d">12d</button><button type="button" class="seg-op t-rotulo" data-ir="fig-13">13</button><button type="button" class="seg-op t-rotulo" data-ir="fig-14">14</button></span></div>
   </div>
-  <div class="herr-nota t-rotulo c-sec">Fieles a las fichas aprobadas el 2026-10-10 · colores generados desde src/theme/colores.js · conteos, temas y preguntas reales; resultados y estadísticas son datos de muestra</div>
+  <div class="herr-nota t-rotulo c-sec">Fieles a las fichas aprobadas el 2026-10-10 (1.2 y 1.3) · colores generados desde src/theme/colores.js · conteos, temas y preguntas reales; resultados, estadísticas, preguntas propias y respuestas de revisión son datos de muestra</div>
 </header>
 <main class="tablero">
 
@@ -396,7 +534,14 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
       </div>
     </section>
   </div>
-  <div class="col mb-3"><div class="reservado t-rotulo c-sec">Nota del creador (condicional, reaparece cada siete días) · ver 1.3</div></div>
+  <div class="col mb-3">
+<aside class="nota nota-cerrable">
+  <button type="button" class="k7 cerrar-esq" aria-label="Cerrar nota"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+  <div class="nota-rot t-rotulo c-acento"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M1.5 1.5H14.5V11.5H7.5L4.5 14.5V11.5H1.5Z"/>
+<path d="M4.5 4.5H11.5M4.5 7.5H9.5"/></svg><span>Una nota del creador</span></div>
+  <p class="t-cuerpo c-tinta">¡Hola! Estoy sumando las materias que faltan (Digestivo, Renal y Endócrino, y Reproductor y Desarrollo) y dándole una lavada de cara a la página. Van llegando de a poco, ¡gracias por la paciencia!</p>
+  
+</aside></div>
   <div class="col mt-1_5"><div class="lista">
 <button type="button" class="lam k6 tarj" aria-label="Biología Celular y Tisular">
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
@@ -446,7 +591,16 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
   </span>
   <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">172</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
 </button></div></div>
-  <div class="col mt-6"><div class="reservado t-rotulo c-sec">Bloque de donación (origen materias) · ver 1.3</div></div>
+  <div class="col mt-6">
+<div class="don-regla"></div>
+<section class="lam don">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  
+  <h3 class="don-tit t-item c-tinta"><span>Ayuda a mantener esta aplicación</span></h3>
+  <p class="t-cuerpo c-tinta don-txt">Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:</p>
+  <div class="don-montos"><button type="button" class="k3 monto t-dato">$50</button><button type="button" class="k3 monto t-dato">$100</button><button type="button" class="k3 monto t-dato">$200</button><button type="button" class="k3 monto t-dato">$500</button></div>
+  <div class="t-rotulo c-sec don-pie">Vía Mercado Pago</div>
+</section></div>
   <div class="relleno-10"></div>
 </div>
 </figure>
@@ -477,7 +631,16 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
       </div>
     </section>
   </div>
-  <div class="col mt-3"><div class="reservado t-rotulo c-sec">Banner de banco reducido · ver 1.3</div></div>
+  <div class="col mt-3">
+<aside class="nota">
+  
+  <div class="nota-rot t-rotulo c-acento"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5V13.5H14.5"/>
+<path d="M4.5 3.5L8.5 7.5L10.5 5.5L12.97 7.97"/>
+<path d="M10 8.5H13.5V5"/></svg><span>Banco más reducido</span></div>
+  <p class="t-cuerpo c-tinta">Esta materia tiene menos preguntas que las anteriores porque tuve acceso a menos prototipos de examen.</p><p class="t-cuerpo c-tinta">Si tenés material para aportar, escribime a</p>
+  <button type="button" class="k2 k2-acento btn-contacto t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="1.5" y="3.5" width="13" height="9"/>
+<path d="M2.09 3.96L8 8.5L13.91 3.96"/></svg><span>pkappsoporte@gmail.com</span></button>
+</aside></div>
   <div class="col"><div class="t-rotulo c-acento sec-rotulo sec-4">Plano / Acciones</div></div>
   <div class="col"><div class="lista">
 <button type="button" class="k3 accion prim">
@@ -542,7 +705,7 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
   
     <div class="divisor"></div>
     <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Parcial</div>
-      <div class="filtros"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" aria-pressed="true">Examen</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">1er Parcial</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">2do Parcial</button></div></div>
+      <div class="filtros"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" aria-pressed="true">Examen</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false"><span class="parc-mk" aria-hidden="true"><i class="on"></i><i></i></span><span>1er Parcial</span></button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false"><span class="parc-mk" aria-hidden="true"><i></i><i class="on"></i></span><span>2do Parcial</span></button></div></div>
   <div class="divisor"></div>
   <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
     <div class="timer">
@@ -749,9 +912,9 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
     <div class="q-cont"><span class="t-rotulo c-tinta">05 / 15</span></div>
   </div></header>
   <div class="q-scroll">
-    <div class="col q-ctx"><span class="chip chip-examen t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+    <div class="col q-ctx"><div class="q-ctx-izq"><span class="chip chip-examen t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
 <path d="M8.5 1.5V5.5H12.5"/>
-<circle cx="8" cy="10" r="2"/></svg><span>PROTOTIPO 1</span></span><span class="t-rotulo c-sec q-meta">CyR · Histología cardiovascular y respiratoria</span></div>
+<circle cx="8" cy="10" r="2"/></svg><span>PROTOTIPO 1</span></span></div><span class="t-rotulo c-sec q-meta">CyR · Histología cardiovascular y respiratoria</span></div>
     <div class="col"><section class="q-enunciado"><div class="t-rotulo c-sec">Enunciado</div><p class="t-titulo c-tinta">Las arterias musculares se caracterizan por poseer:</p></section></div>
     <div class="col"><div class="q-opciones">
 <button type="button" class="k3 opcion">
@@ -766,6 +929,8 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
   <span class="op-letra t-dato">C</span>
   <span class="op-txt"><span class="t-cuerpo op-texto">Una limitante elástica interna más evidente que la de las arterias elásticas</span></span>
 </button></div></div>
+    
+    
     
   </div>
   
@@ -787,9 +952,9 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 <path d="M8.5 6.5V9.5H11.5"/></svg><span>14:32</span></span></div>
   </div></header>
   <div class="q-scroll">
-    <div class="col q-ctx"><span class="chip chip-examen t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+    <div class="col q-ctx"><div class="q-ctx-izq"><span class="chip chip-examen t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
 <path d="M8.5 1.5V5.5H12.5"/>
-<circle cx="8" cy="10" r="2"/></svg><span>PROTOTIPO 1</span></span><span class="t-rotulo c-sec q-meta">CyR · Histología cardiovascular y respiratoria</span></div>
+<circle cx="8" cy="10" r="2"/></svg><span>PROTOTIPO 1</span></span></div><span class="t-rotulo c-sec q-meta">CyR · Histología cardiovascular y respiratoria</span></div>
     <div class="col"><section class="q-enunciado"><div class="t-rotulo c-sec">Enunciado</div><p class="t-titulo c-tinta">Las arterias musculares se caracterizan por poseer:</p></section></div>
     <div class="col"><div class="q-opciones">
 <button type="button" class="k3 opcion apagada" disabled>
@@ -805,8 +970,10 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
   <span class="op-txt"><span class="t-cuerpo-fuerte op-texto">Una limitante elástica interna más evidente que la de las arterias elásticas</span><span class="op-estado t-rotulo c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span>Correcta</span></span></span>
 </button></div></div>
     
+    
     <div class="col"><aside class="q-nota"><div class="q-nota-rot t-rotulo c-acento"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M6.5 11.5V10.24A4.5 4.5 0 1 1 9.5 10.24V11.5Z"/>
 <path d="M7 14.5H9"/></svg><span>Nota / Explicación</span></div><p class="t-cuerpo c-tinta">La limitante elástica interna es una lámina gruesa y bien definida en la arteria muscular, mientras que en la elástica queda disimulada entre las numerosas láminas de la túnica media. El endotelio es plano en ambas y el calibre de las elásticas es mayor, no menor.</p></aside></div>
+    
     <div class="col q-reportar"><button type="button" class="k3 btn-reportar t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 14.5V2.5H13.5V9.5H3.5"/></svg><span>Reportar pregunta</span></button></div>
   </div>
   
@@ -827,9 +994,9 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
     <div class="q-cont"><span class="t-rotulo c-tinta">05 / 15</span></div>
   </div></header>
   <div class="q-scroll">
-    <div class="col q-ctx"><span class="chip chip-examen t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+    <div class="col q-ctx"><div class="q-ctx-izq"><span class="chip chip-examen t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
 <path d="M8.5 1.5V5.5H12.5"/>
-<circle cx="8" cy="10" r="2"/></svg><span>PROTOTIPO 1</span></span><span class="t-rotulo c-sec q-meta">CyR · Histología cardiovascular y respiratoria</span></div>
+<circle cx="8" cy="10" r="2"/></svg><span>PROTOTIPO 1</span></span></div><span class="t-rotulo c-sec q-meta">CyR · Histología cardiovascular y respiratoria</span></div>
     <div class="col"><section class="q-enunciado"><div class="t-rotulo c-sec">Enunciado</div><p class="t-titulo c-tinta">Las arterias musculares se caracterizan por poseer:</p></section></div>
     <div class="col"><div class="q-opciones">
 <button type="button" class="k3 opcion mal" disabled>
@@ -845,8 +1012,10 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
   <span class="op-txt"><span class="t-cuerpo-fuerte op-texto">Una limitante elástica interna más evidente que la de las arterias elásticas</span><span class="op-estado t-rotulo c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span>Correcta</span></span></span>
 </button></div></div>
     
+    
     <div class="col"><aside class="q-nota"><div class="q-nota-rot t-rotulo c-acento"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M6.5 11.5V10.24A4.5 4.5 0 1 1 9.5 10.24V11.5Z"/>
 <path d="M7 14.5H9"/></svg><span>Nota / Explicación</span></div><p class="t-cuerpo c-tinta">La limitante elástica interna es una lámina gruesa y bien definida en la arteria muscular, mientras que en la elástica queda disimulada entre las numerosas láminas de la túnica media. El endotelio es plano en ambas y el calibre de las elásticas es mayor, no menor.</p></aside></div>
+    
     <div class="col q-reportar"><button type="button" class="k3 btn-reportar t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 14.5V2.5H13.5V9.5H3.5"/></svg><span>Reportar pregunta</span></button></div>
   </div>
   
@@ -869,9 +1038,9 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 <path d="M8.5 6.5V9.5H11.5"/></svg><span>01:42</span></span></div>
   </div></header>
   <div class="q-scroll">
-    <div class="col q-ctx"><span class="chip chip-examen t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+    <div class="col q-ctx"><div class="q-ctx-izq"><span class="chip chip-examen t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
 <path d="M8.5 1.5V5.5H12.5"/>
-<circle cx="8" cy="10" r="2"/></svg><span>PROTOTIPO 1</span></span><span class="t-rotulo c-sec q-meta">CyR · Fisiología cardíaca, ciclo y gasto cardíaco</span></div>
+<circle cx="8" cy="10" r="2"/></svg><span>PROTOTIPO 1</span></span></div><span class="t-rotulo c-sec q-meta">CyR · Fisiología cardíaca, ciclo y gasto cardíaco</span></div>
     <div class="col"><section class="q-enunciado"><div class="t-rotulo c-sec">Enunciado</div><p class="t-titulo c-tinta">El miocardio específico se diferencia del miocardio inespecífico porque: (indique lo correcto)</p></section></div>
     <div class="col"><div class="q-opciones">
 <button type="button" class="k3 opcion">
@@ -887,6 +1056,8 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
   <span class="op-txt"><span class="t-cuerpo op-texto">No posee miofilamentos.</span></span>
 </button></div></div>
     
+    
+    
   </div>
   
 </div>
@@ -894,8 +1065,8 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 
 <figure class="fig" id="fig-05a">
   <figcaption>
-    <span class="t-rotulo-medio c-tinta">05a · Resultados · tramo alto</span>
-    <span class="fig-ficha c-sec">Results.md · d.1 · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+    <span class="t-rotulo-medio c-tinta">05a · Resultados · tramo alto · pedido de donación celebratorio</span>
+    <span class="fig-ficha c-sec">Results.md · d.1 · DonationBox.md · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
   </figcaption>
   
 <div class="pantalla" data-pantalla="Results">
@@ -922,7 +1093,18 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
       <div class="trio-celda"><span class="t-cifra c-tinta">24</span><span class="t-rotulo c-sec trio-rot">Total</span></div>
     </section>
   </div>
-  <div class="col mb-3"><div class="reservado t-rotulo c-sec">Pedido de donación (condicional, solo web) · ver 1.3</div></div>
+  <div class="col mb-3">
+
+<section class="lam don don-cerrable">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <button type="button" class="k7 cerrar-esq" aria-label="Cerrar"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+  <h3 class="don-tit t-item c-tinta"><svg class="g g-chico c-acierto" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M4.5 2.5H11.5L10 8.5H6Z"/>
+<path d="M4.75 4.5H2.5V7.5H5.5M11.25 4.5H13.5V7.5H10.5"/>
+<path d="M8 8.5V13.5M5.5 13.5H10.5"/></svg><span>¡Gran resultado!</span></h3>
+  <p class="t-cuerpo c-tinta don-txt">Si pKapp te está ayudando a llegar al examen, dale una mano para mantenerla (no es de Udelar):</p>
+  <div class="don-montos"><button type="button" class="k3 monto t-dato">$50</button><button type="button" class="k3 monto t-dato">$100</button><button type="button" class="k3 monto t-dato">$200</button><button type="button" class="k3 monto t-dato">$500</button></div>
+  <div class="t-rotulo c-sec don-pie">Vía Mercado Pago</div>
+</section></div>
   <div class="col mt-1_5"><div class="botones">
     <button type="button" class="k2 k2-acento btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="3.5" y="2.5" width="9" height="12"/>
 <path d="M6.5 1.5H9.5"/>
@@ -939,8 +1121,8 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 
 <figure class="fig" id="fig-05b">
   <figcaption>
-    <span class="t-rotulo-medio c-tinta">05b · Resultados · tramo medio</span>
-    <span class="fig-ficha c-sec">Results.md · d.1 · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+    <span class="t-rotulo-medio c-tinta">05b · Resultados · tramo medio · pedido de donación</span>
+    <span class="fig-ficha c-sec">Results.md · d.1 · DonationBox.md · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
   </figcaption>
   
 <div class="pantalla" data-pantalla="Results">
@@ -967,7 +1149,16 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
       <div class="trio-celda"><span class="t-cifra c-tinta">24</span><span class="t-rotulo c-sec trio-rot">Total</span></div>
     </section>
   </div>
-  <div class="col mb-3"><div class="reservado t-rotulo c-sec">Pedido de donación (condicional, solo web) · ver 1.3</div></div>
+  <div class="col mb-3">
+
+<section class="lam don don-cerrable">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <button type="button" class="k7 cerrar-esq" aria-label="Cerrar"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+  <h3 class="don-tit t-item c-tinta"><span>Ayuda a mantener esta aplicación</span></h3>
+  <p class="t-cuerpo c-tinta don-txt">Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:</p>
+  <div class="don-montos"><button type="button" class="k3 monto t-dato">$50</button><button type="button" class="k3 monto t-dato">$100</button><button type="button" class="k3 monto t-dato">$200</button><button type="button" class="k3 monto t-dato">$500</button></div>
+  <div class="t-rotulo c-sec don-pie">Vía Mercado Pago</div>
+</section></div>
   <div class="col mt-1_5"><div class="botones">
     <button type="button" class="k2 k2-acento btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="3.5" y="2.5" width="9" height="12"/>
 <path d="M6.5 1.5H9.5"/>
@@ -984,7 +1175,7 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 
 <figure class="fig" id="fig-05c">
   <figcaption>
-    <span class="t-rotulo-medio c-tinta">05c · Resultados · tramo bajo</span>
+    <span class="t-rotulo-medio c-tinta">05c · Resultados · tramo bajo · sin pedido de donación</span>
     <span class="fig-ficha c-sec">Results.md · d.1 · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
   </figcaption>
   
@@ -1012,7 +1203,7 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
       <div class="trio-celda"><span class="t-cifra c-tinta">24</span><span class="t-rotulo c-sec trio-rot">Total</span></div>
     </section>
   </div>
-  <div class="col mb-3"><div class="reservado t-rotulo c-sec">Pedido de donación (condicional, solo web) · ver 1.3</div></div>
+  
   <div class="col mt-1_5"><div class="botones">
     <button type="button" class="k2 k2-acento btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="3.5" y="2.5" width="9" height="12"/>
 <path d="M6.5 1.5H9.5"/>
@@ -1226,6 +1417,770 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
     
 <div class="estado"><div class="t-rotulo c-sec estado-rot">Propia · source 'user'</div><span class="chip chip-propia t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><circle cx="8" cy="4.5" r="2.5"/>
 <path d="M3 14.5A5 5 0 0 1 13 14.5"/></svg><span>Tuya</span></span></div>
+  </div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-07a">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">07a · Agregar pregunta · formulario inicial · CyR</span>
+    <span class="fig-ficha c-sec">AddQuestion.md · c.2 inicial · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="AddQuestion">
+  
+<header class="barra-int"><div class="col barra-int-fila"><button type="button" class="k7 btn-volver" aria-label="Volver"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></button><h1 class="t-titulo c-tinta">pKapp · Agregar pregunta</h1></div></header>
+  <div class="mt-4"></div>
+  
+<div class="col add-grupo"><div class="t-rotulo c-sec add-rot">Tema</div><div class="add-temas"><button type="button" class="k4 add-tema t-cuerpo-fuerte sel" aria-pressed="true">Fisiología cardíaca, ciclo y gasto cardíaco</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Bases del electrocardiograma y dipolo</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Hemodinamia, presión arterial y resistencias</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Circulaciones regionales y microcirculación</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Mecánica ventilatoria, presiones y compliance</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Difusión de gases, transporte O2/CO2 y V/Q</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Control de la respiración y quimiorreceptores</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Histología cardiovascular y respiratoria</button></div></div>
+  
+<div class="col add-grupo"><div class="t-rotulo c-sec add-rot">Enunciado de la pregunta</div>
+<div class="fld fld-multi t-campo c-sec" role="textbox" aria-multiline="true">Escribí la pregunta acá...</div></div>
+  
+<div class="col add-grupo"><div class="t-rotulo c-sec add-rot">Opciones de respuesta</div>
+    <p class="t-detalle c-sec add-ayuda"><span>Marcá con</span><span class="c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg></span><span>cuál es la correcta</span></p>
+    
+<div class="op-fila">
+  <button type="button" class="k3 letra-k t-dato" aria-label="Opción A, marcar como correcta" aria-pressed="false">A</button>
+  
+<div class="fld fld-op t-campo c-sec" role="textbox" aria-multiline="false">Opción A</div>
+  <button type="button" class="k7 quitar" aria-label="Quitar opción A"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+</div>
+<div class="op-fila">
+  <button type="button" class="k3 letra-k t-dato" aria-label="Opción B, marcar como correcta" aria-pressed="false">B</button>
+  
+<div class="fld fld-op t-campo c-sec" role="textbox" aria-multiline="false">Opción B</div>
+  <button type="button" class="k7 quitar" aria-label="Quitar opción B"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+</div>
+<div class="op-fila">
+  <button type="button" class="k3 letra-k t-dato" aria-label="Opción C, marcar como correcta" aria-pressed="false">C</button>
+  
+<div class="fld fld-op t-campo c-sec" role="textbox" aria-multiline="false">Opción C</div>
+  <button type="button" class="k7 quitar" aria-label="Quitar opción C"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+</div>
+<div class="op-fila">
+  <button type="button" class="k3 letra-k t-dato" aria-label="Opción D, marcar como correcta" aria-pressed="false">D</button>
+  
+<div class="fld fld-op t-campo c-sec" role="textbox" aria-multiline="false">Opción D</div>
+  <button type="button" class="k7 quitar" aria-label="Quitar opción D"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+</div><button type="button" class="k3 add-agregar t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5M8.5 3.5V13.5"/></svg><span>Agregar opción</span></button></div>
+  
+<div class="col add-grupo"><div class="t-rotulo c-sec add-rot">Explicación (opcional)</div>
+<div class="fld fld-multi t-campo c-sec" role="textbox" aria-multiline="true">Explicación que se mostrará después de responder...</div></div>
+  <div class="col"><button type="button" class="k1 add-guardar t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5H11.5L13.5 4.5V13.5H2.5Z"/>
+<path d="M5.5 2.5V5.5H10.5V2.5"/>
+<path d="M4.5 13.5V9.5H11.5V13.5"/></svg><span>Guardar pregunta</span></button></div>
+  <div class="relleno-8"></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-07b">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">07b · Agregar pregunta · completa, correcta marcada, guardando · BCYT</span>
+    <span class="fig-ficha c-sec">AddQuestion.md · c.1, c.2 (ADD-P1) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="AddQuestion">
+  
+<header class="barra-int"><div class="col barra-int-fila"><button type="button" class="k7 btn-volver" aria-label="Volver"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></button><h1 class="t-titulo c-tinta">pKapp · Agregar pregunta</h1></div></header>
+  <div class="mt-4"></div>
+  
+<div class="col add-grupo"><div class="t-rotulo c-sec add-rot">Tema</div><div class="add-temas"><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Química del agua, pH y tampones</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Aminoácidos y proteínas</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Lípidos e hidratos de carbono</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Enzimas y cinética enzimática</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Metabolismo celular</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Membrana biológica</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Organelos celulares</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Microscopía</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Transporte a través de membranas</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Potencial de acción</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">División celular y cromosomas</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Reparación del ADN y radiobiología</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Genética y herencia</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">ADN, ARN y síntesis proteica</button><button type="button" class="k4 add-tema t-cuerpo-fuerte sel" aria-pressed="true">Tejido epitelial</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Tejido conjuntivo</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Tejido cartilaginoso</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Tejido óseo</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Tejido muscular (histología)</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Sangre y hemopoyesis</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Tejido linfoideo</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Ciclo celular y reparación ADN</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Contracción muscular</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Palancas y biomecánica</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Radioprotección</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Hemostasis y coagulación</button><button type="button" class="k4 add-tema t-cuerpo c-tinta" aria-pressed="false">Sistema inmune</button></div></div>
+  
+<div class="col add-grupo"><div class="t-rotulo c-sec add-rot">Enunciado de la pregunta</div>
+<div class="fld fld-multi t-campo c-tinta" role="textbox" aria-multiline="true">¿Cuál de las siguientes características definen al epitelio seudoestratificado cilíndrico?</div></div>
+  
+<div class="col add-grupo"><div class="t-rotulo c-sec add-rot">Opciones de respuesta</div>
+    <p class="t-detalle c-sec add-ayuda"><span>Marcá con</span><span class="c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg></span><span>cuál es la correcta</span></p>
+    
+<div class="op-fila">
+  <button type="button" class="k3 letra-k t-dato" aria-label="Opción A, marcar como correcta" aria-pressed="false">A</button>
+  
+<div class="fld fld-op t-campo c-tinta" role="textbox" aria-multiline="false">Presencia de cilias</div>
+  <button type="button" class="k7 quitar" aria-label="Quitar opción A"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+</div>
+<div class="op-fila">
+  <button type="button" class="k3 letra-k t-dato" aria-label="Opción B, marcar como correcta" aria-pressed="false">B</button>
+  
+<div class="fld fld-op t-campo c-tinta" role="textbox" aria-multiline="false">Presencia de células caliciformes</div>
+  <button type="button" class="k7 quitar" aria-label="Quitar opción B"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+</div>
+<div class="op-fila">
+  <button type="button" class="k3 letra-k t-dato ok" aria-label="Opción C, marcar como correcta" aria-pressed="true"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg></button>
+  
+<div class="fld fld-op t-campo c-tinta" role="textbox" aria-multiline="false">Que todas sus células contactan con la lámina basal</div>
+  <button type="button" class="k7 quitar" aria-label="Quitar opción C"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+</div>
+<div class="op-fila">
+  <button type="button" class="k3 letra-k t-dato" aria-label="Opción D, marcar como correcta" aria-pressed="false">D</button>
+  
+<div class="fld fld-op t-campo c-tinta" role="textbox" aria-multiline="false">Que todas sus células contactan con la superficie libre</div>
+  <button type="button" class="k7 quitar" aria-label="Quitar opción D"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+</div><button type="button" class="k3 add-agregar t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5M8.5 3.5V13.5"/></svg><span>Agregar opción</span></button></div>
+  
+<div class="col add-grupo"><div class="t-rotulo c-sec add-rot">Explicación (opcional)</div>
+<div class="fld fld-multi t-campo c-tinta" role="textbox" aria-multiline="true">El pseudoestratificado parece estratificado por la disposición de núcleos a distintas alturas, pero TODAS sus células contactan la lámina basal. No todas llegan a la superficie.</div></div>
+  <div class="col"><button type="button" class="k1 add-guardar guardando t-cuerpo-fuerte" disabled>Guardando...</button></div>
+  <div class="relleno-8"></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-08a">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">08a · Ajustes · plegables cerrados · ocultar resultado en «No»</span>
+    <span class="fig-ficha c-sec">Settings.md · c.2 (SET-P1) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="Settings">
+  
+<header class="barra-int"><div class="col barra-int-fila"><button type="button" class="k7 btn-volver" aria-label="Volver"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></button><h1 class="t-titulo c-tinta">pKapp · Ajustes</h1></div></header>
+  
+<div class="col mt-4 set-sec"><div class="t-rotulo c-acento sec-rotulo">Cuestionario</div>
+<div class="set-panel set-fila">
+  <div class="set-txt"><div class="t-item c-tinta">Ocultar resultado hasta el final</div><div class="t-detalle c-sec">Respondé sin ver si acertás. Al terminar, revisás todo junto.</div></div>
+  <div class="seg-no" role="radiogroup" aria-label="Ocultar resultado hasta el final"><button type="button" class="k4 t-rotulo sel" role="radio" aria-checked="true">No</button><button type="button" class="k4 t-rotulo c-tinta" role="radio" aria-checked="false">Sí</button></div>
+</div></div>
+  
+<div class="col set-sec"><div class="t-rotulo c-acento sec-rotulo">Mis preguntas</div>
+<button type="button" class="k3 pleg" aria-expanded="false">
+  <span class="t-item c-tinta">2 preguntas propias</span>
+  <span class="pleg-der"><span class="t-cuerpo-fuerte c-acento">Ver</span><svg class="g g-chico c-acento g-gira-abajo" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg></span>
+</button>
+</div>
+  
+<div class="col set-sec"><div class="t-rotulo c-acento sec-rotulo">Tus datos</div>
+<button type="button" class="k3 pleg" aria-expanded="false">
+  <span class="t-item c-tinta">Respaldo y reseteo</span>
+  <span class="pleg-der"><span class="t-cuerpo-fuerte c-acento">Ver</span><svg class="g g-chico c-acento g-gira-abajo" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg></span>
+</button>
+</div>
+  
+<div class="col "><div class="t-rotulo c-acento sec-rotulo">Acerca de</div>
+<div class="set-panel">
+  <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.7.1</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
+  <div class="acerca-franja">
+    <div class="acerca-fila"><span class="t-rotulo c-sec">Banco de Cardiovascular y Respiratorio</span><span class="t-dato c-tinta">115</span></div>
+    <div class="t-detalle c-sec acerca-des">113 de exámenes · 0 generadas · 2 tuyas</div>
+  </div>
+  <div class="acerca-franja acerca-enlaces">
+    <button type="button" class="k2 k2-acento btn-enlace t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="1.5" y="3.5" width="13" height="9"/>
+<path d="M2.09 3.96L8 8.5L13.91 3.96"/></svg><span>Reportar un error</span></button>
+    <button type="button" class="k2 k2-acento btn-enlace t-cuerpo-fuerte"><span>Código fuente</span><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M6.5 2.5H2.5V13.5H13.5V9.5"/>
+<path d="M7.5 8.5L12.97 3.03"/>
+<path d="M9.5 2.5H13.5V6.5"/></svg></button>
+  </div>
+</div></div>
+  <div class="relleno-8"></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-08b">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">08b · Ajustes · plegables abiertos · ocultar resultado en «Sí»</span>
+    <span class="fig-ficha c-sec">Settings.md · c.1, c.2 (SET-P1, SET-P2) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="Settings">
+  
+<header class="barra-int"><div class="col barra-int-fila"><button type="button" class="k7 btn-volver" aria-label="Volver"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></button><h1 class="t-titulo c-tinta">pKapp · Ajustes</h1></div></header>
+  
+<div class="col mt-4 set-sec"><div class="t-rotulo c-acento sec-rotulo">Cuestionario</div>
+<div class="set-panel set-fila">
+  <div class="set-txt"><div class="t-item c-tinta">Ocultar resultado hasta el final</div><div class="t-detalle c-sec">Respondé sin ver si acertás. Al terminar, revisás todo junto.</div></div>
+  <div class="seg-no" role="radiogroup" aria-label="Ocultar resultado hasta el final"><button type="button" class="k4 t-rotulo c-tinta" role="radio" aria-checked="false">No</button><button type="button" class="k4 t-rotulo sel" role="radio" aria-checked="true">Sí</button></div>
+</div></div>
+  
+<div class="col set-sec"><div class="t-rotulo c-acento sec-rotulo">Mis preguntas</div>
+<button type="button" class="k3 pleg abierto" aria-expanded="true">
+  <span class="t-item c-tinta">2 preguntas propias</span>
+  <span class="pleg-der"><span class="t-cuerpo-fuerte c-acento">Ocultar</span><svg class="g g-chico c-acento g-gira-arriba" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg></span>
+</button>
+<div class="set-cuerpo"><div class="pq-lista">
+<article class="pq">
+  <div class="pq-enc"><span class="t-rotulo c-acento">Hemodinamia, presión arterial y resistencias</span>
+    <button type="button" class="k7 pq-del" aria-label="Eliminar pregunta"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M1.5 4.5H14.5"/>
+<path d="M6.5 4.5V2.5H9.5V4.5"/>
+<path d="M2.5 4.5L4.5 14.5H11.5L13.5 4.5"/>
+<path d="M6.5 7.5V11.5M9.5 7.5V11.5"/></svg></button></div>
+  <p class="t-cuerpo c-tinta pq-enun">En individuos ancianos la presión arterial se ve incrementada principalmente por una disminución en:</p>
+  <p class="t-detalle c-acierto pq-ok"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span>la distensibilidad de las arterias</span></p>
+</article>
+<article class="pq">
+  <div class="pq-enc"><span class="t-rotulo c-acento">Difusión de gases, transporte O2/CO2 y V/Q</span>
+    <button type="button" class="k7 pq-del" aria-label="Eliminar pregunta"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M1.5 4.5H14.5"/>
+<path d="M6.5 4.5V2.5H9.5V4.5"/>
+<path d="M2.5 4.5L4.5 14.5H11.5L13.5 4.5"/>
+<path d="M6.5 7.5V11.5M9.5 7.5V11.5"/></svg></button></div>
+  <p class="t-cuerpo c-tinta pq-enun">Con respecto al intercambio gaseoso:</p>
+  <p class="t-detalle c-acierto pq-ok"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span>La composición de O2 alveolar está determinada por el equilibrio entre el agregado de O2 por la ventilación alveolar y su eliminación por flujo sanguíneo.</span></p>
+</article></div></div></div>
+  
+<div class="col set-sec"><div class="t-rotulo c-acento sec-rotulo">Tus datos</div>
+<button type="button" class="k3 pleg abierto" aria-expanded="true">
+  <span class="t-item c-tinta">Respaldo y reseteo</span>
+  <span class="pleg-der"><span class="t-cuerpo-fuerte c-acento">Ocultar</span><svg class="g g-chico c-acento g-gira-arriba" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg></span>
+</button>
+<div class="set-cuerpo">
+<div class="set-panel">
+  <p class="t-detalle c-sec set-resp">Descargá un respaldo de tu progreso para no perderlo o pasarlo a otro dispositivo.</p>
+  <div class="set-botones">
+    <button type="button" class="k3 btn-set t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5H11.5L13.5 4.5V13.5H2.5Z"/>
+<path d="M5.5 2.5V5.5H10.5V2.5"/>
+<path d="M4.5 13.5V9.5H11.5V13.5"/></svg><span>Descargar respaldo</span></button>
+    <button type="button" class="k1 btn-set t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M1.5 3.5H6.5L8.5 5.5H14.5V13.5H1.5Z"/></svg><span>Importar respaldo</span></button>
+  </div>
+  <div class="divisor set-div"></div>
+  <button type="button" class="k2 k2-peligro btn-set t-cuerpo-fuerte">Resetear estadísticas</button>
+</div></div></div>
+  
+<div class="col "><div class="t-rotulo c-acento sec-rotulo">Acerca de</div>
+<div class="set-panel">
+  <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.7.1</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
+  <div class="acerca-franja">
+    <div class="acerca-fila"><span class="t-rotulo c-sec">Banco de Cardiovascular y Respiratorio</span><span class="t-dato c-tinta">115</span></div>
+    <div class="t-detalle c-sec acerca-des">113 de exámenes · 0 generadas · 2 tuyas</div>
+  </div>
+  <div class="acerca-franja acerca-enlaces">
+    <button type="button" class="k2 k2-acento btn-enlace t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="1.5" y="3.5" width="13" height="9"/>
+<path d="M2.09 3.96L8 8.5L13.91 3.96"/></svg><span>Reportar un error</span></button>
+    <button type="button" class="k2 k2-acento btn-enlace t-cuerpo-fuerte"><span>Código fuente</span><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M6.5 2.5H2.5V13.5H13.5V9.5"/>
+<path d="M7.5 8.5L12.97 3.03"/>
+<path d="M9.5 2.5H13.5V6.5"/></svg></button>
+  </div>
+</div></div>
+  <div class="relleno-8"></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-09">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">09 · Pedido de donación · variantes</span>
+    <span class="fig-ficha c-sec">DonationBox.md · b, c (DON-P1) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="Donacion">
+  <div class="col estados">
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Normal · persistente, con regla corta (MateriaSelect)</div>
+<div class="don-regla"></div>
+<section class="lam don">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  
+  <h3 class="don-tit t-item c-tinta"><span>Ayuda a mantener esta aplicación</span></h3>
+  <p class="t-cuerpo c-tinta don-txt">Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:</p>
+  <div class="don-montos"><button type="button" class="k3 monto t-dato">$50</button><button type="button" class="k3 monto t-dato">$100</button><button type="button" class="k3 monto t-dato">$200</button><button type="button" class="k3 monto t-dato">$500</button></div>
+  <div class="t-rotulo c-sec don-pie">Vía Mercado Pago</div>
+</section></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Celebratoria · descartable (Results, desde 80 %)</div>
+
+<section class="lam don don-cerrable">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <button type="button" class="k7 cerrar-esq" aria-label="Cerrar"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+  <h3 class="don-tit t-item c-tinta"><svg class="g g-chico c-acierto" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M4.5 2.5H11.5L10 8.5H6Z"/>
+<path d="M4.75 4.5H2.5V7.5H5.5M11.25 4.5H13.5V7.5H10.5"/>
+<path d="M8 8.5V13.5M5.5 13.5H10.5"/></svg><span>¡Gran resultado!</span></h3>
+  <p class="t-cuerpo c-tinta don-txt">Si pKapp te está ayudando a llegar al examen, dale una mano para mantenerla (no es de Udelar):</p>
+  <div class="don-montos"><button type="button" class="k3 monto t-dato">$50</button><button type="button" class="k3 monto t-dato">$100</button><button type="button" class="k3 monto t-dato">$200</button><button type="button" class="k3 monto t-dato">$500</button></div>
+  <div class="t-rotulo c-sec don-pie">Vía Mercado Pago</div>
+</section></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Normal · descartable (Results, de 60 a 79 %)</div>
+
+<section class="lam don don-cerrable">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <button type="button" class="k7 cerrar-esq" aria-label="Cerrar"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+  <h3 class="don-tit t-item c-tinta"><span>Ayuda a mantener esta aplicación</span></h3>
+  <p class="t-cuerpo c-tinta don-txt">Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:</p>
+  <div class="don-montos"><button type="button" class="k3 monto t-dato">$50</button><button type="button" class="k3 monto t-dato">$100</button><button type="button" class="k3 monto t-dato">$200</button><button type="button" class="k3 monto t-dato">$500</button></div>
+  <div class="t-rotulo c-sec don-pie">Vía Mercado Pago</div>
+</section></div>
+  </div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-10a">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">10a · Revisión de respuestas · todas</span>
+    <span class="fig-ficha c-sec">Revision.md · c.2 (REV-P1, REV-P2, REV-P3) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="Revision">
+  
+<header class="barra-int"><div class="col barra-int-fila"><h1 class="t-titulo c-tinta">pKapp · Resultados</h1></div></header>
+  <div class="col mt-4 mb-3"><h2 class="t-titulo c-tinta">Revisión completa</h2><p class="t-cuerpo c-sec r-resumen">2 / 4 aciertos (50%)</p></div>
+  <div class="col mb-3"><button type="button" class="k2 btn-cambiar t-cuerpo-fuerte c-tinta"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg><span>Volver</span></button></div>
+  
+<div class="col mb-3"><div class="r-filtro" role="radiogroup" aria-label="Mostrar">
+  <button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Todas</button>
+  <button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false">Incorrectas</button>
+</div></div>
+  <div class="col"><div class="r-lista">
+<article class="r-card ok">
+  <div class="r-enc"><span class="t-rotulo c-sec">#1</span><span class="s-valor c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span class="t-rotulo">Correcta</span></span></div>
+  <p class="t-cuerpo c-tinta r-enun">Las arterias musculares se caracterizan por poseer:</p>
+  <div class="r-opts">
+<div class="r-op apagada"><span class="op-letra t-dato">A</span><span class="op-txt"><span class="t-cuerpo c-sec">Un endotelio más alto que las arterias elásticas</span></span></div>
+<div class="r-op apagada"><span class="op-letra t-dato">B</span><span class="op-txt"><span class="t-cuerpo c-sec">Un diámetro mayor que las de las arterias elásticas.</span></span></div>
+<div class="r-op ok"><span class="op-letra t-dato">C</span><span class="op-txt"><span class="t-cuerpo-fuerte c-tinta">Una limitante elástica interna más evidente que la de las arterias elásticas</span><span class="op-estado t-rotulo c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span>Correcta</span></span></span></div></div>
+  <aside class="q-nota"><div class="q-nota-rot t-rotulo c-acento"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M6.5 11.5V10.24A4.5 4.5 0 1 1 9.5 10.24V11.5Z"/>
+<path d="M7 14.5H9"/></svg><span>Nota / Explicación</span></div><p class="t-cuerpo c-tinta">La limitante elástica interna es una lámina gruesa y bien definida en la arteria muscular, mientras que en la elástica queda disimulada entre las numerosas láminas de la túnica media. El endotelio es plano en ambas y el calibre de las elásticas es mayor, no menor.</p></aside>
+  <button type="button" class="k7 r-rep t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 14.5V2.5H13.5V9.5H3.5"/></svg><span>Reportar pregunta</span></button>
+</article>
+<article class="r-card mal">
+  <div class="r-enc"><span class="t-rotulo c-sec">#2</span><span class="s-valor c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span class="t-rotulo">Incorrecta</span></span></div>
+  <p class="t-cuerpo c-tinta r-enun">En los capilares sanguíneos se produce el intercambio de nutrientes, ¿qué elementos NO se encuentran formado su pared?</p>
+  <div class="r-opts">
+<div class="r-op mal"><span class="op-letra t-dato">A</span><span class="op-txt"><span class="t-cuerpo c-tinta">Membrana basal</span><span class="op-estado t-rotulo c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span>Incorrecta · tu respuesta</span></span></span></div>
+<div class="r-op apagada"><span class="op-letra t-dato">B</span><span class="op-txt"><span class="t-cuerpo c-sec">Células endoteliales.</span></span></div>
+<div class="r-op ok"><span class="op-letra t-dato">C</span><span class="op-txt"><span class="t-cuerpo-fuerte c-tinta">Células musculares lisas.</span><span class="op-estado t-rotulo c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span>Correcta</span></span></span></div></div>
+  <aside class="q-nota"><div class="q-nota-rot t-rotulo c-acento"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M6.5 11.5V10.24A4.5 4.5 0 1 1 9.5 10.24V11.5Z"/>
+<path d="M7 14.5H9"/></svg><span>Nota / Explicación</span></div><p class="t-cuerpo c-tinta">La pared capilar está formada solo por endotelio y membrana basal; el músculo liso aparece recién a nivel arteriolar y venular. Esa pared mínima es justamente lo que permite el intercambio.</p></aside>
+  <button type="button" class="k7 r-rep t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 14.5V2.5H13.5V9.5H3.5"/></svg><span>Reportar pregunta</span></button>
+</article>
+<article class="r-card ok">
+  <div class="r-enc"><span class="t-rotulo c-sec">#3</span><span class="s-valor c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span class="t-rotulo">Correcta</span></span></div>
+  <p class="t-cuerpo c-tinta r-enun">El miocardio específico se diferencia del miocardio inespecífico porque: (indique lo correcto)</p>
+  <div class="r-opts">
+<div class="r-op apagada"><span class="op-letra t-dato">A</span><span class="op-txt"><span class="t-cuerpo c-sec">Está constituido por células que se originan en el endodermo.</span></span></div>
+<div class="r-op ok"><span class="op-letra t-dato">B</span><span class="op-txt"><span class="t-cuerpo-fuerte c-tinta">Posee mayor cantidad de uniones comunicantes (gap).</span><span class="op-estado t-rotulo c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span>Correcta</span></span></span></div>
+<div class="r-op apagada"><span class="op-letra t-dato">C</span><span class="op-txt"><span class="t-cuerpo c-sec">No posee miofilamentos.</span></span></div></div>
+  <aside class="q-nota"><div class="q-nota-rot t-rotulo c-acento"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M6.5 11.5V10.24A4.5 4.5 0 1 1 9.5 10.24V11.5Z"/>
+<path d="M7 14.5H9"/></svg><span>Nota / Explicación</span></div><p class="t-cuerpo c-tinta">El miocardio específico se distingue por su abundancia de uniones comunicantes, que acoplan eléctricamente las células y permiten la conducción rápida del impulso. Su origen es mesodérmico y conserva miofilamentos, aunque escasos.</p></aside>
+  <button type="button" class="k7 r-rep t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 14.5V2.5H13.5V9.5H3.5"/></svg><span>Reportar pregunta</span></button>
+</article>
+<article class="r-card mal">
+  <div class="r-enc"><span class="t-rotulo c-sec">#4</span><span class="s-valor c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span class="t-rotulo">Incorrecta</span></span></div>
+  <p class="t-cuerpo c-tinta r-enun">¿Qué sucede en el sistema respiratorio, cuando no existe ni entrada ni salida de aire?</p>
+  <div class="r-opts">
+<div class="r-op apagada"><span class="op-letra t-dato">A</span><span class="op-txt"><span class="t-cuerpo c-sec">La presión transmural toracopulmonar es negativa.</span></span></div>
+<div class="r-op ok"><span class="op-letra t-dato">B</span><span class="op-txt"><span class="t-cuerpo-fuerte c-tinta">La presión alveolar es igual a la presión atmosférica.</span><span class="op-estado t-rotulo c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span>Correcta</span></span></span></div>
+<div class="r-op mal"><span class="op-letra t-dato">C</span><span class="op-txt"><span class="t-cuerpo c-tinta">Hay un flujo aéreo en contra del gradiente de presión.</span><span class="op-estado t-rotulo c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span>Incorrecta · tu respuesta</span></span></span></div></div>
+  <aside class="q-nota"><div class="q-nota-rot t-rotulo c-acento"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M6.5 11.5V10.24A4.5 4.5 0 1 1 9.5 10.24V11.5Z"/>
+<path d="M7 14.5H9"/></svg><span>Nota / Explicación</span></div><p class="t-cuerpo c-tinta">Sin flujo aéreo no hay gradiente que lo genere, de modo que la presión alveolar iguala a la atmosférica. La presión transmural toracopulmonar es la que se anula en esa condición, y un flujo en contra del gradiente es imposible.</p></aside>
+  <button type="button" class="k7 r-rep t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 14.5V2.5H13.5V9.5H3.5"/></svg><span>Reportar pregunta</span></button>
+</article></div></div>
+  <div class="col mt-4"><div class="r-final">
+    <button type="button" class="k2 btn-res t-cuerpo-fuerte c-tinta"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg><span>Volver</span></button>
+    <button type="button" class="k1 btn-res t-cuerpo-fuerte">Inicio</button>
+  </div></div>
+  <div class="relleno-8"></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-10b">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">10b · Revisión de respuestas · solo incorrectas</span>
+    <span class="fig-ficha c-sec">Revision.md · c.2 (REV-P1) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="Revision">
+  
+<header class="barra-int"><div class="col barra-int-fila"><h1 class="t-titulo c-tinta">pKapp · Resultados</h1></div></header>
+  <div class="col mt-4 mb-3"><h2 class="t-titulo c-tinta">Revisión completa</h2><p class="t-cuerpo c-sec r-resumen">2 / 4 aciertos (50%)</p></div>
+  <div class="col mb-3"><button type="button" class="k2 btn-cambiar t-cuerpo-fuerte c-tinta"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg><span>Volver</span></button></div>
+  
+<div class="col mb-3"><div class="r-filtro" role="radiogroup" aria-label="Mostrar">
+  <button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false">Todas</button>
+  <button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Incorrectas</button>
+</div></div>
+  <div class="col"><div class="r-lista">
+<article class="r-card mal">
+  <div class="r-enc"><span class="t-rotulo c-sec">#2</span><span class="s-valor c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span class="t-rotulo">Incorrecta</span></span></div>
+  <p class="t-cuerpo c-tinta r-enun">En los capilares sanguíneos se produce el intercambio de nutrientes, ¿qué elementos NO se encuentran formado su pared?</p>
+  <div class="r-opts">
+<div class="r-op mal"><span class="op-letra t-dato">A</span><span class="op-txt"><span class="t-cuerpo c-tinta">Membrana basal</span><span class="op-estado t-rotulo c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span>Incorrecta · tu respuesta</span></span></span></div>
+<div class="r-op apagada"><span class="op-letra t-dato">B</span><span class="op-txt"><span class="t-cuerpo c-sec">Células endoteliales.</span></span></div>
+<div class="r-op ok"><span class="op-letra t-dato">C</span><span class="op-txt"><span class="t-cuerpo-fuerte c-tinta">Células musculares lisas.</span><span class="op-estado t-rotulo c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span>Correcta</span></span></span></div></div>
+  <aside class="q-nota"><div class="q-nota-rot t-rotulo c-acento"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M6.5 11.5V10.24A4.5 4.5 0 1 1 9.5 10.24V11.5Z"/>
+<path d="M7 14.5H9"/></svg><span>Nota / Explicación</span></div><p class="t-cuerpo c-tinta">La pared capilar está formada solo por endotelio y membrana basal; el músculo liso aparece recién a nivel arteriolar y venular. Esa pared mínima es justamente lo que permite el intercambio.</p></aside>
+  <button type="button" class="k7 r-rep t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 14.5V2.5H13.5V9.5H3.5"/></svg><span>Reportar pregunta</span></button>
+</article>
+<article class="r-card mal">
+  <div class="r-enc"><span class="t-rotulo c-sec">#4</span><span class="s-valor c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span class="t-rotulo">Incorrecta</span></span></div>
+  <p class="t-cuerpo c-tinta r-enun">¿Qué sucede en el sistema respiratorio, cuando no existe ni entrada ni salida de aire?</p>
+  <div class="r-opts">
+<div class="r-op apagada"><span class="op-letra t-dato">A</span><span class="op-txt"><span class="t-cuerpo c-sec">La presión transmural toracopulmonar es negativa.</span></span></div>
+<div class="r-op ok"><span class="op-letra t-dato">B</span><span class="op-txt"><span class="t-cuerpo-fuerte c-tinta">La presión alveolar es igual a la presión atmosférica.</span><span class="op-estado t-rotulo c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span>Correcta</span></span></span></div>
+<div class="r-op mal"><span class="op-letra t-dato">C</span><span class="op-txt"><span class="t-cuerpo c-tinta">Hay un flujo aéreo en contra del gradiente de presión.</span><span class="op-estado t-rotulo c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span>Incorrecta · tu respuesta</span></span></span></div></div>
+  <aside class="q-nota"><div class="q-nota-rot t-rotulo c-acento"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M6.5 11.5V10.24A4.5 4.5 0 1 1 9.5 10.24V11.5Z"/>
+<path d="M7 14.5H9"/></svg><span>Nota / Explicación</span></div><p class="t-cuerpo c-tinta">Sin flujo aéreo no hay gradiente que lo genere, de modo que la presión alveolar iguala a la atmosférica. La presión transmural toracopulmonar es la que se anula en esa condición, y un flujo en contra del gradiente es imposible.</p></aside>
+  <button type="button" class="k7 r-rep t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 14.5V2.5H13.5V9.5H3.5"/></svg><span>Reportar pregunta</span></button>
+</article></div></div>
+  <div class="col mt-4"><div class="r-final">
+    <button type="button" class="k2 btn-res t-cuerpo-fuerte c-tinta"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg><span>Volver</span></button>
+    <button type="button" class="k1 btn-res t-cuerpo-fuerte">Inicio</button>
+  </div></div>
+  <div class="relleno-8"></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-11a">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">11a · Examen en curso · sin responder · BCYT, 2.º parcial</span>
+    <span class="fig-ficha c-sec">ExamenEnCurso.md · c.2 reposo (PAR-P1) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla quiz" data-pantalla="Quiz">
+  <header class="q-barra"><div class="col q-barra-fila">
+    <button type="button" class="k7 q-cerrar" aria-label="Salir"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+    <div class="progreso" role="progressbar" aria-valuemin="1" aria-valuemax="40" aria-valuenow="12"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="q-cont"><span class="t-rotulo c-tinta">12 / 40</span></div>
+  </div></header>
+  <div class="q-scroll">
+    <div class="col q-ctx"><div class="q-ctx-izq"><span class="parc t-rotulo c-tinta"><span class="parc-mk" aria-hidden="true"><i></i><i class="on"></i></span><span>2do Parcial</span></span><span class="chip chip-examen t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<circle cx="8" cy="10" r="2"/></svg><span>2025 Turno 1</span></span></div><span class="t-rotulo c-sec q-meta">BCYT · Tejido epitelial</span></div>
+    <div class="col"><section class="q-enunciado"><div class="t-rotulo c-sec">Enunciado</div><p class="t-titulo c-tinta">En el epitelio que reviste la superficie luminal del intestino podemos encontrar:</p></section></div>
+    <div class="col"><div class="q-opciones">
+<button type="button" class="k3 opcion">
+  <span class="op-letra t-dato">A</span>
+  <span class="op-txt"><span class="t-cuerpo op-texto">Cilias</span></span>
+</button>
+<button type="button" class="k3 opcion">
+  <span class="op-letra t-dato">B</span>
+  <span class="op-txt"><span class="t-cuerpo op-texto">Estereocilias</span></span>
+</button>
+<button type="button" class="k3 opcion">
+  <span class="op-letra t-dato">C</span>
+  <span class="op-txt"><span class="t-cuerpo op-texto">Células caliciformes</span></span>
+</button>
+<button type="button" class="k3 opcion">
+  <span class="op-letra t-dato">D</span>
+  <span class="op-txt"><span class="t-cuerpo op-texto">Células en sombrilla</span></span>
+</button></div></div>
+    
+    
+    
+  </div>
+  
+</div>
+</figure>
+
+<figure class="fig" id="fig-11b">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">11b · Examen en curso · respondida · BCYT, 1.er parcial</span>
+    <span class="fig-ficha c-sec">ExamenEnCurso.md · c.2 elegida (EXA-P1, PAR-P1) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla quiz" data-pantalla="Quiz">
+  <header class="q-barra"><div class="col q-barra-fila">
+    <button type="button" class="k7 q-cerrar" aria-label="Salir"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+    <div class="progreso-barra" role="progressbar" aria-valuemin="1" aria-valuemax="75" aria-valuenow="31"><i style="width:41.33%"></i></div>
+    <div class="q-cont"><span class="t-rotulo c-tinta">31 / 75</span><span class="tiempo t-rotulo-medio"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><circle cx="8.5" cy="9.5" r="5"/>
+<path d="M6.5 1.5H10.5M8.5 1.5V4.5"/>
+<path d="M8.5 6.5V9.5H11.5"/></svg><span>58:20</span></span></div>
+  </div></header>
+  <div class="q-scroll">
+    <div class="col q-ctx"><div class="q-ctx-izq"><span class="parc t-rotulo c-tinta"><span class="parc-mk" aria-hidden="true"><i class="on"></i><i></i></span><span>1er Parcial</span></span><span class="chip chip-examen t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<circle cx="8" cy="10" r="2"/></svg><span>2025 Turno 2</span></span></div><span class="t-rotulo c-sec q-meta">BCYT · Lípidos e hidratos de carbono</span></div>
+    <div class="col"><section class="q-enunciado"><div class="t-rotulo c-sec">Enunciado</div><p class="t-titulo c-tinta">Acerca del glucógeno:</p></section></div>
+    <div class="col"><div class="q-opciones">
+<button type="button" class="k3 opcion elegida" disabled>
+  <span class="op-letra t-dato">A</span>
+  <span class="op-txt"><span class="t-cuerpo-fuerte op-texto">Es un lípido anfipático de reserva</span></span>
+</button>
+<button type="button" class="k3 opcion apagada" disabled>
+  <span class="op-letra t-dato">B</span>
+  <span class="op-txt"><span class="t-cuerpo op-texto">Es un homopolisacárido ramificado de reserva</span></span>
+</button>
+<button type="button" class="k3 opcion apagada" disabled>
+  <span class="op-letra t-dato">C</span>
+  <span class="op-txt"><span class="t-cuerpo op-texto">Es un heteropolisacárido no ramificado de reserva</span></span>
+</button>
+<button type="button" class="k3 opcion apagada" disabled>
+  <span class="op-letra t-dato">D</span>
+  <span class="op-txt"><span class="t-cuerpo op-texto">Es un polisacárido hidrofóbico de reserva en adipocitos</span></span>
+</button></div></div>
+    
+    <div class="col"><p class="q-oculto t-rotulo c-sec">Resultado oculto hasta el final</p></div>
+    
+    
+    <div class="col q-reportar"><button type="button" class="k3 btn-reportar t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 14.5V2.5H13.5V9.5H3.5"/></svg><span>Reportar pregunta</span></button></div>
+  </div>
+  
+  <footer class="q-inf"><div class="col"><button type="button" class="k1 q-sig t-cuerpo-fuerte"><span>Siguiente</span><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 8.5H12.75M8.5 3.5L13.5 8.5L8.5 13.5"/></svg></button></div></footer>
+</div>
+</figure>
+
+<figure class="fig" id="fig-11c">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">11c · Marca de parcial · insignia y filtro</span>
+    <span class="fig-ficha c-sec">comun.md · §12.2, §12.3 (PAR-P1, PAR-P2) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="Parcial">
+  <div class="col estados">
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Insignia · 1er Parcial (pregunta con parcial 'primero')</div><div class="parc-caja "><span class="parc t-rotulo c-tinta"><span class="parc-mk" aria-hidden="true"><i class="on"></i><i></i></span><span>1er Parcial</span></span></div></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Insignia · 2do Parcial (pregunta con parcial 'segundo')</div><div class="parc-caja "><span class="parc t-rotulo c-tinta"><span class="parc-mk" aria-hidden="true"><i></i><i class="on"></i></span><span>2do Parcial</span></span></div></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Filtro de parcial · en reposo</div><div class="parc-caja "><span class="k4 filtro t-cuerpo c-tinta"><span class="parc-mk" aria-hidden="true"><i class="on"></i><i></i></span><span>1er Parcial</span></span></div></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Filtro de parcial · seleccionado</div><div class="parc-caja "><span class="k4 filtro t-cuerpo-fuerte sel"><span class="parc-mk" aria-hidden="true"><i></i><i class="on"></i></span><span>2do Parcial</span></span></div></div>
+  </div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-12a">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">12a · Vacío · estadísticas sin datos (V1)</span>
+    <span class="fig-ficha c-sec">Vacios.md · a.2 (VAC-P1, VAC-P2) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="Vacio">
+  
+<header class="barra-int"><div class="col barra-int-fila"><button type="button" class="k7 btn-volver" aria-label="Volver"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></button><h1 class="t-titulo c-tinta">pKapp · Estadísticas</h1></div></header>
+  <div class="col mt-6"><section class="lam vac">
+    <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+    <svg class="g g-grande g-vacio c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="0.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5V13.5H13.5"/>
+<path d="M5.5 13.5V10M8.5 13.5V7M11.5 13.5V4"/></svg>
+    <h2 class="t-titulo c-tinta vac-tit">Sin estadísticas todavía</h2>
+    <p class="t-cuerpo c-sec vac-txt">Hacé algunos quizzes y volvé a esta pantalla para ver tu progreso.</p>
+    <button type="button" class="k2 vac-btn t-cuerpo-fuerte">Practicar</button>
+  </section></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-12b">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">12b · Vacío · repasar fallos sin falladas (V2)</span>
+    <span class="fig-ficha c-sec">Vacios.md · a.2 (VAC-P1, VAC-P2) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="Vacio">
+  
+<header class="barra-int"><div class="col barra-int-fila"><button type="button" class="k7 btn-volver" aria-label="Volver"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></button><h1 class="t-titulo c-tinta">pKapp · Elegir tema</h1></div></header>
+  <div class="col mt-6"><section class="lam vac">
+    <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+    <svg class="g g-grande g-vacio c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="0.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><circle cx="8.5" cy="8.5" r="4"/>
+<circle cx="8.5" cy="8.5" r="1"/>
+<path d="M8.5 2.5V5.5M8.5 11.5V14.5M2.5 8.5H5.5M11.5 8.5H14.5"/></svg>
+    <h2 class="t-titulo c-tinta vac-tit">Sin preguntas falladas</h2>
+    <p class="t-cuerpo c-sec vac-txt">Practicá un poco primero y volvé acá para repasar las que te cuesten.</p>
+    <button type="button" class="k2 vac-btn t-cuerpo-fuerte">Practicar</button>
+  </section></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-12c">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">12c · Vacío · «Mis preguntas» sin preguntas propias (V3)</span>
+    <span class="fig-ficha c-sec">Vacios.md · a.3 (VAC-P2) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="Settings">
+  
+<header class="barra-int"><div class="col barra-int-fila"><button type="button" class="k7 btn-volver" aria-label="Volver"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></button><h1 class="t-titulo c-tinta">pKapp · Ajustes</h1></div></header>
+  
+<div class="col mt-4 set-sec"><div class="t-rotulo c-acento sec-rotulo">Cuestionario</div>
+<div class="set-panel set-fila">
+  <div class="set-txt"><div class="t-item c-tinta">Ocultar resultado hasta el final</div><div class="t-detalle c-sec">Respondé sin ver si acertás. Al terminar, revisás todo junto.</div></div>
+  <div class="seg-no" role="radiogroup" aria-label="Ocultar resultado hasta el final"><button type="button" class="k4 t-rotulo sel" role="radio" aria-checked="true">No</button><button type="button" class="k4 t-rotulo c-tinta" role="radio" aria-checked="false">Sí</button></div>
+</div></div>
+  
+<div class="col set-sec"><div class="t-rotulo c-acento sec-rotulo">Mis preguntas</div>
+<button type="button" class="k3 pleg abierto" aria-expanded="true">
+  <span class="t-item c-tinta">0 preguntas propias</span>
+  <span class="pleg-der"><span class="t-cuerpo-fuerte c-acento">Ocultar</span><svg class="g g-chico c-acento g-gira-arriba" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg></span>
+</button>
+<div class="set-cuerpo">
+<div class="set-panel vac-compacto">
+  <p class="t-detalle c-sec">No agregaste preguntas todavía. Usá "Agregar pregunta" en el menú principal.</p>
+  <button type="button" class="k2 vac-btn t-cuerpo-fuerte">Agregar pregunta</button>
+</div></div></div>
+  
+<div class="col set-sec"><div class="t-rotulo c-acento sec-rotulo">Tus datos</div>
+<button type="button" class="k3 pleg" aria-expanded="false">
+  <span class="t-item c-tinta">Respaldo y reseteo</span>
+  <span class="pleg-der"><span class="t-cuerpo-fuerte c-acento">Ver</span><svg class="g g-chico c-acento g-gira-abajo" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg></span>
+</button>
+</div>
+  
+<div class="col "><div class="t-rotulo c-acento sec-rotulo">Acerca de</div>
+<div class="set-panel">
+  <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.7.1</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
+  <div class="acerca-franja">
+    <div class="acerca-fila"><span class="t-rotulo c-sec">Banco de Cardiovascular y Respiratorio</span><span class="t-dato c-tinta">113</span></div>
+    <div class="t-detalle c-sec acerca-des">113 de exámenes · 0 generadas · 0 tuyas</div>
+  </div>
+  <div class="acerca-franja acerca-enlaces">
+    <button type="button" class="k2 k2-acento btn-enlace t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="1.5" y="3.5" width="13" height="9"/>
+<path d="M2.09 3.96L8 8.5L13.91 3.96"/></svg><span>Reportar un error</span></button>
+    <button type="button" class="k2 k2-acento btn-enlace t-cuerpo-fuerte"><span>Código fuente</span><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M6.5 2.5H2.5V13.5H13.5V9.5"/>
+<path d="M7.5 8.5L12.97 3.03"/>
+<path d="M9.5 2.5H13.5V6.5"/></svg></button>
+  </div>
+</div></div>
+  <div class="relleno-8"></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-12d">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">12d · Vacío · ningún tema con los filtros actuales (V4) · CyR</span>
+    <span class="fig-ficha c-sec">Vacios.md · a.4 (VAC-P3) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="TopicSelect-vacio">
+  
+<header class="barra-int"><div class="col barra-int-fila"><button type="button" class="k7 btn-volver" aria-label="Volver"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></button><h1 class="t-titulo c-tinta">pKapp · Elegir tema</h1></div></header>
+  <div class="col mt-4">
+<section class="panel">
+  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
+    <div class="filtros"><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">Todas</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">Solo preguntas reales</button><button type="button" class="k4 filtro t-cuerpo-fuerte sel" aria-pressed="true">Solo generadas</button></div></div>
+  
+  <div class="divisor"></div>
+  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+    <div class="timer">
+      <button type="button" class="k5 cuadrado" aria-label="Menos tiempo" disabled><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></button>
+      <span class="t-cuerpo-fuerte c-tinta timer-valor">Sin límite</span>
+      <button type="button" class="k5 cuadrado" aria-label="Más tiempo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5M8.5 3.5V13.5"/></svg></button>
+    </div></div>
+</section></div>
+  
+<div class="col"><button type="button" class="k6 mezcla">
+  <svg class="g g-grande c-acento" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="1.5" y="1.5" width="13" height="13"/>
+<circle cx="5" cy="5" r="0.75"/>
+<circle cx="11" cy="5" r="0.75"/>
+<circle cx="8" cy="8" r="0.75"/>
+<circle cx="5" cy="11" r="0.75"/>
+<circle cx="11" cy="11" r="0.75"/></svg>
+  <span class="mezcla-txt"><span class="t-rotulo c-acento">Mezcla</span><span class="t-item c-tinta">Todos los temas mezclados</span><span class="t-detalle c-sec">0 preguntas</span></span>
+</button></div>
+<div class="col"><div class="t-rotulo c-acento sec-rotulo sec-4">O elegí un tema específico:</div></div>
+<div class="col"><p class="t-cuerpo c-sec">No hay preguntas disponibles con los filtros actuales.</p></div>
+  <div class="relleno-8"></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-13">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">13 · Avisos · banco reducido, nota del creador, privacidad</span>
+    <span class="fig-ficha c-sec">Banners.md · b, c (BAN-P1) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="Avisos">
+  <div class="col estados">
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Banner de banco reducido · Home, sin descartar</div>
+<aside class="nota">
+  
+  <div class="nota-rot t-rotulo c-acento"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5V13.5H14.5"/>
+<path d="M4.5 3.5L8.5 7.5L10.5 5.5L12.97 7.97"/>
+<path d="M10 8.5H13.5V5"/></svg><span>Banco más reducido</span></div>
+  <p class="t-cuerpo c-tinta">Esta materia tiene menos preguntas que las anteriores porque tuve acceso a menos prototipos de examen.</p><p class="t-cuerpo c-tinta">Si tenés material para aportar, escribime a</p>
+  <button type="button" class="k2 k2-acento btn-contacto t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="1.5" y="3.5" width="13" height="9"/>
+<path d="M2.09 3.96L8 8.5L13.91 3.96"/></svg><span>pkappsoporte@gmail.com</span></button>
+</aside></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Nota del creador · MateriaSelect, descartable</div>
+<aside class="nota nota-cerrable">
+  <button type="button" class="k7 cerrar-esq" aria-label="Cerrar nota"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+  <div class="nota-rot t-rotulo c-acento"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M1.5 1.5H14.5V11.5H7.5L4.5 14.5V11.5H1.5Z"/>
+<path d="M4.5 4.5H11.5M4.5 7.5H9.5"/></svg><span>Una nota del creador</span></div>
+  <p class="t-cuerpo c-tinta">¡Hola! Estoy sumando las materias que faltan (Digestivo, Renal y Endócrino, y Reproductor y Desarrollo) y dándole una lavada de cara a la página. Van llegando de a poco, ¡gracias por la paciencia!</p>
+  
+</aside></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Nota de privacidad · Home, solo web</div><p class="t-detalle c-sec nota-web">Tus estadísticas y preguntas se guardan localmente en tu navegador.<br>Se usan analíticas anónimas (sin cookies ni datos personales).</p></div>
+  </div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-14">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">14 · Inventario de glifos · 35</span>
+    <span class="fig-ficha c-sec">comun.md · §9 · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="Glifos">
+  <div class="col estados">
+    
+<div class="t-rotulo c-sec gl-rot">Grandes · paso 6 · 11</div>
+<div class="gl-grid">
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></span><span class="t-rotulo c-tinta">volver</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></span><span class="t-rotulo c-tinta">cerrar</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 8.5H12.75M8.5 3.5L13.5 8.5L8.5 13.5"/></svg></span><span class="t-rotulo c-tinta">siguiente</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="2.5" y="2.5" width="2" height="2"/>
+<rect x="2.5" y="7.5" width="2" height="2"/>
+<rect x="2.5" y="12.5" width="2" height="2"/>
+<path d="M7.5 3.5H13.5M7.5 8.5H13.5M7.5 13.5H11.5"/></svg></span><span class="t-rotulo c-tinta">practicar</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<path d="M6 8.5H10M6 11.5H9"/></svg></span><span class="t-rotulo c-tinta">examen</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><circle cx="8.5" cy="8.5" r="4"/>
+<circle cx="8.5" cy="8.5" r="1"/>
+<path d="M8.5 2.5V5.5M8.5 11.5V14.5M2.5 8.5H5.5M11.5 8.5H14.5"/></svg></span><span class="t-rotulo c-tinta">repasar</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5V13.5H13.5"/>
+<path d="M5.5 13.5V10M8.5 13.5V7M11.5 13.5V4"/></svg></span><span class="t-rotulo c-tinta">estadisticas</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="2.5" y="2.5" width="11" height="11"/>
+<path d="M8 5.5V10.5M5.5 8H10.5"/></svg></span><span class="t-rotulo c-tinta">agregar</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M1.5 4.5H8.5M12.5 4.5H14.5M1.5 11.5H3.5M7.5 11.5H14.5"/>
+<rect x="8.5" y="2.5" width="4" height="4"/>
+<rect x="3.5" y="9.5" width="4" height="4"/></svg></span><span class="t-rotulo c-tinta">ajustes</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="1.5" y="1.5" width="13" height="13"/>
+<circle cx="5" cy="5" r="0.75"/>
+<circle cx="11" cy="5" r="0.75"/>
+<circle cx="8" cy="8" r="0.75"/>
+<circle cx="5" cy="11" r="0.75"/>
+<circle cx="11" cy="11" r="0.75"/></svg></span><span class="t-rotulo c-tinta">aleatorio</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M1.5 4.5H14.5"/>
+<path d="M6.5 4.5V2.5H9.5V4.5"/>
+<path d="M2.5 4.5L4.5 14.5H11.5L13.5 4.5"/>
+<path d="M6.5 7.5V11.5M9.5 7.5V11.5"/></svg></span><span class="t-rotulo c-tinta">eliminar</span></div></div>
+    
+<div class="t-rotulo c-sec gl-rot">Chicos · paso 4 · 24</div>
+<div class="gl-grid">
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg></span><span class="t-rotulo c-tinta">chevron</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg></span><span class="t-rotulo c-tinta">acierto</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg></span><span class="t-rotulo c-tinta">error</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 6.5H12.5M3.5 9.5H12.5"/></svg></span><span class="t-rotulo c-tinta">intermedia</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></span><span class="t-rotulo c-tinta">menos</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5M8.5 3.5V13.5"/></svg></span><span class="t-rotulo c-tinta">mas</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="2.5"/>
+<path d="M8 1.5V3M8 13V14.5M1.5 8H3M13 8H14.5"/>
+<path d="M4.46 4.46L3.4 3.4M11.54 4.46L12.6 3.4M11.54 11.54L12.6 12.6M4.46 11.54L3.4 12.6"/></svg></span><span class="t-rotulo c-tinta">claro</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5A5.5 5.5 0 1 1 7.5 2.5A4.25 4.25 0 0 0 13.5 8.5Z"/></svg></span><span class="t-rotulo c-tinta">oscuro</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M6.5 11.5V10.24A4.5 4.5 0 1 1 9.5 10.24V11.5Z"/>
+<path d="M7 14.5H9"/></svg></span><span class="t-rotulo c-tinta">explicacion</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><circle cx="8.5" cy="9.5" r="5"/>
+<path d="M6.5 1.5H10.5M8.5 1.5V4.5"/>
+<path d="M8.5 6.5V9.5H11.5"/></svg></span><span class="t-rotulo c-tinta">reloj</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 14.5V2.5H13.5V9.5H3.5"/></svg></span><span class="t-rotulo c-tinta">reportar</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<circle cx="8" cy="10" r="2"/></svg></span><span class="t-rotulo c-tinta">origen-examen</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M8 1.5L10 6L14.5 8L10 10L8 14.5L6 10L1.5 8L6 6Z"/></svg></span><span class="t-rotulo c-tinta">origen-generada</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><circle cx="8" cy="4.5" r="2.5"/>
+<path d="M3 14.5A5 5 0 0 1 13 14.5"/></svg></span><span class="t-rotulo c-tinta">origen-propia</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="3.5" y="2.5" width="9" height="12"/>
+<path d="M6.5 1.5H9.5"/>
+<path d="M6 5.5H10M6 8.5H10M6 11.5H10"/></svg></span><span class="t-rotulo c-tinta">revisar</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 8.5V4.5H11.75M10 2L12.5 4.5L10 7"/>
+<path d="M13.5 7.5V11.5H4.25M6 9L3.5 11.5L6 14"/></svg></span><span class="t-rotulo c-tinta">reintentar</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L8 2L13.5 7.5"/>
+<path d="M3.5 7.25V14.5H12.5V7.25"/>
+<path d="M6.5 14.5V9.5H9.5V14.5"/></svg></span><span class="t-rotulo c-tinta">inicio</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M1.5 1.5H14.5V11.5H7.5L4.5 14.5V11.5H1.5Z"/>
+<path d="M4.5 4.5H11.5M4.5 7.5H9.5"/></svg></span><span class="t-rotulo c-tinta">mensaje</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5V13.5H14.5"/>
+<path d="M4.5 3.5L8.5 7.5L10.5 5.5L12.97 7.97"/>
+<path d="M10 8.5H13.5V5"/></svg></span><span class="t-rotulo c-tinta">banco-reducido</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M4.5 2.5H11.5L10 8.5H6Z"/>
+<path d="M4.75 4.5H2.5V7.5H5.5M11.25 4.5H13.5V7.5H10.5"/>
+<path d="M8 8.5V13.5M5.5 13.5H10.5"/></svg></span><span class="t-rotulo c-tinta">trofeo</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5H11.5L13.5 4.5V13.5H2.5Z"/>
+<path d="M5.5 2.5V5.5H10.5V2.5"/>
+<path d="M4.5 13.5V9.5H11.5V13.5"/></svg></span><span class="t-rotulo c-tinta">guardar</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M1.5 3.5H6.5L8.5 5.5H14.5V13.5H1.5Z"/></svg></span><span class="t-rotulo c-tinta">importar</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="1.5" y="3.5" width="13" height="9"/>
+<path d="M2.09 3.96L8 8.5L13.91 3.96"/></svg></span><span class="t-rotulo c-tinta">correo</span></div>
+  <div class="gl-celda"><span class="gl-dib"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M6.5 2.5H2.5V13.5H13.5V9.5"/>
+<path d="M7.5 8.5L12.97 3.03"/>
+<path d="M9.5 2.5H13.5V6.5"/></svg></span><span class="t-rotulo c-tinta">externo</span></div></div>
   </div>
 </div>
 </figure>

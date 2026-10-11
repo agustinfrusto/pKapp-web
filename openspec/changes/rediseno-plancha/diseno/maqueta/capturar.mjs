@@ -25,7 +25,9 @@ const ANCHOS = [390, 768, 1280];
 const TEMAS = ['claro', 'oscuro'];
 // Columnas del tablero por ancho de pantalla: el viewport se calcula para que la grilla
 // (auto-fill) arme exactamente esas columnas. Relleno lateral del tablero: 24 px.
-const COLUMNAS = { 390: 4, 768: 2, 1280: 2 };
+// Con 30 figuras, dos columnas a 768 y 1280 px pasan los 16 384 px de alto del PNG: tres
+// columnas lo dejan bajo ese tope.
+const COLUMNAS = { 390: 4, 768: 3, 1280: 3 };
 const viewport = (a) => COLUMNAS[a] * (a + 2) + (COLUMNAS[a] - 1) * 24 + 48;
 
 if (!fs.existsSync(HTML)) throw new Error('Falta maqueta.html: correr generar.mjs primero');

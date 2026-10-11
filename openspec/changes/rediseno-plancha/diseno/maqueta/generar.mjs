@@ -9,7 +9,7 @@
 //                                                 queda como cuadrado de `filete` numerado;
 //   - src/assets/filamentos.js                 -> campo de filamentos (solo MateriaSelect).
 //
-// La maqueta reproduce las fichas aprobadas de `diseno/pantallas/`; no propone nada.
+// La maqueta reproduce las fichas aprobadas de `diseno/pantallas/` (1.2 y 1.3); no propone nada.
 // Los valores de color no se escriben en ninguna parte de este archivo: todo color sale de
 // `plancha` y se referencia por variable CSS (`var(--tinta)`, ...).
 //
@@ -191,7 +191,9 @@ const campoSvg =
   `stroke-width="${campo.trazo.ancho}" stroke-linejoin="${campo.trazo.union}" stroke-linecap="${campo.trazo.extremo}" ` +
   `aria-hidden="true" focusable="false">${campo.elementos.map(elementoSvg).join('')}</svg>`;
 
-// Glifos de comun.md §9 usados por las seis pantallas: [id, tamaño].
+// Inventario completo de comun.md §9 (35 glifos): [id, tamaño]. Los 27 primeros son los de 1.2;
+// los 8 últimos, los de 1.3 (mensaje, banco reducido, trofeo, guardar, importar, correo,
+// externo) y `glifo-eliminar` (1.4b).
 const GLIFOS = [
   ['glifo-volver', 'grande'], ['glifo-chevron', 'chico'], ['glifo-cerrar', 'grande'],
   ['glifo-siguiente', 'grande'], ['glifo-acierto', 'chico'], ['glifo-error', 'chico'],
@@ -202,6 +204,9 @@ const GLIFOS = [
   ['glifo-examen', 'grande'], ['glifo-repasar', 'grande'], ['glifo-estadisticas', 'grande'],
   ['glifo-agregar', 'grande'], ['glifo-ajustes', 'grande'], ['glifo-aleatorio', 'grande'],
   ['glifo-revisar', 'chico'], ['glifo-reintentar', 'chico'], ['glifo-inicio', 'chico'],
+  ['glifo-mensaje', 'chico'], ['glifo-banco-reducido', 'chico'], ['glifo-trofeo', 'chico'],
+  ['glifo-guardar', 'chico'], ['glifo-importar', 'chico'], ['glifo-correo', 'chico'],
+  ['glifo-externo', 'chico'], ['glifo-eliminar', 'grande'],
 ];
 const TAM_GLIFO = Object.fromEntries(GLIFOS);
 const INDICE_GLIFO = Object.fromEntries(GLIFOS.map(([id], i) => [id, pad2(i + 1)]));
@@ -261,9 +266,6 @@ function ilustracion(id, lado) {
 
 const marcas = '<i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>';
 
-const reservado = (texto) =>
-  `<div class="reservado t-rotulo c-sec">${esc(texto)} · ver 1.3</div>`;
-
 // §2: control segmentado «Claro | Oscuro». El estado seleccionado lo da el tema de la página.
 const controlTema = () => `
 <div class="tema" role="radiogroup" aria-label="Modo oscuro">
@@ -291,6 +293,83 @@ const BANDA = {
   media: { clase: 'c-inter', glifo: 'glifo-intermedia', var: 'intermedia' },
   baja: { clase: 'c-error', glifo: 'glifo-error', var: 'error' },
 };
+
+// ---------------------------------------------------------------------------
+// Componentes de 1.3 compartidos entre pantallas
+// (Banners.md, DonationBox.md, comun.md §12)
+// ---------------------------------------------------------------------------
+
+const CORREO_SOPORTE = 'pkappsoporte@gmail.com';
+// Montos y versión: se leen del código, la ficha no copia los valores (DonationBox.md d.1, Settings.md d.1).
+const MONTOS = /DONATION_AMOUNTS\s*=\s*\[([^\]]*)\]/
+  .exec(fs.readFileSync(path.join(RAIZ, 'src/utils/mercadopago.js'), 'utf8'))[1]
+  .split(',').map((s) => s.trim()).filter(Boolean);
+const VERSION = JSON.parse(fs.readFileSync(path.join(RAIZ, 'app.json'), 'utf8')).expo.version;
+
+// K7 de `paso 11` en la esquina superior derecha del cuerpo, a ras del marco.
+const cerrarEsquina = (nombre) =>
+  `<button type="button" class="k7 cerrar-esq" aria-label="${esc(nombre)}">${glifo('glifo-cerrar', 'c-sec')}</button>`;
+
+// Banners.md a.2: nota de borde izquierdo `acento`; banco reducido y nota del creador son el
+// mismo componente con otro rótulo y otro glifo.
+function nota({ g, rotulo, parrafos, descartable = false, contacto = '' }) {
+  return `
+<aside class="nota${descartable ? ' nota-cerrable' : ''}">
+  ${descartable ? cerrarEsquina('Cerrar nota') : ''}
+  <div class="nota-rot t-rotulo c-acento">${glifo(g)}<span>${esc(rotulo)}</span></div>
+  ${parrafos.map((p) => `<p class="t-cuerpo c-tinta">${esc(p)}</p>`).join('')}
+  ${contacto}
+</aside>`;
+}
+
+const notaCreador = () => nota({
+  g: 'glifo-mensaje',
+  rotulo: 'Una nota del creador',
+  descartable: true,
+  parrafos: ['¡Hola! Estoy sumando las materias que faltan (Digestivo, Renal y Endócrino, y Reproductor y Desarrollo) y dándole una lavada de cara a la página. Van llegando de a poco, ¡gracias por la paciencia!'],
+});
+
+// BAN-P1: el correo pasa a botón K2 de acento con `glifo-correo`, debajo del texto.
+const bancoReducido = () => nota({
+  g: 'glifo-banco-reducido',
+  rotulo: 'Banco más reducido',
+  parrafos: [
+    'Esta materia tiene menos preguntas que las anteriores porque tuve acceso a menos prototipos de examen.',
+    'Si tenés material para aportar, escribime a',
+  ],
+  contacto: `<button type="button" class="k2 k2-acento btn-contacto t-cuerpo-fuerte">${glifo('glifo-correo')}<span>${CORREO_SOPORTE}</span></button>`,
+});
+
+// DonationBox.md a.2: un solo aspecto para `DonationBox` (persistente, con regla corta) y
+// `DonationPrompt` (descartable); `celebratoria` desde `DONATION_WARM_SCORE`.
+function donacion({ celebratoria = false, descartable = false, regla = false } = {}) {
+  const titulo = celebratoria ? '¡Gran resultado!' : 'Ayuda a mantener esta aplicación';
+  const texto = celebratoria
+    ? 'Si pKapp te está ayudando a llegar al examen, dale una mano para mantenerla (no es de Udelar):'
+    : 'Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:';
+  return `
+${regla ? '<div class="don-regla"></div>' : ''}
+<section class="lam don${descartable ? ' don-cerrable' : ''}">
+  ${marcas}
+  ${descartable ? cerrarEsquina('Cerrar') : ''}
+  <h3 class="don-tit t-item c-tinta">${celebratoria ? glifo('glifo-trofeo', 'c-acierto') : ''}<span>${esc(titulo)}</span></h3>
+  <p class="t-cuerpo c-tinta don-txt">${esc(texto)}</p>
+  <div class="don-montos">${MONTOS.map((m) => `<button type="button" class="k3 monto t-dato">$${esc(m)}</button>`).join('')}</div>
+  <div class="t-rotulo c-sec don-pie">Vía Mercado Pago</div>
+</section>`;
+}
+
+// comun.md §12.2 (PAR-P1, PAR-P2): una casilla por parcial, llena la de la pregunta. Color del
+// contenedor (`currentColor`): nunca `acierto`, `error` ni `intermedia`.
+const marcaParcial = (llena) =>
+  `<span class="parc-mk" aria-hidden="true">${[0, 1].map((i) => `<i${i === llena ? ' class="on"' : ''}></i>`).join('')}</span>`;
+
+function insigniaParcial(materia, parcial) {
+  const parciales = materia.config?.parciales;
+  const idx = parciales ? parciales.findIndex((p) => p.id === parcial) : -1;
+  if (idx < 0) return '';
+  return `<span class="parc t-rotulo c-tinta">${marcaParcial(idx)}<span>${esc(parciales[idx].label)}</span></span>`;
+}
 
 // ---------------------------------------------------------------------------
 // 01 · MateriaSelect
@@ -334,9 +413,9 @@ function pantallaMateriaSelect() {
       </div>
     </section>
   </div>
-  <div class="col mb-3">${reservado('Nota del creador (condicional, reaparece cada siete días)')}</div>
+  <div class="col mb-3">${notaCreador()}</div>
   <div class="col mt-1_5"><div class="lista">${materias.map((m) => tarjetaMateria(m)).join('')}</div></div>
-  <div class="col mt-6">${reservado('Bloque de donación (origen materias)')}</div>
+  <div class="col mt-6">${donacion({ regla: true })}</div>
   <div class="relleno-10"></div>
 </div>`;
 }
@@ -397,7 +476,7 @@ function pantallaHome(m) {
       </div>
     </section>
   </div>
-  ${m.bancoReducido ? `<div class="col mt-3">${reservado('Banner de banco reducido')}</div>` : ''}
+  ${m.bancoReducido ? `<div class="col mt-3">${bancoReducido()}</div>` : ''}
   ${rotuloSeccion('Plano / Acciones', 'sec-4')}
   <div class="col"><div class="lista">${acciones.map(accion).join('')}</div></div>
   <div class="col mt-6"><p class="t-detalle c-sec nota-web">Tus estadísticas y preguntas se guardan localmente en tu navegador.<br>Se usan analíticas anónimas (sin cookies ni datos personales).</p></div>
@@ -409,19 +488,22 @@ function pantallaHome(m) {
 // 03 · TopicSelect
 // ---------------------------------------------------------------------------
 
-function panelFiltros(m, { timer = 0 } = {}) {
-  const filtro = (txt, sel) =>
-    `<button type="button" class="k4 filtro ${sel ? 't-cuerpo-fuerte sel' : 't-cuerpo c-tinta'}" aria-pressed="${sel}">${esc(txt)}</button>`;
+// `fuente`: índice del filtro de fuente seleccionado (0 «Todas», 1 «Solo preguntas reales»,
+// 2 «Solo generadas»). PAR-P2: los filtros de parcial llevan la marca delante del texto.
+function panelFiltros(m, { timer = 0, fuente = 0 } = {}) {
+  const filtro = (txt, sel, marca = '') =>
+    `<button type="button" class="k4 filtro ${sel ? 't-cuerpo-fuerte sel' : 't-cuerpo c-tinta'}" aria-pressed="${sel}">${marca}${marca ? `<span>${esc(txt)}</span>` : esc(txt)}</button>`;
   const parciales = m.config?.parciales;
   const grupoParcial = parciales ? `
     <div class="divisor"></div>
     <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Parcial</div>
-      <div class="filtros">${filtro('Examen', true)}${parciales.map((p) => filtro(p.label, false)).join('')}</div></div>` : '';
+      <div class="filtros">${filtro('Examen', true)}${parciales.map((p, i) => filtro(p.label, false, marcaParcial(i))).join('')}</div></div>` : '';
   const sinLimite = timer === 0;
+  const fuentes = ['Todas', 'Solo preguntas reales', 'Solo generadas'];
   return `
 <section class="panel">
   <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
-    <div class="filtros">${filtro('Todas', true)}${filtro('Solo preguntas reales', false)}${filtro('Solo generadas', false)}</div></div>
+    <div class="filtros">${fuentes.map((t, i) => filtro(t, i === fuente)).join('')}</div></div>
   ${grupoParcial}
   <div class="divisor"></div>
   <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
@@ -433,8 +515,12 @@ function panelFiltros(m, { timer = 0 } = {}) {
 </section>`;
 }
 
+// `modo`: 'practice', 'exam' o 'vacio' (V4 de Vacios.md: «Solo generadas» deja cero temas).
 function pantallaTopicSelect(m, modo) {
-  const { total, porTema } = conteoPorTema(m.id);
+  const conteo = conteoPorTema(m.id);
+  const vacio = modo === 'vacio';
+  const total = vacio ? 0 : conteo.total;
+  const porTema = vacio ? new Map() : conteo.porTema;
   const cuerpoPractica = () => {
     const filas = Object.entries(m.TOPICS)
       .filter(([k]) => (porTema.get(k) || 0) > 0)
@@ -450,7 +536,9 @@ function pantallaTopicSelect(m, modo) {
   <span class="mezcla-txt"><span class="t-rotulo c-acento">Mezcla</span><span class="t-item c-tinta">Todos los temas mezclados</span><span class="t-detalle c-sec">${total} preguntas</span></span>
 </button></div>
 ${rotuloSeccion('O elegí un tema específico:', 'sec-4')}
-<div class="col"><div class="lista-temas">${filas}</div></div>`;
+${vacio
+    ? '<div class="col"><p class="t-cuerpo c-sec">No hay preguntas disponibles con los filtros actuales.</p></div>'
+    : `<div class="col"><div class="lista-temas">${filas}</div></div>`}`;
   };
   const cuerpoExamen = () => {
     const tam = Math.min(m.config?.examSize || 75, total);
@@ -466,8 +554,8 @@ ${rotuloSeccion('O elegí un tema específico:', 'sec-4')}
   return `
 <div class="pantalla" data-pantalla="TopicSelect-${modo}">
   ${barraInterna('pKapp · Elegir tema')}
-  <div class="col mt-4">${panelFiltros(m)}</div>
-  ${modo === 'practice' ? cuerpoPractica() : cuerpoExamen()}
+  <div class="col mt-4">${panelFiltros(m, { fuente: vacio ? 2 : 0 })}</div>
+  ${modo === 'exam' ? cuerpoExamen() : cuerpoPractica()}
   <div class="relleno-8"></div>
 </div>`;
 }
@@ -482,8 +570,10 @@ function chipOrigen(origen, examen) {
   return `<span class="chip chip-propia t-rotulo">${glifo('glifo-origen-propia')}<span>Tuya</span></span>`;
 }
 
+// `sinFeedback`: quiz con `hideFeedback` (ExamenEnCurso.md): sin marcas de acierto o error,
+// sin explicación ni correcta revelada; la elegida va rellena y las demás apagadas.
 function pantallaQuiz(opts) {
-  const { materia, pregunta, indice, total, respuesta = null, tiempo = null, alerta = false } = opts;
+  const { materia, pregunta, indice, total, respuesta = null, tiempo = null, alerta = false, sinFeedback = false } = opts;
   const respondida = respuesta !== null;
   const contador = `${pad2(indice + 1)} / ${total}`;
 
@@ -500,7 +590,9 @@ function pantallaQuiz(opts) {
     let clase = '';
     let estado = '';
     let tipo = 't-cuerpo';
-    if (respondida) {
+    if (respondida && sinFeedback) {
+      if (idx === respuesta) { clase = ' elegida'; tipo = 't-cuerpo-fuerte'; } else { clase = ' apagada'; }
+    } else if (respondida) {
       if (idx === pregunta.correctIndex) {
         clase = ' ok'; tipo = 't-cuerpo-fuerte';
         estado = `<span class="op-estado t-rotulo c-acierto">${glifo('glifo-acierto')}<span>Correcta</span></span>`;
@@ -527,11 +619,14 @@ function pantallaQuiz(opts) {
     <div class="q-cont"><span class="t-rotulo c-tinta">${contador}</span>${bloqueTiempo}</div>
   </div></header>
   <div class="q-scroll">
-    <div class="col q-ctx">${chipOrigen(pregunta.source, pregunta.exam)}<span class="t-rotulo c-sec q-meta">${esc(materia.shortName)} · ${esc(tema)}</span></div>
+    <div class="col q-ctx"><div class="q-ctx-izq">${pregunta.parcial ? insigniaParcial(materia, pregunta.parcial) : ''}${chipOrigen(pregunta.source, pregunta.exam)}</div><span class="t-rotulo c-sec q-meta">${esc(materia.shortName)} · ${esc(tema)}</span></div>
     <div class="col"><section class="q-enunciado"><div class="t-rotulo c-sec">Enunciado</div><p class="t-titulo c-tinta">${esc(pregunta.question)}</p></section></div>
     <div class="col"><div class="q-opciones">${opciones}</div></div>
+    ${respondida && sinFeedback ? `
+    <div class="col"><p class="q-oculto t-rotulo c-sec">Resultado oculto hasta el final</p></div>` : ''}
+    ${respondida && !sinFeedback ? `
+    <div class="col"><aside class="q-nota"><div class="q-nota-rot t-rotulo c-acento">${glifo('glifo-explicacion')}<span>Nota / Explicación</span></div><p class="t-cuerpo c-tinta">${esc(pregunta.explanation)}</p></aside></div>` : ''}
     ${respondida ? `
-    <div class="col"><aside class="q-nota"><div class="q-nota-rot t-rotulo c-acento">${glifo('glifo-explicacion')}<span>Nota / Explicación</span></div><p class="t-cuerpo c-tinta">${esc(pregunta.explanation)}</p></aside></div>
     <div class="col q-reportar"><button type="button" class="k3 btn-reportar t-cuerpo-fuerte c-tinta">${glifo('glifo-reportar')}<span>Reportar pregunta</span></button></div>` : ''}
   </div>
   ${respondida ? `
@@ -566,7 +661,9 @@ function feedback(pct) {
   return { banda: 'baja', msg: 'A estudiar fuerte. Vos podés.' };
 }
 
-function pantallaResults({ respuestas, topic }) {
+// `pedido`: 'normal' | 'celebratoria' | null (sin pedido de donación: menos de DONATION_MIN_SCORE
+// o no le toca por el 1 de cada 3).
+function pantallaResults({ respuestas, topic, pedido = null }) {
   const total = respuestas.length;
   const correctas = respuestas.filter(Boolean).length;
   const pct = total ? Math.round((correctas / total) * 100) : 0;
@@ -597,7 +694,7 @@ function pantallaResults({ respuestas, topic }) {
       <div class="trio-celda"><span class="t-cifra c-tinta">${total}</span><span class="t-rotulo c-sec trio-rot">Total</span></div>
     </section>
   </div>
-  <div class="col mb-3">${reservado('Pedido de donación (condicional, solo web)')}</div>
+  ${pedido ? `<div class="col mb-3">${donacion({ celebratoria: pedido === 'celebratoria', descartable: true })}</div>` : ''}
   <div class="col mt-1_5"><div class="botones">
     <button type="button" class="k2 k2-acento btn-res t-cuerpo-fuerte">${glifo('glifo-revisar')}<span>Revisar todas las respuestas</span></button>
     <button type="button" class="k1 btn-res t-cuerpo-fuerte">${glifo('glifo-reintentar')}<span>Volver a practicar</span></button>
@@ -703,6 +800,282 @@ function pantallaStats(m) {
 }
 
 // ---------------------------------------------------------------------------
+// 07 · AddQuestion (AddQuestion.md)
+// ---------------------------------------------------------------------------
+
+// `datos`: null (formulario inicial) o { tema, enunciado, opciones, correcta, explicacion,
+// guardando }. Con 6 opciones «Agregar opción» no se muestra.
+function pantallaAddQuestion(m, datos = null) {
+  const d = datos ?? {
+    tema: Object.keys(m.TOPICS)[0], enunciado: '', opciones: ['', '', '', ''],
+    correcta: null, explicacion: '', guardando: false,
+  };
+  const campo = (texto, ayuda, extra = '') => `
+<div class="fld ${extra} ${texto ? 't-campo c-tinta' : 't-campo c-sec'}" role="textbox" aria-multiline="${extra.includes('fld-multi')}">${esc(texto || ayuda)}</div>`;
+  const grupo = (rotulo, cuerpo, ultimo = false) => `
+<div class="col${ultimo ? '' : ' add-grupo'}"><div class="t-rotulo c-sec add-rot">${esc(rotulo)}</div>${cuerpo}</div>`;
+
+  const temas = Object.entries(m.TOPICS).map(([k, nombre]) =>
+    `<button type="button" class="k4 add-tema ${k === d.tema ? 't-cuerpo-fuerte sel' : 't-cuerpo c-tinta'}" aria-pressed="${k === d.tema}">${esc(nombre)}</button>`).join('');
+
+  const filas = d.opciones.map((texto, i) => {
+    const letra = String.fromCharCode(65 + i);
+    const marcada = d.correcta === i;
+    return `
+<div class="op-fila">
+  <button type="button" class="k3 letra-k t-dato${marcada ? ' ok' : ''}" aria-label="Opción ${letra}, marcar como correcta" aria-pressed="${marcada}">${marcada ? glifo('glifo-acierto') : letra}</button>
+  ${campo(texto, `Opción ${letra}`, 'fld-op')}
+  <button type="button" class="k7 quitar" aria-label="Quitar opción ${letra}">${glifo('glifo-cerrar', 'c-sec')}</button>
+</div>`;
+  }).join('');
+
+  const agregar = d.opciones.length < 6
+    ? `<button type="button" class="k3 add-agregar t-cuerpo-fuerte">${glifo('glifo-mas')}<span>Agregar opción</span></button>` : '';
+  const guardar = d.guardando
+    ? '<button type="button" class="k1 add-guardar guardando t-cuerpo-fuerte" disabled>Guardando...</button>'
+    : `<button type="button" class="k1 add-guardar t-cuerpo-fuerte">${glifo('glifo-guardar')}<span>Guardar pregunta</span></button>`;
+
+  return `
+<div class="pantalla" data-pantalla="AddQuestion">
+  ${barraInterna('pKapp · Agregar pregunta')}
+  <div class="mt-4"></div>
+  ${grupo('Tema', `<div class="add-temas">${temas}</div>`)}
+  ${grupo('Enunciado de la pregunta', campo(d.enunciado, 'Escribí la pregunta acá...', 'fld-multi'))}
+  ${grupo('Opciones de respuesta', `
+    <p class="t-detalle c-sec add-ayuda"><span>Marcá con</span><span class="c-acierto">${glifo('glifo-acierto')}</span><span>cuál es la correcta</span></p>
+    ${filas}${agregar}`)}
+  ${grupo('Explicación (opcional)', campo(d.explicacion, 'Explicación que se mostrará después de responder...', 'fld-multi'))}
+  <div class="col">${guardar}</div>
+  <div class="relleno-8"></div>
+</div>`;
+}
+
+// ---------------------------------------------------------------------------
+// 08 · Settings (Settings.md) y V3 de Vacios.md
+// ---------------------------------------------------------------------------
+
+function plegable(nombre, abierto, cuerpo) {
+  return `
+<button type="button" class="k3 pleg${abierto ? ' abierto' : ''}" aria-expanded="${abierto}">
+  <span class="t-item c-tinta">${esc(nombre)}</span>
+  <span class="pleg-der"><span class="t-cuerpo-fuerte c-acento">${abierto ? 'Ocultar' : 'Ver'}</span>${glifo('glifo-chevron', `c-acento ${abierto ? 'g-gira-arriba' : 'g-gira-abajo'}`)}</span>
+</button>
+${abierto ? `<div class="set-cuerpo">${cuerpo}</div>` : ''}`;
+}
+
+// `propias`: preguntas propias de muestra; `abiertos`: { preguntas, datos }; `ocultar`: hideFeedback.
+function pantallaSettings(m, { propias = [], abiertos = {}, ocultar = false } = {}) {
+  const generadas = PREGUNTAS[m.id].filter((q) => q.source === 'generated').length;
+  const examenes = PREGUNTAS[m.id].filter((q) => q.source === 'exam').length;
+  const tuyas = propias.length;
+
+  const seccion = (rotulo, cuerpo, clase) => `
+<div class="col ${clase}"><div class="t-rotulo c-acento sec-rotulo">${esc(rotulo)}</div>${cuerpo}</div>`;
+
+  const opcion = (txt, sel) =>
+    `<button type="button" class="k4 t-rotulo ${sel ? 'sel' : 'c-tinta'}" role="radio" aria-checked="${sel}">${txt}</button>`;
+  const cuestionario = `
+<div class="set-panel set-fila">
+  <div class="set-txt"><div class="t-item c-tinta">Ocultar resultado hasta el final</div><div class="t-detalle c-sec">Respondé sin ver si acertás. Al terminar, revisás todo junto.</div></div>
+  <div class="seg-no" role="radiogroup" aria-label="Ocultar resultado hasta el final">${opcion('No', !ocultar)}${opcion('Sí', ocultar)}</div>
+</div>`;
+
+  const tarjeta = (q) => `
+<article class="pq">
+  <div class="pq-enc"><span class="t-rotulo c-acento">${esc(m.TOPICS[q.topic] || q.topic)}</span>
+    <button type="button" class="k7 pq-del" aria-label="Eliminar pregunta">${glifo('glifo-eliminar', 'c-sec')}</button></div>
+  <p class="t-cuerpo c-tinta pq-enun">${esc(q.question)}</p>
+  <p class="t-detalle c-acierto pq-ok">${glifo('glifo-acierto')}<span>${esc(q.options[q.correctIndex])}</span></p>
+</article>`;
+  const vacioPropias = `
+<div class="set-panel vac-compacto">
+  <p class="t-detalle c-sec">No agregaste preguntas todavía. Usá "Agregar pregunta" en el menú principal.</p>
+  <button type="button" class="k2 vac-btn t-cuerpo-fuerte">Agregar pregunta</button>
+</div>`;
+  const nombrePropias = `${tuyas} ${tuyas === 1 ? 'pregunta propia' : 'preguntas propias'}`;
+  const cuerpoPropias = tuyas === 0 ? vacioPropias : `<div class="pq-lista">${propias.map(tarjeta).join('')}</div>`;
+
+  const cuerpoDatos = `
+<div class="set-panel">
+  <p class="t-detalle c-sec set-resp">Descargá un respaldo de tu progreso para no perderlo o pasarlo a otro dispositivo.</p>
+  <div class="set-botones">
+    <button type="button" class="k3 btn-set t-cuerpo-fuerte">${glifo('glifo-guardar')}<span>Descargar respaldo</span></button>
+    <button type="button" class="k1 btn-set t-cuerpo-fuerte">${glifo('glifo-importar')}<span>Importar respaldo</span></button>
+  </div>
+  <div class="divisor set-div"></div>
+  <button type="button" class="k2 k2-peligro btn-set t-cuerpo-fuerte">Resetear estadísticas</button>
+</div>`;
+
+  const acerca = `
+<div class="set-panel">
+  <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v${esc(VERSION)}</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
+  <div class="acerca-franja">
+    <div class="acerca-fila"><span class="t-rotulo c-sec">Banco de ${esc(m.name)}</span><span class="t-dato c-tinta">${examenes + generadas + tuyas}</span></div>
+    <div class="t-detalle c-sec acerca-des">${examenes} de exámenes · ${generadas} generadas · ${tuyas} tuyas</div>
+  </div>
+  <div class="acerca-franja acerca-enlaces">
+    <button type="button" class="k2 k2-acento btn-enlace t-cuerpo-fuerte">${glifo('glifo-correo')}<span>Reportar un error</span></button>
+    <button type="button" class="k2 k2-acento btn-enlace t-cuerpo-fuerte"><span>Código fuente</span>${glifo('glifo-externo')}</button>
+  </div>
+</div>`;
+
+  return `
+<div class="pantalla" data-pantalla="Settings">
+  ${barraInterna('pKapp · Ajustes')}
+  ${seccion('Cuestionario', cuestionario, 'mt-4 set-sec')}
+  ${seccion('Mis preguntas', plegable(nombrePropias, !!abiertos.preguntas, cuerpoPropias), 'set-sec')}
+  ${seccion('Tus datos', plegable('Respaldo y reseteo', !!abiertos.datos, cuerpoDatos), 'set-sec')}
+  ${seccion('Acerca de', acerca, '')}
+  <div class="relleno-8"></div>
+</div>`;
+}
+
+// ---------------------------------------------------------------------------
+// 10 · Revisión de respuestas (Revision.md)
+// ---------------------------------------------------------------------------
+
+// `respuestas`: [{ pregunta, ok, elegida }] en orden de respuesta. Con `soloIncorrectas`
+// (REV-P1) se listan las falladas con su número original.
+function pantallaRevision(m, respuestas, { soloIncorrectas = false } = {}) {
+  const total = respuestas.length;
+  const correctas = respuestas.filter((r) => r.ok).length;
+  const pct = Math.round((correctas / total) * 100);
+  const lista = respuestas.map((r, i) => ({ ...r, n: i + 1 })).filter((r) => !soloIncorrectas || !r.ok);
+
+  const tarjeta = (r) => {
+    const q = r.pregunta;
+    const est = r.ok
+      ? { clase: 'c-acierto', g: 'glifo-acierto', t: 'Correcta', marco: 'ok' }
+      : { clase: 'c-error', g: 'glifo-error', t: 'Incorrecta', marco: 'mal' };
+    const filas = q.options.map((texto, idx) => {
+      let clase = ' apagada';
+      let tipo = 't-cuerpo c-sec';
+      let linea = '';
+      if (idx === q.correctIndex) {
+        clase = ' ok'; tipo = 't-cuerpo-fuerte c-tinta';
+        linea = `<span class="op-estado t-rotulo c-acierto">${glifo('glifo-acierto')}<span>Correcta</span></span>`;
+      } else if (idx === r.elegida && !r.ok) {
+        clase = ' mal'; tipo = 't-cuerpo c-tinta';
+        linea = `<span class="op-estado t-rotulo c-error">${glifo('glifo-error')}<span>Incorrecta · tu respuesta</span></span>`;
+      }
+      return `
+<div class="r-op${clase}"><span class="op-letra t-dato">${String.fromCharCode(65 + idx)}</span><span class="op-txt"><span class="${tipo}">${esc(texto)}</span>${linea}</span></div>`;
+    }).join('');
+    return `
+<article class="r-card ${est.marco}">
+  <div class="r-enc"><span class="t-rotulo c-sec">#${r.n}</span><span class="s-valor ${est.clase}">${glifo(est.g)}<span class="t-rotulo">${est.t}</span></span></div>
+  <p class="t-cuerpo c-tinta r-enun">${esc(q.question)}</p>
+  <div class="r-opts">${filas}</div>
+  ${q.explanation ? `<aside class="q-nota"><div class="q-nota-rot t-rotulo c-acento">${glifo('glifo-explicacion')}<span>Nota / Explicación</span></div><p class="t-cuerpo c-tinta">${esc(q.explanation)}</p></aside>` : ''}
+  <button type="button" class="k7 r-rep t-cuerpo-fuerte c-tinta">${glifo('glifo-reportar')}<span>Reportar pregunta</span></button>
+</article>`;
+  };
+
+  const filtro = correctas < total ? `
+<div class="col mb-3"><div class="r-filtro" role="radiogroup" aria-label="Mostrar">
+  <button type="button" class="k4 filtro ${soloIncorrectas ? 't-cuerpo c-tinta' : 't-cuerpo-fuerte sel'}" role="radio" aria-checked="${!soloIncorrectas}">Todas</button>
+  <button type="button" class="k4 filtro ${soloIncorrectas ? 't-cuerpo-fuerte sel' : 't-cuerpo c-tinta'}" role="radio" aria-checked="${soloIncorrectas}">Incorrectas</button>
+</div></div>` : '';
+
+  return `
+<div class="pantalla" data-pantalla="Revision">
+  ${barraInterna('pKapp · Resultados', false)}
+  <div class="col mt-4 mb-3"><h2 class="t-titulo c-tinta">Revisión completa</h2><p class="t-cuerpo c-sec r-resumen">${correctas} / ${total} aciertos (${pct}%)</p></div>
+  <div class="col mb-3"><button type="button" class="k2 btn-cambiar t-cuerpo-fuerte c-tinta">${glifo('glifo-volver')}<span>Volver</span></button></div>
+  ${filtro}
+  <div class="col"><div class="r-lista">${lista.map(tarjeta).join('')}</div></div>
+  <div class="col mt-4"><div class="r-final">
+    <button type="button" class="k2 btn-res t-cuerpo-fuerte c-tinta">${glifo('glifo-volver')}<span>Volver</span></button>
+    <button type="button" class="k1 btn-res t-cuerpo-fuerte">Inicio</button>
+  </div></div>
+  <div class="relleno-8"></div>
+</div>`;
+}
+
+// ---------------------------------------------------------------------------
+// 12 · Estados vacíos (Vacios.md): V1 y V2 como lámina vacía
+// ---------------------------------------------------------------------------
+
+function pantallaVacioLamina({ barra, glifoId, titulo, texto }) {
+  return `
+<div class="pantalla" data-pantalla="Vacio">
+  ${barraInterna(barra)}
+  <div class="col mt-6"><section class="lam vac">
+    ${marcas}
+    ${glifo(glifoId, 'g-vacio c-sec', 48)}
+    <h2 class="t-titulo c-tinta vac-tit">${esc(titulo)}</h2>
+    <p class="t-cuerpo c-sec vac-txt">${esc(texto)}</p>
+    <button type="button" class="k2 vac-btn t-cuerpo-fuerte">Practicar</button>
+  </section></div>
+</div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Variantes de componente de 1.3: pedido de donación, avisos, marca de parcial
+// ---------------------------------------------------------------------------
+
+function pantallaDonacion() {
+  const fila = (rotulo, html) => `
+<div class="estado"><div class="t-rotulo c-sec estado-rot">${rotulo}</div>${html}</div>`;
+  return `
+<div class="pantalla" data-pantalla="Donacion">
+  <div class="col estados">
+    ${fila('Normal · persistente, con regla corta (MateriaSelect)', donacion({ regla: true }))}
+    ${fila('Celebratoria · descartable (Results, desde 80 %)', donacion({ celebratoria: true, descartable: true }))}
+    ${fila('Normal · descartable (Results, de 60 a 79 %)', donacion({ descartable: true }))}
+  </div>
+</div>`;
+}
+
+function pantallaAvisos() {
+  const fila = (rotulo, html) => `
+<div class="estado"><div class="t-rotulo c-sec estado-rot">${rotulo}</div>${html}</div>`;
+  return `
+<div class="pantalla" data-pantalla="Avisos">
+  <div class="col estados">
+    ${fila('Banner de banco reducido · Home, sin descartar', bancoReducido())}
+    ${fila('Nota del creador · MateriaSelect, descartable', notaCreador())}
+    ${fila('Nota de privacidad · Home, solo web', '<p class="t-detalle c-sec nota-web">Tus estadísticas y preguntas se guardan localmente en tu navegador.<br>Se usan analíticas anónimas (sin cookies ni datos personales).</p>')}
+  </div>
+</div>`;
+}
+
+function pantallaParcial(m) {
+  const fila = (rotulo, html, clase = '') => `
+<div class="estado"><div class="t-rotulo c-sec estado-rot">${rotulo}</div><div class="parc-caja ${clase}">${html}</div></div>`;
+  const [p1, p2] = m.config.parciales;
+  const filtro = (txt, sel, marca) =>
+    `<span class="k4 filtro ${sel ? 't-cuerpo-fuerte sel' : 't-cuerpo c-tinta'}">${marca}<span>${esc(txt)}</span></span>`;
+  return `
+<div class="pantalla" data-pantalla="Parcial">
+  <div class="col estados">
+    ${fila(`Insignia · ${p1.label} (pregunta con parcial 'primero')`, insigniaParcial(m, 'primero'))}
+    ${fila(`Insignia · ${p2.label} (pregunta con parcial 'segundo')`, insigniaParcial(m, 'segundo'))}
+    ${fila('Filtro de parcial · en reposo', filtro(p1.label, false, marcaParcial(0)))}
+    ${fila('Filtro de parcial · seleccionado', filtro(p2.label, true, marcaParcial(1)))}
+  </div>
+</div>`;
+}
+
+// ---------------------------------------------------------------------------
+// 14 · Inventario de glifos (comun.md §9)
+// ---------------------------------------------------------------------------
+
+function pantallaGlifos() {
+  const grupo = (rotulo, tam) => `
+<div class="t-rotulo c-sec gl-rot">${rotulo}</div>
+<div class="gl-grid">${GLIFOS.filter(([, t]) => t === tam).map(([id]) => `
+  <div class="gl-celda"><span class="gl-dib">${glifo(id)}</span><span class="t-rotulo c-tinta">${esc(id.replace(/^glifo-/, ''))}</span></div>`).join('')}</div>`;
+  return `
+<div class="pantalla" data-pantalla="Glifos">
+  <div class="col estados">
+    ${grupo(`Grandes · paso 6 · ${GLIFOS.filter(([, t]) => t === 'grande').length}`, 'grande')}
+    ${grupo(`Chicos · paso 4 · ${GLIFOS.filter(([, t]) => t === 'chico').length}`, 'chico')}
+  </div>
+</div>`;
+}
+
+// ---------------------------------------------------------------------------
 // Tablero
 // ---------------------------------------------------------------------------
 
@@ -713,6 +1086,35 @@ const qHistologia = preguntasCyr.find((q) => q.id === 'CYR-PROTOTIPO-1-Q25') ?? 
 const qFisiologia = preguntasCyr.find((q) => q.id === 'CYR-PROTOTIPO-1-Q27') ?? preguntasCyr[1];
 const totalTema = conteoPorTema('cyr').porTema.get(qHistologia.topic) || 10;
 const totalCyr = conteoPorTema('cyr').total;
+
+// Datos de muestra de 1.3 (los textos son del banco real; que sean «propias», falladas o
+// elegidas es de muestra: no hay base local en la maqueta).
+const preguntasBcyt = PREGUNTAS.bcyt;
+const porIdBcyt = (id) => {
+  const q = preguntasBcyt.find((x) => x.id === id);
+  if (!q) throw new Error(`Falta la pregunta de muestra ${id} en bcyt`);
+  return q;
+};
+const qAgregar = porIdBcyt('2025-T1-Q15');
+const qParcial1 = porIdBcyt('P1-LC-004');   // parcial 'primero'
+const qParcial2 = porIdBcyt('2025-T1-Q14'); // parcial 'segundo'
+// «Mis preguntas»: dos preguntas propias de muestra de CyR.
+const PROPIAS = ['hemodinamia', 'intercambio-gaseoso'].map((tema) => preguntasCyr.find((q) => q.topic === tema));
+// Revisión: cuatro respuestas de muestra, una por tema, con enunciado corto; fallan la 2.ª y la 4.ª.
+const REV_MUESTRA = (() => {
+  const vistos = new Set();
+  const elegidas = [];
+  for (const q of preguntasCyr) {
+    if (vistos.has(q.topic) || q.question.length > 150 || q.options.some((o) => o.length > 90)) continue;
+    vistos.add(q.topic);
+    elegidas.push(q);
+    if (elegidas.length === 4) break;
+  }
+  const ok = [true, false, true, false];
+  return elegidas.map((pregunta, i) => ({
+    pregunta, ok: ok[i], elegida: ok[i] ? pregunta.correctIndex : (pregunta.correctIndex + 1) % pregunta.options.length,
+  }));
+})();
 
 const base = { materia: cyr, pregunta: qHistologia, indice: 4, total: totalTema };
 const alto = [...Array(24)].map((_, i) => ![3, 9, 15, 20].includes(i));      // 20 de 24
@@ -728,12 +1130,35 @@ const FIGURAS = [
   { id: '04b', titulo: 'Quiz · respondida correcta · temporizador normal', ficha: 'Quiz.md · c.2 correcta, c.4', html: pantallaQuiz({ ...base, respuesta: qHistologia.correctIndex, tiempo: '14:32' }) },
   { id: '04c', titulo: 'Quiz · respondida incorrecta con explicación', ficha: 'Quiz.md · c.2 incorrecta y apagada', html: pantallaQuiz({ ...base, respuesta: 0 }) },
   { id: '04d', titulo: 'Quiz · temporizador en alerta · barra continua', ficha: 'Quiz.md · c.4, QUIZ-P3, QUIZ-P4', html: pantallaQuiz({ materia: cyr, pregunta: qFisiologia, indice: 17, total: totalCyr, tiempo: '01:42', alerta: true }) },
-  { id: '05a', titulo: 'Resultados · tramo alto', ficha: 'Results.md · d.1', html: pantallaResults({ respuestas: alto, topic: 'Todos los temas' }) },
-  { id: '05b', titulo: 'Resultados · tramo medio', ficha: 'Results.md · d.1', html: pantallaResults({ respuestas: medio, topic: qHistologia.topic }) },
-  { id: '05c', titulo: 'Resultados · tramo bajo', ficha: 'Results.md · d.1', html: pantallaResults({ respuestas: bajo, topic: 'Todos los temas' }) },
+  { id: '05a', titulo: 'Resultados · tramo alto · pedido de donación celebratorio', ficha: 'Results.md · d.1 · DonationBox.md', html: pantallaResults({ respuestas: alto, topic: 'Todos los temas', pedido: 'celebratoria' }) },
+  { id: '05b', titulo: 'Resultados · tramo medio · pedido de donación', ficha: 'Results.md · d.1 · DonationBox.md', html: pantallaResults({ respuestas: medio, topic: qHistologia.topic, pedido: 'normal' }) },
+  { id: '05c', titulo: 'Resultados · tramo bajo · sin pedido de donación', ficha: 'Results.md · d.1', html: pantallaResults({ respuestas: bajo, topic: 'Todos los temas' }) },
   { id: '06', titulo: `Estadísticas · ${cyr.shortName}`, ficha: 'Stats.md', html: pantallaStats(cyr) },
   { id: '01b', titulo: 'Tarjeta de materia · estados', ficha: 'MateriaSelect.md · c', html: pantallaEstadosTarjeta() },
   { id: '04e', titulo: 'Chip de origen de la pregunta', ficha: 'Quiz.md · c.3', html: pantallaOrigen() },
+  // --- 1.3 -----------------------------------------------------------------
+  { id: '07a', titulo: `Agregar pregunta · formulario inicial · ${cyr.shortName}`, ficha: 'AddQuestion.md · c.2 inicial', html: pantallaAddQuestion(cyr) },
+  { id: '07b', titulo: `Agregar pregunta · completa, correcta marcada, guardando · ${bcyt.shortName}`, ficha: 'AddQuestion.md · c.1, c.2 (ADD-P1)', html: pantallaAddQuestion(bcyt, {
+    tema: qAgregar.topic, enunciado: qAgregar.question, opciones: qAgregar.options, correcta: qAgregar.correctIndex,
+    explicacion: qAgregar.explanation, guardando: true }) },
+  { id: '08a', titulo: 'Ajustes · plegables cerrados · ocultar resultado en «No»', ficha: 'Settings.md · c.2 (SET-P1)', html: pantallaSettings(cyr, { propias: PROPIAS }) },
+  { id: '08b', titulo: 'Ajustes · plegables abiertos · ocultar resultado en «Sí»', ficha: 'Settings.md · c.1, c.2 (SET-P1, SET-P2)', html: pantallaSettings(cyr, { propias: PROPIAS, abiertos: { preguntas: true, datos: true }, ocultar: true }) },
+  { id: '09', titulo: 'Pedido de donación · variantes', ficha: 'DonationBox.md · b, c (DON-P1)', html: pantallaDonacion() },
+  { id: '10a', titulo: 'Revisión de respuestas · todas', ficha: 'Revision.md · c.2 (REV-P1, REV-P2, REV-P3)', html: pantallaRevision(cyr, REV_MUESTRA) },
+  { id: '10b', titulo: 'Revisión de respuestas · solo incorrectas', ficha: 'Revision.md · c.2 (REV-P1)', html: pantallaRevision(cyr, REV_MUESTRA, { soloIncorrectas: true }) },
+  { id: '11a', titulo: `Examen en curso · sin responder · ${bcyt.shortName}, 2.º parcial`, ficha: 'ExamenEnCurso.md · c.2 reposo (PAR-P1)', html: pantallaQuiz({ materia: bcyt, pregunta: qParcial2, indice: 11, total: 40, sinFeedback: true }) },
+  { id: '11b', titulo: `Examen en curso · respondida · ${bcyt.shortName}, 1.er parcial`, ficha: 'ExamenEnCurso.md · c.2 elegida (EXA-P1, PAR-P1)', html: pantallaQuiz({ materia: bcyt, pregunta: qParcial1, indice: 30, total: 75, respuesta: qParcial1.correctIndex === 0 ? 1 : 0, tiempo: '58:20', sinFeedback: true }) },
+  { id: '11c', titulo: 'Marca de parcial · insignia y filtro', ficha: 'comun.md · §12.2, §12.3 (PAR-P1, PAR-P2)', html: pantallaParcial(bcyt) },
+  { id: '12a', titulo: 'Vacío · estadísticas sin datos (V1)', ficha: 'Vacios.md · a.2 (VAC-P1, VAC-P2)', html: pantallaVacioLamina({
+    barra: 'pKapp · Estadísticas', glifoId: 'glifo-estadisticas', titulo: 'Sin estadísticas todavía',
+    texto: 'Hacé algunos quizzes y volvé a esta pantalla para ver tu progreso.' }) },
+  { id: '12b', titulo: 'Vacío · repasar fallos sin falladas (V2)', ficha: 'Vacios.md · a.2 (VAC-P1, VAC-P2)', html: pantallaVacioLamina({
+    barra: 'pKapp · Elegir tema', glifoId: 'glifo-repasar', titulo: 'Sin preguntas falladas',
+    texto: 'Practicá un poco primero y volvé acá para repasar las que te cuesten.' }) },
+  { id: '12c', titulo: 'Vacío · «Mis preguntas» sin preguntas propias (V3)', ficha: 'Vacios.md · a.3 (VAC-P2)', html: pantallaSettings(cyr, { abiertos: { preguntas: true } }) },
+  { id: '12d', titulo: `Vacío · ningún tema con los filtros actuales (V4) · ${cyr.shortName}`, ficha: 'Vacios.md · a.4 (VAC-P3)', html: pantallaTopicSelect(cyr, 'vacio') },
+  { id: '13', titulo: 'Avisos · banco reducido, nota del creador, privacidad', ficha: 'Banners.md · b, c (BAN-P1)', html: pantallaAvisos() },
+  { id: '14', titulo: `Inventario de glifos · ${GLIFOS.length}`, ficha: 'comun.md · §9', html: pantallaGlifos() },
 ];
 
 const figura = (f) => `
@@ -793,6 +1218,7 @@ code{font:400 12px/16px var(--mono)}
 .t-detalle{font:400 13px/18px var(--sans)}
 .t-rotulo{font:400 11px/16px var(--mono);letter-spacing:.66px;text-transform:uppercase}
 .t-rotulo-medio{font:500 11px/16px var(--mono);letter-spacing:.66px;text-transform:uppercase}
+.t-campo{font:400 16px/22px var(--sans)}
 .t-dato{font:500 16px/20px var(--mono)}
 .t-cifra{font:500 26px/28px var(--mono)}
 .t-display{font:500 72px/72px var(--mono);letter-spacing:-2.16px}
@@ -830,12 +1256,11 @@ html[data-tema="oscuro"] .txt-tema::before{content:"Oscuro"}
 .mt-1_5{margin-top:6px}.mt-3{margin-top:12px}.mt-4{margin-top:16px}.mt-6{margin-top:24px}.mb-3{margin-bottom:12px}
 .relleno-8{height:32px}.relleno-10{height:40px}
 .lista{display:flex;flex-direction:column;gap:10px}
-.reservado{border:1px solid var(--filete);padding:12px 14px;text-align:center}
 .sec-rotulo{padding-bottom:8px}.sec-4{padding-top:16px}.sec-6{padding-top:24px}
 .divisor{height:1px;background:var(--filete);margin-block:14px}
 .estados{display:flex;flex-direction:column;gap:16px;padding-block:16px}
 .estado{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
-.estado>.k6{width:100%}
+.estado>.k6,.estado>.lam,.estado>.nota,.estado>.parc-caja{width:100%}
 
 /* ===== glifos e ilustraciones ===== */
 .g{flex:none}.g-grande{width:24px;height:24px}.g-chico{width:16px;height:16px}
@@ -878,7 +1303,9 @@ button:focus-visible{outline:2px solid var(--foco);outline-offset:2px}
 /* ===== HeaderMarca y control de tema (comun.md §1 y §2) ===== */
 .cab-fila{display:flex;align-items:center;justify-content:space-between;padding-block:14px}
 .cab-izq{display:flex;align-items:center;min-height:44px}
-.tema{display:inline-flex;height:44px;border:1px solid var(--linea);background:var(--fondo)}
+/* MAQUETA-P3 (aprobada): cada opción mide paso 11 (44 px) de alto útil; el contenedor suma su
+   borde: 46 px, y la fila de HeaderMarca 14 + 46 + 14 = 74 px en MateriaSelect y en Home. */
+.tema{display:inline-flex;height:46px;border:1px solid var(--linea);background:var(--fondo)}
 .tema-op{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:44px;padding-inline:8px;background:var(--fondo);color:var(--tinta)}
 html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema-op[data-op="oscuro"]{background:var(--tinta);color:var(--fondo)}
 @media (hover:hover){.tema-op:hover{outline:1px solid var(--linea);outline-offset:-1px}}
@@ -887,7 +1314,8 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 
 /* ===== barra interna (comun.md §3) ===== */
 .barra-int{background:var(--fondo);border-bottom:1px solid var(--linea)}
-.barra-int-fila{display:flex;align-items:center;gap:14px;padding-block:16px}
+/* MAQUETA-P1 (aprobada): fila de contenido de paso 11 con y sin volver; 16 + 44 + 16 = 76 px. */
+.barra-int-fila{display:flex;align-items:center;gap:14px;padding-block:16px;min-height:76px}
 .btn-volver{width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex:none}
 .barra-int h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
@@ -922,7 +1350,7 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 .panel{background:var(--superficie);border:1px solid var(--linea);padding:14px}
 .grupo-rot{padding-bottom:8px}
 .filtros{display:flex;flex-wrap:wrap;gap:8px}
-.filtro{height:44px;padding-inline:12px;display:flex;align-items:center}
+.filtro{height:44px;padding-inline:12px;display:flex;align-items:center;gap:8px}
 .timer{display:flex;align-items:center;gap:16px}
 .cuadrado{width:44px;height:44px;display:flex;align-items:center;justify-content:center}
 .timer-valor{min-width:80px;text-align:center}
@@ -1022,6 +1450,127 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 .f-enc{display:flex;justify-content:space-between;align-items:center;gap:12px}
 .f-enun{margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .f-tema{margin-top:4px}
+
+/* ===== 04 Quiz: insignia de parcial y sin retroalimentación (ExamenEnCurso.md, comun.md §12) ===== */
+.q-ctx-izq{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.opcion.elegida{background:var(--tinta);border-color:var(--tinta);color:var(--fondo)}
+.opcion.elegida .op-letra{color:var(--fondo);border-right-color:var(--filete)}
+.q-oculto{margin-top:16px}
+.parc{display:inline-flex;align-items:center;gap:6px}
+.parc-mk{display:inline-flex;gap:2px;flex:none}
+.parc-mk i{display:block;width:10px;height:10px;border:1px solid currentColor}
+.parc-mk i.on{background:currentColor}
+.parc-caja{display:flex;align-items:center}
+
+/* ===== Notas y avisos (Banners.md) ===== */
+.nota{position:relative;background:var(--superficie);border:1px solid var(--filete);border-left:3px solid var(--acento);padding:14px}
+.nota-rot{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.nota-cerrable .nota-rot{padding-right:44px}
+.nota p+p{margin-top:12px}
+.btn-contacto{display:inline-flex;align-items:center;gap:8px;height:44px;padding-inline:16px;margin-top:12px;max-width:100%}
+.cerrar-esq{position:absolute;top:0;right:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center}
+
+/* ===== Pedido de donación (DonationBox.md) ===== */
+.don{border-color:var(--acento);padding:14px}
+.don-regla{width:40%;height:1px;background:var(--filete);margin:0 auto 16px;align-self:center}
+.don-tit{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.don-cerrable .don-tit{padding-right:44px}
+.don-txt{margin-bottom:14px}
+.don-montos{display:flex;gap:8px;margin-bottom:12px}
+.monto{flex:1;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
+.don-pie{text-align:center}
+
+/* ===== 07 AddQuestion ===== */
+.add-rot{padding-bottom:8px}
+.add-grupo{margin-bottom:24px}
+.add-temas{display:flex;flex-wrap:wrap;gap:8px}
+.add-tema{min-height:44px;padding:8px 12px;text-align:left}
+.fld{width:100%;background:var(--superficie);border:1px solid var(--borde);padding:12px;color:var(--tinta);overflow-wrap:anywhere}
+@media (hover:hover){.fld:hover{border-color:var(--linea)}}
+.fld-multi{min-height:80px}
+.fld-op{flex:1;min-width:0;width:auto;min-height:44px}
+.op-fila{display:flex;align-items:flex-start;gap:8px}
+.op-fila+.op-fila{margin-top:10px}
+.letra-k{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center}
+.letra-k.ok{background:var(--acierto);border:2px solid var(--acierto);color:var(--fondo)}
+.quitar{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center}
+.add-ayuda{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-bottom:10px}
+.add-agregar{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:44px;margin-top:10px}
+.add-guardar{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 16px}
+.add-guardar.guardando{background:var(--fondo);color:var(--inactivo);border-color:var(--filete)}
+
+/* ===== 08 Settings ===== */
+.set-sec{margin-bottom:32px}
+.set-panel{background:var(--superficie);border:1px solid var(--linea);padding:14px}
+.set-fila{display:flex;align-items:center;gap:14px}
+.set-txt{flex:1;min-width:0}
+.set-txt>.t-detalle{margin-top:4px}
+.seg-no{display:inline-flex;flex:none;border:1px solid var(--linea);background:var(--superficie)}
+.seg-no .k4{min-width:44px;height:44px;padding-inline:12px;display:flex;align-items:center;justify-content:center;border:0}
+.pleg{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:44px;padding:12px 14px}
+.pleg.abierto{border-color:var(--linea)}
+.pleg-der{display:inline-flex;align-items:center;gap:8px;flex:none}
+.g-gira-abajo{transform:rotate(90deg)}
+.g-gira-arriba{transform:rotate(-90deg)}
+.set-cuerpo{margin-top:10px}
+.pq-lista{display:flex;flex-direction:column;gap:10px}
+.pq{background:var(--superficie);border:1px solid var(--linea);padding:14px}
+.pq-enc{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pq-del{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center}
+.pq-enun{margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pq-ok{display:flex;align-items:center;gap:8px;margin-top:6px}
+.pq-ok span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.set-resp{margin-bottom:10px}
+.set-botones{display:flex;flex-direction:column;gap:8px}
+.btn-set{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:44px;padding:10px 16px}
+.set-div{margin-block:12px}
+.k2-peligro{color:var(--error);border-color:var(--error)}
+@media (hover:hover){.k2-peligro:hover{outline-color:var(--error)}}
+.k2-peligro:active{background:var(--error);color:var(--fondo);border-color:var(--error)}
+.k2-peligro:active *{color:var(--fondo)}
+.acerca-fila{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 8px}
+.acerca-franja{border-top:1px solid var(--filete);margin-top:12px;padding-top:12px}
+.acerca-des{margin-top:4px}
+.acerca-enlaces{display:flex;flex-wrap:wrap;gap:8px}
+.btn-enlace{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 16px;text-align:left}
+
+/* ===== 10 Revisión ===== */
+.r-resumen{margin-top:4px}
+.r-filtro{display:flex;gap:8px}
+.r-filtro .filtro{flex:1;justify-content:center}
+.r-lista{display:flex;flex-direction:column;gap:10px}
+.r-card{background:var(--superficie);border:1px solid var(--linea);padding:14px}
+.r-card.ok{border-left:3px solid var(--acierto)}
+.r-card.mal{border-left:3px solid var(--error)}
+.r-enc{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.r-enun{margin-bottom:12px}
+.r-opts{display:flex;flex-direction:column;gap:10px}
+.r-op{display:flex;background:var(--superficie);border:1px solid var(--filete)}
+.r-op .op-letra{color:var(--tintaSec)}
+.r-op .op-txt{padding:10px 12px}
+.r-op.ok{border:2px solid var(--acierto);background:var(--aciertoFondo)}
+.r-op.ok .op-letra{background:var(--acierto);color:var(--fondo);border-right:2px solid var(--acierto)}
+.r-op.mal{border:2px solid var(--error);background:var(--errorFondo)}
+.r-op.mal .op-letra{background:var(--error);color:var(--fondo);border-right:2px solid var(--error)}
+.r-card .q-nota{margin-top:12px}
+.r-rep{display:inline-flex;align-items:center;gap:8px;min-height:44px;margin-top:8px}
+.r-final{display:flex;gap:10px}
+.r-final>*{flex:1}
+
+/* ===== 12 Estados vacíos ===== */
+.vac{padding:14px;text-align:center;display:flex;flex-direction:column;align-items:center}
+.g.g-vacio{width:48px;height:48px;margin-top:16px}
+.vac-tit{margin-top:16px}
+.vac-txt{margin-top:8px}
+.vac-btn{margin-top:20px;margin-bottom:16px;height:44px;padding-inline:32px;display:flex;align-items:center}
+.vac-compacto{text-align:center;display:flex;flex-direction:column;align-items:center}
+.vac-compacto .vac-btn{margin-top:12px;margin-bottom:0}
+
+/* ===== 14 Inventario de glifos ===== */
+.gl-rot{padding:16px 0 8px}
+.gl-grid{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--filete);border-left:1px solid var(--filete)}
+.gl-celda{display:flex;align-items:center;gap:10px;padding:10px 12px;min-width:0;border-right:1px solid var(--filete);border-bottom:1px solid var(--filete);overflow-wrap:anywhere}
+.gl-dib{width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex:none}
 `;
 
 // ---------------------------------------------------------------------------
@@ -1098,7 +1647,7 @@ ${sprite}
       <span class="seg"><button type="button" class="seg-op t-rotulo" data-set="tema:claro">Claro</button><button type="button" class="seg-op t-rotulo" data-set="tema:oscuro">Oscuro</button></span></div>
     <div class="herr-grupo"><span class="t-rotulo c-sec">Ir a</span><span class="seg">${navegacion}</span></div>
   </div>
-  <div class="herr-nota t-rotulo c-sec">Fieles a las fichas aprobadas el ${FECHA_FICHAS} · colores generados desde src/theme/colores.js · conteos, temas y preguntas reales; resultados y estadísticas son datos de muestra</div>
+  <div class="herr-nota t-rotulo c-sec">Fieles a las fichas aprobadas el ${FECHA_FICHAS} (1.2 y 1.3) · colores generados desde src/theme/colores.js · conteos, temas y preguntas reales; resultados, estadísticas, preguntas propias y respuestas de revisión son datos de muestra</div>
 </header>
 <main class="tablero">
 ${FIGURAS.map(figura).join('\n')}
