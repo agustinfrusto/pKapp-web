@@ -1,5 +1,7 @@
 // Pantalla de resultados: muestra puntaje y permite revisar cada pregunta.
 // Fichas: diseno/pantallas/Results.md (resumen) y Revision.md (vista de revisión).
+// Escritorio (ESC-P5, ESC-P6): resumen y revisión comparten la hoja; la región lateral va
+// primero en el DOM, así que queda a la izquierda y el orden de foco es el visual.
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,7 +11,7 @@ import { useMateria } from '../materia/MateriaContext';
 import DonationBox from '../components/DonationBox';
 import Glifo from '../components/Glifo';
 import {
-  BotonMarco, BotonRelleno, Columna, FilaLista, Lamina, MarcaEstado, RotuloSeccion, Segmento,
+  BotonMarco, BotonRelleno, FilaLista, Hoja, Lamina, MarcaEstado, Regiones, RotuloSeccion, Segmento,
 } from '../components/plancha';
 import { Contenido, GLIFO_CHICO, useTokens } from '../components/plancha/Control';
 
@@ -101,78 +103,86 @@ export default function ResultsScreen({ route, navigation }) {
 
     return (
       <ScrollView className="flex-1 bg-fondo dark:bg-fondoD" contentContainerClassName="pb-8">
-        <Columna>
-          <View className="mb-3 mt-4">
-            <Text
-              testID="revision-titulo"
-              className="font-plex-sans-semibold text-titulo text-tinta dark:text-tintaD"
-            >
-              Revisión completa
-            </Text>
-            <Text
-              testID="revision-resumen"
-              className="mt-1 font-plex-sans text-cuerpo text-tintaSec dark:text-tintaSecD"
-            >
-              {`${correctCount} / ${total} aciertos (${percentage}%)`}
-            </Text>
-          </View>
+        <Hoja>
+          <View className="mt-4">
+            <Regiones>
+              <Regiones.Lateral>
+                <View className="mb-3">
+                  <Text
+                    testID="revision-titulo"
+                    className="font-plex-sans-semibold text-titulo text-tinta dark:text-tintaD"
+                  >
+                    Revisión completa
+                  </Text>
+                  <Text
+                    testID="revision-resumen"
+                    className="mt-1 font-plex-sans text-cuerpo text-tintaSec dark:text-tintaSecD"
+                  >
+                    {`${correctCount} / ${total} aciertos (${percentage}%)`}
+                  </Text>
+                </View>
 
-          <View className="mb-3">
-            <BotonMarco
-              testID="revision-volver-arriba"
-              etiqueta="Volver"
-              glifo="glifo-volver"
-              tamanoGlifo="grande"
-              fondo="fondo"
-              className="self-start"
-              onPress={() => setShowReview(false)}
-            />
-          </View>
+                <View className="mb-3">
+                  <BotonMarco
+                    testID="revision-volver-arriba"
+                    etiqueta="Volver"
+                    glifo="glifo-volver"
+                    tamanoGlifo="grande"
+                    fondo="fondo"
+                    className="self-start"
+                    onPress={() => setShowReview(false)}
+                  />
+                </View>
 
-          {incorrectCount > 0 && (
-            <View className="mb-3">
-              <Segmento
-                opciones={FILTROS}
-                valor={filtro}
-                alCambiar={setFiltro}
-                accessibilityLabel="Mostrar"
-                anchoIgual
-              />
-            </View>
-          )}
+                {incorrectCount > 0 && (
+                  <View className="mb-3">
+                    <Segmento
+                      opciones={FILTROS}
+                      valor={filtro}
+                      alCambiar={setFiltro}
+                      accessibilityLabel="Mostrar"
+                      anchoIgual
+                    />
+                  </View>
+                )}
+              </Regiones.Lateral>
 
-          <View className="gap-2.5">
-            {lista.map(({ answer, n }) => (
-              <TarjetaRespuesta
-                key={n}
-                answer={answer}
-                n={n}
-                onReportar={() => reportQuestion(answer.question, materia?.name)}
-              />
-            ))}
-          </View>
+              <Regiones.Principal>
+                <View className="gap-2.5">
+                  {lista.map(({ answer, n }) => (
+                    <TarjetaRespuesta
+                      key={n}
+                      answer={answer}
+                      n={n}
+                      onReportar={() => reportQuestion(answer.question, materia?.name)}
+                    />
+                  ))}
+                </View>
 
-          <View className="mt-4 flex-row gap-2.5">
-            <View className="flex-1">
-              <BotonMarco
-                testID="revision-volver"
-                etiqueta="Volver"
-                glifo="glifo-volver"
-                tamanoGlifo="grande"
-                fondo="fondo"
-                onPress={() => setShowReview(false)}
-              />
-            </View>
-            <View className="flex-1">
-              <BotonRelleno
-                testID="revision-inicio"
-                etiqueta="Inicio"
-                onPress={handleHome}
-              />
-            </View>
+                <View className="mt-4 flex-row gap-2.5">
+                  <View className="flex-1">
+                    <BotonMarco
+                      testID="revision-volver"
+                      etiqueta="Volver"
+                      glifo="glifo-volver"
+                      tamanoGlifo="grande"
+                      fondo="fondo"
+                      onPress={() => setShowReview(false)}
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <BotonRelleno
+                      testID="revision-inicio"
+                      etiqueta="Inicio"
+                      onPress={handleHome}
+                    />
+                  </View>
+                </View>
+              </Regiones.Principal>
+            </Regiones>
           </View>
           <View style={{ height: insets.bottom }} />
-        </Columna>
+        </Hoja>
       </ScrollView>
     );
   }
@@ -181,168 +191,176 @@ export default function ResultsScreen({ route, navigation }) {
 
   return (
     <ScrollView className="flex-1 bg-fondo dark:bg-fondoD" contentContainerClassName="pb-8">
-      <Columna>
-        <View className="mb-3 mt-4">
-          <Lamina testID="resultados-tarjeta">
-            <View className="p-4">
+      <Hoja>
+        <View className="mt-4">
+          <Regiones>
+            <Regiones.Lateral>
               <View className="mb-3">
-                <RotuloSeccion testID="resultados-rotulo">Resultado</RotuloSeccion>
-              </View>
-              <MarcaEstado
-                testID="resultados-porcentaje"
-                estado={estado}
-                paso="display"
-                texto={`${percentage}%`}
-              />
-              <Text
-                testID="resultados-subtitulo"
-                className="mt-2.5 font-plex-sans-semibold text-titulo text-tinta dark:text-tintaD"
-              >
-                {`${correctCount} de ${total} correctas`}
-              </Text>
-              <Text
-                testID="resultados-mensaje"
-                className="mt-1.5 font-plex-sans text-cuerpo text-tintaSec dark:text-tintaSecD"
-              >
-                {message}
-              </Text>
+                <Lamina testID="resultados-tarjeta">
+                  <View className="p-4">
+                    <View className="mb-3">
+                      <RotuloSeccion testID="resultados-rotulo">Resultado</RotuloSeccion>
+                    </View>
+                    <MarcaEstado
+                      testID="resultados-porcentaje"
+                      estado={estado}
+                      paso="display"
+                      texto={`${percentage}%`}
+                    />
+                    <Text
+                      testID="resultados-subtitulo"
+                      className="mt-2.5 font-plex-sans-semibold text-titulo text-tinta dark:text-tintaD"
+                    >
+                      {`${correctCount} de ${total} correctas`}
+                    </Text>
+                    <Text
+                      testID="resultados-mensaje"
+                      className="mt-1.5 font-plex-sans text-cuerpo text-tintaSec dark:text-tintaSecD"
+                    >
+                      {message}
+                    </Text>
 
-              {mostrarTira && (
-                <>
-                  <View
-                    testID="resultados-tira"
-                    accessibilityRole="image"
-                    accessibilityLabel="Detalle por pregunta"
-                    className="mb-2 mt-4 flex-row items-end gap-0.5"
-                  >
-                    {respuestas.map((answer, idx) => (
-                      <View
-                        key={idx}
-                        testID="resultados-tira-casilla"
-                        className={`flex-1 ${
-                          answer.isCorrect
-                            ? 'h-6 bg-acierto dark:bg-aciertoD'
-                            : 'h-3 bg-error dark:bg-errorD'
-                        }`}
-                      />
-                    ))}
-                  </View>
-                  <View
-                    testID="resultados-leyenda"
-                    className="mb-3.5 flex-row flex-wrap items-end gap-x-4 gap-y-1.5"
-                  >
-                    <View className="flex-row items-end gap-1.5">
-                      <View
-                        testID="resultados-leyenda-muestra-correcta"
-                        className="h-2 w-2 bg-acierto dark:bg-aciertoD"
-                      />
-                      <Text className="font-plex-mono text-rotulo uppercase text-tintaSec dark:text-tintaSecD">
-                        Correcta
+                    {mostrarTira && (
+                      <>
+                        <View
+                          testID="resultados-tira"
+                          accessibilityRole="image"
+                          accessibilityLabel="Detalle por pregunta"
+                          className="mb-2 mt-4 flex-row items-end gap-0.5"
+                        >
+                          {respuestas.map((answer, idx) => (
+                            <View
+                              key={idx}
+                              testID="resultados-tira-casilla"
+                              className={`flex-1 ${
+                                answer.isCorrect
+                                  ? 'h-6 bg-acierto dark:bg-aciertoD'
+                                  : 'h-3 bg-error dark:bg-errorD'
+                              }`}
+                            />
+                          ))}
+                        </View>
+                        <View
+                          testID="resultados-leyenda"
+                          className="mb-3.5 flex-row flex-wrap items-end gap-x-4 gap-y-1.5"
+                        >
+                          <View className="flex-row items-end gap-1.5">
+                            <View
+                              testID="resultados-leyenda-muestra-correcta"
+                              className="h-2 w-2 bg-acierto dark:bg-aciertoD"
+                            />
+                            <Text className="font-plex-mono text-rotulo uppercase text-tintaSec dark:text-tintaSecD">
+                              Correcta
+                            </Text>
+                          </View>
+                          <View className="flex-row items-end gap-1.5">
+                            <View
+                              testID="resultados-leyenda-muestra-incorrecta"
+                              className="h-1 w-2 bg-error dark:bg-errorD"
+                            />
+                            <Text className="font-plex-mono text-rotulo uppercase text-tintaSec dark:text-tintaSecD">
+                              Incorrecta
+                            </Text>
+                          </View>
+                        </View>
+                      </>
+                    )}
+
+                    <View
+                      testID="resultados-chip-tema"
+                      className={`self-start border border-acento bg-superficie px-2 py-0.5 dark:border-acentoD dark:bg-superficieD ${
+                        mostrarTira ? '' : 'mt-4'
+                      }`}
+                    >
+                      <Text className="font-plex-mono text-rotulo uppercase text-acento dark:text-acentoD">
+                        {nombreTema}
                       </Text>
                     </View>
-                    <View className="flex-row items-end gap-1.5">
-                      <View
-                        testID="resultados-leyenda-muestra-incorrecta"
-                        className="h-1 w-2 bg-error dark:bg-errorD"
-                      />
-                      <Text className="font-plex-mono text-rotulo uppercase text-tintaSec dark:text-tintaSecD">
-                        Incorrecta
-                      </Text>
-                    </View>
                   </View>
-                </>
+                </Lamina>
+              </View>
+            </Regiones.Lateral>
+
+            <Regiones.Principal>
+              <View className="mb-3">
+                <Lamina testID="resultados-trio">
+                  <View className="flex-row">
+                    <CeldaTrio
+                      id="resultados-trio-correctas"
+                      cifra={correctCount}
+                      colorCifra="text-acierto dark:text-aciertoD"
+                      rotulo={(
+                        <MarcaEstado
+                          testID="resultados-trio-correctas-rotulo"
+                          estado="acierto"
+                          texto="Correctas"
+                          colorTexto="tintaSec"
+                        />
+                      )}
+                    />
+                    <CeldaTrio
+                      id="resultados-trio-incorrectas"
+                      cifra={incorrectCount}
+                      colorCifra="text-error dark:text-errorD"
+                      divisor
+                      rotulo={(
+                        <MarcaEstado
+                          testID="resultados-trio-incorrectas-rotulo"
+                          estado="error"
+                          texto="Incorrectas"
+                          colorTexto="tintaSec"
+                        />
+                      )}
+                    />
+                    <CeldaTrio
+                      id="resultados-trio-total"
+                      cifra={total}
+                      colorCifra="text-tinta dark:text-tintaD"
+                      divisor
+                      rotulo={<RotuloSeccion testID="resultados-trio-total-rotulo">Total</RotuloSeccion>}
+                    />
+                  </View>
+                </Lamina>
+              </View>
+
+              {showDonation && (
+                <View className="mb-3">
+                  <DonationBox
+                    origen="resultados"
+                    descartable
+                    celebratoria={percentage >= DONATION_WARM_SCORE}
+                  />
+                </View>
               )}
 
-              <View
-                testID="resultados-chip-tema"
-                className={`self-start border border-acento bg-superficie px-2 py-0.5 dark:border-acentoD dark:bg-superficieD ${
-                  mostrarTira ? '' : 'mt-4'
-                }`}
-              >
-                <Text className="font-plex-mono text-rotulo uppercase text-acento dark:text-acentoD">
-                  {nombreTema}
-                </Text>
+              <View className="mt-1.5 gap-2.5">
+                <BotonMarco
+                  testID="resultados-revisar"
+                  etiqueta="Revisar todas las respuestas"
+                  glifo="glifo-revisar"
+                  tono="acento"
+                  tamano="grande"
+                  onPress={() => setShowReview(true)}
+                />
+                <BotonRelleno
+                  testID="resultados-reintentar"
+                  etiqueta="Volver a practicar"
+                  glifo="glifo-reintentar"
+                  tamano="grande"
+                  onPress={handleRetry}
+                />
+                <BotonMarco
+                  testID="resultados-inicio"
+                  etiqueta="Inicio"
+                  glifo="glifo-inicio"
+                  tamano="grande"
+                  onPress={handleHome}
+                />
               </View>
-            </View>
-          </Lamina>
+            </Regiones.Principal>
+          </Regiones>
         </View>
-
-        <View className="mb-3">
-          <Lamina testID="resultados-trio">
-            <View className="flex-row">
-              <CeldaTrio
-                id="resultados-trio-correctas"
-                cifra={correctCount}
-                colorCifra="text-acierto dark:text-aciertoD"
-                rotulo={(
-                  <MarcaEstado
-                    testID="resultados-trio-correctas-rotulo"
-                    estado="acierto"
-                    texto="Correctas"
-                    colorTexto="tintaSec"
-                  />
-                )}
-              />
-              <CeldaTrio
-                id="resultados-trio-incorrectas"
-                cifra={incorrectCount}
-                colorCifra="text-error dark:text-errorD"
-                divisor
-                rotulo={(
-                  <MarcaEstado
-                    testID="resultados-trio-incorrectas-rotulo"
-                    estado="error"
-                    texto="Incorrectas"
-                    colorTexto="tintaSec"
-                  />
-                )}
-              />
-              <CeldaTrio
-                id="resultados-trio-total"
-                cifra={total}
-                colorCifra="text-tinta dark:text-tintaD"
-                divisor
-                rotulo={<RotuloSeccion testID="resultados-trio-total-rotulo">Total</RotuloSeccion>}
-              />
-            </View>
-          </Lamina>
-        </View>
-
-        {showDonation && (
-          <View className="mb-3">
-            <DonationBox
-              origen="resultados"
-              descartable
-              celebratoria={percentage >= DONATION_WARM_SCORE}
-            />
-          </View>
-        )}
-
-        <View className="mt-1.5 gap-2.5">
-          <BotonMarco
-            testID="resultados-revisar"
-            etiqueta="Revisar todas las respuestas"
-            glifo="glifo-revisar"
-            tono="acento"
-            tamano="grande"
-            onPress={() => setShowReview(true)}
-          />
-          <BotonRelleno
-            testID="resultados-reintentar"
-            etiqueta="Volver a practicar"
-            glifo="glifo-reintentar"
-            tamano="grande"
-            onPress={handleRetry}
-          />
-          <BotonMarco
-            testID="resultados-inicio"
-            etiqueta="Inicio"
-            glifo="glifo-inicio"
-            tamano="grande"
-            onPress={handleHome}
-          />
-        </View>
-      </Columna>
+      </Hoja>
     </ScrollView>
   );
 }

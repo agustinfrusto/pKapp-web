@@ -103,9 +103,15 @@ const NAVEGAR = (params, conteoDonacion) => EN_MARCO(`
 // Abre la app en un marco del ancho pedido, entra a Home y navega a Results.
 // `donacion`: 0 fuerza el pedido de donación si el porcentaje lo permite (1.er aprobado).
 async function abrirResultados(pagina, base, {
-  ancho = 390, answers, topic = TEMA.clave, mode = 'practice', oscuro = false, donacion,
+  ancho = 390, alto, answers, topic = TEMA.clave, mode = 'practice', oscuro = false, donacion,
 }) {
-  await abrirMarco(pagina, base, ancho);
+  // El puntero del arnés se mueve en la ventana de la página (900 de ancho por defecto): tiene
+  // que abarcar el marco para tocar controles de la región principal a 1366 y 1920.
+  if (ancho > 900) {
+    await pagina.enviar('Emulation.setDeviceMetricsOverride',
+      { width: ancho, height: alto || 800, deviceScaleFactor: 1, mobile: false });
+  }
+  await abrirMarco(pagina, base, ancho, alto);
   await irAHomeEnMarco(pagina);
   if (oscuro) {
     await clicEnMarco(pagina, 'oscuro');
@@ -1082,7 +1088,8 @@ async function revisionTarjetas(pagina, base, t) {
 // ---------------------------------------------------------------------------
 
 async function anchos(pagina, base, t) {
-  for (const ancho of [320, 360, 390, 768, 1280]) {
+  // 1023 es el último ancho bajo el corte `escritorio`: sigue la columna de siempre.
+  for (const ancho of [320, 360, 390, 768, 1023]) {
     const columna = Math.min(ancho, COLUMNA);
     const izq = (ancho - columna) / 2 + MARGEN;
     t.ok(`${ancho} px: navegar al resumen con 40 respuestas`,
@@ -1114,6 +1121,292 @@ async function anchos(pagina, base, t) {
         && h.volverFinal.caja.alto >= LADO_TACTIL && h.inicioFinal.caja.alto >= LADO_TACTIL, true);
     t.ok(`${ancho} px: filtro dentro de la columna`,
       !!h.filtro && h.filtro.caja.izq >= izq - 0.5 && h.filtro.caja.der <= izq + columna - 2 * MARGEN + 0.5, true);
+  }
+}
+
+// Escritorio (Results.md y Revision.md, «Escritorio»; ESC-P5, ESC-P6 y ESC-P10): desde el corte
+// de 1024 la hoja de 952 con margen paso 8, una región lateral de 320 y la principal a su
+// derecha, separadas por paso 8. Los anchos salen de la ficha, no de `plancha/cortes.js`.
+const LATERAL = 320;
+const SEPARACION = 8 * PASO;
+const HOJA = 952;
+const MARGEN_HOJA = 8 * PASO;
+// 1280 lo nombra «Revisado» de la ficha; 1439 y 1440 son el par alrededor del corte `amplio`
+// («sin cambio en `amplio`»: la hoja sigue de 952). Las capturas son solo de las tres primeras.
+const VENTANAS = [[1024, 768], [1280, 800], [1366, 768], [1439, 900], [1440, 900], [1920, 1080]];
+const CON_CAPTURA = [1024, 1366, 1920];
+
+// Capturas de evidencia (solo con PKAPP_CAPTURAS): el viewport de la página ya es el del marco.
+async function capturar(pagina, nombre) {
+  if (!process.env.PKAPP_CAPTURAS || !CON_CAPTURA.includes(Number(nombre.split('-')[1]))) return;
+  const dir = path.join(RAIZ, 'openspec', 'changes', 'rediseno-plancha', 'evidencia', 'despues', '3.11f');
+  fs.mkdirSync(dir, { recursive: true });
+  await new Promise((r) => setTimeout(r, 400));
+  const r = await pagina.enviar('Page.captureScreenshot', { format: 'png' });
+  fs.writeFileSync(path.join(dir, nombre), Buffer.from(r.data, 'base64'));
+}
+
+// Los controles enfocables, en el orden de DOM: solo el conjunto esperado, no el de Tab.
+const FOCOS = EN_MARCO(`
+  return visibles('[tabindex]:not([tabindex="-1"]), button, a[href], input').map((n) =>
+    n.getAttribute('data-testid') || n.getAttribute('aria-label') || n.textContent.trim().slice(0, 30));
+`);
+
+// El control con foco ahora, con su caja en coordenadas de página (suma el desplazamiento de
+// cada ancestro: Tab desplaza el contenido para mostrar el foco).
+const FOCO_ACTUAL = EN_MARCO(`
+  const n = d.activeElement;
+  if (!n || n === d.body) return null;
+  const r = n.getBoundingClientRect();
+  let dx = 0, dy = 0;
+  for (let a = n.parentElement; a; a = a.parentElement) { dx += a.scrollLeft; dy += a.scrollTop; }
+  return {
+    id: n.getAttribute('data-testid') || n.getAttribute('aria-label') || n.textContent.trim().slice(0, 30),
+    izq: r.left + dx, arriba: r.top + dy, ancho: r.width, alto: r.height,
+  };
+`);
+
+// Recorre el documento con Tab real y devuelve las paradas con su caja medida.
+async function recorrerConTab(pagina, cuantas) {
+  await pagina.evaluar(EN_MARCO('d.activeElement && d.activeElement.blur(); return true;'));
+  const paradas = [];
+  for (let i = 0; i < cuantas; i++) {
+    await pagina.tecla('Tab');
+    const f = await pagina.evaluar(FOCO_ACTUAL);
+    if (f) paradas.push(f);
+  }
+  return paradas;
+}
+
+// Orden de Tab = orden visual medido: la lateral antes que la principal y, dentro de cada
+// región, de arriba abajo y de izquierda a derecha. El orden esperado sale de las coordenadas
+// de cada parada, no del DOM: un `order` o un `flex-direction` que cambie lo visual sin tocar
+// el DOM hace que la secuencia de Tab ya no coincida.
+function ordenVisual(paradas, izqPrincipal) {
+  const region = (f) => (f.izq < izqPrincipal - 0.5 ? 0 : 1);
+  const esperado = paradas.slice().sort((a, b) =>
+    region(a) - region(b)
+    || (Math.abs(a.arriba - b.arriba) > 0.5 ? a.arriba - b.arriba : a.izq - b.izq));
+  return paradas.map((f) => f.id).join(',') === esperado.map((f) => f.id).join(',');
+}
+
+// Ninguna región, celda ni la hoja recorta el contorno de foco: ningún ancestro de un control
+// ni de un elemento con testID (sin pasar del scroller de la pantalla, que sí desplaza) tiene
+// `overflow` distinto de visible.
+const RECORTES = EN_MARCO(`
+  let scroller = null;
+  const ancla = d.querySelector('[data-testid="resultados-tarjeta"], [data-testid="revision-titulo"]');
+  for (let n = ancla; n; n = n.parentElement) {
+    const o = w.getComputedStyle(n).overflowY;
+    if (o === 'auto' || o === 'scroll') { scroller = n; break; }
+  }
+  const cand = new Set();
+  const sel = '[data-testid], [tabindex]:not([tabindex="-1"]), button, a[href], input';
+  for (const n of d.querySelectorAll(sel)) {
+    if (scroller && !scroller.contains(n)) continue;
+    for (let a = n; a && a !== scroller; a = a.parentElement) cand.add(a);
+  }
+  return Array.from(cand).filter((n) => {
+    const e = w.getComputedStyle(n);
+    return e.overflowX !== 'visible' || e.overflowY !== 'visible';
+  }).map((n) => (n.getAttribute('data-testid') || n.tagName) + ':' + w.getComputedStyle(n).overflowX
+    + '/' + w.getComputedStyle(n).overflowY);
+`);
+
+// Ninguna región se ancla: los ancestros de la tarjeta, del trío y del encabezado no son
+// `sticky` ni `fixed` (se desplazan con la página).
+const ANCLAS = EN_MARCO(`
+  const ids = ['resultados-tarjeta', 'resultados-trio', 'revision-titulo', 'revision-volver-arriba'];
+  const res = [];
+  for (const id of ids) {
+    for (let n = d.querySelector('[data-testid="' + id + '"]'); n && n !== d.body; n = n.parentElement) {
+      const p = w.getComputedStyle(n).position;
+      if (p === 'sticky' || p === 'fixed') res.push(id + '<' + (n.getAttribute('data-testid') || n.tagName) + ':' + p);
+    }
+  }
+  return res;
+`);
+
+// Desplaza el scroller de la pantalla `px` y devuelve cuánto se desplazó de verdad.
+const DESPLAZAR = (px) => EN_MARCO(`
+  let hecho = 0;
+  for (const n of Array.from(d.querySelectorAll('*'))) {
+    const o = w.getComputedStyle(n).overflowY;
+    if ((o === 'auto' || o === 'scroll') && n.scrollHeight > n.clientHeight) {
+      n.scrollTop = ${px};
+      hecho = Math.max(hecho, n.scrollTop);
+    }
+  }
+  return hecho;
+`);
+
+// Las cajas de la región lateral de la revisión (encabezado, «Volver», filtro) y de la
+// principal (primera tarjeta), para medirlas antes y después de desplazar.
+const CAJAS_REVISION = EN_MARCO(`
+  const top = (id) => { const n = visibles('[data-testid="' + id + '"]')[0]; return n ? n.getBoundingClientRect().top : null; };
+  const filtro = visibles('[role="radiogroup"][aria-label="Mostrar"]')[0];
+  return {
+    titulo: top('revision-titulo'), volver: top('revision-volver-arriba'),
+    filtro: filtro ? filtro.getBoundingClientRect().top : null,
+    tarjeta: (visibles('[data-testid^="revision-tarjeta-"]')[0] || { getBoundingClientRect: () => ({ top: null }) }).getBoundingClientRect().top,
+  };
+`);
+
+function geometria(ancho) {
+  const hoja = Math.min(HOJA, ancho - 2 * MARGEN_HOJA);
+  const izq = (ancho - hoja) / 2;
+  return { hoja, izq, izqPrincipal: izq + LATERAL + SEPARACION, principal: hoja - LATERAL - SEPARACION };
+}
+
+async function escritorioResumen(pagina, base, t) {
+  for (const oscuro of [false, true]) {
+    for (const [ancho, alto] of VENTANAS) {
+      const r = `${ancho} px ${oscuro ? 'oscuro' : 'claro'}`;
+      const g = geometria(ancho);
+      t.ok(`${r}: navegar al resumen con 40 respuestas y pedido`,
+        await abrirResultados(pagina, base, { ancho, alto, answers: conAciertos(40, 31), donacion: 0, oscuro }), true);
+      await alInicio(pagina);
+      const h = await leer(pagina);
+      t.ok(`${r}: sin scroll horizontal`, h.desborda, false);
+      t.ok(`${r}: tarjeta en la lateral: a la izquierda de la hoja y de ancho lateral`,
+        !!h.tarjeta && `${h.tarjeta.caja.izq}|${h.tarjeta.caja.ancho}`, `${g.izq}|${LATERAL}`);
+      t.ok(`${r}: trío en la principal: a paso 8 de la tarjeta y hasta el borde de la hoja`,
+        !!h.trio && `${h.trio.caja.izq}|${h.trio.caja.ancho}`, `${g.izqPrincipal}|${g.principal}`);
+      t.ok(`${r}: tarjeta y trío alineados arriba, paso 4 debajo de la barra`,
+        !!h.tarjeta && !!h.trio && !!h.barra
+          && `${h.tarjeta.caja.arriba - h.barra.abajo}|${h.trio.caja.arriba - h.barra.abajo}`, `${4 * PASO}|${4 * PASO}`);
+      t.ok(`${r}: tres celdas del trío iguales sobre el ancho de la principal`,
+        !!h.correctas && !!h.incorrectas && !!h.total
+          && [h.correctas, h.incorrectas, h.total].every((c) => Math.abs(c.caja.ancho - g.principal / 3) < 1.5), true);
+      t.ok(`${r}: pedido entre el trío y los botones, llena la principal`,
+        !!h.donacion && !!h.trio && !!h.revisar
+          && `${h.donacion.caja.izq}|${h.donacion.caja.ancho}|${h.donacion.caja.arriba - h.trio.caja.abajo}|${h.revisar.caja.arriba > h.donacion.caja.abajo}`,
+        `${g.izqPrincipal}|${g.principal}|${3 * PASO}|true`);
+      const botones = [h.revisar, h.reintentar, h.inicio];
+      t.ok(`${r}: tres botones apilados, en orden, a ancho de la principal`,
+        botones.every(Boolean)
+          && botones.every((b) => b.caja.izq === g.izqPrincipal && b.caja.ancho === g.principal)
+          && h.revisar.caja.arriba < h.reintentar.caja.arriba && h.reintentar.caja.arriba < h.inicio.caja.arriba, true);
+      t.ok(`${r}: tarjeta, trío, pedido y botones en una ventana (${alto} de alto)`,
+        !!h.inicio && h.inicio.caja.abajo <= alto, true);
+
+      t.ok(`${r}: ninguna región, celda ni la hoja recorta el contorno de foco (sin overflow)`,
+        (await pagina.evaluar(RECORTES)).join('|'), '');
+      t.ok(`${r}: ninguna región se ancla (sin sticky ni fixed)`, (await pagina.evaluar(ANCLAS)).join('|'), '');
+      const esperados = await pagina.evaluar(FOCOS);
+      const focos = await recorrerConTab(pagina, esperados.length);
+      t.ok(`${r}: Tab: descartar, cuatro montos y los tres botones, en ese orden`,
+        focos.map((f) => f.id).join(','),
+        ['donacion-descartar', ...(h.donacion ? h.donacion.montos : []).map((m) => `donacion-monto-${m}`),
+          'resultados-revisar', 'resultados-reintentar', 'resultados-inicio'].join(','));
+      t.ok(`${r}: los montos entran en una fila de celdas iguales`,
+        !!h.donacion && h.donacion.montos.length === 4
+          && new Set(focos.filter((f) => /^donacion-monto-/.test(f.id)).map((f) => f.arriba)).size === 1, true);
+      t.ok(`${r}: Tab: el orden es el visual medido por coordenadas`, ordenVisual(focos, g.izqPrincipal), true);
+      t.ok(`${r}: foco: todos los objetivos de al menos 44 × 44`,
+        focos.every((f) => f.ancho >= LADO_TACTIL - 0.5 && f.alto >= LADO_TACTIL - 0.5), true);
+      await capturar(pagina, `E05a-${ancho}-${oscuro ? 'oscuro' : 'claro'}.png`);
+
+      // Tramo bajo (E05b): sin pedido, los botones siguen al trío en la principal.
+      t.ok(`${r}: navegar a un resultado bajo (6 de 20)`,
+        await navegarA(pagina, { answers: conAciertos(20, 6), topic: TEMA.clave, mode: 'practice' }, 0), true);
+      await alInicio(pagina);
+      const bajo = await leer(pagina);
+      t.ok(`${r}: tramo bajo sin pedido: botones a paso 3 + 1.5 del trío, en la principal`,
+        !!bajo.trio && !!bajo.revisar && bajo.donacion === null
+          && `${bajo.revisar.caja.izq}|${bajo.revisar.caja.ancho}|${bajo.revisar.caja.arriba - bajo.trio.caja.abajo}`,
+        `${g.izqPrincipal}|${g.principal}|${3 * PASO + 1.5 * PASO}`);
+      await capturar(pagina, `E05b-${ancho}-${oscuro ? 'oscuro' : 'claro'}.png`);
+    }
+  }
+}
+
+async function escritorioRevision(pagina, base, t) {
+  for (const oscuro of [false, true]) {
+    for (const [ancho, alto] of VENTANAS) {
+      const r = `${ancho} px ${oscuro ? 'oscuro' : 'claro'}`;
+      const g = geometria(ancho);
+      t.ok(`${r}: navegar al resumen y abrir la revisión (8 respuestas, 3 falladas)`,
+        await abrirResultados(pagina, base, { ancho, alto, answers: respuestas(8, FALLADAS), donacion: 0, oscuro }), true);
+      await alInicio(pagina);
+      const resumen = await leer(pagina);
+      t.ok(`${r}: abrir la revisión`, await tocar(pagina, 'resultados-revisar'), true);
+      t.ok(`${r}: la revisión se muestra`,
+        await pagina.esperarA(async () => enRevision(await leer(pagina))), true);
+      await alInicio(pagina);
+      const h = await leer(pagina);
+      t.ok(`${r}: revisión sin scroll horizontal`, h.desborda, false);
+      t.ok(`${r}: la barra interna no se mueve al alternar la vista`,
+        JSON.stringify(h.barra), JSON.stringify(resumen.barra));
+      t.ok(`${r}: encabezado en la lateral, paso 4 debajo de la barra`,
+        !!h.revision && !!h.barra
+          && `${h.revision.tituloCaja.izq}|${h.revision.tituloCaja.arriba - h.barra.abajo}`, `${g.izq}|${4 * PASO}`);
+      t.ok(`${r}: «Volver» de arriba y filtro en la lateral, paso 3 entre ellos`,
+        !!h.volverArriba && !!h.filtro && !!h.revision
+          && `${h.volverArriba.caja.izq}|${h.filtro.caja.izq}|${h.filtro.caja.ancho}|${h.volverArriba.caja.arriba - h.revision.resumenCaja.abajo}|${h.filtro.caja.arriba - h.volverArriba.caja.abajo}`,
+        `${g.izq}|${g.izq}|${LATERAL}|${3 * PASO}|${3 * PASO}`);
+      t.ok(`${r}: filtro de dos opciones iguales a ancho de la región`,
+        !!h.filtro && h.filtro.opciones.length === 2
+          && Math.abs(h.filtro.opciones[0].ancho - h.filtro.opciones[1].ancho) < 1.5
+          && h.filtro.opciones[1].der <= h.filtro.caja.der + 0.5, true);
+      t.ok(`${r}: tarjetas en la principal, de ancho de la región y alineadas arriba con el encabezado`,
+        h.tarjetas.length === 8 && !!h.revision
+          && h.tarjetas.every((c) => c.caja.izq === g.izqPrincipal && c.caja.ancho === g.principal)
+          && Math.abs(h.tarjetas[0].caja.arriba - h.revision.tituloCaja.arriba) < 0.5, true);
+      t.ok(`${r}: tarjetas en orden, paso 2.5 entre ellas`,
+        h.tarjetas.every((c, i) => i === 0 || Math.abs(c.caja.arriba - h.tarjetas[i - 1].caja.abajo - 2.5 * PASO) < 0.5), true);
+      t.ok(`${r}: botones finales en una fila de dos celdas iguales, a ancho de la principal`,
+        !!h.volverFinal && !!h.inicioFinal
+          && h.volverFinal.caja.izq === g.izqPrincipal && Math.abs(h.inicioFinal.caja.der - (g.izq + g.hoja)) < 0.5
+          && h.volverFinal.caja.arriba === h.inicioFinal.caja.arriba
+          && Math.abs(h.volverFinal.caja.ancho - h.inicioFinal.caja.ancho) < 1.5, true);
+
+      t.ok(`${r}: ninguna región, celda ni la hoja recorta el contorno de foco (sin overflow)`,
+        (await pagina.evaluar(RECORTES)).join('|'), '');
+      t.ok(`${r}: ninguna región se ancla (sin sticky ni fixed)`, (await pagina.evaluar(ANCLAS)).join('|'), '');
+
+      // Con la página desplazada, la lateral se va con ella: cada caja sube lo que se desplazó.
+      const antes = await pagina.evaluar(CAJAS_REVISION);
+      const movido = await pagina.evaluar(DESPLAZAR(200));
+      const despues = await pagina.evaluar(CAJAS_REVISION);
+      t.ok(`${r}: la página se desplaza (la lista larga supera la ventana)`, movido > 0, true);
+      t.ok(`${r}: desplazada, la lateral y la principal suben con la página (nada anclado)`,
+        ['titulo', 'volver', 'filtro', 'tarjeta'].every((k) =>
+          antes[k] !== null && despues[k] !== null && Math.abs(antes[k] - despues[k] - movido) < 0.5), true);
+      await alInicio(pagina);
+
+      const esperados = await pagina.evaluar(FOCOS);
+      const focos = await recorrerConTab(pagina, esperados.length);
+      const ids = focos.map((f) => f.id);
+      t.ok(`${r}: Tab: «Volver», filtro, un «Reportar» por tarjeta y los dos botones finales`,
+        `${ids.slice(0, 3).join(',')}|${ids.filter((i) => /^revision-reportar-/.test(i)).length}|${ids.slice(-2).join(',')}`,
+        'revision-volver-arriba,Todas,Incorrectas|8|revision-volver,revision-inicio');
+      t.ok(`${r}: Tab: el orden es el visual medido por coordenadas`, ordenVisual(focos, g.izqPrincipal), true);
+      t.ok(`${r}: foco: todos los objetivos de al menos 44 × 44`,
+        focos.every((f) => f.ancho >= LADO_TACTIL - 0.5 && f.alto >= LADO_TACTIL - 0.5), true);
+
+      // E06 de página completa: la ventana crece hasta el final del contenido para que la
+      // captura incluya los botones finales.
+      await alInicio(pagina);
+      const alto2 = await pagina.evaluar(EN_MARCO(`
+        const f = visibles('[data-testid="revision-inicio"]')[0];
+        for (const n of Array.from(d.querySelectorAll('*'))) {
+          const o = w.getComputedStyle(n).overflowY;
+          if ((o === 'auto' || o === 'scroll') && n.scrollHeight > n.clientHeight) {
+            return Math.ceil(n.getBoundingClientRect().top + n.scrollHeight);
+          }
+        }
+        return f ? Math.ceil(f.getBoundingClientRect().bottom) : 0;
+      `));
+      await pagina.enviar('Emulation.setDeviceMetricsOverride',
+        { width: ancho, height: alto2, deviceScaleFactor: 1, mobile: false });
+      await pagina.evaluar(`document.getElementById('marco-e2e').style.height = '${alto2}px'; true`);
+      await new Promise((res) => setTimeout(res, 300));
+      const final = await leer(pagina);
+      t.ok(`${r}: la captura de página completa incluye los botones finales`,
+        !!final.volverFinal && !!final.inicioFinal && final.inicioFinal.caja.abajo <= alto2 + 0.5, true);
+      await capturar(pagina, `E06-${ancho}-${oscuro ? 'oscuro' : 'claro'}.png`);
+    }
   }
 }
 
@@ -1190,6 +1483,12 @@ async function fuenteDeLaPantalla(pagina, base, t) {
   t.ok('sin literales de color ni de medida arbitraria',
     /#[0-9a-fA-F]{3,8}\b|rgba?\(|\[\d+(?:\.\d+)?px\]|\[\d+px\]/.test(sinComentarios), false);
   t.ok('sin el campo emoji de getResultFeedback', /emoji/.test(sinComentarios), false);
+
+  // Escritorio: las piezas de `plancha/`, sin cortes ni anchos propios (3.11a).
+  t.ok('usa Hoja y Regiones de plancha',
+    /<Hoja[\s>]/.test(sinComentarios) && /<Regiones[\s>]/.test(sinComentarios), true);
+  t.ok('sin max-w-*, escritorio:, amplio: ni useWindowDimensions propios',
+    /max-w-|escritorio:|amplio:|useWindowDimensions|\b1024\b/.test(sinComentarios), false);
   t.ok('sin los nombres legados de tono (warning, success, danger)', /warning|success|danger/.test(sinComentarios), false);
 }
 
@@ -1208,7 +1507,9 @@ module.exports = [
   { nombre: 'Revisión: estados K de cada control', correr: estadosDeRevision },
   { nombre: 'Revisión: sin falladas no hay filtro', correr: revisionSinFalladas },
   { nombre: 'Revisión: tarjetas, nota y botones finales', correr: revisionTarjetas },
-  { nombre: 'Results: anchos de 320 a 1280 sin scroll horizontal', correr: anchos },
+  { nombre: 'Results: anchos de 320 a 1023 sin scroll horizontal', correr: anchos },
+  { nombre: 'Results: escritorio, lateral y principal (ESC-P5, ESC-P10)', correr: escritorioResumen },
+  { nombre: 'Revisión: escritorio, lateral y principal (ESC-P6)', correr: escritorioRevision },
   { nombre: 'Results: tema oscuro', correr: temaOscuro },
   { nombre: 'Results: fuente sin legado y con D6 intacto', correr: fuenteDeLaPantalla },
 ];
