@@ -366,7 +366,7 @@ Pedido del usuario (2026-10-11): «La UI debería adaptarse también a un monito
 | Hoja | El contenido va centrado en un ancho máximo con nombre: `lectura`, `hoja` o `hoja-amplia` (tabla de superficies). Margen lateral `paso 8`. Fondos y filetes de barra a todo el ancho |
 | Regiones | Una región **lateral** de ancho fijo `lateral` y una **principal**, flexible, separadas por `paso 8` y alineadas arriba. Entre sus bloques apilados rige la separación vertical de a.1 de cada ficha. Sin región lateral, el contenido ocupa la hoja de su superficie: `lectura` en el quiz y en AddQuestion, y `hoja` o `hoja-amplia` en TopicSelect |
 | Rejilla | Celdas de igual ancho separadas por `paso 4`: 2 columnas desde `escritorio` y 3 desde `amplio`. Orden de lectura fila a fila |
-| Listas de filas | Temas, «Más falladas» y, desde `amplio`, filas por tema de Estadísticas: fluyen por columnas. El orden baja por la primera columna y sigue por la siguiente |
+| Listas de filas | Temas, «Más falladas» y, desde `amplio`, filas por tema de Estadísticas: fluyen por columnas separadas por `paso 8` (no `paso 4`: eso es la rejilla de celdas). El orden baja por la primera columna y sigue por la siguiente |
 | Barras | HeaderMarca, barra interna y barra del quiz: filete y fondo a todo el ancho; el contenido, dentro de la hoja de la superficie, con el alto de teléfono (D6: HeaderMarca igual en MateriaSelect y Home) |
 | Barra inferior del quiz | Fija abajo, a todo el ancho; el botón mide `lectura` |
 | Tarjetas y paneles | Llenan su celda o su región |

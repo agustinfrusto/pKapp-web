@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTema } from '../theme/TemaContext';
 import { plancha } from '../theme/colores';
 import Glifo from './Glifo';
+import { clasesDeAncho } from './plancha/Columna';
 
 // Glifo chico: paso 4 de la escala de 4 px (tokens.md c.3, comun.md §8).
 const PX_POR_PASO = 4;
@@ -101,18 +102,24 @@ function ControlTema() {
   );
 }
 
-export default function HeaderMarca({ izquierda = null }) {
+// `ancho` (comun.md §7.2, fila «Barras»): `columna` por defecto, idéntico a siempre. Con otro
+// valor, desde `escritorio` el contenido va dentro de la hoja con margen `paso 8`; el fondo
+// sigue a todo el ancho. Reusa los topes de Columna.
+export default function HeaderMarca({ izquierda = null, ancho = 'columna', testID = 'header-marca' }) {
   const insets = useSafeAreaInsets();
+  const clases = clasesDeAncho(ancho);
 
   return (
     <View
-      testID="header-marca"
+      testID={testID}
       className="w-full bg-fondo dark:bg-fondoD"
       style={{ paddingTop: insets.top, paddingLeft: insets.left, paddingRight: insets.right }}
     >
-      <View className="w-full max-w-columna flex-row items-center justify-between gap-2 self-center px-5 py-3.5">
-        <View className="h-11 min-w-0 flex-1 items-start justify-center">{izquierda}</View>
-        <ControlTema />
+      <View className={clases ? clases.exterior : 'w-full'}>
+        <View className={`flex-row items-center justify-between gap-2 py-3.5 ${clases ? clases.interior : 'w-full max-w-columna self-center px-5'}`}>
+          <View className="h-11 min-w-0 flex-1 items-start justify-center">{izquierda}</View>
+          <ControlTema />
+        </View>
       </View>
     </View>
   );

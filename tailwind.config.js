@@ -3,6 +3,8 @@
 // Los neutros no se declaran: la escala `slate` por defecto de Tailwind coincide
 // exacto con los nueve grises que la app ya venía usando.
 /** @type {import('tailwindcss').Config} */
+const { CORTE_ESCRITORIO, CORTE_AMPLIO, ANCHOS } = require('./src/components/plancha/cortes');
+
 module.exports = {
   content: ['./App.js', './src/**/*.{js,jsx}'],
   presets: [require('nativewind/preset')],
@@ -62,10 +64,24 @@ module.exports = {
       borderWidth: {
         DEFAULT: '1px', 0: '0px', 1: '1px', 2: '2px', 3: '3px',
       },
+      // Cortes de escritorio (tokens.md c.4, d.3): `escritorio:` y `amplio:`. Mismo origen que
+      // las constantes JS (`plancha/cortes.js`).
+      screens: {
+        escritorio: `${CORTE_ESCRITORIO}px`,
+        amplio: `${CORTE_AMPLIO}px`,
+      },
       maxWidth: {
-        // Columna única de contenido en tablet y escritorio (tokens.md c.3).
+        // Columna única de contenido en teléfono y tablet (tokens.md c.3).
         // Uso: `w-full max-w-columna self-center`.
         columna: '448px',
+        // Anchos de escritorio (tokens.md c.4): topes que ceden cuando la ventana no alcanza.
+        lectura: `${ANCHOS.lectura}px`,
+        hoja: `${ANCHOS.hoja}px`,
+        'hoja-amplia': `${ANCHOS['hoja-amplia']}px`,
+      },
+      width: {
+        // Región lateral de escritorio: ancho fijo (tokens.md c.4).
+        lateral: `${ANCHOS.lateral}px`,
       },
     },
   },

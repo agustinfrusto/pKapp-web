@@ -8,11 +8,16 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import {
   BotonRelleno, BotonMarco, ControlMarco, Segmento, CuadroPaso, TarjetaNavegable,
-  FilaLista, Lamina, Desplegable, MarcaEstado, RotuloSeccion, Columna,
+  FilaLista, Lamina, Desplegable, MarcaEstado, RotuloSeccion, Columna, Hoja, Regiones, FlujoColumnas,
 } from '..';
 import { useTokens } from '../Control';
 import Glifo from '../../Glifo';
 import DonationBox from '../../DonationBox';
+import HeaderMarca from '../../HeaderMarca';
+import BarraInterna from '../../BarraInterna';
+
+// Propiedades mínimas de navegación para las barras de prueba (sin volver, título fijo).
+const BARRA = { options: { title: 'Barra' }, route: { name: 'Barra' }, navigation: {} };
 
 const FILTRO = [
   { valor: 'todas', etiqueta: 'Todas' },
@@ -66,6 +71,62 @@ function Tarjeta({ testID, titulo, clave = 'ilustracion', ...resto }) {
         </View>
       )}
     </TarjetaNavegable>
+  );
+}
+
+// Celdas del flujo por columnas: alto fijo (44 o 64) para que la e2e detecte una celda partida
+// entre dos columnas (su caja mediría la unión de los dos trozos).
+const CELDAS_FLUJO = Array.from({ length: 10 }, (_, i) => i + 1);
+
+// Disposición de escritorio (comun.md §7.2): bloques fijos que la e2e mide a cada ancho.
+// Van después de la columna de arriba, que sigue siendo la `columna` de siempre.
+function PruebaEscritorio() {
+  return (
+    <>
+      <Columna testID="col-lectura" ancho="lectura">
+        <Text className="font-plex-sans text-cuerpo text-tinta dark:text-tintaD">Lectura</Text>
+      </Columna>
+      <Hoja testID="hoja-izquierda">
+        <Regiones testID="regiones-izquierda">
+          <Regiones.Lateral testID="lateral-izquierda">
+            <BotonMarco testID="foco-a1" etiqueta="A1" onPress={() => {}} />
+            <BotonMarco testID="foco-a2" etiqueta="A2" onPress={() => {}} />
+          </Regiones.Lateral>
+          <Regiones.Principal testID="principal-izquierda">
+            <BotonMarco testID="foco-a3" etiqueta="A3" onPress={() => {}} />
+            <BotonMarco testID="foco-a4" etiqueta="A4" onPress={() => {}} />
+          </Regiones.Principal>
+        </Regiones>
+      </Hoja>
+      <Hoja testID="hoja-derecha">
+        <Regiones testID="regiones-derecha">
+          <Regiones.Principal testID="principal-derecha">
+            <BotonMarco testID="foco-b1" etiqueta="B1" onPress={() => {}} />
+            <BotonMarco testID="foco-b2" etiqueta="B2" onPress={() => {}} />
+          </Regiones.Principal>
+          <Regiones.Lateral testID="lateral-derecha">
+            <BotonMarco testID="foco-b3" etiqueta="B3" onPress={() => {}} />
+          </Regiones.Lateral>
+        </Regiones>
+      </Hoja>
+      <Hoja testID="hoja-amplia" ancho="hoja-amplia">
+        <FlujoColumnas testID="flujo">
+          {CELDAS_FLUJO.map((n) => (
+            <View
+              key={n}
+              testID={`flujo-${n}`}
+              className={`${n % 2 ? 'h-11' : 'h-16'} justify-center border border-linea dark:border-lineaD`}
+            >
+              <Text className="font-plex-sans text-cuerpo text-tinta dark:text-tintaD">{`Celda ${n}`}</Text>
+            </View>
+          ))}
+        </FlujoColumnas>
+      </Hoja>
+      <HeaderMarca testID="header-columna" izquierda={<Text>Marca</Text>} />
+      <HeaderMarca testID="header-hoja" ancho="hoja" izquierda={<Text>Marca</Text>} />
+      <BarraInterna testID="barra-columna" {...BARRA} />
+      <BarraInterna testID="barra-hoja-amplia" ancho="hoja-amplia" {...BARRA} />
+    </>
   );
 }
 
@@ -243,6 +304,7 @@ export default function PaginaComponentes() {
           {JSON.stringify(toques)}
         </Text>
       </Columna>
+      <PruebaEscritorio />
     </ScrollView>
   );
 }

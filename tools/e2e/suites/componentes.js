@@ -997,6 +997,232 @@ async function columna(navegador, base, t) {
   }
 }
 
+// Escritorio (comun.md §7.2, tokens.md c.4): bajo 1024 todo como hoy (`columna`); desde 1024
+// la hoja (`lectura` 600, `hoja` 952, `hoja-amplia` 1440), el margen lateral paso 8, las
+// regiones, el orden de foco igual al de DOM y el flujo por columnas (2 desde 1024, 3 desde
+// 1440). Los valores se escriben acá a propósito: son el contrato, y `cortes.js` se compara
+// contra ellos (un solo origen de verdad para la hoja de estilos y para el JS).
+const ESC = { corte: 1024, amplio: 1440, lectura: 600, lateral: 320, hoja: 952, hojaAmplia: 1440 };
+const SEPARACION = 8 * PASO;   // paso 8: margen lateral y entre regiones
+const COLUMNAS = 8 * PASO;     // paso 8: entre columnas de una lista de filas (§7.2)
+
+const MEDIR_ESCRITORIO = `(function () {
+  const caja = (id) => {
+    const el = document.querySelector('[data-testid="' + id + '"]');
+    if (!el) return null;
+    const r = el.getBoundingClientRect(), c = getComputedStyle(el);
+    return { x: r.left, y: r.top, ancho: r.width, alto: r.height, der: r.right,
+      relleno: c.paddingLeft, overflow: c.overflow + '|' + c.overflowX + '|' + c.overflowY,
+      rol: el.getAttribute('role'), nombre: el.getAttribute('aria-label') };
+  };
+  const dentro = (id) => {
+    const el = document.querySelector('[data-testid="' + id + '"]');
+    if (!el || !el.firstElementChild) return null;
+    const r = el.firstElementChild.getBoundingClientRect();
+    return { x: r.left, ancho: r.width, der: r.right,
+      overflow: getComputedStyle(el.firstElementChild).overflow };
+  };
+  const ids = (p, n) => Array.from({ length: n }, (_, i) => p + (i + 1));
+  const salida = { vista: window.innerWidth,
+    desborda: document.documentElement.scrollWidth > window.innerWidth };
+  // react-native-web recorta el desborde horizontal (overflowX hidden) en el ScrollView
+  // vertical de la página de prueba: el documento nunca desborda. Se mide el ScrollView.
+  let sv = (document.querySelector('[data-testid="pagina-componentes"]') || {}).parentElement;
+  while (sv && sv !== document.body && !(sv.scrollHeight > sv.clientHeight)) sv = sv.parentElement;
+  salida.scrollInterno = sv && sv !== document.body
+    ? { ancho: sv.scrollWidth, cliente: sv.clientWidth } : null;
+  for (const id of ['col-lectura', 'hoja-izquierda', 'hoja-derecha', 'hoja-amplia', 'columna']) {
+    salida[id] = caja(id);
+    salida[id + ':interna'] = dentro(id);
+  }
+  for (const id of ['regiones-izquierda', 'lateral-izquierda', 'principal-izquierda',
+    'regiones-derecha', 'lateral-derecha', 'principal-derecha', 'flujo']) salida[id] = caja(id);
+  for (const id of ids('foco-a', 4).concat(ids('foco-b', 3))) salida[id] = caja(id);
+  salida.celdas = ids('flujo-', 10).map(caja);
+  // Barras: la barra (fondo y filete), el contenedor exterior y la fila de contenido
+  salida.barras = {};
+  for (const id of ['header-columna', 'header-hoja', 'barra-columna', 'barra-hoja-amplia']) {
+    const el = document.querySelector('[data-testid="' + id + '"]');
+    const ext = el && el.firstElementChild, fila = ext && ext.firstElementChild;
+    if (!fila) { salida.barras[id] = null; continue; }
+    const r = el.getBoundingClientRect(), f = fila.getBoundingClientRect();
+    salida.barras[id] = { x: r.left, ancho: r.width, fila: { x: f.left, ancho: f.width },
+      filete: getComputedStyle(el).borderBottomWidth };
+  }
+  // Envoltura de cada celda: el padre directo, que pone FlujoColumnas.
+  salida.envolturas = ids('flujo-', 10).map((id) => {
+    const el = document.querySelector('[data-testid="' + id + '"]');
+    const p = el && el.parentElement;
+    if (!p) return null;
+    const c = getComputedStyle(p);
+    return { overflow: c.overflow + '|' + c.overflowX + '|' + c.overflowY,
+      rol: p.getAttribute('role'), nombre: p.getAttribute('aria-label') };
+  });
+  return salida;
+})()`;
+
+async function escritorio(navegador, base, t) {
+  let cortes = null;
+  try { cortes = require('../../../src/components/plancha/cortes'); } catch (e) { /* aún no existe */ }
+  t.ok('cortes.js: corte escritorio', cortes && cortes.CORTE_ESCRITORIO, ESC.corte);
+  t.ok('cortes.js: corte amplio', cortes && cortes.CORTE_AMPLIO, ESC.amplio);
+  t.ok('cortes.js: anchos', cortes && JSON.stringify(cortes.ANCHOS),
+    JSON.stringify({ lectura: ESC.lectura, lateral: ESC.lateral, hoja: ESC.hoja, 'hoja-amplia': ESC.hojaAmplia }));
+
+  // A1: el CSS generado (`theme.extend.screens` de tailwind.config.js) dice lo mismo que cortes.js.
+  let pantallas = null;
+  try { pantallas = require('../../../tailwind.config.js').theme.extend.screens; } catch (e) { /* ilegible */ }
+  t.ok('tailwind.config.js: variante escritorio', pantallas && pantallas.escritorio, `${ESC.corte}px`);
+  t.ok('tailwind.config.js: variante amplio', pantallas && pantallas.amplio, `${ESC.amplio}px`);
+
+  // 1439 = un px bajo `amplio`: dos columnas y hoja amplia en 952 (A1)
+  for (const ancho of [1023, 1024, 1366, 1439, 1440, 1920]) {
+    const pagina = await abrirPagina(navegador, { ancho, alto: 900 });
+    const cuando = (m) => `${ancho} px: ${m}`;
+    try {
+      await pagina.ir(`${base}/`);
+      const hay = await pagina.esperarA(() => pagina.evaluar(
+        `!!document.querySelector(${JSON.stringify(sel('flujo'))})`), { limite: 30000 });
+      t.ok(cuando('la página de prueba carga'), hay, true);
+      if (!hay) continue;
+      await new Promise((r) => setTimeout(r, 300));
+      const m = await pagina.evaluar(MEDIR_ESCRITORIO);
+      const de = ancho >= ESC.corte;
+      const vista = m.vista;
+
+      t.ok(cuando('sin scroll horizontal'), m.desborda, false);
+      // A2: el ScrollView interno es el que recorta; ahí sí puede fallar
+      t.ok(cuando('sin scroll horizontal en el ScrollView de la página'),
+        m.scrollInterno && m.scrollInterno.ancho > m.scrollInterno.cliente, false);
+      // La columna de siempre no cambia con el ancho (448 centrada desde 768)
+      t.ok(cuando('`columna` sigue en 448'), m.columna.ancho, 448);
+
+      // Hoja: bajo el corte, igual que `columna`; desde el corte, ancho completo con margen paso 8
+      // y el contenido en su tope, que cede cuando la ventana no alcanza.
+      const utilAncho = vista - 2 * SEPARACION;
+      const topes = {
+        'col-lectura': ESC.lectura,
+        'hoja-izquierda': ESC.hoja,
+        'hoja-derecha': ESC.hoja,
+        'hoja-amplia': vista >= ESC.amplio ? ESC.hojaAmplia : ESC.hoja,
+      };
+      for (const [id, tope] of Object.entries(topes)) {
+        const e = m[id], i = m[`${id}:interna`];
+        if (!de) {
+          t.ok(cuando(`${id}: bajo el corte mide como la columna (448)`), e.ancho, 448);
+          t.ok(cuando(`${id}: bajo el corte, margen paso 5`), e.relleno, `${5 * PASO}px`);
+          t.ok(cuando(`${id}: bajo el corte, el contenido llena la columna`), i.ancho, 448 - 2 * 5 * PASO);
+        } else {
+          const util = Math.min(tope, utilAncho);
+          t.ok(cuando(`${id}: ocupa todo el ancho`), e.ancho, vista);
+          t.ok(cuando(`${id}: margen lateral paso 8`), e.relleno, `${SEPARACION}px`);
+          t.ok(cuando(`${id}: contenido ${util} px`), i.ancho, util);
+          t.ok(cuando(`${id}: centrado`), i.x, (vista - util) / 2);
+        }
+        t.ok(cuando(`${id}: sin overflow que recorte el foco`),
+          `${e.overflow} ${i.overflow}`, 'visible|visible|visible visible');
+      }
+
+      // Regiones, lateral a la izquierda: DOM lateral → principal
+      const IZQ = [m['regiones-izquierda'], m['lateral-izquierda'], m['principal-izquierda']];
+      const DER = [m['regiones-derecha'], m['lateral-derecha'], m['principal-derecha']];
+      for (const [nombre, [reg, lat, pri], lateralPrimero] of
+        [['lateral a la izquierda', IZQ, true], ['lateral a la derecha', DER, false]]) {
+        t.ok(cuando(`${nombre}: sin rol ni nombre accesible propios`),
+          [reg, lat, pri].map((r) => `${r.rol}|${r.nombre}`).join(' '), 'null|null null|null null|null');
+        t.ok(cuando(`${nombre}: sin overflow`),
+          [reg, lat, pri].map((r) => r.overflow).join(' '),
+          'visible|visible|visible visible|visible|visible visible|visible|visible');
+        if (!de) {
+          t.ok(cuando(`${nombre}: apiladas, las dos al ancho de la columna`),
+            `${lat.ancho}|${pri.ancho}`, `${reg.ancho}|${reg.ancho}`);
+          t.ok(cuando(`${nombre}: apiladas en el orden de DOM`),
+            lateralPrimero ? lat.y < pri.y : pri.y < lat.y, true);
+          continue;
+        }
+        t.ok(cuando(`${nombre}: lateral de ${ESC.lateral} px`), lat.ancho, ESC.lateral);
+        t.ok(cuando(`${nombre}: principal flexible (el resto menos paso 8)`),
+          pri.ancho, reg.ancho - ESC.lateral - SEPARACION);
+        t.ok(cuando(`${nombre}: alineadas arriba`), lat.y, pri.y);
+        const [primera, segunda] = lateralPrimero ? [lat, pri] : [pri, lat];
+        t.ok(cuando(`${nombre}: separadas por paso 8`), segunda.x - primera.der, SEPARACION);
+        t.ok(cuando(`${nombre}: el orden visual es el de DOM`), primera.x < segunda.x, true);
+      }
+      if (de) {
+        // `hoja` = lateral + paso 8 + lectura: con la hoja completa la principal mide `lectura`
+        t.ok(cuando('región principal de 600 con la hoja completa'),
+          m['principal-izquierda'].ancho, ESC.lectura);
+      }
+
+      // Foco = DOM = visual (Tab, sin saltos hacia atrás)
+      for (const [prefijo, ids] of [['foco-a', ['foco-a1', 'foco-a2', 'foco-a3', 'foco-a4']],
+        ['foco-b', ['foco-b1', 'foco-b2', 'foco-b3']]]) {
+        const orden = [];
+        await pagina.evaluar(`document.querySelector(${JSON.stringify(sel(ids[0]))}).focus()`);
+        orden.push(await pagina.evaluar(`document.activeElement.getAttribute('data-testid')`));
+        for (let i = 1; i < ids.length; i++) {
+          await pagina.tecla('Tab');
+          orden.push(await pagina.evaluar(`document.activeElement.getAttribute('data-testid')`));
+        }
+        t.ok(cuando(`${prefijo}: Tab recorre el orden de DOM`), orden.join(','), ids.join(','));
+        const cajas = ids.map((id) => m[id]);
+        let saltosAtras = 0;
+        for (let i = 1; i < cajas.length; i++) {
+          const a = cajas[i - 1], b = cajas[i];
+          if (!(b.y > a.y + 1 || b.x > a.x + 1)) saltosAtras++;
+        }
+        t.ok(cuando(`${prefijo}: ningún salto hacia atrás en la pantalla`), saltosAtras, 0);
+      }
+      await pagina.evaluar('document.activeElement && document.activeElement.blur()');
+
+      // Flujo por columnas: 1 columna bajo el corte, 2 desde 1024, 3 desde 1440
+      const esperadas = ancho >= ESC.amplio ? 3 : de ? 2 : 1;
+      const xs = [...new Set(m.celdas.map((c) => Math.round(c.x)))].sort((a, b) => a - b);
+      t.ok(cuando(`flujo en ${esperadas} columna(s)`), xs.length, esperadas);
+      const col = (c) => xs.indexOf(Math.round(c.x));
+      const claves = m.celdas.map((c) => [col(c), c.y]);
+      const enOrden = claves.every((k, i) => i === 0
+        || k[0] > claves[i - 1][0] || (k[0] === claves[i - 1][0] && k[1] > claves[i - 1][1]));
+      t.ok(cuando('flujo: el orden de DOM baja por la columna y sigue por la siguiente'), enOrden, true);
+      t.ok(cuando('flujo: ninguna celda partida entre columnas'),
+        m.celdas.every((c, i) => c.alto === ((i + 1) % 2 ? 11 * PASO : 16 * PASO)), true);
+      if (esperadas > 1) {
+        const f = m.flujo;
+        const ancho1 = m.celdas[0].ancho;
+        t.ok(cuando(`flujo: celdas de igual ancho, columnas separadas por paso 8`),
+          Math.abs((f.ancho - COLUMNAS * (esperadas - 1)) / esperadas - ancho1) < 0.05, true);
+      }
+      // Barras (comun.md §7.2, fila «Barras»): fondo y filete a todo el ancho; el contenido,
+      // en `columna` como siempre o dentro de la hoja con margen paso 8 desde el corte
+      const cuerpo = Math.min(448, vista);
+      const casos = [
+        ['header-columna', null], ['barra-columna', null],
+        ['header-hoja', ESC.hoja], ['barra-hoja-amplia', vista >= ESC.amplio ? ESC.hojaAmplia : ESC.hoja],
+      ];
+      for (const [id, tope] of casos) {
+        const b = m.barras[id];
+        if (!b) { t.ok(cuando(`${id}: existe`), false, true); continue; }
+        t.ok(cuando(`${id}: a todo el ancho`), `${b.x}|${b.ancho}`, `0|${vista}`);
+        if (id.startsWith('barra')) t.ok(cuando(`${id}: filete a todo el ancho`), b.filete, '1px');
+        let ancho, x;
+        if (tope === null) { ancho = cuerpo; x = (vista - cuerpo) / 2; }
+        else if (de) { ancho = Math.min(tope, vista - 2 * SEPARACION); x = (vista - ancho) / 2; }
+        else { ancho = cuerpo - 2 * 5 * PASO; x = (vista - cuerpo) / 2 + 5 * PASO; }
+        t.ok(cuando(`${id}: contenido de ${ancho} px`), b.fila.ancho, ancho);
+        t.ok(cuando(`${id}: contenido centrado`), b.fila.x, x);
+      }
+      // A3: ni el contenedor ni la envoltura de cada celda recortan, ni llevan rol ni nombre
+      t.ok(cuando('flujo: contenedor sin overflow, sin rol ni nombre'),
+        `${m.flujo.overflow} ${m.flujo.rol}|${m.flujo.nombre}`, 'visible|visible|visible null|null');
+      t.ok(cuando('flujo: envoltura de cada celda sin overflow, sin rol ni nombre'),
+        m.envolturas.map((e) => `${e.overflow} ${e.rol}|${e.nombre}`).every(
+          (x) => x === 'visible|visible|visible null|null'), true);
+    } finally {
+      await pagina.cerrar();
+    }
+  }
+}
+
 // La guarda de build (hallazgo 1): `scripts/verificar-bundle.mjs` tiene que fallar sobre
 // un bundle que contiene la página de prueba, que es justo el que acaba de armar `construir`.
 function guardaDeBundle(t) {
@@ -1022,6 +1248,7 @@ module.exports = [
         await probarTema(navegador, base, t, 'claro');
         await probarTema(navegador, base, t, 'oscuro');
         await columna(navegador, base, t);
+        await escritorio(navegador, base, t);
       } finally {
         navegador.cerrar();
         await servidor.cerrar();

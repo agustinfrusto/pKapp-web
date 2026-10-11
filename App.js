@@ -1,12 +1,12 @@
 import './global.css';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, View, Image, StyleSheet, Pressable, Text, Platform } from 'react-native';
+import { Animated, View, Image, StyleSheet, Platform } from 'react-native';
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'nativewind';
-import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import MateriaSelectScreen from './src/screens/MateriaSelectScreen';
 import HomeScreen from './src/screens/HomeScreen';
@@ -21,9 +21,9 @@ import { initDatabase } from './src/db/database';
 import { MateriaProvider, useMateria } from './src/materia/MateriaContext';
 import { linking } from './src/navigation/linking';
 import { injectWebStyles } from './src/utils/webStyles';
-import { TemaProvider, useTema } from './src/theme/TemaContext';
+import { TemaProvider } from './src/theme/TemaContext';
 import { plancha } from './src/theme/colores';
-import Glifo from './src/components/Glifo';
+import BarraInterna from './src/components/BarraInterna';
 import { trackPageview } from './src/utils/track';
 import { cargarFuentes } from './src/theme/fuentes';
 
@@ -53,74 +53,15 @@ const splashStyles = StyleSheet.create({
 
 const logo = require('./src/assets/logo.png');
 
-// Escala de 4 px por paso (tokens.md c.3, comun.md §8).
-const PX_POR_PASO = 4;
-const RELLENO_SUPERIOR = 4 * PX_POR_PASO;
-const GLIFO_VOLVER = 6 * PX_POR_PASO;
-
-// Barra interna del Stack (comun.md §3; tarea 3.1b): volver, título y filete
-// inferior. La fila mide `paso 11` con y sin volver (MAQUETA-P1): sin volver el
-// título arranca en el margen lateral y la barra no cambia de alto. Quiz la
-// oculta con `headerShown: false` (QUIZ-P1).
-function BarraInterna({ back, options, route, navigation }) {
-  const insets = useSafeAreaInsets();
-  const { oscuro: esOscuro } = useTema();
-  const tema = esOscuro ? plancha.oscuro : plancha.claro;
-  const conVolver = back !== undefined && options.headerBackVisible !== false;
-  const titulo = options.title ?? route.name;
-
-  return (
-    <View
-      testID="barra-interna"
-      className="w-full border-b border-linea bg-fondo pb-4 dark:border-lineaD dark:bg-fondoD"
-      style={{
-        paddingTop: insets.top + RELLENO_SUPERIOR,
-        paddingLeft: insets.left,
-        paddingRight: insets.right,
-      }}
-    >
-      <View className="h-11 w-full max-w-columna flex-row items-center gap-3.5 self-center px-5">
-        {conVolver && (
-          <Pressable
-            testID="barra-volver"
-            className="h-11 w-11"
-            accessibilityRole="button"
-            accessibilityLabel="Volver"
-            onPress={() => navigation.goBack()}
-            dataSet={{ hoverPropio: '' }}
-          >
-            {({ pressed, hovered }) => {
-              // K7: presionado invierte; hover marca el contorno sin mover el layout.
-              const fondo = pressed ? 'bg-tinta dark:bg-tintaD' : 'bg-fondo dark:bg-fondoD';
-              const borde = pressed
-                ? 'border-tinta dark:border-tintaD'
-                : hovered
-                  ? 'border-linea dark:border-lineaD'
-                  : 'border-fondo dark:border-fondoD';
-              return (
-                <View className={`flex-1 items-center justify-center border ${fondo} ${borde}`}>
-                  <Glifo
-                    id="glifo-volver"
-                    size={GLIFO_VOLVER}
-                    color={pressed ? tema.fondo : tema.tinta}
-                  />
-                </View>
-              );
-            }}
-          </Pressable>
-        )}
-        <Text
-          testID="barra-titulo"
-          numberOfLines={1}
-          accessibilityRole="header"
-          className="min-w-0 flex-1 font-plex-sans-semibold text-titulo text-tinta dark:text-tintaD"
-        >
-          {titulo}
-        </Text>
-      </View>
-    </View>
-  );
-}
+// Ancho de la hoja de cada superficie para la barra interna (comun.md §7.2, tabla de
+// superficies). Una ruta que no figura mantiene `columna`. Un solo lugar.
+const ANCHO_BARRA = {
+  TopicSelect: 'hoja-amplia',
+  Stats: 'hoja-amplia',
+  Results: 'hoja',
+  Settings: 'hoja',
+  AddQuestion: 'lectura',
+};
 
 export default function App() {
   return (
@@ -231,7 +172,7 @@ function AppContent() {
       <Stack.Navigator
         initialRouteName="MateriaSelect"
         screenOptions={{
-          header: (props) => <BarraInterna {...props} />,
+          header: (props) => <BarraInterna {...props} ancho={ANCHO_BARRA[props.route.name]} />,
           contentStyle: { backgroundColor: tema.fondo },
           // En web la transición animada de native-stack agrega ~200ms al INP
           // sin aportar mucho visualmente. En nativo se mantiene la default.
