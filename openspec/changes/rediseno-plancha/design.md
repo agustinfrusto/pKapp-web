@@ -13,6 +13,10 @@
 - Contratos de diseño versionados, en `openspec/changes/rediseno-plancha/diseno/`:
   `tokens.md`, `NOTAS.md`, `pantallas/`, `svg/` (ilustraciones y glifos) y `favicon/`.
 
+- Plataforma objetivo: solo web, instalable como PWA (decisión del usuario, 2026-10-11). La
+  versión nativa para iOS y Android queda descartada: lo exclusivo de nativo no se mantiene
+  ni se verifica. Las áreas seguras siguen aplicando porque la PWA corre en iPhone y Android.
+
 ## Goals / Non-Goals
 
 **Goals**: llevar el híbrido aprobado a las 10 superficies, en ambos temas, sin tocar datos

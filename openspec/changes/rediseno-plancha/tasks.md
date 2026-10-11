@@ -57,8 +57,12 @@ al Analista.
 
 ## 5. Cierre (Ingeniero)
 
-- [ ] 5.0 Reescribir los comentarios que aún usan símbolos de ícono (`→`, `×`; por ejemplo `Glifo.js:5`) y borrar las definiciones legadas (claves `colores`/`oscuro` legadas, `fontSize` `xxs`…`display-lg`, `sombras.js`) con el `rg` global de usos vacío adjunto
+- [ ] 5.0 Retirar lo exclusivo de nativo (decisión del usuario 2026-10-11: solo web/PWA): `src/theme/fuentes.js` y los `.ttf` de `src/assets/fuentes/` (con su chequeo en `tools/ui/fuentes.mjs`), la capa `database.native.js` + `expo-sqlite` y su exclusión en `metro.config.js`; se reimplementa si algún día se publica nativo. Reescribir los comentarios que aún usan símbolos de ícono (`→`, `×`; por ejemplo `Glifo.js:5`) y borrar las definiciones legadas (claves `colores`/`oscuro` legadas, `fontSize` `xxs`…`display-lg`, `sombras.js`) con el `rg` global de usos vacío adjunto
 - [ ] 5.1 Medir el bundle contra 0.1: ≤ +35 KB gzip (D5). Fuentes ≤ 100 KB (D4). Registrar en `evidencia/cierre.md`
 - [ ] 5.2 Recorrer las 10 superficies en ambos temas contra sus fichas; verificar contraste, estados sin color y sin emojis
 - [ ] 5.3 `openspec validate rediseno-plancha --strict`
 - [ ] 5.4 Con orden del operador: merge de `rediseno` a `main`, versión minor en el commit siguiente (`openspec/commit.md`, paso 4) y archivo del change
+
+## 6. Después del merge (fuera de este change)
+
+- [ ] 6.1 Actualizar a Expo SDK 57, solo web (pedido del usuario 2026-10-11). Change propio, en una rama desde `main` ya mergeado. Base: `evidencia/investigacion-expo-57.md` (≈ 3–4 h, riesgo bajo: `expo@^57` + `nativewind ^4.2.7`, splash de `app.json` a plugin, quitar `backgroundColor` de `StatusBar`, compuerta y peso). Sin NativeWind 5 hasta su versión estable
