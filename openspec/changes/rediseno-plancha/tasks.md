@@ -60,6 +60,13 @@ al Analista.
 
 ## 5. Cierre (Ingeniero)
 
+## 3b. Escritorio (pedido del usuario 2026-10-11)
+
+Motivo: Umami muestra una parte grande de visitas desde Windows 10/11 de escritorio; la columna única de 448 px (`columna`, comun.md §7) deja la mayor parte de un monitor horizontal vacía. Se hace después de cerrar las 3.x y antes de 5.0, como cambio aditivo desde un punto de corte de escritorio: lo de teléfono y tablet no cambia.
+
+- [ ] 3.10 Diseñador: propuesta de layout de escritorio (≥ 1024 px, revisada a 1366×768 y 1920×1080) por superficie, con tokens de ancho nuevos con nombre propio y la regla de §7 actualizada; D10 intacto (mismos flujos, datos y gestos; nada se oculta). Aprueba el usuario
+- [ ] 3.11 Programadores: implementar 3.10 por superficie con el punto de corte aprobado, con e2e a 1366 y 1920 y capturas; Analista por diff > 50
+
 - [ ] 5.0 Retirar lo exclusivo de nativo (decisión del usuario 2026-10-11: solo web/PWA): `src/theme/fuentes.js` y los `.ttf` de `src/assets/fuentes/` (con su chequeo en `tools/ui/fuentes.mjs`), la capa `database.native.js` + `expo-sqlite` y su exclusión en `metro.config.js`; se reimplementa si algún día se publica nativo. Reescribir los comentarios que aún usan símbolos de ícono (`→`, `×`; por ejemplo `Glifo.js:5`) y borrar las definiciones legadas (claves `colores`/`oscuro` legadas, `fontSize` `xxs`…`display-lg`, `sombras.js`) con el `rg` global de usos vacío adjunto
 - [ ] 5.1 Medir el bundle contra 0.1: ≤ +35 KB gzip (D5). Fuentes ≤ 100 KB (D4). Registrar en `evidencia/cierre.md`
 - [ ] 5.2 Recorrer las 10 superficies en ambos temas contra sus fichas; verificar contraste, estados sin color y sin emojis
