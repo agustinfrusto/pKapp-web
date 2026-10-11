@@ -16,7 +16,7 @@ import {
 import { confirm, avisar } from '../utils/confirm';
 import { pickAndImportBackup, downloadBackup } from '../utils/migration';
 import {
-  BotonRelleno, BotonMarco, ControlMarco, Segmento, FilaLista, MarcaEstado, RotuloSeccion, Columna,
+  BotonRelleno, BotonMarco, ControlMarco, Segmento, FilaLista, MarcaEstado, RotuloSeccion, Hoja, Regiones,
 } from '../components/plancha';
 import { useTokens, GLIFO_CHICO } from '../components/plancha/Control';
 import Glifo from '../components/Glifo';
@@ -124,180 +124,188 @@ export default function SettingsScreen() {
       className="flex-1 bg-fondo dark:bg-fondoD"
       contentContainerClassName="pb-8 pt-4"
     >
-      <Columna>
-        {/* 1. Cuestionario (el ajuste configurable, arriba) */}
-        <View className={SECCION}>
-          <View className="mb-2"><RotuloSeccion color="acento">Cuestionario</RotuloSeccion></View>
-          <View className={`flex-row items-center gap-3.5 ${PANEL}`}>
-            <View className="flex-1">
-              <Text className="font-plex-sans-semibold text-item text-tinta dark:text-tintaD">
-                Ocultar resultado hasta el final
-              </Text>
-              <Text className="mt-1 font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
-                Respondé sin ver si acertás. Al terminar, revisás todo junto.
-              </Text>
-            </View>
-            <Segmento
-              forma="segmentado"
-              opciones={OPCIONES_OCULTAR}
-              valor={hideFeedback ? 'si' : 'no'}
-              alCambiar={(v) => handleToggleHideFeedback(v === 'si')}
-              accessibilityLabel="Ocultar resultado hasta el final"
-            />
-          </View>
-        </View>
-
-        {/* 2. Mis preguntas (desplegable, con contador) */}
-        <View className={SECCION}>
-          <View className="mb-2"><RotuloSeccion color="acento">Mis preguntas</RotuloSeccion></View>
-          <Plegable
-            nombre={`${userQuestions.length} ${userQuestions.length === 1 ? 'pregunta propia' : 'preguntas propias'}`}
-            abierto={showQuestions}
-            onPress={() => setShowQuestions((v) => !v)}
-          />
-          {showQuestions && (
-            <View className="mt-2.5">
-              {userQuestions.length === 0 ? (
-                <View className={`items-center ${PANEL}`}>
-                  <Text className="text-center font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
-                    No agregaste preguntas todavía. Usá "Agregar pregunta" en el menú principal.
+      <Hoja>
+        <Regiones>
+          {/* Principal: Cuestionario, Mis preguntas y Tus datos */}
+          <Regiones.Principal>
+            {/* 1. Cuestionario (el ajuste configurable, arriba) */}
+            <View className={SECCION}>
+              <View className="mb-2"><RotuloSeccion color="acento">Cuestionario</RotuloSeccion></View>
+              <View className={`flex-row items-center gap-3.5 ${PANEL}`}>
+                <View className="flex-1">
+                  <Text className="font-plex-sans-semibold text-item text-tinta dark:text-tintaD">
+                    Ocultar resultado hasta el final
                   </Text>
-                  <BotonMarco
-                    etiqueta="Agregar pregunta"
-                    relleno="amplio"
-                    className="mt-3"
-                    onPress={() => navigation.navigate('AddQuestion')}
-                  />
+                  <Text className="mt-1 font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
+                    Respondé sin ver si acertás. Al terminar, revisás todo junto.
+                  </Text>
                 </View>
-              ) : (
-                userQuestions.map((q, i) => (
-                  <View key={q.id} className={`${i > 0 ? 'mt-2.5' : ''} ${PANEL}`}>
-                    <View className="flex-row items-center justify-between gap-2">
-                      <Text className="flex-1 font-plex-mono text-rotulo uppercase text-acento dark:text-acentoD">
-                        {TOPICS[q.topic] || q.topic}
+                <Segmento
+                  forma="segmentado"
+                  opciones={OPCIONES_OCULTAR}
+                  valor={hideFeedback ? 'si' : 'no'}
+                  alCambiar={(v) => handleToggleHideFeedback(v === 'si')}
+                  accessibilityLabel="Ocultar resultado hasta el final"
+                />
+              </View>
+            </View>
+
+            {/* 2. Mis preguntas (desplegable, con contador) */}
+            <View className={SECCION}>
+              <View className="mb-2"><RotuloSeccion color="acento">Mis preguntas</RotuloSeccion></View>
+              <Plegable
+                nombre={`${userQuestions.length} ${userQuestions.length === 1 ? 'pregunta propia' : 'preguntas propias'}`}
+                abierto={showQuestions}
+                onPress={() => setShowQuestions((v) => !v)}
+              />
+              {showQuestions && (
+                <View className="mt-2.5">
+                  {userQuestions.length === 0 ? (
+                    <View className={`items-center ${PANEL}`}>
+                      <Text className="text-center font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
+                        No agregaste preguntas todavía. Usá "Agregar pregunta" en el menú principal.
                       </Text>
-                      <FilaLista
-                        glifo="glifo-eliminar"
-                        tono="sec"
-                        accessibilityLabel="Eliminar pregunta"
-                        onPress={() => handleDeleteUserQuestion(q.id)}
+                      <BotonMarco
+                        etiqueta="Agregar pregunta"
+                        relleno="amplio"
+                        className="mt-3"
+                        onPress={() => navigation.navigate('AddQuestion')}
                       />
                     </View>
-                    <Text
-                      className="mt-1.5 font-plex-sans text-cuerpo text-tinta dark:text-tintaD"
-                      numberOfLines={2}
-                    >
-                      {q.question}
-                    </Text>
-                    <View className="mt-1.5">
-                      <MarcaEstado estado="acierto" texto={q.options[q.correctIndex]} paso="detalle" />
-                    </View>
-                  </View>
-                ))
+                  ) : (
+                    userQuestions.map((q, i) => (
+                      <View key={q.id} className={`${i > 0 ? 'mt-2.5' : ''} ${PANEL}`}>
+                        <View className="flex-row items-center justify-between gap-2">
+                          <Text className="flex-1 font-plex-mono text-rotulo uppercase text-acento dark:text-acentoD">
+                            {TOPICS[q.topic] || q.topic}
+                          </Text>
+                          <FilaLista
+                            glifo="glifo-eliminar"
+                            tono="sec"
+                            accessibilityLabel="Eliminar pregunta"
+                            onPress={() => handleDeleteUserQuestion(q.id)}
+                          />
+                        </View>
+                        <Text
+                          className="mt-1.5 font-plex-sans text-cuerpo text-tinta dark:text-tintaD"
+                          numberOfLines={2}
+                        >
+                          {q.question}
+                        </Text>
+                        <View className="mt-1.5">
+                          <MarcaEstado estado="acierto" texto={q.options[q.correctIndex]} paso="detalle" />
+                        </View>
+                      </View>
+                    ))
+                  )}
+                </View>
               )}
             </View>
-          )}
-        </View>
 
-        {/* 3. Tus datos (desplegable: respaldo + reset) */}
-        <View className={SECCION}>
-          <View className="mb-2"><RotuloSeccion color="acento">Tus datos</RotuloSeccion></View>
-          <Plegable
-            nombre="Respaldo y reseteo"
-            abierto={showData}
-            onPress={() => setShowData((v) => !v)}
-          />
-          {showData && (
-            <View className={`mt-2.5 ${PANEL}`}>
-              {Platform.OS === 'web' && (
-                <>
-                  <Text className="mb-2.5 font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
-                    Descargá un respaldo de tu progreso para no perderlo o pasarlo a otro dispositivo.
-                  </Text>
-                  <ControlMarco
-                    etiqueta="Descargar respaldo"
-                    glifo="glifo-guardar"
-                    className="mb-2 w-full"
-                    onPress={() => {
-                      const ok = downloadBackup();
-                      if (!ok) avisar('Error', 'No se pudo generar el respaldo.');
-                    }}
-                  />
-                  <BotonRelleno
-                    etiqueta="Importar respaldo"
-                    glifo="glifo-importar"
+            {/* 3. Tus datos (desplegable: respaldo + reset) */}
+            <View className={SECCION}>
+              <View className="mb-2"><RotuloSeccion color="acento">Tus datos</RotuloSeccion></View>
+              <Plegable
+                nombre="Respaldo y reseteo"
+                abierto={showData}
+                onPress={() => setShowData((v) => !v)}
+              />
+              {showData && (
+                <View className={`mt-2.5 ${PANEL}`}>
+                  {Platform.OS === 'web' && (
+                    <>
+                      <Text className="mb-2.5 font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
+                        Descargá un respaldo de tu progreso para no perderlo o pasarlo a otro dispositivo.
+                      </Text>
+                      <ControlMarco
+                        etiqueta="Descargar respaldo"
+                        glifo="glifo-guardar"
+                        className="mb-2 w-full"
+                        onPress={() => {
+                          const ok = downloadBackup();
+                          if (!ok) avisar('Error', 'No se pudo generar el respaldo.');
+                        }}
+                      />
+                      <BotonRelleno
+                        etiqueta="Importar respaldo"
+                        glifo="glifo-importar"
+                        className="w-full"
+                        onPress={() => pickAndImportBackup((r) => {
+                          avisar(r.ok ? 'Listo' : 'Error', r.message);
+                          if (r.ok) loadData();
+                        })}
+                      />
+                      <View
+                        aria-hidden
+                        accessibilityElementsHidden
+                        importantForAccessibility="no-hide-descendants"
+                        className={`my-3 ${FILETE}`}
+                      />
+                    </>
+                  )}
+                  <BotonMarco
+                    etiqueta="Resetear estadísticas"
+                    tono="peligro"
                     className="w-full"
-                    onPress={() => pickAndImportBackup((r) => {
-                      avisar(r.ok ? 'Listo' : 'Error', r.message);
-                      if (r.ok) loadData();
-                    })}
+                    onPress={handleResetStats}
                   />
-                  <View
-                    aria-hidden
-                    accessibilityElementsHidden
-                    importantForAccessibility="no-hide-descendants"
-                    className={`my-3 ${FILETE}`}
-                  />
-                </>
+                </View>
               )}
-              <BotonMarco
-                etiqueta="Resetear estadísticas"
-                tono="peligro"
-                className="w-full"
-                onPress={handleResetStats}
-              />
             </View>
-          )}
-        </View>
+          </Regiones.Principal>
 
-        {/* 4. Acerca de (info compacta) */}
-        <View>
-          <View className="mb-2"><RotuloSeccion color="acento">Acerca de</RotuloSeccion></View>
-          <View className={PANEL}>
-            <View className="flex-row flex-wrap items-baseline justify-between gap-2">
-              <View className="flex-row items-baseline gap-2">
-                <Text className="font-plex-sans-semibold text-item text-tinta dark:text-tintaD">pKapp</Text>
-                <Text className="font-plex-mono-medium text-rotulo uppercase text-tintaSec dark:text-tintaSecD">
-                  v{APP_VERSION}
-                </Text>
+          {/* Lateral, a la derecha (ESC-P8): le sigue a la principal en el DOM */}
+          <Regiones.Lateral>
+            {/* 4. Acerca de (info compacta) */}
+            <View>
+              <View className="mb-2"><RotuloSeccion color="acento">Acerca de</RotuloSeccion></View>
+              <View className={PANEL}>
+                <View className="flex-row flex-wrap items-baseline justify-between gap-2">
+                  <View className="flex-row items-baseline gap-2">
+                    <Text className="font-plex-sans-semibold text-item text-tinta dark:text-tintaD">pKapp</Text>
+                    <Text className="font-plex-mono-medium text-rotulo uppercase text-tintaSec dark:text-tintaSecD">
+                      v{APP_VERSION}
+                    </Text>
+                  </View>
+                  <Text className="font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
+                    Preparación para ESFUNO
+                  </Text>
+                </View>
+
+                <View className={`mt-3 pt-3 ${FILETE}`}>
+                  <View className="flex-row items-baseline justify-between gap-2">
+                    <Text className="flex-1 font-plex-mono text-rotulo uppercase text-tintaSec dark:text-tintaSecD">
+                      Banco de {materia?.name || 'preguntas'}
+                    </Text>
+                    <Text className="font-plex-mono-medium text-dato text-tinta dark:text-tintaD">
+                      {examCount + generatedCount + userQuestions.length}
+                    </Text>
+                  </View>
+                  <Text className="mt-1 font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
+                    {examCount} de exámenes · {generatedCount} generadas · {userQuestions.length} tuyas
+                  </Text>
+                </View>
+
+                <View className={`mt-3 flex-row flex-wrap gap-2 pt-3 ${FILETE}`}>
+                  <BotonMarco
+                    etiqueta="Reportar un error"
+                    glifo="glifo-correo"
+                    tono="acento"
+                    onPress={() => Linking.openURL('mailto:pkappsoporte@gmail.com')}
+                  />
+                  <BotonMarco
+                    etiqueta="Código fuente"
+                    glifo="glifo-externo"
+                    glifoPosicion="detras"
+                    tono="acento"
+                    onPress={() => Linking.openURL('https://github.com/agustinfrusto/pKapp-web')}
+                  />
+                </View>
               </View>
-              <Text className="font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
-                Preparación para ESFUNO
-              </Text>
             </View>
-
-            <View className={`mt-3 pt-3 ${FILETE}`}>
-              <View className="flex-row items-baseline justify-between gap-2">
-                <Text className="flex-1 font-plex-mono text-rotulo uppercase text-tintaSec dark:text-tintaSecD">
-                  Banco de {materia?.name || 'preguntas'}
-                </Text>
-                <Text className="font-plex-mono-medium text-dato text-tinta dark:text-tintaD">
-                  {examCount + generatedCount + userQuestions.length}
-                </Text>
-              </View>
-              <Text className="mt-1 font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
-                {examCount} de exámenes · {generatedCount} generadas · {userQuestions.length} tuyas
-              </Text>
-            </View>
-
-            <View className={`mt-3 flex-row flex-wrap gap-2 pt-3 ${FILETE}`}>
-              <BotonMarco
-                etiqueta="Reportar un error"
-                glifo="glifo-correo"
-                tono="acento"
-                onPress={() => Linking.openURL('mailto:pkappsoporte@gmail.com')}
-              />
-              <BotonMarco
-                etiqueta="Código fuente"
-                glifo="glifo-externo"
-                glifoPosicion="detras"
-                tono="acento"
-                onPress={() => Linking.openURL('https://github.com/agustinfrusto/pKapp-web')}
-              />
-            </View>
-          </View>
-        </View>
-      </Columna>
+          </Regiones.Lateral>
+        </Regiones>
+      </Hoja>
       <View style={{ height: insets.bottom }} />
     </ScrollView>
   );

@@ -8,6 +8,8 @@
 const fs = require('fs');
 const path = require('path');
 const { plancha } = require('../../../src/theme/colores');
+const { conectarNavegador, abrirPagina } = require('../cdp');
+const { CORTE_ESCRITORIO, ANCHOS } = require('../../../src/components/plancha/cortes');
 const { EN_MARCO, LADO_TACTIL, MATERIA, PASO, abrirMarco, clicEnMarco, esperarEnMarco } = require('./comunes');
 
 const rgb = (hex) => {
@@ -152,8 +154,8 @@ async function clicTexto(pagina, texto) {
 }
 
 // Selector → Home → Ajustes, en el tema pedido.
-async function irAAjustes(pagina, base, ancho, tema, sembrar = null) {
-  await abrirMarco(pagina, base, ancho, 900);
+async function irAAjustes(pagina, base, ancho, tema, sembrar = null, alto = 900) {
+  await abrirMarco(pagina, base, ancho, alto);
   if (sembrar) await pagina.evaluar(sembrar);
   if (tema === 'oscuro') {
     await clicEnMarco(pagina, 'oscuro');
@@ -372,12 +374,305 @@ async function anchos(pagina, base, t) {
     `));
     t.ok(c('hay controles'), medidas.n > 0, true);
     t.ok(c('ningún control mide menos de 44 × 44'), JSON.stringify(medidas.chicos), '[]');
-    if (ancho >= 768) {
+    if (ancho >= 768 && ancho < CORTE_ESCRITORIO) {
       const panel = await pagina.evaluar(LEER_PANEL('Ocultar resultado hasta el final'));
       t.ok(c('una columna de 448 − 2 × paso 5 como máximo'), panel && Math.round(panel.w) <= 448, true);
     }
   }
 }
+
+// Escritorio (ESC-P8, Settings.md «Escritorio»): desde el corte, «Acerca de» en la región
+// lateral de la derecha y el resto en la principal. Bajo el corte, la columna de siempre.
+const SEPARACION = 8 * PASO;
+const LEER_ESCRITORIO = EN_MARCO(`
+  const rotulo = (t) => visibles('*').find((n) =>
+    n.children.length === 0 && n.textContent.trim().toLowerCase() === t.toLowerCase());
+  const caja = (n) => { if (!n) return null; const r = n.getBoundingClientRect();
+    return { x: r.left, y: r.top, der: r.right, abajo: r.bottom, ancho: r.width, alto: r.height }; };
+  const panelDe = (n) => { let p = n && n.parentElement;
+    while (p && p !== d.body) { const k = w.getComputedStyle(p);
+      if (parseFloat(k.borderTopWidth) > 0 && k.borderTopStyle === 'solid') return p;
+      p = p.parentElement; } return null; };
+  const control = (t) => { const n = rotulo(t); return caja(n && n.closest('[role="button"], [tabindex]')); };
+  const foco = visibles('[role="button"], [role="radio"], [tabindex="0"]');
+  return {
+    vista: w.innerWidth,
+    desborda: desbordes().length > 0,
+    cuestionario: caja(rotulo('Cuestionario')),
+    preguntas: caja(rotulo('Mis preguntas')),
+    datos: caja(rotulo('Tus datos')),
+    acerca: caja(rotulo('Acerca de')),
+    panelCuestionario: caja(panelDe(rotulo('Ocultar resultado hasta el final'))),
+    panelAcerca: caja(panelDe(rotulo('pKapp'))),
+    pkapp: caja(rotulo('pKapp')),
+    esfuno: caja(rotulo('Preparación para ESFUNO')),
+    reportar: control('Reportar un error'),
+    codigo: control('Código fuente'),
+    plegableDatos: control('Respaldo y reseteo'),
+    tarjetas: visibles('[aria-label="Eliminar pregunta"]').length,
+    anchoTarjetas: visibles('[aria-label="Eliminar pregunta"]')
+      .map((n) => { const p = panelDe(n); return p ? p.getBoundingClientRect().width : 0; }).join('|'),
+    descargar: control('Descargar respaldo'),
+    resetear: control('Resetear estadísticas'),
+    chicos: foco.filter((n) => { const r = n.getBoundingClientRect();
+      return r.width < ${LADO_TACTIL} - 0.5 || r.height < ${LADO_TACTIL} - 0.5; })
+      .map((n) => (n.textContent || n.getAttribute('aria-label') || '?').trim().slice(0, 30)),
+  };
+`);
+
+// Coordenadas de PÁGINA de un nodo: su posición en la ventana más lo que desplazó cada
+// ancestro. Con la pantalla desplazada, la posición en la ventana cambia aunque el orden
+// visual no (ORDEN_DE_FOCO y COLA miden con esto, no con `getBoundingClientRect` solo).
+const PAGINA = `
+  const pag = (n) => { const r = n.getBoundingClientRect(); let x = r.left, y = r.top;
+    for (let p = n.parentElement; p; p = p.parentElement) { x += p.scrollLeft; y += p.scrollTop; }
+    return { x, y, abajo: y + r.height, ancho: r.width, alto: r.height }; };
+`;
+
+// Recorre Tab y devuelve, de la parada actual, su nombre y su posición en la PÁGINA.
+const ORDEN_DE_FOCO = EN_MARCO(`
+  ${PAGINA}
+  const f = d.activeElement;
+  if (!f || f === d.body) return null;
+  const p = pag(f);
+  return { nombre: (f.getAttribute('aria-label') || f.textContent || '?').trim().slice(0, 40),
+    rol: f.getAttribute('role'), x: p.x, y: p.y };
+`);
+
+// Anclado: ningún ancestro de los primeros bloques de cada región es `sticky` ni `fixed`.
+const ANCLAS_AJUSTES = EN_MARCO(`
+  const res = [];
+  for (const t of ['cuestionario', 'mis preguntas', 'tus datos', 'acerca de']) {
+    const h = visibles('*').find((n) => n.children.length === 0 && n.textContent.trim().toLowerCase() === t);
+    for (let n = h; n && n !== d.body; n = n.parentElement) {
+      const p = w.getComputedStyle(n).position;
+      if (p === 'sticky' || p === 'fixed') res.push(t + '<' + (n.getAttribute('data-testid') || n.tagName) + ':' + p);
+    }
+  }
+  return res;
+`);
+
+// Foco: ancestros de un control enfocable con `overflow` distinto de `visible`, salvo el
+// scroller de la pantalla (el más externo): recortarían el contorno de foco en los cuatro bordes.
+const RECORTES_DE_FOCO = EN_MARCO(`
+  const res = new Set();
+  for (const c of visibles('[role="button"], [role="radio"], [tabindex="0"]')) {
+    const cadena = [];
+    for (let n = c.parentElement; n && n !== d.body && n !== d.documentElement; n = n.parentElement) {
+      const k = w.getComputedStyle(n);
+      if (k.overflowX !== 'visible' || k.overflowY !== 'visible') cadena.push(n);
+    }
+    cadena.pop();
+    for (const n of cadena) {
+      const k = w.getComputedStyle(n);
+      res.add((n.getAttribute('data-testid') || n.tagName) + ':' + k.overflowX + '/' + k.overflowY);
+    }
+  }
+  return Array.from(res);
+`);
+
+// Desplaza el scroller de la pantalla y devuelve cuánto se desplazó de verdad.
+const DESPLAZAR_AJUSTES = (px) => EN_MARCO(`
+  let hecho = 0;
+  for (const n of Array.from(d.querySelectorAll('*'))) {
+    const o = w.getComputedStyle(n).overflowY;
+    if ((o === 'auto' || o === 'scroll') && n.scrollHeight > n.clientHeight) {
+      n.scrollTop = ${px};
+      hecho = Math.max(hecho, n.scrollTop);
+    }
+  }
+  return hecho;
+`);
+
+// Cola: de lo último que pinta la pantalla al final del scroll (relleno inferior, a.1 #6, y
+// la separación inferior del último bloque).
+const COLA = EN_MARCO(`
+  ${PAGINA}
+  const h = visibles('*').find((n) => n.children.length === 0 && n.textContent.trim().toLowerCase() === 'cuestionario');
+  let sc = h && h.parentElement;
+  while (sc && sc !== d.body) {
+    const o = w.getComputedStyle(sc).overflowY;
+    if (o === 'auto' || o === 'scroll') break;
+    sc = sc.parentElement;
+  }
+  if (!sc || sc === d.body) return null;
+  const base = pag(sc).y;
+  let piso = 0;
+  for (const n of visibles('*')) {
+    if (!sc.contains(n) || n === sc) continue;
+    const k = w.getComputedStyle(n);
+    const marco = parseFloat(k.borderBottomWidth) > 0 && k.borderBottomStyle === 'solid';
+    if (n.children.length === 0 || marco) piso = Math.max(piso, pag(n).abajo - base);
+  }
+  return { cola: sc.scrollHeight - piso, scrollable: sc.scrollHeight > sc.clientHeight };
+`);
+
+// Lleva un plegable a la vista (con la ventana de 768 de alto el segundo queda fuera) y lo abre.
+async function abrirPlegable(pagina, texto) {
+  await pagina.evaluar(EN_MARCO(`
+    const h = visibles('*').find((n) =>
+      n.children.length === 0 && n.textContent.trim().toLowerCase() === ${JSON.stringify(texto.toLowerCase())});
+    if (h) h.scrollIntoView({ block: 'center' });
+  `));
+  await pausa(150);
+  return clicTexto(pagina, texto);
+}
+
+// Capturas de evidencia (solo con PKAPP_CAPTURAS): el viewport de la página ya es el del marco.
+async function capturar(pagina, nombre) {
+  if (!process.env.PKAPP_CAPTURAS) return;
+  const dir = path.join(__dirname, '..', '..', '..', 'openspec', 'changes', 'rediseno-plancha',
+    'evidencia', 'despues', '3.11h');
+  fs.mkdirSync(dir, { recursive: true });
+  await pausa(400);
+  const r = await pagina.enviar('Page.captureScreenshot', { format: 'png' });
+  fs.writeFileSync(path.join(dir, nombre), Buffer.from(r.data, 'base64'));
+}
+
+// Tamaños de la ficha («Revisado»): 1023 y el corte a 768 de alto, y 1366 × 768 y 1920 × 1080.
+const TAMANOS = [[CORTE_ESCRITORIO - 1, 768], [CORTE_ESCRITORIO, 768], [1366, 768], [1366, 900], [1920, 1080]];
+const CAPTURADOS = [CORTE_ESCRITORIO, 1366, 1920];
+
+async function escritorio(_pagina, base, t) {
+  const navegador = await conectarNavegador(Number(
+    process.env.PKAPP_PUERTO_CDP || process.env.E2E_PUERTO_CDP || 9222));
+  try {
+    for (const tema of ['claro', 'oscuro']) {
+      for (const [ancho, alto] of TAMANOS) {
+        const pagina = await abrirPagina(navegador, { ancho, alto });
+        const c = (s) => `${ancho} × ${alto} · ${tema} · Ajustes escritorio · ${s}`;
+        try {
+          // Con dos preguntas propias, para que «Mis preguntas» abierto tenga cuerpo
+          const llego = await irAAjustes(pagina, base, ancho, tema, SEMBRADO, alto);
+          t.ok(c('llega a /ajustes'), llego, true);
+          if (!llego) continue;
+          const de = ancho >= CORTE_ESCRITORIO;
+          const nombreCaptura = (estado) => `ajustes-${ancho}-${tema}-${estado}.png`;
+          if (de && CAPTURADOS.includes(ancho) && (ancho !== 1366 || alto === 768)) {
+            await capturar(pagina, nombreCaptura('cerrados'));
+          }
+          t.ok(c('abre «Mis preguntas»'), await abrirPlegable(pagina, '2 preguntas propias'), true);
+          t.ok(c('abre «Respaldo y reseteo»'), await abrirPlegable(pagina, 'Respaldo y reseteo'), true);
+          await pausa(250);
+          await pagina.evaluar(DESPLAZAR_AJUSTES(0));
+          await pausa(100);
+          if (de && CAPTURADOS.includes(ancho) && (ancho !== 1366 || alto === 768)) {
+            await capturar(pagina, nombreCaptura('abiertos'));
+          }
+          const m = await pagina.evaluar(LEER_ESCRITORIO);
+          t.ok(c('sin scroll horizontal'), m.desborda, false);
+          t.ok(c('ningún control mide menos de 44 × 44'), JSON.stringify(m.chicos), '[]');
+          t.ok(c('hay las cuatro secciones'),
+            [m.cuestionario, m.preguntas, m.datos, m.acerca].every(Boolean), true);
+          t.ok(c('«Mis preguntas» abierto: las dos tarjetas propias, con su «Eliminar pregunta»'),
+            m.tarjetas, 2);
+          if (!m.acerca) continue;
+
+          // Cola: «Tus datos» (separación paso 8) + relleno inferior del scroll (paso 8) desde
+          // el corte; bajo el corte «Acerca de» es el último y no lleva separación (a.1 #4, #6).
+          const cola = await pagina.evaluar(COLA);
+          if (cola && cola.scrollable) {
+            t.ok(c(`cola inferior de ${de ? 16 : 8} pasos`), Math.round(cola.cola), (de ? 2 : 1) * SEPARACION);
+          }
+
+          // Foco: sin ancestros con overflow que recorten el contorno
+          t.ok(c('foco: ningún ancestro de un control recorta su contorno (overflow visible)'),
+            (await pagina.evaluar(RECORTES_DE_FOCO)).join('|'), '');
+
+          if (!de) {
+            // Bajo el corte: igual que hoy, una sola columna y «Acerca de» al final
+            t.ok(c('«Acerca de» debajo de «Tus datos»'), m.acerca.y > m.datos.abajo, true);
+            t.ok(c('«Acerca de» alineada con el resto de la columna'), m.acerca.x, m.cuestionario.x);
+            t.ok(c('una columna de 448 como máximo'), Math.round(m.panelCuestionario.ancho) <= 448, true);
+            continue;
+          }
+
+          // Hoja: contenido de `hoja` centrado (tope 952); la principal queda en `lectura`
+          const hoja = Math.min(ANCHOS.hoja, ancho - 2 * SEPARACION);
+          const izq = (ancho - hoja) / 2;
+          t.ok(c('la hoja arranca a la izquierda de su tope, centrada'), m.cuestionario.x, izq);
+          t.ok(c('región principal: panel de «Cuestionario» de `lectura`'),
+            m.panelCuestionario.ancho, hoja - ANCHOS.lateral - SEPARACION);
+          t.ok(c('principal: «Mis preguntas» y «Tus datos» en la misma columna'),
+            `${m.preguntas.x}|${m.datos.x}`, `${m.cuestionario.x}|${m.cuestionario.x}`);
+          t.ok(c('principal: secciones apiladas en orden'),
+            m.cuestionario.y < m.preguntas.y && m.preguntas.y < m.datos.y, true);
+          t.ok(c('botones de respaldo apilados al ancho de la región principal'),
+            m.descargar && m.resetear && m.descargar.x === m.resetear.x
+              && m.descargar.ancho === m.resetear.ancho && m.descargar.y < m.resetear.y, true);
+          t.ok(c('tarjetas de «Mis preguntas» al ancho de la región principal'),
+            m.anchoTarjetas, `${m.panelCuestionario.ancho}|${m.panelCuestionario.ancho}`);
+
+          // Lateral: a la derecha de la principal, ancho `lateral`, alineada con el primer rótulo
+          t.ok(c('«Acerca de» a la derecha de la región principal'),
+            m.acerca.x >= m.panelCuestionario.der + SEPARACION - 0.5, true);
+          t.ok(c('lateral separada de la principal por paso 8'),
+            m.panelAcerca.x - m.panelCuestionario.der, SEPARACION);
+          t.ok(c('lateral de ancho `lateral`'), m.panelAcerca.ancho, ANCHOS.lateral);
+          t.ok(c('lateral alineada arriba con el rótulo de la primera sección'),
+            m.acerca.y, m.cuestionario.y);
+          t.ok(c('lateral dentro de la hoja'), m.panelAcerca.der, izq + hoja);
+          t.ok(c('la identidad salta de línea'), m.esfuno.y > m.pkapp.y, true);
+          t.ok(c('los dos enlaces, una por línea y a la misma x'),
+            m.reportar && m.codigo && m.codigo.y >= m.reportar.abajo + 2 * PASO - 0.5
+              && Math.abs(m.codigo.x - m.reportar.x) < 1, true);
+
+          // Anclado: con la página desplazada ninguna región queda fija
+          t.ok(c('ninguna región se ancla (sin sticky ni fixed)'),
+            (await pagina.evaluar(ANCLAS_AJUSTES)).join('|'), '');
+          const antes = m.acerca.y;
+          const hecho = await pagina.evaluar(DESPLAZAR_AJUSTES(100000));
+          await pausa(150);
+          const despues = await pagina.evaluar(LEER_ESCRITORIO);
+          t.ok(c('desplazada, «Acerca de» sube lo que se desplazó (no queda fija)'),
+            Math.round(antes - despues.acerca.y), Math.round(hecho));
+          if (alto < 900) t.ok(c('a esta altura la pantalla pide desplazarse'), hecho > 0, true);
+          await pagina.evaluar(DESPLAZAR_AJUSTES(0));
+          await pausa(100);
+
+          // Tab recorre el DOM y debe coincidir con el orden VISUAL medido en la página
+          await pagina.evaluar(EN_MARCO(`
+            const g = visibles('[role="radio"]')[0];
+            if (g) g.focus();
+          `));
+          const paradas = [];
+          for (let i = 0; i < 24; i++) {
+            const p = await pagina.evaluar(ORDEN_DE_FOCO);
+            if (!p) break;
+            const u = paradas[paradas.length - 1];
+            if (u && u.nombre === p.nombre && Math.abs(u.y - p.y) < 1 && Math.abs(u.x - p.x) < 1) break;
+            paradas.push(p);
+            if (/código fuente/i.test(p.nombre)) break;
+            await pagina.tecla('Tab');
+          }
+          const nombres = paradas.map((p) => p.nombre.toLowerCase());
+          const i = (re) => nombres.findIndex((n) => re.test(n));
+          const iPle = i(/respaldo y reseteo/), iRep = i(/reportar un error/), iCod = i(/código fuente/);
+          t.ok(c('Tab: «No» y «Sí» primero y los dos enlaces de «Acerca de» al final'),
+            paradas.length > 3 && paradas[0].rol === 'radio' && paradas[1].rol === 'radio'
+              && iPle > 1 && iRep > iPle && iCod === iRep + 1 && iCod === paradas.length - 1, true);
+          // Orden visual: la región principal (arriba-abajo, izquierda-derecha) y luego la lateral
+          const lateralX = m.panelAcerca.x - 1;
+          const region = (p) => (p.x >= lateralX ? 1 : 0);
+          const visual = [...paradas].sort((a, b) =>
+            region(a) - region(b) || (Math.abs(a.y - b.y) > 2 ? a.y - b.y : a.x - b.x));
+          const clave = (ps) => ps.map((p) => `${p.nombre}@${Math.round(p.y)}`).join(' > ');
+          t.ok(c('Tab: el orden de foco es el orden visual (región, arriba-abajo, izquierda-derecha)'),
+            clave(paradas), clave(visual));
+          const rep = paradas[iRep], ple = paradas[iPle];
+          t.ok(c('Tab: el foco pasa de la izquierda a la derecha'),
+            rep && ple && rep.x > ple.x, true);
+        } finally {
+          await pagina.evaluar(LIMPIAR);
+          await pagina.cerrar();
+        }
+      }
+    }
+  } finally {
+    navegador.cerrar();
+  }
+}
+
 
 // Con preguntas propias y estadísticas: la rama «con preguntas» (a.4), eliminar y resetear.
 const SEMBRADO = `(function () {
@@ -502,6 +797,7 @@ module.exports = [
   { nombre: 'Ajustes: la pantalla en claro contra su ficha', correr: (p, b, t) => pantalla(p, b, t, 'claro') },
   { nombre: 'Ajustes: la pantalla en oscuro contra su ficha', correr: (p, b, t) => pantalla(p, b, t, 'oscuro') },
   { nombre: 'Ajustes: sin scroll horizontal ni objetivos chicos a 320, 360, 390, 768 y 1280', correr: anchos },
+  { nombre: 'Ajustes: layout de escritorio (1023, 1024, 1366 y 1920, claro y oscuro)', correr: escritorio },
   { nombre: 'Ajustes: con preguntas propias, eliminar y resetear en claro', correr: (p, b, t) => conDatos(p, b, t, 'claro') },
   { nombre: 'Ajustes: con preguntas propias, eliminar y resetear en oscuro', correr: (p, b, t) => conDatos(p, b, t, 'oscuro') },
   { nombre: 'Ajustes: SettingsScreen.js sin literales visuales', correr: sinLiterales },
