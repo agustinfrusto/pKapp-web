@@ -146,7 +146,14 @@ async function main() {
   console.log('Todo OK.');
 }
 
-main().catch((err) => {
-  console.error('El arnés se cayó:', err.message);
+// Nada queda sin dueño: un rechazo o una excepción fuera de `main` cortan con
+// exit 2 y la pila (qué y dónde), no con un «Uncaught» pelado.
+function caer(err) {
+  console.error('El arnés se cayó:', err && err.message ? err.message : err);
+  if (err && err.stack) console.error(err.stack.split('\n').slice(1, 6).join('\n'));
   process.exit(2);
-});
+}
+process.on('unhandledRejection', caer);
+process.on('uncaughtException', caer);
+
+main().catch(caer);

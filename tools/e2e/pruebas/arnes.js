@@ -200,6 +200,54 @@ async function main() {
   esperar('esperarTexto: un texto ausente sigue sin encontrarse',
     await rotulada.esperarTexto('Resultados', { limite: 300 }) === false);
 
+  // Intermitente «El arnés se cayó: Uncaught»: tras `ir`, el documento nuevo no
+  // tiene <body> un instante y `document.body.innerText` lanzaba. Navegador
+  // simulado que ejecuta de verdad la expresión contra un `document` sin body
+  // las primeras veces, y devuelve exceptionDetails como lo hace CDP.
+  const vm = require('vm');
+  const paginaSinBody = async (vacias) => {
+    let llamadas = 0;
+    return abrirPagina({
+      enviar: async (metodo, params) => {
+        if (metodo === 'Target.createTarget') return { targetId: 't' };
+        if (metodo === 'Target.attachToTarget') return { sessionId: 's' };
+        if (metodo !== 'Runtime.evaluate') return {};
+        const document = { body: ++llamadas > vacias ? { innerText: 'Tus materias' } : null };
+        try {
+          return { result: { value: vm.runInNewContext(params.expression, { document }) } };
+        } catch (e) {
+          return { exceptionDetails: { text: 'Uncaught', exception: { description: String(e) } } };
+        }
+      },
+      alEvento() {},
+    });
+  };
+  const sinBody = await paginaSinBody(3);
+  let textoSinBody;
+  try { textoSinBody = await sinBody.texto(); } catch (e) { textoSinBody = 'LANZÓ: ' + e.message; }
+  esperar('texto(): con document.body ausente devuelve «» en vez de lanzar', textoSinBody === '', textoSinBody);
+  const esperaBody = await paginaSinBody(3);
+  let encontro;
+  try { encontro = await esperaBody.esperarTexto('tus materias', { limite: 2000 }); } catch (e) { encontro = 'LANZÓ: ' + e.message; }
+  esperar('esperarTexto: sobrevive a un document sin body y lo encuentra después', encontro === true, String(encontro));
+
+  // Un fallo real en la página debe decir qué y dónde, no solo «Uncaught».
+  const rota = await paginaSinBody(0);
+  let mensaje = '';
+  try { await rota.evaluar('document.nada.profundo'); } catch (e) { mensaje = e.message; }
+  esperar('evaluar: el error nombra la causa y la expresión, no solo «Uncaught»',
+    mensaje.includes('TypeError') && mensaje.includes('document.nada.profundo'), mensaje);
+
+  // Sin dueño no queda nada: un rechazo suelto corta con exit 2 y la pila.
+  const huerfano = spawnSync('node', ['-e',
+    "const src=require('fs').readFileSync(process.argv[1],'utf8');" +
+    "const m=src.match(/function caer[\\s\\S]*?process\\.on\\('uncaughtException', caer\\);/);" +
+    "eval(m[0]); Promise.reject(new Error('rechazo suelto de prueba'));", CORRER],
+  { cwd: RAIZ, encoding: 'utf8', timeout: 20000 });
+  esperar('un rechazo sin dueño sale con exit 2 y dice qué',
+    huerfano.status === 2 && /El arnés se cayó: rechazo suelto de prueba/.test(huerfano.stderr),
+    `exit ${huerfano.status}: ${huerfano.stderr.trim()}`);
+
   // A6: gen-conteos no reescribe si no cambia, sin temporales.
   const conteos = path.join(RAIZ, 'src', 'materias', 'conteos.js');
   const gen = () => spawnSync('node', [path.join(RAIZ, 'scripts', 'gen-conteos.mjs')], { cwd: RAIZ, encoding: 'utf8' });

@@ -69,6 +69,15 @@ async function conectarNavegador(puerto) {
 
 const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// `exceptionDetails.text` de CDP es solo «Uncaught»: la causa real viene en
+// `exception.description`. El mensaje lleva ambas y la expresión que falló.
+function errorDeEvaluacion(detalles, expr) {
+  const causa = (detalles.exception && (detalles.exception.description || detalles.exception.value))
+    || detalles.text;
+  const linea = String(expr).replace(/\s+/g, ' ').trim().slice(0, 120);
+  return new Error(`Runtime.evaluate lanzó ${detalles.text}: ${causa} (en: ${linea})`);
+}
+
 // Busca el elemento clickeable más específico que contenga el texto.
 // react-native-web marca los Touchable con tabindex. Se descartan los de tamaño
 // cero: las pantallas anteriores del stack siguen en el DOM y matchean igual.
@@ -132,7 +141,7 @@ async function abrirPagina(navegador, { ancho = 900, alto = 1400, escala = 1, mo
   pagina.evaluar = async (expr) => {
     const r = await navegador.enviar('Runtime.evaluate',
       { expression: expr, returnByValue: true, awaitPromise: true }, sessionId);
-    if (r.exceptionDetails) throw new Error(r.exceptionDetails.text);
+    if (r.exceptionDetails) throw errorDeEvaluacion(r.exceptionDetails, expr);
     return r.result.value;
   };
 
@@ -141,8 +150,10 @@ async function abrirPagina(navegador, { ancho = 900, alto = 1400, escala = 1, mo
 
   pagina.ir = (url) => navegador.enviar('Page.navigate', { url }, sessionId);
   pagina.url = () => pagina.evaluar('location.pathname');
+  // Justo después de `ir`, el documento nuevo puede no tener <body> todavía:
+  // ahí no hay texto (''), no una excepción que tire la corrida.
   pagina.texto = (n = 160) =>
-    pagina.evaluar(`document.body.innerText.replace(/\\s+/g,' ').slice(0, ${n})`);
+    pagina.evaluar(`(document.body ? document.body.innerText : '').replace(/\\s+/g,' ').slice(0, ${n})`);
 
   pagina.ubicar = (texto) => pagina.evaluar(`${FN_UBICAR}(${JSON.stringify(texto)})`);
 
