@@ -35,12 +35,12 @@ Rama: `rediseno`. Una tarea por despacho, en orden, un commit por tarea. Compuer
 - [ ] 3.1b Barra interna del Stack (`screenOptions` y `options` de `App.js`): título, volver y filete inferior según `pantallas/comun.md`, con el mismo alto con y sin volver (MAQUETA-P1, aprobada); `Quiz` con `headerShown: false` y el área segura superior sumada a `QuizScreen` sin tocar su banda actual (la barra propia nueva es de 3.5). Verificar que el volver del navegador y la confirmación de `beforeRemove` del quiz siguen iguales
 - [ ] 3.2 `MateriaSelectScreen`: lámina de filamentos e ilustraciones por materia con conteos reales. MATERIA-P2: la celda «Banco real» aparece en la tarjeta de una materia disponible sin preguntas generadas (dato de 2.6); se conserva en Cargando y no aparece en Próximamente; su estilo es el de la ficha. Suma `ancho: '100%'` a `Ilustracion` y la regla graduada como export `regla` de `src/assets/filamentos.js` (mismo contrato, `encuadre: 'none'`, alto `paso 2.5`, color `tintaSec`; fuente `diseno/referencia/hibrido.html`). Resolver el salto de layout de `AboutBanner` (visibilidad decidida en un efecto, `MateriaSelectScreen.js:70`). Primera pantalla que renderiza `Ilustracion`: re-medir el gzip del shell (2.1 proyecta ~23,9 KB de delta; tope de D2 25.600 B, presupuesto de D5 35.840 B)
 - [ ] 3.3 `HomeScreen` (primero: `cargarMateria` suma `ilustracion` a la materia cargada, D3)
-- [ ] 3.4 `TopicSelectScreen`
+- [ ] 3.4 `TopicSelectScreen` **Compuerta de usuario: mostrar ADD-P1/VAC-P2 implementadas al usuario antes del commit.**
 - [ ] 3.5 `QuizScreen`, incluido el examen en curso y la revisión de respuestas
 - [ ] 3.6 `ResultsScreen`, con los umbrales de D6 intactos. Corrige el chip de tema que hoy muestra la clave cruda (`HISTOLOGIA-CYR`): muestra `TOPICS[topic]` o «Todos los temas» (bug de `main` hallado en la maqueta, MAQUETA-P2)
-- [ ] 3.7 `StatsScreen`, con las bandas 80/60 distinguibles sin color
-- [ ] 3.8 `SettingsScreen` y `DonationBox`
-- [ ] 3.9 `AddQuestionScreen`
+- [ ] 3.7 `StatsScreen`, con las bandas 80/60 distinguibles sin color **Compuerta de usuario: mostrar ADD-P1/VAC-P2 implementadas al usuario antes del commit.**
+- [ ] 3.8 `SettingsScreen` y `DonationBox` **Compuerta de usuario: mostrar ADD-P1/VAC-P2 implementadas al usuario antes del commit.**
+- [ ] 3.9 `AddQuestionScreen` **Compuerta de usuario: mostrar ADD-P1/VAC-P2 implementadas al usuario antes del commit.**
 
 Aceptación común de 3.x: build y e2e en verde; captura en claro y oscuro a 360, 390, 768
 y 1280 px en `evidencia/despues/` (D10), y a 320 px sin recorte ni scroll horizontal;
@@ -57,7 +57,7 @@ al Analista.
 
 ## 5. Cierre (Ingeniero)
 
-- [ ] 5.0 Borrar las definiciones legadas (claves `colores`/`oscuro` legadas, `fontSize` `xxs`…`display-lg`, `sombras.js`) con el `rg` global de usos vacío adjunto
+- [ ] 5.0 Reescribir los comentarios que aún usan símbolos de ícono (`→`, `×`; por ejemplo `Glifo.js:5`) y borrar las definiciones legadas (claves `colores`/`oscuro` legadas, `fontSize` `xxs`…`display-lg`, `sombras.js`) con el `rg` global de usos vacío adjunto
 - [ ] 5.1 Medir el bundle contra 0.1: ≤ +35 KB gzip (D5). Fuentes ≤ 100 KB (D4). Registrar en `evidencia/cierre.md`
 - [ ] 5.2 Recorrer las 10 superficies en ambos temas contra sus fichas; verificar contraste, estados sin color y sin emojis
 - [ ] 5.3 `openspec validate rediseno-plancha --strict`
