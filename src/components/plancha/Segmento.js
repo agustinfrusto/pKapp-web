@@ -3,6 +3,7 @@
 // Cada opción admite `deshabilitado` (fila «Deshabilitado» de K4).
 // Props: `opciones` [{ valor, etiqueta, deshabilitado? }], `valor`, `alCambiar(valor)`,
 //   `accessibilityLabel`, `className` (layout) y
+//   `anchoIgual` (false por defecto): opciones de igual ancho que llenan el contenedor
 //   `forma`  `filtro` (por defecto: opciones con marco `borde`, `cuerpo`) |
 //            `segmentado` (contenedor `linea`, opciones sin borde propio, `rotulo`; Ajustes)
 // Teclado, como el control de tema de HeaderMarca: flechas izquierda y arriba (anterior),
@@ -23,7 +24,9 @@ const BASE = 'min-h-11 min-w-11 flex-row items-center justify-center gap-2 px-3 
 // Filtro: el seleccionado pasa a `cuerpo-fuerte` (T7, N5); el resto, `cuerpo`.
 const FILTRO = {
   contenedor: 'flex-row flex-wrap gap-2',
-  caja: `${BASE} border`,
+  // El filtro no pasa del ancho de su fila y el nombre salta de línea dentro de él.
+  exterior: 'max-w-full shrink',
+  caja: `${BASE} max-w-full shrink border`,
   tipografia: 'text-cuerpo',
   aspecto: {
     ...ASPECTO_MARCO_BORDE,
@@ -54,7 +57,9 @@ const SEGMENTADO = {
 
 const FORMAS = { filtro: FILTRO, segmentado: SEGMENTADO };
 
-export default function Segmento({ opciones, valor, alCambiar, accessibilityLabel, forma, className = '' }) {
+export default function Segmento({
+  opciones, valor, alCambiar, accessibilityLabel, forma, anchoIgual = false, className = '',
+}) {
   const refs = useRef([]);
   const f = elegir(FORMAS, forma, 'filtro', 'forma');
 
@@ -80,7 +85,7 @@ export default function Segmento({ opciones, valor, alCambiar, accessibilityLabe
 
   return (
     <View
-      className={`${f.contenedor} ${className}`}
+      className={`${anchoIgual ? f.contenedor.replace('flex-wrap', '') : f.contenedor} ${className}`}
       accessibilityRole="radiogroup"
       accessibilityLabel={accessibilityLabel}
     >
@@ -92,6 +97,7 @@ export default function Segmento({ opciones, valor, alCambiar, accessibilityLabe
             aspecto={f.aspecto}
             baseCaja={f.caja}
             rol="radio"
+            className={anchoIgual ? 'flex-1' : (f.exterior ?? '')}
             deshabilitado={op.deshabilitado}
             seleccionado={marcada && !op.deshabilitado}
             estadoAccesible={{ checked: marcada }}

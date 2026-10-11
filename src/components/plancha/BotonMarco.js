@@ -2,9 +2,10 @@
 // Props: `etiqueta`, `glifo`, `glifoPosicion`, `tamano`, `relleno`, `className` (layout);
 //   `tono`  `neutro` (por defecto) | `acento` (texto y borde `acento`, T6) |
 //           `peligro` (texto y borde `error`; presionado con fondo `error`, SET-P2)
+//   `tamanoGlifo` `chico` (por defecto, paso 4) | `grande` (paso 6: «Volver» de Revisión)
 //   `fondo` `superficie` (por defecto) | `fondo` (Home «Cambiar materia», Revisión «Volver»)
 import React from 'react';
-import Control, { Contenido, CONTORNO, medidasDeBoton } from './Control';
+import Control, { Contenido, CONTORNO, GLIFO_CHICO, GLIFO_GRANDE, medidasDeBoton } from './Control';
 import { elegir, exigirNombre } from './guardias';
 
 const FONDO = {
@@ -66,10 +67,12 @@ const ASPECTOS = Object.fromEntries(Object.entries(TONOS).map(([nombreTono, tono
   Object.fromEntries(Object.entries(FONDO).map(([nombreFondo, fondo]) => [nombreFondo, crearAspecto(tono, fondo)])),
 ]));
 
+const TAMANOS_GLIFO = { chico: GLIFO_CHICO, grande: GLIFO_GRANDE };
+
 const CAJA = 'min-h-11 min-w-11 flex-row items-center justify-center gap-2 border';
 
 export default function BotonMarco({
-  etiqueta, glifo, glifoPosicion, tamano, relleno, tono, fondo, onPress, deshabilitado,
+  etiqueta, glifo, glifoPosicion, tamanoGlifo, tamano, relleno, tono, fondo, onPress, deshabilitado,
   accessibilityLabel, testID, className,
 }) {
   exigirNombre('BotonMarco', { etiqueta, accessibilityLabel });
@@ -87,6 +90,7 @@ export default function BotonMarco({
     >
       <Contenido
         glifo={glifo}
+        tamanoGlifo={elegir(TAMANOS_GLIFO, tamanoGlifo, 'chico', 'tamanoGlifo')}
         glifoPosicion={glifoPosicion}
         etiqueta={etiqueta}
         tipografia="font-plex-sans-semibold text-cuerpo"

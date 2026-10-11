@@ -1,15 +1,17 @@
 // Pantalla de resultados: muestra puntaje y permite revisar cada pregunta.
+// Fichas: diseno/pantallas/Results.md (resumen) y Revision.md (vista de revisión).
 import React, { useState, useEffect } from 'react';
-import {
-  View, Text, TouchableOpacity, ScrollView, Linking, Platform,
-} from 'react-native';
+import { View, Text, ScrollView, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { track } from '../utils/track';
-import { MP_LINKS, DONATION_AMOUNTS } from '../utils/mercadopago';
 import { reportQuestion } from '../utils/report';
 import { useMateria } from '../materia/MateriaContext';
-import { colores, oscuro } from '../theme/colores';
-import { useTema } from '../theme/TemaContext';
-import { sombras } from '../theme/sombras';
+import DonationBox from '../components/DonationBox';
+import Glifo from '../components/Glifo';
+import {
+  BotonMarco, BotonRelleno, Columna, FilaLista, Lamina, MarcaEstado, RotuloSeccion, Segmento,
+} from '../components/plancha';
+import { Contenido, GLIFO_CHICO, useTokens } from '../components/plancha/Control';
 
 // Umbral de "buen resultado" para analítica (evento simulacro_aprobado).
 const APROBADO_MIN_SCORE = 60;
@@ -19,6 +21,16 @@ const DONATION_MIN_SCORE = 60;          // solo aparece en buenos resultados (�
 const DONATION_WARM_SCORE = 80;         // ≥80% → pedido más celebratorio
 const DONATION_COUNT_KEY = 'pkapp_donation_count';
 const DONATION_EVERY = 3;               // muestra el pedido en 1 de cada 3 aprobados
+
+// Con más respuestas las casillas de la tira quedan demasiado finas (RESULTS-P3).
+const TIRA_MAX = 40;
+
+const TEMAS_TODOS = 'Todos los temas';
+
+const FILTROS = [
+  { valor: 'todas', etiqueta: 'Todas' },
+  { valor: 'incorrectas', etiqueta: 'Incorrectas' },
+];
 
 // Cuenta los simulacros aprobados y decide si mostrar el pedido (1º, 4º, 7º...).
 // Reemplaza el viejo tope de "una vez por día": más impresiones en semana de
@@ -40,16 +52,18 @@ export default function ResultsScreen({ route, navigation }) {
   const sinResultados = respuestas.length === 0;
   const { materia } = useMateria();
   const [showReview, setShowReview] = useState(false);
+  const [filtro, setFiltro] = useState('todas');
+  const insets = useSafeAreaInsets();
 
   const correctCount = respuestas.filter(a => a.isCorrect).length;
   const total = respuestas.length;
+  const incorrectCount = total - correctCount;
   // Sin respuestas el porcentaje seria NaN, que ademas se cuela en
   // shouldShowDonation (NaN < 60 es false) y contaria una donacion fantasma.
   const percentage = total ? Math.round((correctCount / total) * 100) : 0;
 
-  // Mensaje y color según el porcentaje (50% suele ser el de aprobación)
-  const { oscuro: esOscuro } = useTema();
-  const { message, color } = getResultFeedback(percentage, esOscuro);
+  // Mensaje y marca según el porcentaje (50% suele ser el de aprobación)
+  const { message, estado } = getResultFeedback(percentage);
   const [showDonation] = useState(() => shouldShowDonation(percentage));
 
   useEffect(() => {
@@ -74,232 +88,425 @@ export default function ResultsScreen({ route, navigation }) {
 
   if (sinResultados) return null;
 
+  // La clave cruda del tema no se muestra nunca (MAQUETA-P2): sin nombre legible, el chip
+  // dice «Todos los temas».
+  const temas = materia?.TOPICS;
+  const nombreTema = temas && Object.hasOwn(temas, topic) ? temas[topic] : TEMAS_TODOS;
+
   if (showReview) {
+    // El número de cada tarjeta es el de la lista completa: con el filtro no se renumera.
+    const lista = respuestas
+      .map((answer, idx) => ({ answer, n: idx + 1 }))
+      .filter(({ answer }) => filtro === 'todas' || !answer.isCorrect);
+
     return (
-      <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900" contentContainerClassName="p-4 pb-[30px]">
-        <View className="mb-4 items-center py-2">
-          <Text className="text-lg font-bold text-brand-ink dark:text-brandD-ink">Revisión completa</Text>
-          <Text className="mt-1 text-base text-brand-soft dark:text-brandD-soft">
-            {correctCount} / {total} aciertos ({percentage}%)
-          </Text>
-        </View>
-
-        {respuestas.map((answer, idx) => (
-          <View
-            key={idx}
-            className={`mb-2.5 rounded-md border-l-4 bg-white p-3.5 dark:bg-slate-800 ${
-              answer.isCorrect
-                ? 'border-l-success dark:border-l-successD'
-                : 'border-l-danger dark:border-l-dangerD'
-            }`}
-          >
-            <View className="mb-2 flex-row justify-between">
-              <Text className="text-xs font-semibold text-muted dark:text-mutedD">#{idx + 1}</Text>
-              <Text
-                className={`text-xs font-bold ${
-                  answer.isCorrect
-                    ? 'text-success-strong dark:text-successD-strong'
-                    : 'text-danger-strong dark:text-dangerD-strong'
-                }`}
-              >
-                {answer.isCorrect ? '✓ Correcta' : '✗ Incorrecta'}
-              </Text>
-            </View>
-
-            <Text className="mb-2.5 text-base leading-5 text-brand-ink dark:text-brandD-ink">{answer.question.question}</Text>
-
-            <View className="mb-1 gap-1.5">
-              {answer.question.options.map((option, optIdx) => {
-                const isCorrect = optIdx === answer.question.correctIndex;
-                const isWrong = optIdx === answer.selectedIndex && !answer.isCorrect;
-                return (
-                  <View
-                    key={optIdx}
-                    className={`flex-row items-center rounded-sm border p-2.5 ${
-                      isCorrect
-                        ? 'border-success bg-success-surface dark:border-successD dark:bg-successD-surface'
-                        : isWrong
-                        ? 'border-danger bg-danger-surface dark:border-dangerD dark:bg-dangerD-surface'
-                        : 'border-brand-border bg-slate-50 dark:border-brandD-border dark:bg-slate-900'
-                    }`}
-                  >
-                    <Text className="mr-2.5 min-w-[18px] text-xs font-bold text-brand-soft dark:text-brandD-soft">
-                      {String.fromCharCode(65 + optIdx)}
-                    </Text>
-                    <Text
-                      className={`flex-1 text-sm leading-[18px] ${
-                        isCorrect ? 'font-semibold text-success-strong dark:text-successD-strong'
-                          : isWrong ? 'text-danger-strong dark:text-dangerD-strong'
-                          : 'text-brand-muted dark:text-brandD-soft'
-                      }`}
-                    >
-                      {option}
-                    </Text>
-                    {isCorrect && <Text className="ml-1.5 text-base font-bold">✓</Text>}
-                    {isWrong && <Text className="ml-1.5 text-base font-bold">✗</Text>}
-                  </View>
-                );
-              })}
-            </View>
-
-            {answer.question.explanation ? (
-              <View className="mt-2 rounded-sm border-l-[3px] border-l-accent bg-accent-surface p-2.5 dark:border-l-accentD dark:bg-accentD-surface">
-                <Text className="text-xs leading-[18px] text-accent-strong dark:text-accentD-strong">
-                  💡 {answer.question.explanation}
-                </Text>
-              </View>
-            ) : null}
-
-            <TouchableOpacity
-              className="self-start pb-0.5 pt-2.5"
-              onPress={() => reportQuestion(answer.question, materia?.name)}
-              activeOpacity={0.7}
+      <ScrollView className="flex-1 bg-fondo dark:bg-fondoD" contentContainerClassName="pb-8">
+        <Columna>
+          <View className="mb-3 mt-4">
+            <Text
+              testID="revision-titulo"
+              className="font-plex-sans-semibold text-titulo text-tinta dark:text-tintaD"
             >
-              <Text className="text-xs font-bold text-danger dark:text-dangerD">🚩 Reportar pregunta</Text>
-            </TouchableOpacity>
+              Revisión completa
+            </Text>
+            <Text
+              testID="revision-resumen"
+              className="mt-1 font-plex-sans text-cuerpo text-tintaSec dark:text-tintaSecD"
+            >
+              {`${correctCount} / ${total} aciertos (${percentage}%)`}
+            </Text>
           </View>
-        ))}
 
-        <View className="mt-4 flex-row gap-2.5">
-          <TouchableOpacity
-            className="flex-1 items-center rounded py-3.5 border border-brand-border bg-white dark:border-brandD-border dark:bg-slate-800"
-            onPress={() => setShowReview(false)}
-          >
-            <Text className="text-md font-semibold text-brand-muted dark:text-brandD-ink">← Volver</Text>
-          </TouchableOpacity>
+          <View className="mb-3">
+            <BotonMarco
+              testID="revision-volver-arriba"
+              etiqueta="Volver"
+              glifo="glifo-volver"
+              tamanoGlifo="grande"
+              fondo="fondo"
+              className="self-start"
+              onPress={() => setShowReview(false)}
+            />
+          </View>
 
-          <TouchableOpacity
-            className="flex-1 items-center rounded py-3.5 bg-brand dark:bg-brandD-deep"
-            onPress={handleHome}
-          >
-            <Text className="text-md font-bold text-white">Inicio</Text>
-          </TouchableOpacity>
-        </View>
+          {incorrectCount > 0 && (
+            <View className="mb-3">
+              <Segmento
+                opciones={FILTROS}
+                valor={filtro}
+                alCambiar={setFiltro}
+                accessibilityLabel="Mostrar"
+                anchoIgual
+              />
+            </View>
+          )}
+
+          <View className="gap-2.5">
+            {lista.map(({ answer, n }) => (
+              <TarjetaRespuesta
+                key={n}
+                answer={answer}
+                n={n}
+                onReportar={() => reportQuestion(answer.question, materia?.name)}
+              />
+            ))}
+          </View>
+
+          <View className="mt-4 flex-row gap-2.5">
+            <View className="flex-1">
+              <BotonMarco
+                testID="revision-volver"
+                etiqueta="Volver"
+                glifo="glifo-volver"
+                tamanoGlifo="grande"
+                fondo="fondo"
+                onPress={() => setShowReview(false)}
+              />
+            </View>
+            <View className="flex-1">
+              <BotonRelleno
+                testID="revision-inicio"
+                etiqueta="Inicio"
+                onPress={handleHome}
+              />
+            </View>
+          </View>
+          <View style={{ height: insets.bottom }} />
+        </Columna>
       </ScrollView>
     );
   }
 
+  const mostrarTira = total <= TIRA_MAX;
+
   return (
-    <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900" contentContainerClassName="p-4 pb-[30px]">
-      <View className="mb-4 items-center rounded-lg bg-white p-7 dark:bg-slate-800" style={sombras.cardAlta}>
-        <Text className="text-display-md font-bold" style={{ color }}>{percentage}%</Text>
-        <Text className="mt-1 text-md text-brand-muted dark:text-brandD-ink">
-          {correctCount} de {total} correctas
-        </Text>
-        <Text className="mt-3 text-center text-base text-brand-soft dark:text-brandD-soft">{message}</Text>
+    <ScrollView className="flex-1 bg-fondo dark:bg-fondoD" contentContainerClassName="pb-8">
+      <Columna>
+        <View className="mb-3 mt-4">
+          <Lamina testID="resultados-tarjeta">
+            <View className="p-4">
+              <View className="mb-3">
+                <RotuloSeccion testID="resultados-rotulo">Resultado</RotuloSeccion>
+              </View>
+              <MarcaEstado
+                testID="resultados-porcentaje"
+                estado={estado}
+                paso="display"
+                texto={`${percentage}%`}
+              />
+              <Text
+                testID="resultados-subtitulo"
+                className="mt-2.5 font-plex-sans-semibold text-titulo text-tinta dark:text-tintaD"
+              >
+                {`${correctCount} de ${total} correctas`}
+              </Text>
+              <Text
+                testID="resultados-mensaje"
+                className="mt-1.5 font-plex-sans text-cuerpo text-tintaSec dark:text-tintaSecD"
+              >
+                {message}
+              </Text>
 
-        <View className="mt-4 rounded-lg bg-brand-surface px-3.5 py-1.5 dark:bg-brandD-surface">
-          <Text className="text-xs font-semibold text-brand dark:text-brandD-ink">{topic}</Text>
+              {mostrarTira && (
+                <>
+                  <View
+                    testID="resultados-tira"
+                    accessibilityRole="image"
+                    accessibilityLabel="Detalle por pregunta"
+                    className="mb-2 mt-4 flex-row items-end gap-0.5"
+                  >
+                    {respuestas.map((answer, idx) => (
+                      <View
+                        key={idx}
+                        testID="resultados-tira-casilla"
+                        className={`flex-1 ${
+                          answer.isCorrect
+                            ? 'h-6 bg-acierto dark:bg-aciertoD'
+                            : 'h-3 bg-error dark:bg-errorD'
+                        }`}
+                      />
+                    ))}
+                  </View>
+                  <View
+                    testID="resultados-leyenda"
+                    className="mb-3.5 flex-row flex-wrap items-end gap-x-4 gap-y-1.5"
+                  >
+                    <View className="flex-row items-end gap-1.5">
+                      <View
+                        testID="resultados-leyenda-muestra-correcta"
+                        className="h-2 w-2 bg-acierto dark:bg-aciertoD"
+                      />
+                      <Text className="font-plex-mono text-rotulo uppercase text-tintaSec dark:text-tintaSecD">
+                        Correcta
+                      </Text>
+                    </View>
+                    <View className="flex-row items-end gap-1.5">
+                      <View
+                        testID="resultados-leyenda-muestra-incorrecta"
+                        className="h-1 w-2 bg-error dark:bg-errorD"
+                      />
+                      <Text className="font-plex-mono text-rotulo uppercase text-tintaSec dark:text-tintaSecD">
+                        Incorrecta
+                      </Text>
+                    </View>
+                  </View>
+                </>
+              )}
+
+              <View
+                testID="resultados-chip-tema"
+                className={`self-start border border-acento bg-superficie px-2 py-0.5 dark:border-acentoD dark:bg-superficieD ${
+                  mostrarTira ? '' : 'mt-4'
+                }`}
+              >
+                <Text className="font-plex-mono text-rotulo uppercase text-acento dark:text-acentoD">
+                  {nombreTema}
+                </Text>
+              </View>
+            </View>
+          </Lamina>
         </View>
-      </View>
 
-      <View className="mb-5 flex-row gap-2.5">
-        <View className="flex-1 items-center rounded-md bg-white p-3.5 dark:bg-slate-800">
-          <Text className="text-xl font-bold text-success dark:text-successD">{correctCount}</Text>
-          <Text className="mt-0.5 text-xs text-brand-soft dark:text-brandD-soft">Correctas</Text>
+        <View className="mb-3">
+          <Lamina testID="resultados-trio">
+            <View className="flex-row">
+              <CeldaTrio
+                id="resultados-trio-correctas"
+                cifra={correctCount}
+                colorCifra="text-acierto dark:text-aciertoD"
+                rotulo={(
+                  <MarcaEstado
+                    testID="resultados-trio-correctas-rotulo"
+                    estado="acierto"
+                    texto="Correctas"
+                    colorTexto="tintaSec"
+                  />
+                )}
+              />
+              <CeldaTrio
+                id="resultados-trio-incorrectas"
+                cifra={incorrectCount}
+                colorCifra="text-error dark:text-errorD"
+                divisor
+                rotulo={(
+                  <MarcaEstado
+                    testID="resultados-trio-incorrectas-rotulo"
+                    estado="error"
+                    texto="Incorrectas"
+                    colorTexto="tintaSec"
+                  />
+                )}
+              />
+              <CeldaTrio
+                id="resultados-trio-total"
+                cifra={total}
+                colorCifra="text-tinta dark:text-tintaD"
+                divisor
+                rotulo={<RotuloSeccion testID="resultados-trio-total-rotulo">Total</RotuloSeccion>}
+              />
+            </View>
+          </Lamina>
         </View>
-        <View className="flex-1 items-center rounded-md bg-white p-3.5 dark:bg-slate-800">
-          <Text className="text-xl font-bold text-danger dark:text-dangerD">
-            {total - correctCount}
-          </Text>
-          <Text className="mt-0.5 text-xs text-brand-soft dark:text-brandD-soft">Incorrectas</Text>
+
+        {showDonation && (
+          <View className="mb-3">
+            <DonationBox
+              origen="resultados"
+              descartable
+              celebratoria={percentage >= DONATION_WARM_SCORE}
+            />
+          </View>
+        )}
+
+        <View className="mt-1.5 gap-2.5">
+          <BotonMarco
+            testID="resultados-revisar"
+            etiqueta="Revisar todas las respuestas"
+            glifo="glifo-revisar"
+            tono="acento"
+            tamano="grande"
+            onPress={() => setShowReview(true)}
+          />
+          <BotonRelleno
+            testID="resultados-reintentar"
+            etiqueta="Volver a practicar"
+            glifo="glifo-reintentar"
+            tamano="grande"
+            onPress={handleRetry}
+          />
+          <BotonMarco
+            testID="resultados-inicio"
+            etiqueta="Inicio"
+            glifo="glifo-inicio"
+            tamano="grande"
+            onPress={handleHome}
+          />
         </View>
-        <View className="flex-1 items-center rounded-md bg-white p-3.5 dark:bg-slate-800">
-          <Text className="text-xl font-bold text-success dark:text-successD">{total}</Text>
-          <Text className="mt-0.5 text-xs text-brand-soft dark:text-brandD-soft">Total</Text>
-        </View>
-      </View>
-
-      {showDonation && <DonationPrompt percentage={percentage} />}
-
-      <TouchableOpacity
-        className="mb-2.5 items-center rounded py-3.5 border border-accent bg-accent-surface dark:border-accentD dark:bg-accentD-surface"
-        onPress={() => setShowReview(true)}
-        activeOpacity={0.8}
-      >
-        <Text className="text-base font-semibold text-accent-strong dark:text-accentD-strong">📋 Revisar todas las respuestas</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        className="mb-2.5 items-center rounded py-3.5 bg-brand dark:bg-brandD-deep"
-        onPress={handleRetry}
-        activeOpacity={0.8}
-      >
-        <Text className="text-md font-bold text-white">🔄 Volver a practicar</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        className="mb-2.5 items-center rounded py-3.5 border border-brand-border bg-white dark:border-brandD-border dark:bg-slate-800"
-        onPress={handleHome}
-        activeOpacity={0.8}
-      >
-        <Text className="text-md font-semibold text-brand-muted dark:text-brandD-ink">🏠 Inicio</Text>
-      </TouchableOpacity>
+      </Columna>
     </ScrollView>
   );
 }
 
-function DonationPrompt({ percentage }) {
-  const [visible, setVisible] = useState(true);
-  const warm = percentage >= DONATION_WARM_SCORE;
-
-  function openLink(amt) {
-    track('donacion_click', { origen: 'resultados', monto: amt });
-    requestAnimationFrame(() => Linking.openURL(MP_LINKS[amt]).catch(() => {}));
-  }
-  function dismiss() {
-    setVisible(false);
-  }
-
-  if (!visible) return null;
-
+// Celda del trío (Results.md a.3): cifra arriba y rótulo debajo, centrados; filete vertical
+// entre celdas.
+function CeldaTrio({ id, cifra, colorCifra, rotulo, divisor }) {
   return (
-    <View className="mb-4 rounded-md border border-warning-border bg-warning-surface p-4 dark:border-warningD-border dark:bg-warningD-surface">
-      <View className="mb-2 flex-row items-center justify-between">
-        <Text className="flex-1 text-base font-bold text-warning-ink dark:text-warningD-ink">
-          {warm ? '¡Gran resultado! 🏆' : 'Ayuda a mantener esta aplicación'}
-        </Text>
-        <TouchableOpacity onPress={dismiss} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-          <Text className="ml-2.5 text-base text-warning-bold dark:text-warningD-bold">✕</Text>
-        </TouchableOpacity>
-      </View>
-      <Text className="mb-3.5 text-sm leading-[19px] text-warning-strong dark:text-warningD-strong">
-        {warm
-          ? 'Si pKapp te está ayudando a llegar al examen, dale una mano para mantenerla (no es de Udelar):'
-          : 'Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:'}
+    <View
+      testID={id}
+      className={`flex-1 items-center py-3 ${divisor ? 'border-l border-filete dark:border-fileteD' : ''}`}
+    >
+      <Text testID={`${id}-cifra`} className={`font-plex-mono-medium text-cifra ${colorCifra}`}>
+        {cifra}
       </Text>
-      <View className="mb-3 flex-row gap-2">
-        {DONATION_AMOUNTS.map((amt) => (
-          <TouchableOpacity
-            key={amt}
-            className="flex-1 items-center rounded bg-warning py-3 dark:bg-warningD"
-            onPress={() => openLink(amt)}
-            activeOpacity={0.85}
-          >
-            <Text className="text-base font-bold text-white dark:text-slate-900">${amt}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <Text className="text-center text-xs text-warning dark:text-warningD">Vía Mercado Pago</Text>
+      <View className="mt-1.5">{rotulo}</View>
     </View>
   );
 }
 
-// El color depende de un porcentaje calculado, así que va por `style`: no hay
-// clase de utilidad que se pueda escribir literal para que Tailwind la vea.
-function getResultFeedback(percentage, esOscuro) {
-  const p = esOscuro ? oscuro : colores;
+// Tarjeta de una respuesta (Revision.md a.3 y c.2).
+function TarjetaRespuesta({ answer, n, onReportar }) {
+  const tema = useTokens();
+  const { question, selectedIndex, isCorrect } = answer;
+
+  return (
+    <View
+      testID={`revision-tarjeta-${n}`}
+      className={`border border-l-3 border-linea bg-superficie p-3.5 dark:border-lineaD dark:bg-superficieD ${
+        isCorrect
+          ? 'border-l-acierto dark:border-l-aciertoD'
+          : 'border-l-error dark:border-l-errorD'
+      }`}
+    >
+      <View className="mb-2 flex-row flex-wrap items-center justify-between gap-x-3 gap-y-1">
+        <Text className="font-plex-mono text-rotulo uppercase text-tintaSec dark:text-tintaSecD">
+          {`#${n}`}
+        </Text>
+        <MarcaEstado
+          estado={isCorrect ? 'acierto' : 'error'}
+          texto={isCorrect ? 'Correcta' : 'Incorrecta'}
+        />
+      </View>
+
+      <Text className="mb-3 font-plex-sans text-cuerpo text-tinta dark:text-tintaD">
+        {question.question}
+      </Text>
+
+      <View className="gap-2.5">
+        {question.options.map((option, optIdx) => (
+          <OpcionRevision
+            key={optIdx}
+            letra={String.fromCharCode(65 + optIdx)}
+            texto={option}
+            estado={
+              optIdx === question.correctIndex ? 'correcta'
+                : optIdx === selectedIndex && !isCorrect ? 'incorrecta'
+                : 'apagada'
+            }
+          />
+        ))}
+      </View>
+
+      {question.explanation ? (
+        <View
+          testID={`revision-nota-${n}`}
+          className="mt-3 border border-l-3 border-filete border-l-acento bg-superficie p-3 dark:border-fileteD dark:border-l-acentoD dark:bg-superficieD"
+        >
+          <View className="flex-row items-center gap-1.5">
+            <Glifo id="glifo-explicacion" size={GLIFO_CHICO} color={tema.acento} />
+            <RotuloSeccion color="acento">Nota / Explicación</RotuloSeccion>
+          </View>
+          <Text className="mt-1.5 font-plex-sans text-cuerpo text-tinta dark:text-tintaD">
+            {question.explanation}
+          </Text>
+        </View>
+      ) : null}
+
+      <FilaLista testID={`revision-reportar-${n}`} onPress={onReportar} className="mt-2 self-start">
+        <View className="flex-row items-center gap-2 px-1">
+          <Contenido
+            glifo="glifo-reportar"
+            etiqueta="Reportar pregunta"
+            tipografia="font-plex-sans-semibold text-cuerpo"
+          />
+        </View>
+      </FilaLista>
+    </View>
+  );
+}
+
+// Una opción de la revisión: la gramática de estados del quiz (Quiz.md c.2). No es un control.
+function OpcionRevision({ letra, texto, estado }) {
+  const correcta = estado === 'correcta';
+  const incorrecta = estado === 'incorrecta';
+
+  return (
+    <View
+      className={`flex-row border ${
+        correcta
+          ? 'border-2 border-acierto bg-aciertoFondo dark:border-aciertoD dark:bg-aciertoFondoD'
+          : incorrecta
+          ? 'border-2 border-error bg-errorFondo dark:border-errorD dark:bg-errorFondoD'
+          : 'border-filete bg-superficie dark:border-fileteD dark:bg-superficieD'
+      }`}
+    >
+      <View
+        className={`w-11 items-center justify-center ${
+          correcta
+            ? 'bg-acierto dark:bg-aciertoD'
+            : incorrecta
+            ? 'bg-error dark:bg-errorD'
+            : 'border-r border-filete dark:border-fileteD'
+        }`}
+      >
+        <Text
+          className={`font-plex-mono-medium text-dato ${
+            correcta || incorrecta ? 'text-fondo dark:text-fondoD' : 'text-tintaSec dark:text-tintaSecD'
+          }`}
+        >
+          {letra}
+        </Text>
+      </View>
+      <View className="flex-1 px-3 py-2.5">
+        <Text
+          className={`text-cuerpo ${
+            correcta
+              ? 'font-plex-sans-semibold text-tinta dark:text-tintaD'
+              : incorrecta
+              ? 'font-plex-sans text-tinta dark:text-tintaD'
+              : 'font-plex-sans text-tintaSec dark:text-tintaSecD'
+          }`}
+        >
+          {texto}
+        </Text>
+        {correcta && (
+          <View className="mt-1">
+            <MarcaEstado estado="acierto" texto="Correcta" />
+          </View>
+        )}
+        {incorrecta && (
+          <View className="mt-1">
+            <MarcaEstado estado="error" texto="Incorrecta · tu respuesta" />
+          </View>
+        )}
+      </View>
+    </View>
+  );
+}
+
+// El tramo decide el mensaje y la marca (acierto, intermedia o error); el color sale de
+// la marca de estado, no de un literal.
+function getResultFeedback(percentage) {
   if (percentage >= 90) {
-    return { message: '¡Excelente!.', emoji: '🏆', color: p.success.DEFAULT };
+    return { message: '¡Excelente!.', estado: 'acierto' };
   }
   if (percentage >= 75) {
-    return { message: '¡Muy bien! Vas por buen camino.', emoji: '🎉', color: p.success.DEFAULT };
+    return { message: 'Muy bien. Vas por buen camino.', estado: 'acierto' };
   }
   if (percentage >= 60) {
-    return { message: 'A repasar solo un poco más.', emoji: '👍', color: p.warning.bold };
+    return { message: 'A repasar solo un poco más.', estado: 'intermedia' };
   }
   if (percentage >= 50) {
-    return { message: 'Seguí mejorando.', emoji: '😬', color: p.warning.bold };
+    return { message: 'Seguí mejorando.', estado: 'intermedia' };
   }
-  return { message: 'A estudiar fuerte. Vos podés.', emoji: '💪', color: p.danger.DEFAULT };
+  return { message: 'A estudiar fuerte. Vos podés.', estado: 'error' };
 }

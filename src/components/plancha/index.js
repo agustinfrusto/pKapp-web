@@ -10,9 +10,9 @@
 // |-------------------|-------|-----------------------------------------------------------------------|
 // | BotonRelleno      | K1    | etiqueta, glifo, glifoPosicion, tamano, relleno, onPress, deshabilitado, |
 // |                   |       | accessibilityLabel, testID, className                                 |
-// | BotonMarco        | K2    | las de K1 y tono, fondo                                               |
+// | BotonMarco        | K2    | las de K1 y tono, fondo, tamanoGlifo                                  |
 // | ControlMarco      | K3    | las de K1 y children, seleccionado, abierto, tono, enfasis            |
-// | Segmento          | K4    | opciones, valor, alCambiar, forma, accessibilityLabel, className      |
+// | Segmento          | K4    | opciones, valor, alCambiar, forma, anchoIgual, accessibilityLabel, className |
 // | CuadroPaso        | K5    | glifo, fondo, onPress, deshabilitado, accessibilityLabel (obligatoria)|
 // | TarjetaNavegable  | K6    | children, variante, onPress, deshabilitado, accessibilityLabel        |
 // | FilaLista         | K7    | children, glifo, tono, filete, onPress, deshabilitado, accessibilityLabel |
