@@ -4,7 +4,7 @@
 // Una superficie nueva se agrega acá: un archivo y una línea.
 
 const SUPERFICIES = [
-  'materias', 'home', 'temas', 'quiz', 'resultados', 'estadisticas', 'ajustes', 'agregar', 'componentes', 'pwa',
+  'materias', 'home', 'temas', 'quiz', 'resultados', 'estadisticas', 'ajustes', 'agregar', 'componentes', 'pwa', 'navegador',
 ];
 
 const porSuperficie = {};
