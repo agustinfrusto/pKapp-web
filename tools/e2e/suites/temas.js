@@ -266,6 +266,632 @@ async function hoverSinHalo(pagina, base, t) {
   t.ok('ningún <style> del documento tiene box-shadow con rgba', estilos, 0);
 }
 
+// ---------------------------------------------------------------------------
+// TopicSelect (rediseño Plancha, tarea 3.4; TopicSelect.md y Vacios.md V2, V4, V5, V9, V11).
+//
+// Misma técnica que las suites de arriba: la app corre en un iframe de ancho fijo y se
+// mide su DOM. Los modos se alcanzan desde Home, como el usuario: «Entrena Temas/Parciales»
+// (practice), «Modo examen» (exam) y «Repasar fallos» (failed). Un perfil nuevo no tiene
+// fallos: failed muestra V2. «Solo generadas» deja cero preguntas en las seis materias
+// (conteos.js, GENERADAS): ese filtro lleva a V4.
+
+const { MATERIA } = require('./comunes');
+const { plancha } = require('../../../src/theme/colores');
+
+const ENTRADA_DE_MODO = { practice: 'entrena temas', exam: 'modo examen', failed: 'repasar fallos' };
+const SEÑAL_DE_MODO = {
+  practice: 'todos los temas mezclados',
+  exam: 'comenzar examen',
+  failed: 'sin preguntas falladas',
+};
+const MATERIA_SIN_PARCIALES = 'Reproductor y Desarrollo';
+const MARGEN_LATERAL_TEMAS = 5 * PASO;   // paso 5
+const COLUMNA = 448;                       // max-w-columna (tokens.md c.3)
+
+const MEDIR_TEMAS = EN_MARCO(`
+  const caja = (n) => {
+    if (!n) return null;
+    const r = n.getBoundingClientRect();
+    return { izq: r.left, der: r.right, arriba: r.top, abajo: r.bottom, ancho: r.width, alto: r.height };
+  };
+  const grupo = (nombre) => visibles('[role="radiogroup"]')
+    .find((g) => (g.getAttribute('aria-label') || '').toLowerCase() === nombre);
+  const opciones = (nombre) => {
+    const g = grupo(nombre);
+    if (!g) return null;
+    return Array.from(g.querySelectorAll('[role="radio"]')).map((n) => {
+      const e = w.getComputedStyle(n.firstElementChild || n);
+      const hoja = Array.from(n.querySelectorAll('*')).find((x) => x.children.length === 0 && x.textContent.trim());
+      return { texto: n.innerText.trim(), marcada: n.getAttribute('aria-checked'),
+        fondo: e.backgroundColor, borde: e.borderTopColor,
+        color: w.getComputedStyle(hoja || n).color, caja: caja(n) };
+    });
+  };
+  const porNombre = (nombre) => visibles('[aria-label]')
+    .find((n) => n.getAttribute('aria-label').toLowerCase() === nombre);
+  const paso = (nombre) => {
+    const n = porNombre(nombre);
+    return n ? { caja: caja(n), deshabilitado: n.getAttribute('aria-disabled') === 'true' } : null;
+  };
+  const lineas = (n) => n.innerText.split('\\n').map((x) => x.trim()).filter(Boolean);
+  const botones = visibles('[tabindex]');
+  const mezcla = botones.find((n) => n.innerText.toLowerCase().includes('todos los temas mezclados'));
+  const filas = botones.filter((n) => n !== mezcla && /\\d+ preguntas$/.test(n.innerText.trim()) && n.querySelector('svg'))
+    .map((n) => {
+      const hojas = Array.from(n.querySelectorAll('*')).filter((x) => x.children.length === 0 && x.textContent.trim());
+      const l = lineas(n);
+      const nombre = hojas.find((x) => x.textContent.trim() === l[1]);
+      const e = nombre ? w.getComputedStyle(nombre) : null;
+      return { lineas: l, caja: caja(n), svg: n.querySelectorAll('svg').length,
+        filete: w.getComputedStyle(n.firstElementChild || n).borderBottomWidth,
+        nombreFamilia: e ? e.fontFamily : null, nombreTamano: e ? e.fontSize : null };
+    });
+  const valor = visibles('*').find((n) => n.children.length === 0 && /^(sin límite|\\d+ min)$/i.test(n.textContent.trim()));
+  const comenzar = botones.find((n) => n.innerText.toLowerCase().includes('comenzar examen'));
+  const practicar = botones.find((n) => n.innerText.trim().toLowerCase() === 'practicar');
+  const panel = grupo('fuente') ? grupo('fuente').parentElement.parentElement : null;
+  return {
+    vista: w.innerWidth,
+    ruta: w.location.pathname,
+    desborda: desbordes().length > 0,
+    texto: d.body.innerText,
+    fuente: opciones('fuente'),
+    parcial: opciones('parcial'),
+    menos: paso('reducir tiempo'),
+    mas: paso('aumentar tiempo'),
+    valor: valor ? valor.textContent.trim() : null,
+    valorCaja: caja(valor),
+    lamina: caja(visibles('[data-testid="lamina-vacia"]')[0]),
+    barra: caja(visibles('[data-testid="barra-interna"]')[0]),
+    panel: caja(panel),
+    grupoFuente: caja(grupo('fuente')),
+    grupoParcial: caja(grupo('parcial')),
+    mezcla: mezcla ? { lineas: lineas(mezcla), caja: caja(mezcla), svg: mezcla.querySelectorAll('svg').length,
+      borde: w.getComputedStyle(mezcla.firstElementChild || mezcla).borderTopWidth } : null,
+    filas,
+    marcas: visibles('[data-testid="marca-esquina"]').length,
+    comenzar: comenzar ? caja(comenzar) : null,
+    practicar: practicar ? caja(practicar) : null,
+    interactivos: botones.map((n) => caja(n)),
+  };
+`);
+
+// Un perfil limpio de estadísticas y de preguntas propias: lo que dejaron las suites
+// anteriores en el mismo Chrome (fallos de un quiz) cambiaría V2 y las listas.
+const LIMPIAR_DATOS = `Object.keys(localStorage)
+  .filter((k) => /^pkapp_(question_stats|user_questions)/.test(k))
+  .forEach((k) => localStorage.removeItem(k))`;
+
+async function abrirTemas(pagina, base, { ancho = 390, alto = 900, modo = 'practice', oscuro = false, materia = MATERIA } = {}) {
+  await pagina.ir(base + '/favicon.png');
+  await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
+  await pagina.evaluar(LIMPIAR_DATOS);
+  if (!await abrirMarco(pagina, base, ancho, alto)) return false;
+  if (oscuro) {
+    await clicEnMarco(pagina, 'oscuro');
+    if (!await pagina.esperarA(() => pagina.evaluar(ESTA_OSCURO))) return false;
+  }
+  await clicEnMarco(pagina, materia);
+  if (!await pagina.esperarA(async () =>
+    await pagina.evaluar(EN_MARCO('return w.location.pathname;')) === '/inicio')) return false;
+  await esperarEnMarco(pagina, 'repasar fallos');
+  await clicEnMarco(pagina, ENTRADA_DE_MODO[modo]);
+  if (!await pagina.esperarA(async () =>
+    await pagina.evaluar(EN_MARCO('return w.location.pathname;')) === `/temas/${modo}`)) return false;
+  return esperarEnMarco(pagina, SEÑAL_DE_MODO[modo]);
+}
+
+const medirTemas = (pagina) => pagina.evaluar(MEDIR_TEMAS);
+
+// Los cuadrados de paso no tienen texto: se ubican por su nombre accesible.
+async function clicPorNombre(pagina, nombre) {
+  const punto = await pagina.evaluar(EN_MARCO(`
+    const n = visibles('[aria-label]').find((x) => x.getAttribute('aria-label').toLowerCase() === ${JSON.stringify(nombre)});
+    if (!n) return null;
+    const r = n.getBoundingClientRect();
+    return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+  `));
+  if (!punto) return false;
+  await pagina.clicEn(punto.x, punto.y);
+  return true;
+}
+const EMOJI = /\p{Extended_Pictographic}/u;
+const numeroDe = (linea) => Number(String(linea).split(' ')[0]);
+const conteoDeMezcla = (m) => (m.mezcla ? numeroDe(m.mezcla.lineas[m.mezcla.lineas.length - 1]) : NaN);
+const sumaDeFilas = (m) => m.filas.reduce((suma, f) => suma + numeroDe(f.lineas[2]), 0);
+
+async function filtrosYSeparacion(pagina, base, t) {
+  t.ok('practice: abrió Elegir tema', await abrirTemas(pagina, base, { ancho: 390 }), true);
+  const m = await medirTemas(pagina);
+  const rotulos = m.texto.toLowerCase();
+
+  t.ok('rótulos de grupo sin dos puntos (TOPIC-P3)',
+    ['fuente', 'parcial', 'temporizador'].every((r) => rotulos.includes(r) && !rotulos.includes(r + ':')), true);
+  t.ok('«O elegí un tema específico:» se conserva', rotulos.includes('o elegí un tema específico:'), true);
+  t.ok('fuente: Todas, Solo preguntas reales y Solo generadas, en ese orden',
+    m.fuente && m.fuente.map((o) => o.texto).join('|'), 'Todas|Solo preguntas reales|Solo generadas');
+  t.ok('fuente: «Todas» llega marcada', m.fuente && m.fuente.map((o) => o.marcada).join('|'), 'true|false|false');
+  t.ok('parcial: la materia con parciales muestra el grupo, «Examen» primero y marcado',
+    !!m.parcial && m.parcial[0].texto === 'Examen' && m.parcial[0].marcada === 'true', true);
+  t.ok('temporizador: arranca en «Sin límite»', m.valor, 'Sin límite');
+  t.ok('sin emojis en la pantalla', EMOJI.test(m.texto), false);
+
+  // TOPIC-P1: cada filtro es un objetivo propio, separado por paso 2 en horizontal y vertical.
+  for (const [nombre, ops] of [['fuente', m.fuente], ['parcial', m.parcial]]) {
+    if (!ops) continue;
+    let separados = true;
+    for (let i = 1; i < ops.length; i++) {
+      const a = ops[i - 1].caja, b = ops[i].caja;
+      const mismaFila = Math.abs(a.arriba - b.arriba) < 1;
+      const hueco = mismaFila ? b.izq - a.der : b.arriba - a.abajo;
+      if (hueco < SEPARACION_MINIMA - 0.5) separados = false;
+    }
+    t.ok(`${nombre}: los filtros quedan a paso 2 como mínimo entre sí (TOPIC-P1)`, separados, true);
+    t.ok(`${nombre}: cada filtro mide 44 de alto y 44 de ancho como mínimo`,
+      ops.every((o) => o.caja.alto >= LADO_TACTIL && o.caja.ancho >= LADO_TACTIL), true);
+  }
+  t.ok('el grupo Parcial va debajo del grupo Fuente',
+    !!m.grupoParcial && m.grupoParcial.arriba > m.grupoFuente.abajo, true);
+
+  // Panel: marco `linea` y margen lateral paso 5 a 390.
+  t.ok('el panel de filtros respeta el margen lateral paso 5',
+    !!m.panel && Math.abs(m.panel.izq - MARGEN_LATERAL_TEMAS) < 1 && Math.abs(m.vista - m.panel.der - MARGEN_LATERAL_TEMAS) < 1, true);
+
+  // Temporizador: K5 de 44 × 44; el extremo en «Sin límite» está apagado.
+  t.ok('cuadrado menos y más de 44 × 44',
+    !!m.menos && !!m.mas && [m.menos, m.mas].every((p) => p.caja.ancho === LADO_TACTIL && p.caja.alto === LADO_TACTIL), true);
+  t.ok('en «Sin límite» el cuadrado menos está deshabilitado y el más no',
+    !!m.menos && !!m.mas && m.menos.deshabilitado === true && m.mas.deshabilitado === false, true);
+  // a.3: separación `paso 4` entre cuadrado, valor y cuadrado (el valor mide su caja, no el texto).
+  const SEPARACION_TEMPORIZADOR = 4 * PASO;
+  t.ok('paso 4 entre el cuadrado menos y el valor',
+    !!m.menos && !!m.valorCaja && Math.abs(m.valorCaja.izq - m.menos.caja.der - SEPARACION_TEMPORIZADOR) < 0.5, true);
+  t.ok('paso 4 entre el valor y el cuadrado más',
+    !!m.mas && !!m.valorCaja && Math.abs(m.mas.caja.izq - m.valorCaja.der - SEPARACION_TEMPORIZADOR) < 0.5, true);
+
+  // El temporizador avanza de a 10 y llega al máximo sin salirse de la lista.
+  await clicPorNombre(pagina, 'aumentar tiempo');
+  t.ok('«Aumentar tiempo» lleva a 10 min',
+    await pagina.esperarA(async () => (await medirTemas(pagina)).valor === '10 min'), true);
+  t.ok('con 10 min el cuadrado menos queda habilitado',
+    (await medirTemas(pagina)).menos?.deshabilitado, false);
+  await clicPorNombre(pagina, 'reducir tiempo');
+  t.ok('«Reducir tiempo» vuelve a «Sin límite»',
+    await pagina.esperarA(async () => (await medirTemas(pagina)).valor === 'Sin límite'), true);
+
+  // El conteo de la mezcla sigue a los filtros: es la suma de las filas, y un parcial lo baja.
+  await clicEnMarco(pagina, 'solo preguntas reales');
+  t.ok('«Solo preguntas reales» queda marcado',
+    await pagina.esperarA(async () => ((await medirTemas(pagina)).fuente || []).map((o) => o.marcada).join('|') === 'false|true|false'), true);
+  const reales = await medirTemas(pagina);
+  t.ok('con «Solo preguntas reales» el conteo de la mezcla es la suma de las filas',
+    conteoDeMezcla(reales) > 0 && conteoDeMezcla(reales) === sumaDeFilas(reales), true);
+  if (m.parcial && m.parcial.length > 1) {
+    await clicEnMarco(pagina, m.parcial[1].texto);
+    await pagina.esperarA(async () => ((await medirTemas(pagina)).parcial || []).map((o) => o.marcada).join('|').startsWith('false|true'));
+    const conParcial = await medirTemas(pagina);
+    t.ok('con un parcial elegido la mezcla baja y sigue siendo la suma de las filas',
+      conteoDeMezcla(conParcial) > 0 && conteoDeMezcla(conParcial) < conteoDeMezcla(reales)
+        && conteoDeMezcla(conParcial) === sumaDeFilas(conParcial), true);
+  }
+}
+
+async function mezclaYFilas(pagina, base, t) {
+  t.ok('practice: abrió Elegir tema', await abrirTemas(pagina, base, { ancho: 390 }), true);
+  const m = await medirTemas(pagina);
+  const z = m.mezcla;
+
+  t.ok('hay tarjeta de mezcla', !!z, true);
+  if (!z) return;
+  t.ok('la mezcla lleva el rótulo «Mezcla» sobre el título (TOPIC-P2)',
+    z.lineas.map((l) => l.toLowerCase()).join('|').startsWith('mezcla|todos los temas mezclados'), true);
+  t.ok('la mezcla muestra «{n} preguntas» como conteo', /^\d+ preguntas$/.test(z.lineas[z.lineas.length - 1]), true);
+  t.ok('la mezcla lleva el glifo aleatorio (un svg) y ningún emoji', z.svg === 1 && !EMOJI.test(z.lineas.join(' ')), true);
+  t.ok('la mezcla es K6 de acento: borde de 2 px', z.borde, '2px');
+  t.ok('la mezcla respeta el margen lateral paso 5',
+    Math.abs(z.caja.izq - MARGEN_LATERAL_TEMAS) < 1 && Math.abs(m.vista - z.caja.der - MARGEN_LATERAL_TEMAS) < 1, true);
+  t.ok('la mezcla mide 44 de alto como mínimo', z.caja.alto >= LADO_TACTIL, true);
+
+  t.ok('hay al menos un tema en la lista', m.filas.length > 0, true);
+  t.ok('cada fila: índice de dos dígitos, nombre y «{n} preguntas» (TOPIC-P4)',
+    m.filas.every((f) => f.lineas.length === 3 && /^\d{2}$/.test(f.lineas[0]) && /^\d+ preguntas$/.test(f.lineas[2])), true);
+  t.ok('los índices van correlativos desde 01',
+    m.filas.map((f) => f.lineas[0]).join('|'), m.filas.map((_, i) => String(i + 1).padStart(2, '0')).join('|'));
+  t.ok('el nombre de cada tema va en `item` semibold de 16 px (b: Nombre de tema)',
+    m.filas.every((f) => /PlexSans-SemiBold/.test(f.nombreFamilia) && f.nombreTamano === '16px'), true);
+  t.ok('cada fila lleva chevron (svg)', m.filas.every((f) => f.svg >= 1), true);
+  t.ok('cada fila mide 44 de alto como mínimo', m.filas.every((f) => f.caja.alto >= LADO_TACTIL), true);
+  t.ok('cada fila lleva filete inferior de 1 px', m.filas.every((f) => f.filete === '1px'), true);
+  t.ok('las filas llenan la columna: mismo ancho que la mezcla',
+    m.filas.every((f) => Math.abs(f.caja.ancho - z.caja.ancho) < 1), true);
+
+  // El toque único inicia el quiz (flujo de main).
+  await clicEnMarco(pagina, 'todos los temas mezclados');
+  t.ok('tocar la mezcla abre el quiz con un solo gesto',
+    await pagina.esperarA(async () => await pagina.evaluar(EN_MARCO('return w.location.pathname;')) === '/quiz'), true);
+}
+
+async function varianteExam(pagina, base, t) {
+  t.ok('exam: abrió Elegir tema', await abrirTemas(pagina, base, { ancho: 390, modo: 'exam' }), true);
+  const m = await medirTemas(pagina);
+  const x = m.texto.toLowerCase();
+
+  t.ok('exam: panel de filtros presente (fuente y temporizador)',
+    !!m.fuente && m.valor === 'Sin límite', true);
+  t.ok('exam: tarjeta «Modo Examen» con su texto, disponibles y botón',
+    ['modo examen', 'se sortean', 'disponibles:', 'comenzar examen'].every((s) => x.includes(s)), true);
+  t.ok('exam: sin tarjeta de mezcla ni lista de temas (TOPIC-P5)', m.mezcla === null && m.filas.length === 0, true);
+  t.ok('exam: la lámina lleva sus cuatro marcas de esquina', m.marcas, 4);
+  t.ok('exam: «Comenzar examen» mide 44 de alto como mínimo y ancho para su texto',
+    !!m.comenzar && m.comenzar.alto >= LADO_TACTIL, true);
+  t.ok('exam: sin emojis', EMOJI.test(m.texto), false);
+
+  // El texto del sorteo sigue a «Examen»/parcial: lógica de main.
+  t.ok('exam: sin parcial elegido, sortea de todos los temas',
+    x.includes('de todos los temas'), true);
+
+  await clicEnMarco(pagina, 'comenzar examen');
+  t.ok('exam: «Comenzar examen» abre el quiz con un solo gesto',
+    await pagina.esperarA(async () => await pagina.evaluar(EN_MARCO('return w.location.pathname;')) === '/quiz'), true);
+}
+
+async function vaciosV2yV4(pagina, base, t) {
+  // V2: sin fallos, lámina vacía con «Practicar».
+  t.ok('failed: abrió Elegir tema', await abrirTemas(pagina, base, { ancho: 390, modo: 'failed' }), true);
+  const v2 = await medirTemas(pagina);
+  const x = v2.texto.toLowerCase();
+  t.ok('V2: título y texto de main, sin cambio de palabras',
+    x.includes('sin preguntas falladas') && x.includes('practicá un poco primero y volvé acá para repasar las que te cuesten.'), true);
+  t.ok('V2: sin filtros ni mezcla debajo (VAC-C1)', v2.fuente === null && v2.mezcla === null && v2.filas.length === 0, true);
+  t.ok('V2: sin emoji', EMOJI.test(v2.texto), false);
+  t.ok('V2: lámina vacía con sus cuatro marcas de esquina (VAC-P1)', v2.marcas, 4);
+  t.ok('V2: «Practicar» mide 44 de alto como mínimo (VAC-P2)', !!v2.practicar && v2.practicar.alto >= LADO_TACTIL, true);
+  // a.4 de Vacios.md: anclada arriba, a paso 6 bajo la barra interna.
+  t.ok('V2: la lámina arranca a paso 6 bajo la barra interna, no centrada en la pantalla',
+    !!v2.lamina && !!v2.barra && Math.abs(v2.lamina.arriba - v2.barra.abajo - 6 * PASO) < 1, true);
+  await clicEnMarco(pagina, 'practicar');
+  t.ok('V2: «Practicar» navega a TopicSelect practice con un solo toque',
+    await pagina.esperarA(async () => await pagina.evaluar(EN_MARCO('return w.location.pathname;')) === '/temas/practice'), true);
+  t.ok('V2: tras «Practicar» aparece la mezcla',
+    await esperarEnMarco(pagina, 'todos los temas mezclados'), true);
+
+  // V4: filtros que dejan cero temas.
+  t.ok('practice: abrió Elegir tema', await abrirTemas(pagina, base, { ancho: 390 }), true);
+  await clicEnMarco(pagina, 'solo generadas');
+  t.ok('V4: aparece el mensaje bajo el rótulo (VAC-P3)',
+    await esperarEnMarco(pagina, 'no hay preguntas disponibles con los filtros actuales.'), true);
+  const v4 = await medirTemas(pagina);
+  t.ok('V4: la mezcla y los filtros siguen visibles, con «0 preguntas» (VAC-C4)',
+    !!v4.mezcla && v4.mezcla.lineas[v4.mezcla.lineas.length - 1] === '0 preguntas' && !!v4.fuente, true);
+  t.ok('V4: sin filas de tema', v4.filas.length, 0);
+  t.ok('V4: el rótulo «O elegí un tema específico:» se conserva',
+    v4.texto.toLowerCase().includes('o elegí un tema específico:'), true);
+
+  // V5: la mezcla con cero preguntas sigue activa y muestra el aviso del sistema.
+  pagina.dialogos.length = 0;
+  await clicEnMarco(pagina, 'todos los temas mezclados');
+  t.ok('V5: tocar la mezcla vacía muestra el aviso del sistema',
+    await pagina.esperarA(() => pagina.dialogos.length >= 1), true);
+  t.ok('V5: el aviso conserva su texto',
+    pagina.dialogos.some((d) => d.includes('No hay preguntas disponibles con los filtros actuales.')), true);
+  t.ok('V5: la pantalla sigue en Elegir tema',
+    await pagina.evaluar(EN_MARCO('return w.location.pathname;')), '/temas/practice');
+}
+
+async function vaciosCargaYSinParciales(pagina, base, t) {
+  // VAC-P4: durante la primera carga de failed no hay lámina vacía ni contenido. El
+  // instante se fija con la primera lectura de las preguntas propias (el efecto de carga):
+  // ahí el DOM es el del primer render.
+  await pagina.ir(base + '/favicon.png');
+  await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
+  await pagina.evaluar(LIMPIAR_DATOS);
+  t.ok('abrió la app en el marco', await abrirMarco(pagina, base, 390), true);
+  await clicEnMarco(pagina, MATERIA);
+  await esperarEnMarco(pagina, 'repasar fallos');
+  await pagina.evaluar(EN_MARCO(`
+    w.__instantanea = null;
+    const original = w.Storage.prototype.getItem;
+    w.Storage.prototype.getItem = function (clave) {
+      if (w.__instantanea === null && String(clave).startsWith('pkapp_user_questions:')) {
+        w.__instantanea = d.body.innerText.toLowerCase();
+        w.Storage.prototype.getItem = original;
+      }
+      return original.apply(this, arguments);
+    };
+  `));
+  await clicEnMarco(pagina, 'repasar fallos');
+  t.ok('failed: la carga corrió',
+    await pagina.esperarA(async () => (await pagina.evaluar(EN_MARCO('return w.__instantanea;'))) !== null), true);
+  const primera = await pagina.evaluar(EN_MARCO('return w.__instantanea;'));
+  t.ok('failed: durante la primera carga ya está la barra interna', primera.includes('elegir tema'), true);
+  t.ok('failed: durante la primera carga no se muestra el estado vacío (VAC-P4)',
+    !primera.includes('sin preguntas falladas') && !primera.includes('practicar'), true);
+  t.ok('failed: resuelta la carga aparece V2', await esperarEnMarco(pagina, 'sin preguntas falladas'), true);
+
+  // V11: una materia sin parciales omite el grupo, sin dejar hueco ni marcador.
+  t.ok('practice sin parciales: abrió Elegir tema',
+    await abrirTemas(pagina, base, { ancho: 390, materia: MATERIA_SIN_PARCIALES }), true);
+  const m = await medirTemas(pagina);
+  t.ok('V11: sin grupo Parcial', m.parcial === null && !m.texto.toLowerCase().includes('parcial'), true);
+  t.ok('V11: Fuente y Temporizador siguen presentes', !!m.fuente && m.valor === 'Sin límite', true);
+}
+
+// Una carga que rechaza no deja la pantalla en blanco: `failed` resuelve igual y muestra V2.
+// Una pregunta propia con `options` corrupto hace rechazar a `getUserQuestions`.
+async function cargaQueRechazaMuestraV2(pagina, base, t) {
+  await pagina.ir(base + '/favicon.png');
+  await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
+  await pagina.evaluar(LIMPIAR_DATOS);
+  t.ok('abrió la app en el marco', await abrirMarco(pagina, base, 390), true);
+  await clicEnMarco(pagina, MATERIA);
+  await esperarEnMarco(pagina, 'repasar fallos');
+  await pagina.evaluar(EN_MARCO(`
+    const original = w.Storage.prototype.getItem;
+    w.Storage.prototype.getItem = function (clave) {
+      if (String(clave).startsWith('pkapp_user_questions:')) {
+        return JSON.stringify([{ id: 'corrupta', topic: 'x', question: 'q', options: '{no es json', correct_index: 0 }]);
+      }
+      return original.apply(this, arguments);
+    };
+  `));
+  await clicEnMarco(pagina, 'repasar fallos');
+  t.ok('failed con carga que rechaza: aparece V2 en vez de quedar en blanco',
+    await esperarEnMarco(pagina, 'sin preguntas falladas'), true);
+}
+
+// V9: un parcial deja temas sin preguntas; esos temas no se listan.
+async function temasSinPreguntasNoSeListan(pagina, base, t) {
+  t.ok('practice: abrió Elegir tema', await abrirTemas(pagina, base, { ancho: 390 }), true);
+  const todos = await medirTemas(pagina);
+  t.ok('V9: hay un parcial para filtrar', !!todos.parcial && todos.parcial.length > 1, true);
+  if (!todos.parcial || todos.parcial.length < 2) return;
+  await clicEnMarco(pagina, todos.parcial[1].texto);
+  await pagina.esperarA(async () => ((await medirTemas(pagina)).parcial || []).map((o) => o.marcada).join('|').startsWith('false|true'));
+  const parcial = await medirTemas(pagina);
+  t.ok('V9: el parcial deja menos temas que sin filtro', parcial.filas.length > 0 && parcial.filas.length < todos.filas.length, true);
+  t.ok('V9: toda fila listada tiene al menos una pregunta',
+    parcial.filas.length > 0 && parcial.filas.every((f) => numeroDe(f.lineas[2]) >= 1), true);
+}
+
+async function estadosDeControl(pagina, base, t) {
+  t.ok('practice: abrió Elegir tema', await abrirTemas(pagina, base, { ancho: 1280, alto: 900 }), true);
+  const filtro = async (nombre) => {
+    const m = await medirTemas(pagina);
+    return (m.fuente || []).find((o) => o.texto.toLowerCase() === nombre) || { fondo: null, color: null, marcada: null, caja: { izq: 0, der: 0, arriba: 0, abajo: 0 } };
+  };
+  const reposo = await filtro('solo generadas');
+  const marcado = await filtro('todas');
+  t.ok('K4: el seleccionado invierte (fondo = color del texto en reposo)',
+    marcado.fondo !== reposo.fondo && marcado.fondo === reposo.color, true);
+
+  // Hover real: el borde pasa a `linea` (matriz c de la ficha), sin mover el layout.
+  const c = reposo.caja;
+  await pagina.moverA(Math.round((c.izq + c.der) / 2), Math.round((c.arriba + c.abajo) / 2));
+  t.ok('K4: hover cambia el borde del filtro',
+    await pagina.esperarA(async () => (await filtro('solo generadas')).borde !== reposo.borde, { limite: 2000 }), true);
+  const luego = await filtro('solo generadas');
+  t.ok('K4: el hover no mueve el filtro', luego.caja.izq === c.izq && luego.caja.arriba === c.arriba, true);
+  await pagina.moverA(5, 5);
+
+  // Foco por teclado: un solo contorno, el de foco.
+  await pagina.evaluar(EN_MARCO(`
+    m.contentWindow.focus();
+    if (d.activeElement && d.activeElement.blur) d.activeElement.blur();
+  `));
+  let foco = '';
+  for (let i = 0; i < 12 && !foco.startsWith('radio:todas'); i++) {
+    await pagina.tecla('Tab');
+    foco = await pagina.evaluar(FOCO_EN_MARCO);
+  }
+  t.ok('K4: Tab llega al primer filtro', foco.startsWith('radio:todas'), true);
+  const conFoco = await pagina.evaluar(EN_MARCO(`
+    const e = w.getComputedStyle(d.activeElement);
+    return { estilo: e.outlineStyle, ancho: parseFloat(e.outlineWidth) };
+  `));
+  t.ok('K4: el foco dibuja contorno', conFoco.estilo !== 'none' && conFoco.ancho >= 2, true);
+
+  // Teclado del grupo: la flecha derecha selecciona el siguiente.
+  await pagina.tecla('ArrowRight');
+  t.ok('K4: ArrowRight selecciona «Solo preguntas reales»',
+    await pagina.esperarA(async () => (await filtro('solo preguntas reales')).marcada === 'true', { limite: 2000 }), true);
+}
+
+// Estados K de cada control de la pantalla (ficha c): hover real con el puntero,
+// presionado con el botón abajo y sin soltar, foco con Tab real. Cada control se ubica
+// con una expresión JS que corre dentro del marco.
+const TRANSPARENTE = 'rgba(0, 0, 0, 0)';
+const rgb = (hex) => {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgb(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255})`;
+};
+
+const BUSCAR = {
+  filtro: (texto) => `visibles('[role="radio"]').find((n) => n.innerText.trim().toLowerCase() === ${JSON.stringify(texto)})`,
+  porNombre: (nombre) => `visibles('[aria-label]').find((n) => n.getAttribute('aria-label').toLowerCase() === ${JSON.stringify(nombre)})`,
+  mezcla: `visibles('[tabindex]').find((n) => n.innerText.toLowerCase().includes('todos los temas mezclados'))`,
+  fila: `visibles('[tabindex]').find((n) => !n.innerText.toLowerCase().includes('mezclados') && /\\d+ preguntas$/.test(n.innerText.trim()) && n.querySelector('svg'))`,
+  boton: (texto) => `visibles('[tabindex]').find((n) => n.innerText.trim().toLowerCase() === ${JSON.stringify(texto)})`,
+};
+
+const LEER_CONTROL = (buscar) => EN_MARCO(`
+  const el = (${buscar});
+  if (!el) return null;
+  const caja = el.firstElementChild || el;
+  const c = w.getComputedStyle(el), k = w.getComputedStyle(caja);
+  const hoja = Array.from(el.querySelectorAll('*')).find((x) => x.children.length === 0 && x.textContent.trim());
+  const svg = el.querySelector('svg');
+  const r = el.getBoundingClientRect();
+  return {
+    x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2),
+    fondo: k.backgroundColor, borde: k.borderTopColor, bordeAncho: k.borderTopWidth,
+    texto: hoja ? w.getComputedStyle(hoja).color : null,
+    glifo: svg ? svg.getAttribute('stroke') : null,
+    contorno: c.outlineStyle + ' ' + c.outlineWidth + ' ' + c.outlineColor + ' ' + c.outlineOffset,
+    desactivado: el.getAttribute('aria-disabled'),
+  };
+`);
+
+const PRESIONAR = (buscar) => EN_MARCO(`
+  const el = (${buscar});
+  const r = el.getBoundingClientRect();
+  el.dispatchEvent(new w.MouseEvent('mousedown', { bubbles: true, cancelable: true, view: w,
+    clientX: r.left + r.width / 2, clientY: r.top + r.height / 2, button: 0, buttons: 1 }));
+  return true;
+`);
+
+// Se suelta fuera del control: el responder cancela y no dispara `onPress`.
+const SOLTAR_FUERA = EN_MARCO(`
+  d.dispatchEvent(new w.MouseEvent('mouseup', { bubbles: true, cancelable: true, view: w,
+    clientX: 1, clientY: 1, button: 0, buttons: 0 }));
+  return true;
+`);
+
+const TIENE_FOCO = (buscar) => EN_MARCO(`return d.activeElement === (${buscar});`);
+
+async function verEstados(pagina, t, T, nombre, buscar, esperado, { deshabilitado = false } = {}) {
+  const leer = () => pagina.evaluar(LEER_CONTROL(buscar));
+  const cuando = (estado) => `${nombre} · ${estado}`;
+  const comparar = (estado, real, exp) => {
+    for (const [campo, v] of Object.entries(exp)) {
+      if (campo === 'contorno') {
+        const sin = real.contorno.startsWith('none') || real.contorno.includes(' 0px ');
+        if (v === null) t.ok(`${cuando(estado)}: sin contorno`, sin, true);
+        else t.ok(`${cuando(estado)}: contorno ${v.ancho} ${v.color}`, real.contorno, `solid ${v.ancho} ${v.color} ${v.separacion}`);
+      } else {
+        t.ok(`${cuando(estado)}: ${campo}`, real[campo], v);
+      }
+    }
+  };
+  await pagina.evaluar(EN_MARCO(`(${buscar}).scrollIntoView({ block: 'center' });`));
+
+  await pagina.moverA(1, 1);
+  const reposo = await leer();
+  t.ok(`${cuando('reposo')}: existe`, reposo !== null, true);
+  if (!reposo) return;
+  comparar('reposo', reposo, { ...esperado.reposo, contorno: null });
+
+  if (deshabilitado) {
+    t.ok(`${cuando('deshabilitado')}: aria-disabled`, reposo.desactivado, 'true');
+    await pagina.moverA(reposo.x, reposo.y);
+    comparar('deshabilitado con puntero encima', await leer(), { ...esperado.reposo, contorno: null });
+    await pagina.moverA(1, 1);
+    return;
+  }
+
+  await pagina.moverA(reposo.x, reposo.y);
+  comparar('hover', await leer(), esperado.hover);
+
+  await pagina.evaluar(PRESIONAR(buscar));
+  await new Promise((r) => setTimeout(r, 150));
+  comparar('presionado', await leer(), esperado.presionado);
+  await pagina.evaluar(SOLTAR_FUERA);
+  await pagina.moverA(1, 1);
+
+  // Foco por teclado: contorno `foco`, `border-2`, separado `paso 0.5`.
+  await pagina.evaluar(EN_MARCO(`
+    m.contentWindow.focus();
+    if (d.activeElement && d.activeElement.blur) d.activeElement.blur();
+  `));
+  let enfocado = false;
+  for (let i = 0; i < 80 && !enfocado; i++) {
+    await pagina.tecla('Tab');
+    enfocado = await pagina.evaluar(TIENE_FOCO(buscar));
+  }
+  t.ok(`${cuando('foco')}: llega con Tab`, enfocado, true);
+  if (enfocado) {
+    comparar('foco', await leer(), { contorno: { ancho: '2px', color: rgb(T.foco), separacion: `${0.5 * PASO}px` } });
+  }
+}
+
+async function estadosDeTodosLosControles(pagina, base, t) {
+  for (const oscuro of [false, true]) {
+    const T = plancha[oscuro ? 'oscuro' : 'claro'];
+    const pre = oscuro ? 'oscuro' : 'claro';
+    const cont = (ancho, color) => ({ ancho, color: rgb(T[color]), separacion: '0px' });
+    const K = (nombre, buscar, esperado, opciones) =>
+      verEstados(pagina, t, T, `${pre} · ${nombre}`, buscar, esperado, opciones);
+    const invertido = { fondo: rgb(T.tinta), texto: rgb(T.fondo), borde: rgb(T.tinta) };
+
+    // practice: K4 (fuente y parcial), K5, K6 y K7.
+    t.ok(`${pre}: practice abrió Elegir tema`, await abrirTemas(pagina, base, { ancho: 1280, alto: 900, oscuro }), true);
+    const parciales = (await medirTemas(pagina)).parcial || [];
+    const filtro = {
+      reposo: { fondo: rgb(T.superficie), texto: rgb(T.tinta), borde: rgb(T.borde) },
+      hover: { fondo: rgb(T.superficie), texto: rgb(T.tinta), borde: rgb(T.linea) },
+      presionado: invertido,
+    };
+    await K('K4 fuente', BUSCAR.filtro('solo generadas'), filtro);
+    if (parciales.length > 1) await K('K4 parcial', BUSCAR.filtro(parciales[1].texto.toLowerCase()), filtro);
+
+    const cuadrado = {
+      reposo: { fondo: rgb(T.superficie), borde: rgb(T.linea), glifo: T.tinta },
+      hover: { fondo: rgb(T.superficie), borde: rgb(T.linea), contorno: cont('1px', 'linea') },
+      presionado: { fondo: rgb(T.tinta), borde: rgb(T.tinta), glifo: T.fondo },
+    };
+    const apagado = { reposo: { fondo: rgb(T.superficie), borde: rgb(T.filete), glifo: T.inactivo } };
+    await K('K5 menos en «Sin límite»', BUSCAR.porNombre('reducir tiempo'), apagado, { deshabilitado: true });
+    await K('K5 más', BUSCAR.porNombre('aumentar tiempo'), cuadrado);
+    await clicPorNombre(pagina, 'aumentar tiempo');
+    await pagina.esperarA(async () => (await medirTemas(pagina)).valor === '10 min');
+    await K('K5 menos', BUSCAR.porNombre('reducir tiempo'), cuadrado);
+    for (let i = 0; i < 11; i++) await clicPorNombre(pagina, 'aumentar tiempo');
+    await pagina.esperarA(async () => (await medirTemas(pagina)).valor === '120 min');
+    await K('K5 más en el máximo', BUSCAR.porNombre('aumentar tiempo'), apagado, { deshabilitado: true });
+
+    await K('K6 mezcla', BUSCAR.mezcla, {
+      reposo: { fondo: rgb(T.superficie), borde: rgb(T.acento), bordeAncho: '2px', glifo: T.acento },
+      hover: { borde: rgb(T.acento), contorno: cont('1px', 'acento') },
+      presionado: { ...invertido, glifo: T.fondo },
+    });
+    await K('K7 fila de tema', BUSCAR.fila, {
+      reposo: { fondo: TRANSPARENTE, glifo: T.tintaSec },
+      hover: { contorno: cont('1px', 'linea') },
+      presionado: { fondo: rgb(T.tinta), glifo: T.fondo },
+    });
+
+    // exam: K1 «Comenzar examen».
+    t.ok(`${pre}: exam abrió Elegir tema`, await abrirTemas(pagina, base, { ancho: 1280, alto: 900, modo: 'exam', oscuro }), true);
+    await K('K1 «Comenzar examen»', BUSCAR.boton('comenzar examen'), {
+      reposo: invertido,
+      hover: { ...invertido, contorno: cont('2px', 'linea') },
+      presionado: { fondo: rgb(T.superficie), texto: rgb(T.tinta), borde: rgb(T.linea) },
+    });
+
+    // failed sin fallos (V2): K2 «Practicar».
+    t.ok(`${pre}: failed abrió Elegir tema`, await abrirTemas(pagina, base, { ancho: 1280, alto: 900, modo: 'failed', oscuro }), true);
+    await K('K2 «Practicar»', BUSCAR.boton('practicar'), {
+      reposo: { fondo: rgb(T.superficie), texto: rgb(T.tinta), borde: rgb(T.linea) },
+      hover: { fondo: rgb(T.superficie), borde: rgb(T.linea), contorno: cont('1px', 'linea') },
+      presionado: invertido,
+    });
+  }
+}
+
+async function sinDesbordeNiCortes(pagina, base, t) {
+  for (const oscuro of [false, true]) {
+    for (const ancho of [320, 360, 390, 768, 1280]) {
+      const tema = oscuro ? 'oscuro' : 'claro';
+      for (const modo of ['practice', 'exam', 'failed']) {
+        // exam y failed alcanzan con los extremos: 320 y 1280.
+        if (modo !== 'practice' && ancho !== 320 && ancho !== 1280) continue;
+        if (!await abrirTemas(pagina, base, { ancho, modo, oscuro })) {
+          t.ok(`${modo} ${ancho} px ${tema}: abrió Elegir tema`, false, true);
+          continue;
+        }
+        const m = await medirTemas(pagina);
+        t.ok(`${modo} ${ancho} px ${tema}: sin scroll horizontal`, m.desborda, false);
+        const chicos = m.interactivos.filter((c) => c.ancho > 0 && (c.alto < LADO_TACTIL || c.ancho < LADO_TACTIL));
+        t.ok(`${modo} ${ancho} px ${tema}: ningún control baja de 44 × 44`, chicos.length, 0);
+        if (ancho >= 768) {
+          const ref = m.panel || m.practicar || m.comenzar || m.mezcla && m.mezcla.caja;
+          t.ok(`${modo} ${ancho} px ${tema}: una sola columna de a lo sumo ${COLUMNA} px`,
+            !!ref && ref.ancho <= COLUMNA + 1, true);
+        }
+      }
+    }
+  }
+}
+
 // ===========================================================================
 // GRUPO B · tarea 2.10, plan B de D2 (Ilustracion.web.js: <svg> del DOM)
 // ===========================================================================
@@ -276,4 +902,14 @@ module.exports = [
   { nombre: 'HeaderMarca: teclado del control Claro | Oscuro', correr: tecladoDelControlDeTema },
   { nombre: 'HeaderMarca: control negativo del desborde', correr: controlNegativoDeDesborde },
   { nombre: 'HeaderMarca: hover sin halo ni box-shadow', correr: hoverSinHalo },
+  { nombre: 'TopicSelect: filtros, separación y temporizador', correr: filtrosYSeparacion },
+  { nombre: 'TopicSelect: mezcla y filas con conteo', correr: mezclaYFilas },
+  { nombre: 'TopicSelect: variante exam', correr: varianteExam },
+  { nombre: 'TopicSelect: vacíos V2, V4 y V5', correr: vaciosV2yV4 },
+  { nombre: 'TopicSelect: carga sin V2 (VAC-P4) y V11', correr: vaciosCargaYSinParciales },
+  { nombre: 'TopicSelect: carga que rechaza (finally)', correr: cargaQueRechazaMuestraV2 },
+  { nombre: 'TopicSelect: V9, temas sin preguntas fuera de la lista', correr: temasSinPreguntasNoSeListan },
+  { nombre: 'TopicSelect: estados K4', correr: estadosDeControl },
+  { nombre: 'TopicSelect: estados K de todos los controles', correr: estadosDeTodosLosControles },
+  { nombre: 'TopicSelect: sin desborde y 44 × 44 en claro y oscuro', correr: sinDesbordeNiCortes },
 ];

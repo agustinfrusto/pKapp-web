@@ -2,13 +2,17 @@
 // Acá es donde el usuario decide si practicar solo preguntas reales,
 // solo generadas, o ambas.
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-  View, Text, TouchableOpacity, ScrollView,
-} from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { getUserQuestions, getFailedQuestions, getSetting } from '../db/database';
 import { useMateria } from '../materia/MateriaContext';
+import { useTema } from '../theme/TemaContext';
+import { plancha } from '../theme/colores';
 import { avisar } from '../utils/confirm';
-import { sombras } from '../theme/sombras';
+import Glifo from '../components/Glifo';
+import {
+  BotonMarco, BotonRelleno, Columna, CuadroPaso, FilaLista, Lamina, RotuloSeccion, Segmento,
+  TarjetaNavegable,
+} from '../components/plancha';
 
 const SOURCE_FILTERS = {
   all: 'Todas',
@@ -17,6 +21,11 @@ const SOURCE_FILTERS = {
 };
 
 const TIMER_OPTIONS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]; // 0 = sin límite
+
+const TINTA = 'text-tinta dark:text-tintaD';
+const TINTA_SEC = 'text-tintaSec dark:text-tintaSecD';
+const ACENTO = 'text-acento dark:text-acentoD';
+const FONDO = 'bg-fondo dark:bg-fondoD';
 
 // ESFUNO reutiliza preguntas entre exámenes, así que la misma pregunta aparece
 // una vez por cada examen donde salió. Al practicar cruzando exámenes, dejamos
@@ -60,15 +69,26 @@ export default function TopicSelectScreen({ route, navigation }) {
   const [timerMinutes, setTimerMinutes] = useState(0);
   const [userQuestions, setUserQuestions] = useState([]);
   const [failedIds, setFailedIds] = useState(new Set());
+  // VAC-P4: hasta que resuelve la primera carga de `failed`, `failedIds` vacío no es
+  // «sin falladas» todavía: no se pinta ni el estado vacío ni el contenido.
+  const [cargado, setCargado] = useState(false);
+  const { oscuro } = useTema();
+  const tema = oscuro ? plancha.oscuro : plancha.claro;
 
   useEffect(() => {
     (async () => {
-      const userQs = await getUserQuestions(materiaId);
-      setUserQuestions(userQs);
+      // `finally`: aunque la carga rechace, `failed` resuelve y muestra V2 en vez de
+      // quedar en blanco (VAC-P4 solo cubre la espera, no el fallo).
+      try {
+        const userQs = await getUserQuestions(materiaId);
+        setUserQuestions(userQs);
 
-      if (mode === 'failed') {
-        const failed = await getFailedQuestions(materiaId);
-        setFailedIds(new Set(failed.map(f => f.question_id)));
+        if (mode === 'failed') {
+          const failed = await getFailedQuestions(materiaId);
+          setFailedIds(new Set(failed.map(f => f.question_id)));
+        }
+      } finally {
+        setCargado(true);
       }
     })();
   }, [mode, materiaId]);
@@ -139,158 +159,149 @@ export default function TopicSelectScreen({ route, navigation }) {
 
   if (!materia) return null;
 
+  const filtros = (
+    <Filters
+      sourceFilter={sourceFilter} setSourceFilter={setSourceFilter}
+      parcialFilter={parcialFilter} setParcialFilter={setParcialFilter}
+      parcialFilters={PARCIAL_FILTERS}
+      timerMinutes={timerMinutes} setTimerMinutes={setTimerMinutes}
+    />
+  );
+
   // En modo examen, no se elige tema: directo arranca
   if (mode === 'exam') {
     return (
-      <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900" contentContainerClassName="p-4 pb-[30px]">
-        <Filters
-          sourceFilter={sourceFilter} setSourceFilter={setSourceFilter}
-          parcialFilter={parcialFilter} setParcialFilter={setParcialFilter}
-          parcialFilters={PARCIAL_FILTERS}
-          timerMinutes={timerMinutes} setTimerMinutes={setTimerMinutes}
-        />
-        
-        <View className="items-center rounded-md bg-white p-6 dark:bg-slate-800">
-          <Text className="mb-2.5 text-lg font-bold text-brand-ink dark:text-brandD-ink">Modo Examen</Text>
-          <Text className="mb-3.5 text-center text-base leading-[22px] text-brand-muted dark:text-brandD-soft">
-            {parcialFilter === 'all'
-              ? `Se sortean ${Math.min(EXAM_SIZE_FULL, filteredBase.length)} preguntas al azar de todos los temas, como en el examen real.`
-              : `Se sortean ${Math.min(EXAM_SIZE_PARCIAL, filteredBase.length)} preguntas al azar de ${(PARCIAL_FILTERS && PARCIAL_FILTERS[parcialFilter]) || 'este parcial'}.`}
-          </Text>
-          <Text className="mb-5 text-sm font-semibold text-brand dark:text-brandD-light">
-            Disponibles: {filteredBase.length} preguntas
-          </Text>
-          
-          <TouchableOpacity
-            className="rounded bg-brand px-8 py-3.5 dark:bg-brandD-deep"
-            onPress={() => startQuiz()}
-            activeOpacity={0.8}
-          >
-            <Text className="text-md font-bold text-white">Comenzar examen</Text>
-          </TouchableOpacity>
-        </View>
+      <ScrollView className={`flex-1 ${FONDO}`} contentContainerClassName="pb-8">
+        <Columna>
+          {filtros}
+
+          <Lamina testID="lamina-examen">
+            <View className="items-center p-4">
+              <Text className={`font-plex-sans-semibold text-titulo ${TINTA}`}>Modo Examen</Text>
+              <Text className={`mt-2 text-center font-plex-sans text-cuerpo ${TINTA_SEC}`}>
+                {parcialFilter === 'all'
+                  ? `Se sortean ${Math.min(EXAM_SIZE_FULL, filteredBase.length)} preguntas al azar de todos los temas, como en el examen real.`
+                  : `Se sortean ${Math.min(EXAM_SIZE_PARCIAL, filteredBase.length)} preguntas al azar de ${(PARCIAL_FILTERS && PARCIAL_FILTERS[parcialFilter]) || 'este parcial'}.`}
+              </Text>
+              <Text className={`mt-3.5 text-center font-plex-sans-semibold text-cuerpo ${ACENTO}`}>
+                Disponibles: {filteredBase.length} preguntas
+              </Text>
+              <View className="mt-5">
+                <BotonRelleno
+                  etiqueta="Comenzar examen"
+                  tamano="grande"
+                  relleno="amplio"
+                  onPress={() => startQuiz()}
+                />
+              </View>
+            </View>
+          </Lamina>
+        </Columna>
       </ScrollView>
     );
   }
 
-  // Modo failed: si no hay falladas, lo decimos
+  // Modo failed, primera carga sin resolver: solo la barra interna sobre `fondo`.
+  if (mode === 'failed' && !cargado) {
+    return <View className={`flex-1 ${FONDO}`} />;
+  }
+
+  // Modo failed: si no hay falladas, lo decimos (V2)
   if (mode === 'failed' && failedIds.size === 0) {
     return (
-      <View className="flex-1 items-center justify-center bg-slate-100 p-8 dark:bg-slate-900">
-        <Text className="mb-4 text-display-lg">🎯</Text>
-        <Text className="mb-2 text-lg font-bold text-brand-ink dark:text-brandD-ink">Sin preguntas falladas</Text>
-        <Text className="text-center text-base leading-[22px] text-brand-soft dark:text-brandD-soft">
-          Practicá un poco primero y volvé acá para repasar las que te cuesten.
-        </Text>
-      </View>
+      <ScrollView className={`flex-1 ${FONDO}`} contentContainerClassName="pb-8">
+        <Columna>
+          <View className="mt-6">
+            <Lamina testID="lamina-vacia">
+              <View className="items-center p-3.5">
+                <View className="mt-4">
+                  <Glifo id="glifo-repasar" size={48} color={tema.tintaSec} />
+                </View>
+                <Text className={`mt-4 text-center font-plex-sans-semibold text-titulo ${TINTA}`}>
+                  Sin preguntas falladas
+                </Text>
+                <Text className={`mt-2 text-center font-plex-sans text-cuerpo ${TINTA_SEC}`}>
+                  Practicá un poco primero y volvé acá para repasar las que te cuesten.
+                </Text>
+                <View className="mb-4 mt-5">
+                  <BotonMarco
+                    etiqueta="Practicar"
+                    relleno="amplio"
+                    onPress={() => navigation.navigate('TopicSelect', { mode: 'practice' })}
+                  />
+                </View>
+              </View>
+            </Lamina>
+          </View>
+        </Columna>
+      </ScrollView>
     );
   }
 
   // Modo practice o failed con preguntas: lista de temas
+  const filas = Object.entries(TOPICS)
+    .map(([key, name]) => [key, name, countByTopic.get(key) || 0])
+    .filter(([, , count]) => count > 0);
+
   return (
-    <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900" contentContainerClassName="p-4 pb-[30px]">
-      <Filters
-        sourceFilter={sourceFilter} setSourceFilter={setSourceFilter}
-        parcialFilter={parcialFilter} setParcialFilter={setParcialFilter}
-        parcialFilters={PARCIAL_FILTERS}
-        timerMinutes={timerMinutes} setTimerMinutes={setTimerMinutes}
-      />
+    <ScrollView className={`flex-1 ${FONDO}`} contentContainerClassName="pb-8">
+      <Columna>
+        {filtros}
 
-      <TouchableOpacity
-        className="mb-2.5 rounded-md border-2 border-accent bg-accent-surface p-4 dark:border-accentD dark:bg-accentD-surface"
-        style={sombras.cardSuave}
-        onPress={() => startQuiz()}
-        activeOpacity={0.7}
-      >
-        <Text className="text-base font-semibold text-brand-ink dark:text-brandD-ink">🎲 Todos los temas mezclados</Text>
-        <Text className="mt-[3px] text-xs text-brand-soft dark:text-brandD-soft">
-          {filteredBase.length} preguntas
-        </Text>
-      </TouchableOpacity>
+        <TarjetaNavegable variante="acento" onPress={() => startQuiz()}>
+          {({ texto, glifo, invertido }) => (
+            <View className="flex-row items-center gap-3 px-3.5 py-3">
+              <Glifo id="glifo-aleatorio" size={24} color={tema[glifo]} />
+              <View className="min-w-0 flex-1">
+                <Text className={`mb-1.5 font-plex-mono text-rotulo uppercase ${invertido ? texto : ACENTO}`}>
+                  Mezcla
+                </Text>
+                <Text className={`font-plex-sans-semibold text-item ${texto}`}>Todos los temas mezclados</Text>
+                <Text className={`mt-1 font-plex-sans text-detalle ${invertido ? texto : TINTA_SEC}`}>
+                  {filteredBase.length} preguntas
+                </Text>
+              </View>
+            </View>
+          )}
+        </TarjetaNavegable>
 
-      <Text className="mb-2.5 ml-1 mt-2 text-sm font-semibold text-brand-soft dark:text-brandD-soft">O elegí un tema específico:</Text>
+        <View className="mb-2 mt-4">
+          <RotuloSeccion color="acento">O elegí un tema específico:</RotuloSeccion>
+        </View>
 
-      {Object.entries(TOPICS).map(([key, name]) => {
-        const count = countByTopic.get(key) || 0;
-        if (count === 0) return null;
-        return (
-          <TouchableOpacity
-            key={key}
-            className="mb-2.5 rounded-md bg-white p-4 dark:bg-slate-800"
-            style={sombras.cardSuave}
-            onPress={() => startQuiz(key)}
-            activeOpacity={0.7}
-          >
-            <Text className="text-base font-semibold text-brand-ink dark:text-brandD-ink">{name}</Text>
-            <Text className="mt-[3px] text-xs text-brand-soft dark:text-brandD-soft">{count} preguntas</Text>
-          </TouchableOpacity>
-        );
-      })}
+        {filteredBase.length === 0 ? (
+          <Text className={`mt-2 font-plex-sans text-cuerpo ${TINTA_SEC}`}>
+            No hay preguntas disponibles con los filtros actuales.
+          </Text>
+        ) : (
+          <View className="border-t border-linea dark:border-lineaD">
+            {filas.map(([key, name, count], i) => (
+              <FilaLista key={key} filete onPress={() => startQuiz(key)}>
+                {({ texto, glifo, invertido }) => (
+                  <View className="flex-1 flex-row items-center gap-3 py-3">
+                    <Text className={`font-plex-mono text-rotulo ${invertido ? texto : TINTA_SEC}`}>
+                      {String(i + 1).padStart(2, '0')}
+                    </Text>
+                    <View className="min-w-0 flex-1">
+                      <Text className={`font-plex-sans-semibold text-item ${texto}`}>{name}</Text>
+                      <Text className={`font-plex-sans text-detalle ${invertido ? texto : TINTA_SEC}`}>
+                        {count} preguntas
+                      </Text>
+                    </View>
+                    <Glifo id="glifo-chevron" size={16} color={invertido ? tema[glifo] : tema.tintaSec} />
+                  </View>
+                )}
+              </FilaLista>
+            ))}
+          </View>
+        )}
+      </Columna>
     </ScrollView>
   );
 }
 
-// Componente para el filtro de fuente (segmented control)
-function SourceFilter({ sourceFilter, setSourceFilter }) {
-  return (
-    <View className="py-1.5">
-      <Text className="mb-2 text-xs font-semibold uppercase tracking-[0.4px] text-brand-soft dark:text-brandD-soft">Fuente:</Text>
-      <View className="flex-row flex-wrap gap-1.5">
-        {Object.entries(SOURCE_FILTERS).map(([key, label]) => (
-          <TouchableOpacity
-            key={key}
-            className={`rounded-sm border px-3 py-[7px] ${
-              sourceFilter === key
-                ? 'border-brand bg-brand dark:border-brandD-deep dark:bg-brandD-deep'
-                : 'border-brand-border bg-slate-100 dark:border-brandD-border dark:bg-slate-800'
-            }`}
-            onPress={() => setSourceFilter(key)}
-          >
-            <Text
-              className={`text-sm font-medium ${
-                sourceFilter === key ? 'text-white' : 'text-brand-muted dark:text-brandD-soft'
-              }`}
-            >
-              {label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
-  );
-}
-
-function ParcialFilter({ parcialFilter, setParcialFilter, parcialFilters }) {
-  if (!parcialFilters) return null;
-  return (
-    <View className="py-1.5">
-      <Text className="mb-2 text-xs font-semibold uppercase tracking-[0.4px] text-brand-soft dark:text-brandD-soft">Parcial:</Text>
-      <View className="flex-row flex-wrap gap-1.5">
-        {Object.entries(parcialFilters).map(([key, label]) => (
-          <TouchableOpacity
-            key={key}
-            className={`rounded-sm border px-3 py-[7px] ${
-              parcialFilter === key
-                ? 'border-accent bg-accent dark:border-accentD dark:bg-accentD'
-                : 'border-brand-border bg-slate-100 dark:border-brandD-border dark:bg-slate-800'
-            }`}
-            onPress={() => setParcialFilter(key)}
-          >
-            <Text
-              className={`text-sm font-medium ${
-                parcialFilter === key ? 'text-white' : 'text-brand-muted dark:text-brandD-soft'
-              }`}
-            >
-              {label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
-  );
-}
-
-function TimerPicker({ timerMinutes, setTimerMinutes }) {
+// Panel de filtros: fuente, parcial (si la materia tiene parciales) y temporizador.
+function Filters({ sourceFilter, setSourceFilter, parcialFilter, setParcialFilter, parcialFilters, timerMinutes, setTimerMinutes }) {
   const currentIdx = TIMER_OPTIONS.indexOf(timerMinutes);
 
   function decrement() {
@@ -301,47 +312,67 @@ function TimerPicker({ timerMinutes, setTimerMinutes }) {
   }
 
   return (
-    <View className="py-1.5">
-      <Text className="mb-2 text-xs font-semibold uppercase tracking-[0.4px] text-brand-soft dark:text-brandD-soft">Temporizador:</Text>
-      <View className="flex-row items-center gap-3">
-        <TouchableOpacity
-          onPress={decrement}
-          className={`h-[34px] w-[34px] items-center justify-center rounded-sm ${
-            currentIdx === 0 ? 'bg-brand-border dark:bg-brandD-border' : 'bg-brand dark:bg-brandD-deep'
-          }`}
-          disabled={currentIdx === 0}
-        >
-          <Text className="text-lg font-bold leading-[22px] text-white">−</Text>
-        </TouchableOpacity>
-        <Text className="min-w-[80px] text-center text-base font-semibold text-brand-ink dark:text-brandD-ink">
-          {timerMinutes === 0 ? 'Sin límite' : `${timerMinutes} min`}
-        </Text>
-        <TouchableOpacity
-          onPress={increment}
-          className={`h-[34px] w-[34px] items-center justify-center rounded-sm ${
-            currentIdx === TIMER_OPTIONS.length - 1 ? 'bg-brand-border dark:bg-brandD-border' : 'bg-brand dark:bg-brandD-deep'
-          }`}
-          disabled={currentIdx === TIMER_OPTIONS.length - 1}
-        >
-          <Text className="text-lg font-bold leading-[22px] text-white">+</Text>
-        </TouchableOpacity>
-      </View>
+    <View className="mb-3 mt-4 border border-linea bg-superficie p-3.5 dark:border-lineaD dark:bg-superficieD">
+      <GrupoDeFiltro nombre="Fuente">
+        <Segmento
+          accessibilityLabel="Fuente"
+          opciones={Object.entries(SOURCE_FILTERS).map(([valor, etiqueta]) => ({ valor, etiqueta }))}
+          valor={sourceFilter}
+          alCambiar={setSourceFilter}
+        />
+      </GrupoDeFiltro>
+      <Divisor />
+      {parcialFilters && (
+        <>
+          <GrupoDeFiltro nombre="Parcial">
+            <Segmento
+              accessibilityLabel="Parcial"
+              opciones={Object.entries(parcialFilters).map(([valor, etiqueta]) => ({ valor, etiqueta }))}
+              valor={parcialFilter}
+              alCambiar={setParcialFilter}
+            />
+          </GrupoDeFiltro>
+          <Divisor />
+        </>
+      )}
+      <GrupoDeFiltro nombre="Temporizador">
+        <View className="flex-row items-center gap-4">
+          <CuadroPaso
+            glifo="glifo-menos"
+            accessibilityLabel="Reducir tiempo"
+            deshabilitado={currentIdx === 0}
+            onPress={decrement}
+          />
+          <Text className={`min-w-20 text-center font-plex-sans-semibold text-cuerpo ${TINTA}`}>
+            {timerMinutes === 0 ? 'Sin límite' : `${timerMinutes} min`}
+          </Text>
+          <CuadroPaso
+            glifo="glifo-mas"
+            accessibilityLabel="Aumentar tiempo"
+            deshabilitado={currentIdx === TIMER_OPTIONS.length - 1}
+            onPress={increment}
+          />
+        </View>
+      </GrupoDeFiltro>
     </View>
   );
 }
 
-function Filters({ sourceFilter, setSourceFilter, parcialFilter, setParcialFilter, parcialFilters, timerMinutes, setTimerMinutes }) {
+function GrupoDeFiltro({ nombre, children }) {
   return (
-    <View className="mb-4 rounded-md bg-white px-4 py-3 dark:bg-slate-800">
-      <SourceFilter sourceFilter={sourceFilter} setSourceFilter={setSourceFilter} />
-      {parcialFilters && (
-        <>
-          <View className="my-1 h-px bg-slate-200 dark:bg-brandD-border" />
-          <ParcialFilter parcialFilter={parcialFilter} setParcialFilter={setParcialFilter} parcialFilters={parcialFilters} />
-        </>
-      )}
-      <View className="my-1 h-px bg-slate-200 dark:bg-brandD-border" />
-      <TimerPicker timerMinutes={timerMinutes} setTimerMinutes={setTimerMinutes} />
+    <View>
+      <View className="mb-2">
+        <RotuloSeccion color="tintaSec">{nombre}</RotuloSeccion>
+      </View>
+      {children}
+    </View>
+  );
+}
+
+function Divisor() {
+  return (
+    <View className="my-3.5">
+      <Lamina.Divisor />
     </View>
   );
 }

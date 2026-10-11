@@ -24,7 +24,9 @@ async function terminarUnQuizNoPregunta(pagina, base, t) {
   t.nota(`  tema elegido: ${tema}`);
   // El innerText real trae un salto de línea antes del contador: se busca por
   // el nombre pelado o no matchea nada.
-  await pagina.clic(tema.replace(/ \d+ preguntas$/, ''));
+  // La fila de tema puede traer el número de orden delante («24 Palancas…»): se busca
+  // por el nombre solo.
+  await pagina.clic(tema.replace(/ \d+ preguntas$/, '').replace(/^\d+ /, ''));
   t.ok('el quiz arrancó', await pagina.esperarUrl('/quiz'), true);
 
   pagina.dialogos.length = 0;
