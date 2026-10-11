@@ -1,11 +1,12 @@
 // Pantalla de resultados: muestra puntaje y permite revisar cada pregunta.
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, Linking, Platform,
 } from 'react-native';
 import { track } from '../utils/track';
 import { MP_LINKS, DONATION_AMOUNTS } from '../utils/mercadopago';
 import { reportQuestion } from '../utils/report';
+import { usoTrasTerminar, contarSimulacro, useDonacionVista } from '../utils/donacion';
 import { useMateria } from '../materia/MateriaContext';
 import { colores, oscuro } from '../theme/colores';
 import { useTema } from '../theme/TemaContext';
@@ -51,6 +52,11 @@ export default function ResultsScreen({ route, navigation }) {
   const { oscuro: esOscuro } = useTema();
   const { message, color } = getResultFeedback(percentage, esOscuro);
   const [showDonation] = useState(() => shouldShowDonation(percentage));
+  // Simulacros terminados incluyendo este: se lee antes de que el efecto lo cuente.
+  const [uso] = useState(() => usoTrasTerminar());
+  const contado = useRef(false);
+  // Una vista por simulacro terminado: sobrevive a Revisar → Volver, que remonta el pedido.
+  const vistaEnviada = useRef(false);
 
   useEffect(() => {
     // Una entrada en frio a /resultados no es un simulacro terminado: no se mide.
@@ -59,6 +65,10 @@ export default function ResultsScreen({ route, navigation }) {
       return;
     }
     track('simulacro_terminado', { mode, score: percentage, total });
+    if (!contado.current) {
+      contado.current = true;
+      contarSimulacro();
+    }
     if (percentage >= APROBADO_MIN_SCORE) {
       track('simulacro_aprobado', { mode, score: percentage });
     }
@@ -210,7 +220,7 @@ export default function ResultsScreen({ route, navigation }) {
         </View>
       </View>
 
-      {showDonation && <DonationPrompt percentage={percentage} />}
+      {showDonation && <DonationPrompt percentage={percentage} uso={uso} vistaEnviada={vistaEnviada} />}
 
       <TouchableOpacity
         className="mb-2.5 items-center rounded py-3.5 border border-accent bg-accent-surface dark:border-accentD dark:bg-accentD-surface"
@@ -239,27 +249,42 @@ export default function ResultsScreen({ route, navigation }) {
   );
 }
 
-function DonationPrompt({ percentage }) {
+function DonationPrompt({ percentage, uso, vistaEnviada }) {
   const [visible, setVisible] = useState(true);
   const warm = percentage >= DONATION_WARM_SCORE;
+  const [datos] = useState(() => ({
+    origen: 'resultados',
+    variante: warm ? 'celebratoria' : 'normal',
+    tramo: warm ? '80-100' : '60-79',
+    uso,
+  }));
 
-  function openLink(amt) {
-    track('donacion_click', { origen: 'resultados', monto: amt });
-    requestAnimationFrame(() => Linking.openURL(MP_LINKS[amt]).catch(() => {}));
-  }
   function dismiss() {
+    track('donacion_cerrada', { origen: datos.origen, variante: datos.variante, tramo: datos.tramo });
     setVisible(false);
   }
 
   if (!visible) return null;
+  return <DonationPromptBody warm={warm} datos={datos} vistaEnviada={vistaEnviada} onDismiss={dismiss} />;
+}
+
+// Aparte para que, al cerrarlo, se desmonte y cancele el observador de vista.
+function DonationPromptBody({ warm, datos, vistaEnviada, onDismiss }) {
+  const ref = useRef(null);
+  useDonacionVista(ref, datos, vistaEnviada);
+
+  function openLink(amt) {
+    track('donacion_click', { ...datos, monto: amt });
+    requestAnimationFrame(() => Linking.openURL(MP_LINKS[amt]).catch(() => {}));
+  }
 
   return (
-    <View className="mb-4 rounded-md border border-warning-border bg-warning-surface p-4 dark:border-warningD-border dark:bg-warningD-surface">
+    <View ref={ref} className="mb-4 rounded-md border border-warning-border bg-warning-surface p-4 dark:border-warningD-border dark:bg-warningD-surface">
       <View className="mb-2 flex-row items-center justify-between">
         <Text className="flex-1 text-base font-bold text-warning-ink dark:text-warningD-ink">
           {warm ? '¡Gran resultado! 🏆' : 'Ayuda a mantener esta aplicación'}
         </Text>
-        <TouchableOpacity onPress={dismiss} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+        <TouchableOpacity onPress={onDismiss} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
           <Text className="ml-2.5 text-base text-warning-bold dark:text-warningD-bold">✕</Text>
         </TouchableOpacity>
       </View>

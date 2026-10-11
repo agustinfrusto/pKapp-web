@@ -495,6 +495,359 @@ async function avisoCerradoYAppViva(pagina, base, t) {
   t.ok('el aviso cerrado no vuelve tras recargar la página', await pagina.evaluar(FN_BOTONES_AVISO), null);
 }
 
+// ---------------------------------------------------------------------------
+// Embudo de donación (Umami): vista, click y cierre del pedido.
+// `window.umami` se reemplaza por un stub que guarda los eventos antes de que
+// cargue la app; `window.open` se anula para que los montos no salgan a
+// Mercado Pago. Los eventos de pageview (track con función) no se guardan.
+const STUB_UMAMI =
+  "window.__eventos = [];" +
+  "window.umami = { track: function (e, d) { if (typeof e === 'string') window.__eventos.push({ e: e, d: d || {} }); } };" +
+  "window.open = function () { return null; };";
+
+async function conUmami(pagina) {
+  await pagina.enviar('Page.addScriptToEvaluateOnNewDocument', { source: STUB_UMAMI });
+}
+
+const eventos = (pagina, nombre) =>
+  pagina.evaluar(`window.__eventos.filter((x) => x.e === ${JSON.stringify(nombre)}).map((x) => x.d)`);
+
+const TEXTO_BLOQUE = 'Ayuda a mantener esta aplicación';
+
+async function donacionVistaEnMaterias(pagina, base, t) {
+  await conUmami(pagina);
+  // Ventana baja: el bloque de donación queda debajo de las seis tarjetas.
+  await pagina.enviar('Emulation.setDeviceMetricsOverride',
+    { width: 900, height: 500, deviceScaleFactor: 1, mobile: false });
+  await pagina.ir(base + '/');
+  await pagina.esperarTexto('Tus materias');
+  await pagina.evaluar(`localStorage.setItem('pkapp_simulacros', '3')`);
+  await pagina.ir(base + '/');
+  await pagina.esperarTexto('Tus materias');
+  await cerrarNota(pagina);
+
+  const verBloque = (alto) => pagina.evaluar(`(function () {
+    const n = Array.from(document.querySelectorAll('div')).find((d) =>
+      d.children.length === 0 && d.innerText === ${JSON.stringify(TEXTO_BLOQUE)});
+    if (!n) return null;
+    n.scrollIntoView({ block: 'center' });
+    return true;
+  })()`);
+  const arriba = () => pagina.evaluar(`(function () {
+    document.querySelectorAll('div').forEach((d) => { d.scrollTop = 0; });
+    window.scrollTo(0, 0);
+  })()`);
+
+  await esperarMs(1500);
+  t.ok('materias: sin scroll no se manda donacion_vista', (await eventos(pagina, 'donacion_vista')).length, 0);
+
+  // Entra y sale antes de 1 s: no cuenta y el reloj se reinicia.
+  await verBloque();
+  await esperarMs(400);
+  await arriba();
+  await esperarMs(1500);
+  t.ok('materias: menos de 1 s en vista no cuenta', (await eventos(pagina, 'donacion_vista')).length, 0);
+
+  // Solo ~30 % visible durante más de 1 s: bajo el umbral del 50 %, no cuenta.
+  const ratio = await pagina.evaluar(`(function () {
+    const n = Array.from(document.querySelectorAll('div')).find((d) =>
+      d.children.length === 0 && d.innerText === ${JSON.stringify(TEXTO_BLOQUE)});
+    if (!n) return -1;
+    const b = n.parentElement;
+    n.scrollIntoView({ block: 'start' });
+    let s = b.parentElement;
+    while (s && !(s.scrollHeight > s.clientHeight + 1 && /auto|scroll/.test(getComputedStyle(s).overflowY))) s = s.parentElement;
+    const r = b.getBoundingClientRect();
+    const delta = r.top - (window.innerHeight - 0.3 * r.height);
+    if (s) s.scrollTop += delta; else window.scrollBy(0, delta);
+    const q = b.getBoundingClientRect();
+    const vis = Math.min(q.bottom, window.innerHeight) - Math.max(q.top, 0);
+    return vis / q.height;
+  })()`);
+  t.ok('materias: el bloque quedó cerca del 30 % visible', ratio > 0.2 && ratio < 0.45, true);
+  await esperarMs(1800);
+  t.ok('materias: con menos del 50 % visible no cuenta', (await eventos(pagina, 'donacion_vista')).length, 0);
+  await arriba();
+  await esperarMs(300);
+
+  await verBloque();
+  t.ok('materias: tras 1 s en vista se manda donacion_vista',
+    await pagina.esperarA(async () => (await eventos(pagina, 'donacion_vista')).length === 1, { limite: 4000 }), true);
+  const vista = (await eventos(pagina, 'donacion_vista'))[0] || {};
+  t.ok('materias: vista con origen', vista.origen, 'materias');
+  t.ok('materias: vista con variante normal', vista.variante, 'normal');
+  t.ok('materias: vista con uso', vista.uso, '2-5');
+  t.ok('materias: vista sin tramo', 'tramo' in vista, false);
+
+  await arriba();
+  await esperarMs(300);
+  await verBloque();
+  await esperarMs(1500);
+  t.ok('materias: una sola vez por montaje', (await eventos(pagina, 'donacion_vista')).length, 1);
+
+  // Click en cada monto, con las propiedades nuevas.
+  for (const monto of [50, 100, 200, 500]) {
+    await clicExacto(pagina, '$' + monto);
+    await esperarMs(150);
+  }
+  const clicks = await eventos(pagina, 'donacion_click');
+  t.ok('materias: 4 donacion_click', clicks.length, 4);
+  t.ok('materias: montos en orden', clicks.map((c) => c.monto).join(','), '50,100,200,500');
+  t.ok('materias: click con origen, variante y uso',
+    clicks.every((c) => c.origen === 'materias' && c.variante === 'normal' && c.uso === '2-5' && !('tramo' in c)), true);
+}
+
+// Click por coordenadas sobre un Touchable cuyo texto es exactamente `texto`
+// ('$50' no debe matchear '$500').
+async function clicExacto(pagina, texto) {
+  const p = await pagina.evaluar(`(function (t) {
+    const n = Array.from(document.querySelectorAll('[tabindex]')).find((e) => {
+      const r = e.getBoundingClientRect();
+      return (e.innerText || '').trim() === t && r.width > 0 && r.height > 0;
+    });
+    if (!n) return null;
+    n.scrollIntoView({ block: 'center' });
+    return true;
+  })(${JSON.stringify(texto)})`);
+  if (!p) return false;
+  await esperarMs(300);
+  const c = await pagina.evaluar(`(function (t) {
+    const n = Array.from(document.querySelectorAll('[tabindex]')).find((e) => {
+      const r = e.getBoundingClientRect();
+      return (e.innerText || '').trim() === t && r.width > 0 && r.height > 0;
+    });
+    const r = n.getBoundingClientRect();
+    return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+  })(${JSON.stringify(texto)})`);
+  await pagina.clicEn(c.x, c.y);
+  return true;
+}
+
+// Juega el tema práctico más corto de al menos 3 preguntas (con menos no hay
+// puntaje 60-79). `mapa` (texto de opciones -> opción
+// correcta) se aprende del feedback; con `correctas` definido se acierta esa
+// cantidad de preguntas (las primeras) y se falla el resto. Sin `correctas`
+// se contesta siempre A. Devuelve { total, correctas } o null.
+async function jugarPractica(pagina, base, t, mapa, correctas) {
+  await entrarAMateria(pagina, base);
+  await pagina.clic('Entrena Temas/Parciales');
+  await pagina.esperarUrl('/temas/practice');
+  const tema = await pagina.evaluar(`(function () {
+    const v = Array.from(document.querySelectorAll('[tabindex]'))
+      .filter((n) => { const r = n.getBoundingClientRect(); return r.width > 0 && r.height > 0; })
+      .map((n) => (n.innerText || '').trim().replace(/\\s+/g, ' '))
+      .filter((x) => / \\d+ preguntas$/.test(x) && !x.includes('mezclados'))
+      .filter((x) => parseInt(x.match(/(\\d+) preguntas$/)[1]) >= 3);
+    v.sort((a, b) => parseInt(a.match(/(\\d+) preguntas$/)[1]) - parseInt(b.match(/(\\d+) preguntas$/)[1]));
+    return v[0] || null;
+  })()`);
+  if (!tema) return null;
+  const total = parseInt(tema.match(/(\d+) preguntas$/)[1], 10);
+  await pagina.clic(tema.replace(/ \d+ preguntas$/, ''));
+  if (!await pagina.esperarUrl('/quiz')) return null;
+
+  const LEER = `(function () {
+    return Array.from(document.querySelectorAll('[tabindex]')).filter((n) => {
+      const r = n.getBoundingClientRect();
+      return /^[A-F]\\s/.test((n.innerText || '').trim()) && r.width > 0 && r.height > 0;
+    }).map((n) => {
+      const bruto = (n.innerText || '').trim().replace(/\\s+/g, ' ');
+      return { letra: bruto[0], texto: bruto.slice(2).replace(/\\s*[✓✗]$/, ''), ok: /✓$/.test(bruto) };
+    });
+  })()`;
+
+  let acertadas = 0;
+  for (let i = 0; i < total; i++) {
+    await pagina.esperarA(async () => (await pagina.evaluar(LEER)).length > 1, { limite: 5000 });
+    const opciones = await pagina.evaluar(LEER);
+    const clave = opciones.map((o) => o.texto).join('|');
+    let elegir = opciones[0];
+    if (correctas !== undefined && mapa[clave]) {
+      const buena = opciones.find((o) => o.texto === mapa[clave]);
+      const mala = opciones.find((o) => o.texto !== mapa[clave]);
+      elegir = i < correctas ? (buena || opciones[0]) : (mala || opciones[0]);
+    }
+    await pagina.evaluar(`(function (l) {
+      const n = Array.from(document.querySelectorAll('[tabindex]')).find((e) => {
+        const r = e.getBoundingClientRect();
+        return new RegExp('^' + l + '\\\\s').test((e.innerText || '').trim()) && r.width > 0 && r.height > 0;
+      });
+      n.scrollIntoView({ block: 'center' });
+    })(${JSON.stringify(elegir.letra)})`);
+    await esperarMs(150);
+    const pos = await pagina.evaluar(`(function (l) {
+      const n = Array.from(document.querySelectorAll('[tabindex]')).find((e) => {
+        const r = e.getBoundingClientRect();
+        return new RegExp('^' + l + '\\\\s').test((e.innerText || '').trim()) && r.width > 0 && r.height > 0;
+      });
+      const r = n.getBoundingClientRect();
+      return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+    })(${JSON.stringify(elegir.letra)})`);
+    await pagina.clicEn(pos.x, pos.y);
+    await pagina.esperarA(async () => (await pagina.evaluar(LEER)).some((o) => o.ok), { limite: 5000 });
+    const despues = await pagina.evaluar(LEER);
+    const buena = despues.find((o) => o.ok);
+    if (buena) {
+      mapa[clave] = buena.texto;
+      if (buena.letra === elegir.letra) acertadas++;
+    }
+    await pagina.esperarA(async () =>
+      !!(await pagina.ubicar('Siguiente')) || !!(await pagina.ubicar('Ver resultados')), { limite: 5000 });
+    if (!await pagina.clic('Ver resultados')) await pagina.clic('Siguiente');
+  }
+  await pagina.esperarUrl('/resultados');
+  return { total, correctas: acertadas };
+}
+
+// Pone el pedido de resultados "en turno" (1º de cada 3) y el contador de uso.
+const sembrar = (pagina, uso) => pagina.evaluar(
+  `localStorage.setItem('pkapp_donation_count', '0'); localStorage.setItem('pkapp_simulacros', '${uso}')`);
+
+async function prepararJuego(pagina, base) {
+  await conUmami(pagina);
+  await pagina.ir(base + '/');
+  await pagina.esperarTexto('Tus materias');
+}
+
+async function donacionEnResultados(pagina, base, t) {
+  const mapa = {};
+  await prepararJuego(pagina, base);
+
+  // Corrida de aprendizaje: aprende las respuestas y mide uso = 0.
+  await sembrar(pagina, 0);
+  const prim = await jugarPractica(pagina, base, t, mapa);
+  t.ok('resultados: el quiz de práctica terminó', !!prim, true);
+  if (!prim) return;
+  const { total } = prim;
+  const pct = (k) => Math.round((k / total) * 100);
+  const k80 = total;
+  let k60 = 0;
+  for (let k = 0; k <= total; k++) if (pct(k) >= 60 && pct(k) <= 79) { k60 = k; break; }
+  t.nota(`  tema de ${total} preguntas; 80-100 con ${k80}, 60-79 con ${k60 || 'ninguna'}`);
+  t.ok('resultados: el tema permite un puntaje 60-79', k60 > 0, true);
+  if (!k60) return;
+  t.ok('resultados: se aprendieron las respuestas', Object.keys(mapa).length >= total, true);
+
+  async function corrida(uso, correctas) {
+    await pagina.enviar('Page.addScriptToEvaluateOnNewDocument', { source: STUB_UMAMI });
+    await pagina.ir(base + '/');
+    await pagina.esperarTexto('Tus materias');
+    await sembrar(pagina, uso);
+    const r = await jugarPractica(pagina, base, t, mapa, correctas);
+    const visible = await pagina.esperarTexto('Vía Mercado Pago', { limite: 4000 });
+    return { r, visible };
+  }
+
+  // Primer simulacro: `uso` incluye el que se acaba de terminar (0 previos → '1'),
+  // y materias, justo después, cae en el mismo rango.
+  let c = await corrida(0, k80);
+  t.ok('resultados: sale el pedido con 0 previos', c.visible, true);
+  t.ok('resultados: vista con 0 previos',
+    await pagina.esperarA(async () => (await eventos(pagina, 'donacion_vista')).length === 1, { limite: 4000 }), true);
+  let v = (await eventos(pagina, 'donacion_vista'))[0] || {};
+  t.ok('resultados: uso con 0 previos incluye el terminado', v.uso, '1');
+  // Misma sesión, sin recargar: Results → Inicio → Cambiar materia. El selector
+  // seguía montado bajo el stack; el click debe llevar el rango actual, no el
+  // del montaje.
+  t.ok('resultados → inicio (en la app)', await clicExacto(pagina, '🏠 Inicio'), true);
+  t.ok('inicio: aparece «Cambiar materia»', await pagina.esperarTexto('Cambiar materia', { limite: 4000 }), true);
+  t.ok('inicio → materias (en la app)', await clicExacto(pagina, '← Cambiar materia'), true);
+  t.ok('materias: aparece el selector', await pagina.esperarTexto('Tus materias', { limite: 4000 }), true);
+  t.ok('materias: sin recarga (los eventos siguen)', (await eventos(pagina, 'simulacro_terminado')).length, 1);
+  t.ok('materias: click en el bloque', await clicExacto(pagina, '$50'), true);
+  await esperarMs(200);
+  const clM = await eventos(pagina, 'donacion_click');
+  const ultimo = clM[clM.length - 1] || {};
+  t.ok('resultados y materias en la misma sesión: mismo rango', ultimo.uso, v.uso);
+  t.ok('materias en la misma sesión: origen del click', ultimo.origen, 'materias');
+
+  // ≥ 80 %: celebratoria. 1 previo + el terminado = 2 → '2-5'.
+  c = await corrida(1, k80);
+  t.ok('resultados ≥80: sale el pedido', c.visible, true);
+  t.ok('resultados ≥80: vista tras 1 s',
+    await pagina.esperarA(async () => (await eventos(pagina, 'donacion_vista')).length === 1, { limite: 4000 }), true);
+  v = (await eventos(pagina, 'donacion_vista'))[0] || {};
+  t.ok('resultados ≥80: origen', v.origen, 'resultados');
+  t.ok('resultados ≥80: variante', v.variante, 'celebratoria');
+  t.ok('resultados ≥80: tramo', v.tramo, '80-100');
+  t.ok('resultados ≥80: uso con 1 previo', v.uso, '2-5');
+
+  // Revisar → Volver: el pedido se remonta pero es el mismo simulacro; no repite la vista.
+  t.ok('resultados: abre la revisión', await clicExacto(pagina, '📋 Revisar todas las respuestas'), true);
+  t.ok('resultados: vuelve de la revisión', await pagina.esperarA(async () => await clicExacto(pagina, '← Volver'), { limite: 4000 }), true);
+  t.ok('resultados: el pedido sigue ahí tras Volver', await pagina.esperarTexto('Vía Mercado Pago', { limite: 4000 }), true);
+  await esperarMs(2200);
+  t.ok('resultados: Revisar → Volver no repite donacion_vista', (await eventos(pagina, 'donacion_vista')).length, 1);
+  t.ok('resultados: Revisar → Volver no cuenta otro simulacro',
+    await pagina.evaluar(`localStorage.getItem('pkapp_simulacros')`), '2');
+  t.ok('resultados: Revisar → Volver no repite simulacro_terminado', (await eventos(pagina, 'simulacro_terminado')).length, 1);
+
+  for (const monto of [50, 100, 200, 500]) {
+    await clicExacto(pagina, '$' + monto);
+    await esperarMs(150);
+  }
+  const clicks = await eventos(pagina, 'donacion_click');
+  t.ok('resultados: 4 donacion_click', clicks.length, 4);
+  t.ok('resultados: montos en orden', clicks.map((x) => x.monto).join(','), '50,100,200,500');
+  t.ok('resultados: click con las propiedades nuevas',
+    clicks.every((x) => x.origen === 'resultados' && x.variante === 'celebratoria' &&
+      x.tramo === '80-100' && x.uso === '2-5'), true);
+
+  // 60-79 %: normal. 3 previos + el terminado = 4 → '2-5'. Se cierra el pedido.
+  c = await corrida(3, k60);
+  t.ok('resultados 60-79: sale el pedido', c.visible, true);
+  t.ok('resultados 60-79: vista tras 1 s',
+    await pagina.esperarA(async () => (await eventos(pagina, 'donacion_vista')).length === 1, { limite: 4000 }), true);
+  v = (await eventos(pagina, 'donacion_vista'))[0] || {};
+  t.ok('resultados 60-79: variante', v.variante, 'normal');
+  t.ok('resultados 60-79: tramo', v.tramo, '60-79');
+  t.ok('resultados 60-79: uso con 3 previos', v.uso, '2-5');
+
+  await clicExacto(pagina, '✕');
+  t.ok('resultados: cerrar manda donacion_cerrada',
+    await pagina.esperarA(async () => (await eventos(pagina, 'donacion_cerrada')).length === 1, { limite: 3000 }), true);
+  const cerr = (await eventos(pagina, 'donacion_cerrada'))[0] || {};
+  t.ok('resultados: cerrada con origen, variante y tramo',
+    cerr.origen === 'resultados' && cerr.variante === 'normal' && cerr.tramo === '60-79', true);
+  t.ok('resultados: el pedido desaparece', (await pagina.texto(4000)).includes('Vía Mercado Pago'), false);
+
+  // Rangos de uso: 25 previos + el terminado = 26 → 21+.
+  c = await corrida(25, k80);
+  await pagina.esperarA(async () => (await eventos(pagina, 'donacion_vista')).length === 1, { limite: 4000 });
+  v = (await eventos(pagina, 'donacion_vista'))[0] || {};
+  t.ok('resultados: uso con 25 previos', v.uso, '21+');
+
+  // El contador sube una sola vez por simulacro terminado.
+  t.ok('resultados: el contador de simulacros sube a 26',
+    await pagina.evaluar(`localStorage.getItem('pkapp_simulacros')`), '26');
+  t.ok('resultados: un solo simulacro_terminado',
+    (await eventos(pagina, 'simulacro_terminado')).length, 1);
+}
+
+// Rangos de `uso` con 0, 1, 3, 6, 21 y 25 simulacros previos, vistos desde el
+// selector de materias (el bloque queda visible sin desplazar).
+async function rangosDeUso(pagina, base, t) {
+  await conUmami(pagina);
+  await pagina.ir(base + '/');
+  await pagina.esperarTexto('Tus materias');
+  const casos = [[null, '0'], ['0', '0'], ['1', '1'], ['3', '2-5'], ['6', '6-20'], ['20', '6-20'], ['21', '21+'], ['25', '21+']];
+  for (const [semilla, rango] of casos) {
+    await pagina.evaluar(semilla === null
+      ? `localStorage.removeItem('pkapp_simulacros')`
+      : `localStorage.setItem('pkapp_simulacros', '${semilla}')`);
+    await pagina.ir(base + '/');
+    await pagina.esperarTexto('Tus materias');
+    await pagina.evaluar(`(function () {
+      const n = Array.from(document.querySelectorAll('div')).find((d) =>
+        d.children.length === 0 && d.innerText === ${JSON.stringify(TEXTO_BLOQUE)});
+      if (n) n.scrollIntoView({ block: 'center' });
+    })()`);
+    await pagina.esperarA(async () => (await eventos(pagina, 'donacion_vista')).length === 1, { limite: 4000 });
+    const v = (await eventos(pagina, 'donacion_vista'))[0] || {};
+    t.ok(`uso con ${semilla === null ? 'contador ausente' : semilla + ' previos'}: ${rango}`, v.uso, rango);
+  }
+}
+
 module.exports = [
   { nombre: 'elegir materia sin rebotar al selector', correr: elegirMateria },
   { nombre: 'el selector muestra seis materias', correr: seisMaterias },
@@ -522,4 +875,7 @@ module.exports = [
   { nombre: 'copiar link: sin clipboard y execCommand copia', correr: suiteCopiar('execCommand ok', "Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true }); document.execCommand = () => true;", true) },
   { nombre: 'aviso de salida accesible: rol, nombre, foco y Escape', correr: avisoAccesible },
   { nombre: 'aviso de salida cerrado: la app sigue funcionando', correr: avisoCerradoYAppViva },
+  { nombre: 'donación: vista, click y uso en el selector de materias', correr: donacionVistaEnMaterias },
+  { nombre: 'donación: rangos de uso', correr: rangosDeUso },
+  { nombre: 'donación: vista, click y cierre en resultados', correr: donacionEnResultados },
 ];

@@ -1,18 +1,26 @@
 // Bloque de donación reutilizable (Mercado Pago).
 // Versión persistente, sin descartar — usado en Home y selección de materia.
-import React from 'react';
+import React, { useRef } from 'react';
 import { View, Text, TouchableOpacity, Linking } from 'react-native';
 import { track } from '../utils/track';
 import { MP_LINKS, DONATION_AMOUNTS } from '../utils/mercadopago';
+import { usoActual, useDonacionVista } from '../utils/donacion';
 
 export default function DonationBox({ style, origen }) {
+  const ref = useRef(null);
+  // `uso` se lee al enviar cada evento: el selector sigue montado bajo el stack
+  // y, al volver, el valor del montaje ya está viejo.
+  const datos = () => ({ origen, variante: 'normal', uso: usoActual() });
+  useDonacionVista(ref, datos);
+
   function handleDonate(amt) {
-    track('donacion_click', { origen, monto: amt });
+    track('donacion_click', { ...datos(), monto: amt });
     requestAnimationFrame(() => Linking.openURL(MP_LINKS[amt]).catch(() => {}));
   }
 
   return (
     <View
+      ref={ref}
       className="rounded-md border border-warning-border bg-warning-surface p-4 dark:border-warningD-border dark:bg-warningD-surface"
       style={style}
     >
