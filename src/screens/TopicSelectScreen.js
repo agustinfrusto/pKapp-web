@@ -10,8 +10,8 @@ import { plancha } from '../theme/colores';
 import { avisar } from '../utils/confirm';
 import Glifo from '../components/Glifo';
 import {
-  BotonMarco, BotonRelleno, Columna, CuadroPaso, FilaLista, Lamina, RotuloSeccion, Segmento,
-  TarjetaNavegable,
+  BotonMarco, BotonRelleno, Columna, CuadroPaso, FilaLista, FlujoColumnas, Hoja, Lamina,
+  RotuloSeccion, Segmento, TarjetaNavegable,
 } from '../components/plancha';
 
 const SOURCE_FILTERS = {
@@ -172,9 +172,11 @@ export default function TopicSelectScreen({ route, navigation }) {
   if (mode === 'exam') {
     return (
       <ScrollView className={`flex-1 ${FONDO}`} contentContainerClassName="pb-8">
-        <Columna>
+        <Hoja ancho="hoja-amplia">
           {filtros}
 
+          {/* ESC-P3: desde el corte `escritorio`, tarjeta centrada con tope `lectura`. */}
+          <View className="w-full self-center escritorio:max-w-lectura">
           <Lamina testID="lamina-examen">
             <View className="items-center p-4">
               <Text className={`font-plex-sans-semibold text-titulo ${TINTA}`}>Modo Examen</Text>
@@ -196,7 +198,8 @@ export default function TopicSelectScreen({ route, navigation }) {
               </View>
             </View>
           </Lamina>
-        </Columna>
+          </View>
+        </Hoja>
       </ScrollView>
     );
   }
@@ -210,7 +213,7 @@ export default function TopicSelectScreen({ route, navigation }) {
   if (mode === 'failed' && failedIds.size === 0) {
     return (
       <ScrollView className={`flex-1 ${FONDO}`} contentContainerClassName="pb-8">
-        <Columna>
+        <Columna ancho="lectura">
           <View className="mt-6">
             <Lamina testID="lamina-vacia">
               <View className="items-center p-3.5">
@@ -245,7 +248,7 @@ export default function TopicSelectScreen({ route, navigation }) {
 
   return (
     <ScrollView className={`flex-1 ${FONDO}`} contentContainerClassName="pb-8">
-      <Columna>
+      <Hoja ancho="hoja-amplia">
         {filtros}
 
         <TarjetaNavegable variante="acento" onPress={() => startQuiz()}>
@@ -275,6 +278,7 @@ export default function TopicSelectScreen({ route, navigation }) {
           </Text>
         ) : (
           <View className="border-t border-linea dark:border-lineaD">
+            <FlujoColumnas>
             {filas.map(([key, name, count], i) => (
               <FilaLista key={key} filete onPress={() => startQuiz(key)}>
                 {({ texto, glifo, invertido }) => (
@@ -293,9 +297,10 @@ export default function TopicSelectScreen({ route, navigation }) {
                 )}
               </FilaLista>
             ))}
+            </FlujoColumnas>
           </View>
         )}
-      </Columna>
+      </Hoja>
     </ScrollView>
   );
 }
@@ -312,8 +317,8 @@ function Filters({ sourceFilter, setSourceFilter, parcialFilter, setParcialFilte
   }
 
   return (
-    <View className="mb-3 mt-4 border border-linea bg-superficie p-3.5 dark:border-lineaD dark:bg-superficieD">
-      <GrupoDeFiltro nombre="Fuente">
+    <View className="mb-3 mt-4 border border-linea bg-superficie p-3.5 dark:border-lineaD dark:bg-superficieD escritorio:flex-row escritorio:items-start">
+      <GrupoDeFiltro nombre="Fuente" className="escritorio:min-w-0 escritorio:flex-1">
         <Segmento
           accessibilityLabel="Fuente"
           opciones={Object.entries(SOURCE_FILTERS).map(([valor, etiqueta]) => ({ valor, etiqueta }))}
@@ -324,7 +329,7 @@ function Filters({ sourceFilter, setSourceFilter, parcialFilter, setParcialFilte
       <Divisor />
       {parcialFilters && (
         <>
-          <GrupoDeFiltro nombre="Parcial">
+          <GrupoDeFiltro nombre="Parcial" className="escritorio:min-w-0 escritorio:flex-1">
             <Segmento
               accessibilityLabel="Parcial"
               opciones={Object.entries(parcialFilters).map(([valor, etiqueta]) => ({ valor, etiqueta }))}
@@ -335,7 +340,7 @@ function Filters({ sourceFilter, setSourceFilter, parcialFilter, setParcialFilte
           <Divisor />
         </>
       )}
-      <GrupoDeFiltro nombre="Temporizador">
+      <GrupoDeFiltro nombre="Temporizador" className="escritorio:shrink-0">
         <View className="flex-row items-center gap-4">
           <CuadroPaso
             glifo="glifo-menos"
@@ -358,9 +363,9 @@ function Filters({ sourceFilter, setSourceFilter, parcialFilter, setParcialFilte
   );
 }
 
-function GrupoDeFiltro({ nombre, children }) {
+function GrupoDeFiltro({ nombre, children, className }) {
   return (
-    <View>
+    <View className={className}>
       <View className="mb-2">
         <RotuloSeccion color="tintaSec">{nombre}</RotuloSeccion>
       </View>
@@ -369,11 +374,22 @@ function GrupoDeFiltro({ nombre, children }) {
   );
 }
 
+// Horizontal entre grupos apilados; desde el corte `escritorio` pasa a filete vertical con
+// `paso 3.5` a cada lado (ESC-P3). Decorativo en ambos casos.
 function Divisor() {
   return (
-    <View className="my-3.5">
-      <Lamina.Divisor />
-    </View>
+    <>
+      <View className="my-3.5 escritorio:hidden">
+        <Lamina.Divisor />
+      </View>
+      <View
+        testID="panel-divisor-vertical"
+        aria-hidden
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        className="mx-3.5 hidden w-px self-stretch bg-filete dark:bg-fileteD escritorio:flex"
+      />
+    </>
   );
 }
 

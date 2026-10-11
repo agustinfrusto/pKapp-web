@@ -2,6 +2,9 @@
 
 const { DESBORDES, EN_MARCO, LADO_TACTIL, MEDIR_PANTALLA, PASO, abrirMarco, clicEnMarco, esperarEnMarco, irAHomeEnMarco, medirAmbasPantallas } = require('./comunes');
 
+const fs = require('fs');
+const path = require('path');
+
 const SEPARACION_MINIMA = 2 * PASO;   // paso 2 entre controles adyacentes
 
 const LEER_OPCIONES = EN_MARCO(`
@@ -313,6 +316,15 @@ const MEDIR_TEMAS = EN_MARCO(`
     const n = porNombre(nombre);
     return n ? { caja: caja(n), deshabilitado: n.getAttribute('aria-disabled') === 'true' } : null;
   };
+  // Celda del grupo Temporizador: el ancestro más cercano de los cuadrados que también tiene el rótulo.
+  const celdaTemporizador = () => {
+    const menos = porNombre('reducir tiempo'), mas = porNombre('aumentar tiempo');
+    if (!menos || !mas) return null;
+    for (let a = menos.parentElement; a; a = a.parentElement) {
+      if (a.contains(mas) && a.innerText.toLowerCase().includes('temporizador')) return a;
+    }
+    return null;
+  };
   const lineas = (n) => n.innerText.split('\\n').map((x) => x.trim()).filter(Boolean);
   const botones = visibles('[tabindex]');
   const mezcla = botones.find((n) => n.innerText.toLowerCase().includes('todos los temas mezclados'));
@@ -343,9 +355,18 @@ const MEDIR_TEMAS = EN_MARCO(`
     valorCaja: caja(valor),
     lamina: caja(visibles('[data-testid="lamina-vacia"]')[0]),
     barra: caja(visibles('[data-testid="barra-interna"]')[0]),
+    barraVolver: caja(visibles('[data-testid="barra-volver"]')[0]),
+    barraTitulo: caja(visibles('[data-testid="barra-titulo"]')[0]),
+    // Desplazamiento de la página y de todo contenedor con scroll: suma a arriba para tener coordenadas de página.
+    scroll: w.scrollY + Array.from(d.querySelectorAll('*')).reduce((s, n) => s + n.scrollTop, 0),
     panel: caja(panel),
     grupoFuente: caja(grupo('fuente')),
     grupoParcial: caja(grupo('parcial')),
+    celdaFuente: caja(grupo('fuente') && grupo('fuente').parentElement),
+    celdaParcial: caja(grupo('parcial') && grupo('parcial').parentElement),
+    celdaTemporizador: caja(celdaTemporizador()),
+    divisoresVerticales: visibles('[data-testid="panel-divisor-vertical"]').map((n) => caja(n)),
+    laminaExamen: caja(visibles('[data-testid="lamina-examen"]')[0]),
     mezcla: mezcla ? { lineas: lineas(mezcla), caja: caja(mezcla), svg: mezcla.querySelectorAll('svg').length,
       borde: w.getComputedStyle(mezcla.firstElementChild || mezcla).borderTopWidth } : null,
     filas,
@@ -366,6 +387,9 @@ async function abrirTemas(pagina, base, { ancho = 390, alto = 900, modo = 'pract
   await pagina.ir(base + '/favicon.png');
   await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
   await pagina.evaluar(LIMPIAR_DATOS);
+  // La ventana de la página mide 900: un marco más ancho queda fuera de ella y sus clics no llegan.
+  await pagina.enviar('Emulation.setDeviceMetricsOverride',
+    { width: Math.max(ancho, 900), height: 1400, deviceScaleFactor: 1, mobile: false });
   if (!await abrirMarco(pagina, base, ancho, alto)) return false;
   if (oscuro) {
     await clicEnMarco(pagina, 'oscuro');
@@ -882,11 +906,366 @@ async function sinDesbordeNiCortes(pagina, base, t) {
         t.ok(`${modo} ${ancho} px ${tema}: sin scroll horizontal`, m.desborda, false);
         const chicos = m.interactivos.filter((c) => c.ancho > 0 && (c.alto < LADO_TACTIL || c.ancho < LADO_TACTIL));
         t.ok(`${modo} ${ancho} px ${tema}: ningún control baja de 44 × 44`, chicos.length, 0);
-        if (ancho >= 768) {
+        if (ancho >= 768 && ancho < 1024) {
           const ref = m.panel || m.practicar || m.comenzar || m.mezcla && m.mezcla.caja;
           t.ok(`${modo} ${ancho} px ${tema}: una sola columna de a lo sumo ${COLUMNA} px`,
             !!ref && ref.ancho <= COLUMNA + 1, true);
         }
+      }
+    }
+  }
+}
+
+
+// ---------------------------------------------------------------------------
+// Escritorio (rediseño Plancha, tarea 3.11d; TopicSelect.md «Escritorio» `ESC-P3`,
+// Vacios.md `ESC-P12`, comun.md §7.2). Cortes: `escritorio` 1024 y `amplio` 1440.
+// Bajo 1024 rige a.5 sin cambio; desde él la hoja (952; 1440 desde `amplio`), el
+// panel con los grupos en una fila y los temas en 2 columnas (3 desde `amplio`).
+
+// Capturas de evidencia (solo con PKAPP_CAPTURAS): la ventana de la ficha para cada ancho.
+const ALTO_DE_CAPTURA = { 1024: 768, 1366: 768, 1920: 1080 };
+async function capturar(pagina, ancho, nombre) {
+  if (!process.env.PKAPP_CAPTURAS || !ALTO_DE_CAPTURA[ancho]) return;
+  const dir = path.resolve(__dirname, '..', '..', '..', 'openspec', 'changes', 'rediseno-plancha',
+    'evidencia', 'despues', '3.11d');
+  fs.mkdirSync(dir, { recursive: true });
+  await pagina.enviar('Emulation.setDeviceMetricsOverride',
+    { width: ancho, height: ALTO_DE_CAPTURA[ancho], deviceScaleFactor: 1, mobile: false });
+  await new Promise((r) => setTimeout(r, 400));
+  const r = await pagina.enviar('Page.captureScreenshot', { format: 'png' });
+  fs.writeFileSync(path.join(dir, nombre), Buffer.from(r.data, 'base64'));
+}
+
+const MARGEN_HOJA = 8 * PASO;              // margen lateral paso 8 desde el corte
+const TOPE_HOJA = 952;
+const TOPE_HOJA_AMPLIA = 1440;
+const TOPE_LECTURA = 600;
+const RELLENO_PANEL = 3.5 * PASO;
+const HUECO_COLUMNAS = 8 * PASO;           // lista de filas en flujo por columnas: paso 8 (TopicSelect.md)
+
+const topeDeHoja = (vista) => Math.min(vista >= 1440 ? TOPE_HOJA_AMPLIA : TOPE_HOJA, vista - 2 * MARGEN_HOJA);
+const casi = (a, b, tol = 1) => Math.abs(a - b) <= tol;
+
+// Posición y texto de lo que tiene el foco, dentro del marco.
+const FOCO_CON_CAJA = EN_MARCO(`
+  const a = d.activeElement;
+  if (!a || a === d.body) return null;
+  const r = a.getBoundingClientRect();
+  const desplazado = w.scrollY + Array.from(d.querySelectorAll('*')).reduce((s, n) => s + n.scrollTop, 0);
+  return { texto: a.innerText ? a.innerText.trim() : '', izq: r.left, arriba: r.top + desplazado };
+`);
+
+// Ancla y recorte de foco de las regiones de la pantalla (comun.md §7.2). Recorre, desde
+// cada control enfocable, todos sus ancestros: ninguno puede ser `sticky`/`fixed` ni tener
+// `overflow` que deje el contorno de foco (borde 2 px + separación paso 0.5, unos 4 px por
+// fuera) fuera de su caja. Un contenedor con scroll en un eje cuenta con su extensión
+// desplazable, no con su caja visible.
+const ESTRUCTURA_DE_REGIONES = EN_MARCO(`
+  const FUERA = 4;
+  const raiz = d.documentElement;
+  const controles = visibles('[tabindex]');
+  const fijos = new Set();
+  const recortes = [];
+  const describir = (n) => (n.getAttribute('data-testid') || n.getAttribute('aria-label') || n.tagName.toLowerCase())
+    + (typeof n.className === 'string' ? '.' + n.className.split(' ').slice(0, 3).join('.') : '');
+  for (const c of controles) {
+    const r = c.getBoundingClientRect();
+    for (let a = c; a && a !== raiz; a = a.parentElement) {
+      const e = w.getComputedStyle(a);
+      if (e.position === 'sticky' || e.position === 'fixed') fijos.add(describir(a));
+      if (a === c) continue;
+      const ejes = [['x', e.overflowX], ['y', e.overflowY]];
+      const rc = a.getBoundingClientRect();
+      for (const [eje, valor] of ejes) {
+        if (valor === 'visible') continue;
+        const desplazable = (valor === 'auto' || valor === 'scroll')
+          && (eje === 'x' ? a.scrollWidth > a.clientWidth : a.scrollHeight > a.clientHeight);
+        let ini = eje === 'x' ? rc.left : rc.top;
+        let fin = eje === 'x' ? rc.right : rc.bottom;
+        if (desplazable) {
+          const largo = eje === 'x' ? a.scrollWidth : a.scrollHeight;
+          const corrido = eje === 'x' ? a.scrollLeft : a.scrollTop;
+          ini -= corrido;
+          fin = ini + largo;
+        }
+        const c0 = eje === 'x' ? r.left : r.top;
+        const c1 = eje === 'x' ? r.right : r.bottom;
+        if (c0 - FUERA < ini - 0.5 || c1 + FUERA > fin + 0.5) {
+          recortes.push({ control: (c.innerText || '').trim().split('\\n')[0].slice(0, 20), ancestro: describir(a), eje, overflow: valor });
+        }
+      }
+      // El contenedor con scroll de la pantalla es el último que cuenta: lo de arriba (body) es la ventana.
+      if (/auto|scroll/.test(e.overflowY)) break;
+    }
+  }
+  return { controles: controles.length, fijos: Array.from(fijos), recortes };
+`);
+
+// Con la página desplazada, cuánto se movió el panel respecto de lo que se desplazó el contenedor.
+const DESPLAZAR_Y_MEDIR_PANEL = EN_MARCO(`
+  const g = visibles('[role="radiogroup"]').find((x) => (x.getAttribute('aria-label') || '').toLowerCase() === 'fuente');
+  const panel = g.parentElement.parentElement;
+  const mezcla = visibles('[tabindex]').find((n) => n.innerText.toLowerCase().includes('todos los temas mezclados'));
+  const sc = Array.from(d.querySelectorAll('*')).find((n) =>
+    n.scrollHeight > n.clientHeight + 1 && /auto|scroll/.test(w.getComputedStyle(n).overflowY));
+  if (!sc) return { desplazable: false };
+  const antes = { panel: panel.getBoundingClientRect().top, mezcla: mezcla.getBoundingClientRect().top };
+  sc.scrollTop = 250;
+  const aplicado = sc.scrollTop;
+  const despues = { panel: panel.getBoundingClientRect().top, mezcla: mezcla.getBoundingClientRect().top };
+  sc.scrollTop = 0;
+  return { desplazable: true, aplicado, panel: antes.panel - despues.panel, mezcla: antes.mezcla - despues.mezcla };
+`);
+
+// Agrupa las filas por columna (izquierda distinta) y comprueba el flujo por columnas.
+function columnasDe(filas) {
+  const lefts = [...new Set(filas.map((f) => Math.round(f.caja.izq)))].sort((a, b) => a - b);
+  return lefts.map((l) => filas.filter((f) => Math.round(f.caja.izq) === l));
+}
+
+async function escritorioPractice(pagina, base, t) {
+  for (const oscuro of [false, true]) {
+    const tema = oscuro ? 'oscuro' : 'claro';
+    for (const ancho of [1023, 1024, 1366, 1920]) {
+      const pre = `practice ${ancho} px ${tema}`;
+      if (!await abrirTemas(pagina, base, { ancho, alto: 900, oscuro })) {
+        t.ok(`${pre}: abrió Elegir tema`, false, true);
+        continue;
+      }
+      const m = await medirTemas(pagina);
+      await capturar(pagina, ancho, `temas-practice-${ancho}-${tema}.png`);
+      t.ok(`${pre}: sin scroll horizontal`, m.desborda, false);
+      const chicos = m.interactivos.filter((c) => c.ancho > 0 && (c.alto < LADO_TACTIL || c.ancho < LADO_TACTIL));
+      t.ok(`${pre}: ningún control baja de 44 × 44`, chicos.length, 0);
+      const cols = columnasDe(m.filas);
+
+      if (ancho < 1024) {
+        t.ok(`${pre}: bajo el corte, panel y mezcla de a lo sumo ${COLUMNA} px (a.5)`,
+          !!m.panel && !!m.mezcla && m.panel.ancho <= COLUMNA + 1 && m.mezcla.caja.ancho <= COLUMNA + 1, true);
+        t.ok(`${pre}: bajo el corte, margen lateral paso 5 sin cambio`,
+          !!m.panel && m.panel.izq >= MARGEN_LATERAL_TEMAS - 1, true);
+        t.ok(`${pre}: bajo el corte, los grupos van apilados`,
+          !!m.grupoParcial && m.grupoParcial.arriba > m.grupoFuente.abajo, true);
+        t.ok(`${pre}: bajo el corte, los temas van en una columna`, cols.length, 1);
+        t.ok(`${pre}: bajo el corte, no hay divisor vertical`, m.divisoresVerticales.length, 0);
+        continue;
+      }
+
+      const tope = topeDeHoja(ancho);
+      const izqHoja = (ancho - tope) / 2;
+      t.ok(`${pre}: el panel mide la hoja (${tope} px) y está centrado`,
+        !!m.panel && casi(m.panel.ancho, tope) && casi(m.panel.izq, izqHoja), true);
+      t.ok(`${pre}: la mezcla llena el ancho de la hoja`,
+        !!m.mezcla && casi(m.mezcla.caja.ancho, tope) && casi(m.mezcla.caja.izq, izqHoja), true);
+      t.ok(`${pre}: la lista de temas llena el ancho de la hoja`,
+        m.filas.length > 0 && Math.min(...m.filas.map((f) => f.caja.izq)) >= izqHoja - 1
+          && Math.max(...m.filas.map((f) => f.caja.der)) <= izqHoja + tope + 1
+          && casi(Math.max(...m.filas.map((f) => f.caja.der)), izqHoja + tope), true);
+
+      // Barra interna dentro de la hoja (3.11a2): el volver arranca en el borde de la hoja y el título sigue dentro.
+      t.ok(`${pre}: la barra interna va dentro de la hoja (volver en el borde izquierdo)`,
+        !!m.barraVolver && casi(m.barraVolver.izq, izqHoja), true);
+      t.ok(`${pre}: el volver de la barra alinea con el borde del panel`,
+        !!m.barraVolver && !!m.panel && casi(m.barraVolver.izq, m.panel.izq), true);
+      t.ok(`${pre}: el título de la barra termina dentro de la hoja`,
+        !!m.barraTitulo && m.barraTitulo.der <= izqHoja + tope + 1, true);
+
+      // Orden vertical de las regiones, en coordenadas de página: panel, mezcla, lista.
+      const pag = (c) => ({ arriba: c.arriba + m.scroll, abajo: c.abajo + m.scroll });
+      const panelP = pag(m.panel), mezclaP = pag(m.mezcla.caja);
+      const primeraP = Math.min(...m.filas.map((f) => pag(f.caja).arriba));
+      t.ok(`${pre}: el panel queda arriba de la mezcla`, panelP.abajo <= mezclaP.arriba + 1, true);
+      t.ok(`${pre}: la mezcla queda arriba del primer tema`, mezclaP.abajo <= primeraP + 1, true);
+
+      // Panel: tres grupos en una fila, separados por un filete vertical.
+      t.ok(`${pre}: Fuente y Parcial van en la misma fila`,
+        !!m.celdaFuente && !!m.celdaParcial && casi(m.celdaFuente.arriba, m.celdaParcial.arriba), true);
+      t.ok(`${pre}: Fuente va a la izquierda de Parcial y Parcial de Temporizador`,
+        !!m.celdaParcial && m.celdaFuente.der <= m.celdaParcial.izq
+          && !!m.menos && m.celdaParcial.der <= m.menos.caja.izq, true);
+      t.ok(`${pre}: el Temporizador queda en la misma fila que los otros grupos`,
+        !!m.menos && m.menos.caja.arriba >= m.grupoFuente.arriba - 1 && m.menos.caja.arriba <= m.grupoFuente.abajo, true);
+      t.ok(`${pre}: hay dos filetes verticales entre los tres grupos`, m.divisoresVerticales.length, 2);
+      t.ok(`${pre}: paso 3.5 a cada lado del filete vertical`,
+        !!m.celdaParcial && casi(m.celdaParcial.izq - m.celdaFuente.der, 2 * RELLENO_PANEL + 1), true);
+      t.ok(`${pre}: Fuente y Parcial reparten el ancho sobrante por igual`,
+        !!m.celdaParcial && casi(m.celdaFuente.ancho, m.celdaParcial.ancho), true);
+      t.ok(`${pre}: la celda del Temporizador toma el ancho de sus controles (no más)`,
+        !!m.menos && !!m.mas && !!m.celdaTemporizador
+          && casi(m.celdaTemporizador.ancho, m.mas.caja.der - m.menos.caja.izq), true);
+      t.ok(`${pre}: el panel respeta el relleno paso 3.5 a ambos lados`,
+        !!m.panel && !!m.celdaTemporizador
+          && casi(m.celdaFuente.izq - m.panel.izq, RELLENO_PANEL)
+          && casi(m.celdaTemporizador.der, m.panel.der - RELLENO_PANEL), true);
+      t.ok(`${pre}: desde amplio los filtros de Fuente entran en una línea`,
+        ancho < 1440 || (!!m.fuente && m.fuente.every((o) => casi(o.caja.arriba, m.fuente[0].caja.arriba))), true);
+
+      // Temas: 2 columnas (3 desde `amplio`) con flujo por columnas.
+      const columnas = ancho >= 1440 ? 3 : 2;
+      t.ok(`${pre}: los temas van en ${columnas} columnas`, cols.length, columnas);
+      const n = m.filas.length;
+      const porColumna = Math.ceil(n / columnas);
+      t.ok(`${pre}: la primera columna lleva ${porColumna} de ${n} temas, de 01 en adelante`,
+        cols[0].length === porColumna && cols[0].map((f) => f.lineas[0]).join('|')
+          === Array.from({ length: porColumna }, (_, i) => String(i + 1).padStart(2, '0')).join('|'), true);
+      const orden = cols.flat().map((f) => f.lineas[0]).join('|');
+      t.ok(`${pre}: el flujo baja por una columna y sigue por la siguiente (01 a ${String(n).padStart(2, '0')})`,
+        orden, m.filas.map((_, i) => String(i + 1).padStart(2, '0')).join('|'));
+      t.ok(`${pre}: las columnas arrancan a la misma altura y miden lo mismo`,
+        cols.every((c) => casi(c[0].caja.arriba, cols[0][0].caja.arriba)
+          && c.every((f) => casi(f.caja.ancho, cols[0][0].caja.ancho))), true);
+      if (cols.length > 1) {
+        t.ok(`${pre}: ${HUECO_COLUMNAS} px entre columnas`,
+          casi(cols[1][0].caja.izq - cols[0][0].caja.der, HUECO_COLUMNAS), true);
+      }
+      t.ok(`${pre}: cada fila mide 44 de alto como mínimo y lleva filete de 1 px`,
+        m.filas.every((f) => f.caja.alto >= LADO_TACTIL && f.filete === '1px'), true);
+
+      // Orden de foco = orden visual = orden de DOM.
+      await pagina.evaluar(SOLTAR_FOCO);
+      const visitados = [];
+      for (let i = 0; i < 60 && visitados.filter((v) => /^\d{2}\n/.test(v.texto) || /^\d{2}$/.test(v.texto.split('\n')[0])).length < n; i++) {
+        await pagina.tecla('Tab');
+        const f = await pagina.evaluar(FOCO_CON_CAJA);
+        if (f) visitados.push(f);
+      }
+      const temas = visitados.filter((v) => /^\d{2}$/.test(v.texto.split('\n')[0].trim()));
+      t.ok(`${pre}: Tab recorre los temas 01 a ${String(n).padStart(2, '0')} en orden`,
+        temas.map((v) => v.texto.split('\n')[0].trim()).join('|'), m.filas.map((_, i) => String(i + 1).padStart(2, '0')).join('|'));
+      let monotono = true;
+      for (let i = 1; i < temas.length; i++) {
+        const a = temas[i - 1], b = temas[i];
+        const mismaColumna = casi(a.izq, b.izq);
+        if (mismaColumna ? b.arriba <= a.arriba : b.izq <= a.izq) monotono = false;
+      }
+      t.ok(`${pre}: el foco no salta hacia atrás: baja por la columna y pasa a la siguiente`, monotono, true);
+      const posicionDeMezcla = visitados.findIndex((v) => v.texto.toLowerCase().includes('todos los temas mezclados'));
+      const posicionDeFuente = visitados.findIndex((v) => v.texto.toLowerCase() === 'todas');
+      t.ok(`${pre}: el foco pasa por los filtros, la mezcla y los temas en ese orden`,
+        posicionDeFuente >= 0 && posicionDeMezcla > posicionDeFuente
+          && visitados.indexOf(temas[0]) > posicionDeMezcla, true);
+      // El orden de Tab contra el orden visual medido (coordenadas de página). Las paradas del
+      // panel se ordenan por celda (izquierda a derecha) y, dentro de la celda, de arriba a abajo
+      // y de izquierda a derecha; los temas pueden pasar a la columna siguiente.
+      const celdas = [m.celdaFuente, m.celdaParcial, m.celdaTemporizador].filter(Boolean)
+        .sort((a, b) => a.izq - b.izq);
+      const celdaDe = (v) => celdas.findIndex((c) => v.izq >= c.izq - 1 && v.izq <= c.der + 1);
+      const nombreDe = (v) => v.texto.split('\n')[0] || '(control)';
+      const retrocesos = [];
+      for (let i = 1; i < visitados.length; i++) {
+        const a = visitados[i - 1], b = visitados[i];
+        if (i - 1 < posicionDeMezcla && i < posicionDeMezcla) {
+          const ca = celdaDe(a), cb = celdaDe(b);
+          const masAbajo = b.arriba > a.arriba + 1;
+          const mismaFila = Math.abs(b.arriba - a.arriba) <= 24 && b.izq > a.izq;
+          if (ca < 0 || cb < 0 || cb < ca || (cb === ca && !(masAbajo || mismaFila))) retrocesos.push(`${nombreDe(a)} → ${nombreDe(b)}`);
+        } else if (b.arriba <= a.arriba + 1 && !(temas.includes(a) && temas.includes(b) && b.izq > a.izq)) {
+          retrocesos.push(`${nombreDe(a)} → ${nombreDe(b)}`);
+        }
+      }
+      t.ok(`${pre}: el orden de Tab coincide con el visual (sin retrocesos)`, retrocesos.join(' | '), '');
+      const paradasDelPanel = visitados.slice(0, Math.max(posicionDeMezcla, 0));
+      t.ok(`${pre}: las paradas del panel quedan arriba de la mezcla y de los temas`,
+        paradasDelPanel.length > 0 && posicionDeMezcla > 0
+          && paradasDelPanel.every((v) => v.arriba < visitados[posicionDeMezcla].arriba)
+          && temas.every((v) => v.arriba > visitados[posicionDeMezcla].arriba), true);
+
+      // Sin anclas ni recortes de foco, con la página en reposo y desplazada.
+      const est = await pagina.evaluar(ESTRUCTURA_DE_REGIONES);
+      t.ok(`${pre}: ninguna región queda fija (sin sticky ni fixed)`, est.fijos.join(', '), '');
+      t.ok(`${pre}: ningún ancestro de un control recorta su contorno de foco`,
+        est.recortes.map((r) => `${r.control} / ${r.ancestro} (${r.eje} ${r.overflow})`).slice(0, 3).join(' | '), '');
+    }
+  }
+}
+
+async function escritorioSinParcialesYDesplazado(pagina, base, t) {
+  for (const oscuro of [false, true]) {
+    const tema = oscuro ? 'oscuro' : 'claro';
+    for (const ancho of [1024, 1366, 1920]) {
+      const pre = `practice ${ancho} px ${tema}`;
+      // V11: materia sin parciales; queda un solo filete y Fuente toma todo el sobrante.
+      if (!await abrirTemas(pagina, base, { ancho, alto: 900, oscuro, materia: MATERIA_SIN_PARCIALES })) {
+        t.ok(`${pre}: sin parciales abrió Elegir tema`, false, true);
+      } else {
+        const m = await medirTemas(pagina);
+        t.ok(`${pre}: sin parciales, sin scroll horizontal`, m.desborda, false);
+        t.ok(`${pre}: sin parciales, no hay grupo Parcial y queda un solo filete vertical`,
+          !m.grupoParcial && m.divisoresVerticales.length === 1, true);
+        t.ok(`${pre}: sin parciales, Fuente toma el sobrante y el Temporizador queda al borde del panel`,
+          !!m.celdaFuente && !!m.celdaTemporizador
+            && casi(m.celdaFuente.izq - m.panel.izq, RELLENO_PANEL)
+            && casi(m.celdaTemporizador.der, m.panel.der - RELLENO_PANEL)
+            && casi(m.celdaTemporizador.izq - m.celdaFuente.der, 2 * RELLENO_PANEL + 1), true);
+      }
+
+      // Página desplazada: ninguna región queda fija. Ventana baja para que haya scroll.
+      if (!await abrirTemas(pagina, base, { ancho, alto: 500, oscuro })) {
+        t.ok(`${pre}: ventana baja abrió Elegir tema`, false, true);
+        continue;
+      }
+      const d = await pagina.evaluar(DESPLAZAR_Y_MEDIR_PANEL);
+      t.ok(`${pre}: la pantalla tiene scroll con la ventana baja (precondición)`, d.desplazable && d.aplicado > 0, true);
+      t.ok(`${pre}: con la página desplazada el panel se mueve con ella (no queda fijo)`,
+        !!d.desplazable && casi(d.panel, d.aplicado), true);
+      t.ok(`${pre}: con la página desplazada la mezcla se mueve con ella (no queda fija)`,
+        !!d.desplazable && casi(d.mezcla, d.aplicado), true);
+    }
+  }
+}
+
+async function escritorioExamYVacios(pagina, base, t) {
+  for (const oscuro of [false, true]) {
+    const tema = oscuro ? 'oscuro' : 'claro';
+    for (const ancho of [1023, 1024, 1366, 1920]) {
+      const pre = `${ancho} px ${tema}`;
+      // Modo examen: panel a ancho de hoja; tarjeta centrada con tope `lectura`.
+      if (!await abrirTemas(pagina, base, { ancho, alto: 900, modo: 'exam', oscuro })) {
+        t.ok(`exam ${pre}: abrió Elegir tema`, false, true);
+      } else {
+        const m = await medirTemas(pagina);
+        await capturar(pagina, ancho, `temas-exam-${ancho}-${tema}.png`);
+        t.ok(`exam ${pre}: sin scroll horizontal`, m.desborda, false);
+        const chicos = m.interactivos.filter((c) => c.ancho > 0 && (c.alto < LADO_TACTIL || c.ancho < LADO_TACTIL));
+        t.ok(`exam ${pre}: ningún control baja de 44 × 44`, chicos.length, 0);
+        if (ancho < 1024) {
+          t.ok(`exam ${pre}: bajo el corte, panel y tarjeta de a lo sumo ${COLUMNA} px`,
+            !!m.panel && !!m.laminaExamen && m.panel.ancho <= COLUMNA + 1 && m.laminaExamen.ancho <= COLUMNA + 1, true);
+        } else {
+          const tope = topeDeHoja(ancho);
+          t.ok(`exam ${pre}: el panel mide la hoja (${tope} px)`, !!m.panel && casi(m.panel.ancho, tope), true);
+          t.ok(`exam ${pre}: los tres grupos van en una fila`,
+            !!m.celdaParcial && casi(m.celdaFuente.arriba, m.celdaParcial.arriba) && m.divisoresVerticales.length === 2, true);
+          t.ok(`exam ${pre}: la tarjeta «Modo Examen» mide ${TOPE_LECTURA} px (tope lectura)`,
+            !!m.laminaExamen && casi(m.laminaExamen.ancho, TOPE_LECTURA), true);
+          t.ok(`exam ${pre}: la tarjeta queda centrada en la ventana`,
+            !!m.laminaExamen && casi(m.laminaExamen.izq, (m.vista - m.laminaExamen.ancho) / 2), true);
+          t.ok(`exam ${pre}: «Comenzar examen» queda dentro de la tarjeta`,
+            !!m.comenzar && !!m.laminaExamen && m.comenzar.izq >= m.laminaExamen.izq && m.comenzar.der <= m.laminaExamen.der, true);
+        }
+      }
+
+      // failed sin fallos (V2): lámina `lectura`, centrada y anclada arriba, margen paso 6.
+      if (!await abrirTemas(pagina, base, { ancho, alto: 900, modo: 'failed', oscuro })) {
+        t.ok(`failed ${pre}: abrió Elegir tema`, false, true);
+        continue;
+      }
+      const v = await medirTemas(pagina);
+      await capturar(pagina, ancho, `temas-failed-vacio-${ancho}-${tema}.png`);
+      t.ok(`failed ${pre}: sin scroll horizontal`, v.desborda, false);
+      t.ok(`failed ${pre}: la lámina vacía tiene su botón «Practicar» de 44 × 44 como mínimo`,
+        !!v.practicar && v.practicar.alto >= LADO_TACTIL && v.practicar.ancho >= LADO_TACTIL, true);
+      if (ancho < 1024) {
+        t.ok(`failed ${pre}: bajo el corte, lámina de a lo sumo ${COLUMNA} px`,
+          !!v.lamina && v.lamina.ancho <= COLUMNA + 1, true);
+      } else {
+        t.ok(`failed ${pre}: la lámina vacía mide ${TOPE_LECTURA} px (tope lectura)`,
+          !!v.lamina && casi(v.lamina.ancho, TOPE_LECTURA), true);
+        t.ok(`failed ${pre}: la lámina vacía queda centrada en horizontal`,
+          !!v.lamina && casi(v.lamina.izq, (v.vista - v.lamina.ancho) / 2), true);
+        t.ok(`failed ${pre}: anclada arriba, a paso 6 de la barra`,
+          !!v.lamina && !!v.barra && casi(v.lamina.arriba - v.barra.abajo, 6 * PASO), true);
       }
     }
   }
@@ -912,4 +1291,7 @@ module.exports = [
   { nombre: 'TopicSelect: estados K4', correr: estadosDeControl },
   { nombre: 'TopicSelect: estados K de todos los controles', correr: estadosDeTodosLosControles },
   { nombre: 'TopicSelect: sin desborde y 44 × 44 en claro y oscuro', correr: sinDesbordeNiCortes },
+  { nombre: 'TopicSelect escritorio: practice, regiones, columnas y foco', correr: escritorioPractice },
+  { nombre: 'TopicSelect escritorio: exam y vacíos en lectura', correr: escritorioExamYVacios },
+  { nombre: 'TopicSelect escritorio: sin parciales y página desplazada', correr: escritorioSinParcialesYDesplazado },
 ];
