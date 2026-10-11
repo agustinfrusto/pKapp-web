@@ -7,7 +7,7 @@ const DIST = path.resolve(__dirname, '..', process.env.PKAPP_DIST || 'dist');
 const PUBLIC = path.resolve(__dirname, '..', 'public');
 const indexHtml = path.join(DIST, 'index.html');
 
-// El theme-color inicial sale del token (D8); en ejecución App.js lo cambia con el tema.
+// El theme-color inicial es claro.fondo (tokens.md a.2): la app arranca en claro; en ejecución App.js lo cambia con el tema.
 const { plancha } = require('../src/theme/colores');
 
 if (!fs.existsSync(indexHtml)) {
@@ -38,7 +38,7 @@ if (/href="\/favicon\.ico"/.test(html)) {
 
 const pwaTags = `
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="${plancha.claro.manifestTema}">
+    <meta name="theme-color" content="${plancha.claro.fondo}">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">

@@ -87,7 +87,7 @@ async function themeColorSigueAlTema(pagina, base, t) {
   const html = await fetch(base + '/').then((r) => r.text());
   const iniciales = metasDelHtml(html);
   t.ok('el HTML servido trae exactamente un meta theme-color', iniciales.length, 1);
-  t.ok('el theme-color inicial sale de plancha.manifestTema', iniciales[0], plancha.claro.manifestTema);
+  t.ok('el theme-color inicial es plancha.claro.fondo (tokens.md a.2)', iniciales[0], plancha.claro.fondo);
 
   t.ok('el DOM montado tiene exactamente un meta theme-color',
     await pagina.evaluar(`document.querySelectorAll('meta[name="theme-color"]').length`), 1);

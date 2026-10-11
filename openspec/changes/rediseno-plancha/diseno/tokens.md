@@ -50,9 +50,27 @@ Nombre = clave en `plancha.claro` y `plancha.oscuro`. En Tailwind: `bg-fondo` y 
 | Estado semántico | El color no es el único portador: la marca o forma de acierto, error e intermedia la fijan las fichas (1.2, 1.3). Evidencia en a.3 |
 | Hover y presionado | Sin token propio: marco de 1 a 2 px o inversión `tinta`/`fondo`; la matriz de estados va en las fichas |
 | Placeholder | `tintaSec` (par T4) |
-| `meta theme-color` | Inicial, en `scripts/inject-pwa.js`: valor de `claro.fondo`. En ejecución: `fondo` del tema activo |
+| `meta theme-color` | Un solo `<meta>`, sin `media`. Inicial (`scripts/inject-pwa.js`): `claro.fondo`. En ejecución (`App.js`): `fondo` del tema activo. `manifestTema` es del manifest y de `app.json`, no del meta. Decisión y porqué: bloque siguiente |
 | `StatusBar` | Contenido oscuro en claro y claro en oscuro (hoy `App.js` fija `light` siempre, por la banda navy) |
 | Prohibido | Gradientes, sombras, transparencias de color (el halo `rgba(...)` de `webStyles.js` sale al migrar). Única excepción: `strokeOpacity` del campo de filamentos (CD-24, `CONVENCIONES.md`; `design.md` D2). La ilustración de materia y el resto de la UI no la usan |
+
+#### Decisión · `theme-color` inicial (tarea 4.1, resuelta 2026-10-11)
+
+El valor inicial es el que muestra el navegador desde que parsea el `<head>` hasta que React monta y `App.js` reescribe el meta. La app no sigue al sistema (binario, por defecto `claro`; `TemaContext.js`) y el tema elegido se lee de `localStorage` recién después de montar: el valor inicial no puede deducirse de `prefers-color-scheme`.
+
+| Opción | Veredicto | Porqué |
+|---|---|---|
+| Un `<meta>`, valor `claro.fondo` | **Elegida** | Es lo primero que la app pinta (NativeWind arranca en claro si `<html>` no trae `dark`) y es el tema por defecto: el usuario por defecto no ve ningún cambio de barra durante la carga. El usuario en oscuro ve uno solo, junto con el cambio de la página |
+| Un `<meta>`, valor `manifestTema` (estado tras 4.1) | Descartada | Usuario por defecto: barra en tinta sobre página clara durante toda la carga del bundle y cambio a `claro.fondo` al montar. Usuario en oscuro: hasta dos cambios (tinta → `claro.fondo` → tinta). `manifestTema` es del manifest (lo que el sistema muestra antes de que exista el documento), no del documento |
+| Dos `<meta>` con `media="(prefers-color-scheme: …)"` | Descartada | El esquema del sistema no es el tema de la app: sistema oscuro con app en claro (el caso por defecto) daría barra en tinta hasta montar. Además `App.js` reescribe el primer meta (`querySelector`) y el navegador usa el primero cuyo `media` coincide: con uno de los dos esquemas la reescritura no tendría efecto y la barra quedaría desfasada del tema |
+| Script síncrono en `<head>` que lee el tema guardado y fija meta, clase `dark` y fondo de `html` | Aplazada | Única opción sin cambio de barra ni destello de lienzo para el usuario en oscuro. Acopla el HTML al formato de `pkapp_settings` (`database.web.js`) y exige prueba e2e de arranque: es decisión de arquitectura del Ingeniero, no regla de diseño. No hace falta para cerrar 4.1 |
+
+| Aspecto | Valor | Lo fija / nota |
+|---|---|---|
+| Meta en el HTML servido (antes de montar) | `claro.fondo` | `scripts/inject-pwa.js` |
+| Meta con React montado | `fondo` del tema activo | `App.js`, efecto sobre `chrome.cabecera`; reescribe el único meta |
+| `theme_color` del manifest y `themeColor` de `app.json` | `manifestTema` (igual en ambos temas) | D8; lo que el sistema muestra antes de que exista el documento |
+| Contraste | Sin pares nuevos | El meta tiñe el cromo del navegador, no texto de la app; E1 a E4 no cambian |
 
 ### a.3 Distinguibilidad de los tres estados
 
