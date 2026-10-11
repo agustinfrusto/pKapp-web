@@ -23,7 +23,7 @@ const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 const TIPOS = ['path', 'circle', 'ellipse', 'rect', 'line', 'polyline', 'polygon'];
 const ENCUADRES = ['meet', 'slice', 'none'];
 const CLAVES_DATOS = ['viewBox', 'trazo', 'elementos', 'encuadre'];
-const CLAVES_TRAZO = ['ancho', 'union', 'extremo'];
+const CLAVES_TRAZO = ['ancho', 'union', 'extremo', 'limiteInglete'];
 const CLAVES_ELEMENTO = ['tipo', 'props', 'tono'];
 // Geometría y trazo de SVG, en camelCase; `relleno: true` lo resuelve el componente.
 const CLAVES_PROPS = [
@@ -54,7 +54,7 @@ const NOMBRES_CSS = new Set(
   ).split(' '),
 );
 
-function colorLiteral(v) {
+export function colorLiteral(v) {
   if (/#[0-9a-f]{3,8}\b/i.test(v)) return true;
   if (/\b(?:rgb|rgba|hsl|hsla|hwb|lab|lch|oklab|oklch|color)\s*\(/i.test(v)) return true;
   return (v.match(/[a-z]+/gi) ?? []).some((w) => NOMBRES_CSS.has(w.toLowerCase()));
@@ -69,7 +69,7 @@ function valores(x, ruta, salida = []) {
   return salida;
 }
 
-function validar(nombre, datos, falla) {
+export function validar(nombre, datos, falla) {
   if (!datos || typeof datos !== 'object') return falla(nombre, 'sin `ilustracion` válida');
   for (const k of Object.keys(datos)) {
     if (!CLAVES_DATOS.includes(k)) falla(nombre, `clave no admitida (${k})`);
@@ -86,6 +86,9 @@ function validar(nombre, datos, falla) {
   }
   for (const k of Object.keys(t ?? {})) {
     if (!CLAVES_TRAZO.includes(k)) falla(`${nombre}.trazo`, `clave no admitida (${k})`);
+  }
+  if (t?.limiteInglete !== undefined && !(typeof t.limiteInglete === 'number' && t.limiteInglete > 0)) {
+    falla(`${nombre}.trazo`, `limiteInglete debe ser un número positivo (${JSON.stringify(t.limiteInglete)})`);
   }
   if (!Array.isArray(datos.elementos) || datos.elementos.length === 0) {
     return falla(nombre, 'elementos vacío o ausente');
@@ -203,13 +206,26 @@ async function mutaciones() {
   return mal ? 1 : 0;
 }
 
-if (process.argv.includes('--mutaciones')) {
-  process.exit(await mutaciones());
+// ¿Es este el script que se ejecuta? Compara realpath de ambos lados: `import.meta.url`
+// ya viene resuelto y `process.argv[1]` no (rutas con symlink, p. ej. /tmp en macOS).
+function esPrincipal() {
+  try {
+    return fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
 }
-const errores = await chequear(RAIZ);
-if (errores.length) {
-  console.error(`ILUSTRACIONES: ${errores.length} error(es)`);
-  for (const e of errores) console.error(`  - ${e}`);
-  process.exit(1);
+
+// Importado (tools/ui/glifos.mjs) solo expone `validar`; no corre el chequeo.
+if (esPrincipal()) {
+  if (process.argv.includes('--mutaciones')) {
+    process.exit(await mutaciones());
+  }
+  const errores = await chequear(RAIZ);
+  if (errores.length) {
+    console.error(`ILUSTRACIONES: ${errores.length} error(es)`);
+    for (const e of errores) console.error(`  - ${e}`);
+    process.exit(1);
+  }
+  console.log('ILUSTRACIONES: OK (6 materias del registro + filamentos)');
 }
-console.log('ILUSTRACIONES: OK (6 materias del registro + filamentos)');

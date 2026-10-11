@@ -10,10 +10,15 @@ module.exports = {
   theme: {
     extend: {
       colors: (() => {
-        const { colores, oscuro } = require('./src/theme/colores');
-        // Las contrapartes oscuras entran como familias `*-d`, consumidas con la
+        const { colores, oscuro, plancha } = require('./src/theme/colores');
+        // Las contrapartes oscuras entran como familias `*D`, consumidas con la
         // variante `dark:` de Tailwind. Un mismo nombre no puede tener dos valores.
-        return { ...colores, brandD: oscuro.brand, accentD: oscuro.accent,
+        // Plancha entra plano (`bg-fondo`); su contraparte oscura lleva sufijo D
+        // (`dark:bg-fondoD`).
+        const planchaD = Object.fromEntries(
+          Object.entries(plancha.oscuro).map(([k, v]) => [`${k}D`, v]));
+        return { ...colores, ...plancha.claro, ...planchaD,
+                 brandD: oscuro.brand, accentD: oscuro.accent,
                  mutedD: oscuro.muted, successD: oscuro.success,
                  dangerD: oscuro.danger, warningD: oscuro.warning,
                  parcialD: oscuro.parcial };
@@ -36,14 +41,31 @@ module.exports = {
         'display-sm': '36px',
         'display-md': '56px',
         'display-lg': '64px',
+        // Escala Plancha (tokens.md b.2): se escribe siempre con un `font-plex-*`.
+        marca:   ['28px', { lineHeight: '28px', letterSpacing: '-0.28px' }],
+        titulo:  ['18px', { lineHeight: '24px' }],
+        item:    ['16px', { lineHeight: '22px' }],
+        campo:   ['16px', { lineHeight: '22px' }],
+        cuerpo:  ['15px', { lineHeight: '22px' }],
+        detalle: ['13px', { lineHeight: '18px' }],
+        rotulo:  ['11px', { lineHeight: '16px', letterSpacing: '0.66px' }],
+        dato:    ['16px', { lineHeight: '20px' }],
+        cifra:   ['26px', { lineHeight: '28px' }],
+        display: ['72px', { lineHeight: '72px', letterSpacing: '-2.16px' }],
       },
+      // D9: sin radios; la elevación es filete. Incluye xl/2xl/3xl: Tailwind los
+      // trae por defecto y no se pisan solos.
       borderRadius: {
-        xs: '4px',
-        sm: '8px',
-        DEFAULT: '10px',
-        md: '12px',
-        lg: '16px',
-        full: '999px',
+        none: '0px', xs: '0px', sm: '0px', DEFAULT: '0px', md: '0px', lg: '0px',
+        xl: '0px', '2xl': '0px', '3xl': '0px', full: '0px',
+      },
+      borderWidth: {
+        DEFAULT: '1px', 0: '0px', 1: '1px', 2: '2px', 3: '3px',
+      },
+      maxWidth: {
+        // Columna única de contenido en tablet y escritorio (tokens.md c.3).
+        // Uso: `w-full max-w-columna self-center`.
+        columna: '448px',
       },
     },
   },

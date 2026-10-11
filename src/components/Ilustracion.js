@@ -35,7 +35,18 @@ const OCULTO =
     ? { 'aria-hidden': true }
     : { accessibilityElementsHidden: true, importantForAccessibility: 'no-hide-descendants' };
 
-export default function Ilustracion({ datos, color, colorAcento, size = 64, ancho, alto, style }) {
+// `anchoTrazo` (en unidades del viewBox) reemplaza a `datos.trazo.ancho`; lo usa `Glifo`
+// para compensar el grosor por tamaño. Sin él, el trazo es el de los datos.
+export default function Ilustracion({
+  datos,
+  color,
+  colorAcento,
+  size = 64,
+  ancho,
+  alto,
+  anchoTrazo,
+  style,
+}) {
   const [, , vbAncho, vbAlto] = datos.viewBox.split(/\s+/).map(Number);
   const { trazo, elementos } = datos;
   const acento = colorAcento ?? color;
@@ -51,9 +62,10 @@ export default function Ilustracion({ datos, color, colorAcento, size = 64, anch
       preserveAspectRatio={ENCUADRE[datos.encuadre ?? 'meet']}
       fill="none"
       stroke={color}
-      strokeWidth={trazo.ancho}
+      strokeWidth={anchoTrazo ?? trazo.ancho}
       strokeLinejoin={trazo.union}
       strokeLinecap={trazo.extremo}
+      {...(trazo.limiteInglete !== undefined ? { strokeMiterlimit: trazo.limiteInglete } : null)}
       style={style}
       {...OCULTO}
     >

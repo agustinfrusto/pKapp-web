@@ -10,7 +10,7 @@
     "conteos": "node scripts/gen-conteos.mjs",
     "build:web": "node scripts/gen-conteos.mjs && expo export -p web && node scripts/inject-pwa.js && node scripts/inject-preload.js",
     "screenshots": "node scripts/capturar-screenshots.js",
-    "pree2e": "node tools/ui/ilustraciones.mjs && node tools/ui/fuentes.mjs",
+    "pree2e": "node tools/ui/ilustraciones.mjs && node tools/ui/fuentes.mjs && node tools/ui/escalas.mjs && node tools/ui/glifos.mjs",
     "e2e": "node tools/e2e/correr.js"
   },
   "dependencies": {
