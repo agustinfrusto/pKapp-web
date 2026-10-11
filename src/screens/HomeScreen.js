@@ -8,7 +8,7 @@ import HeaderMarca from '../components/HeaderMarca';
 import Glifo from '../components/Glifo';
 import Ilustracion from '../components/Ilustracion';
 import {
-  BotonMarco, ControlMarco, Lamina, RotuloSeccion, Columna, useEstadoControl,
+  BotonMarco, ControlMarco, Lamina, RotuloSeccion, Hoja, Regiones, useEstadoControl,
 } from '../components/plancha';
 import { useTema } from '../theme/TemaContext';
 import { plancha } from '../theme/colores';
@@ -83,91 +83,97 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <ScrollView className="flex-1 bg-fondo dark:bg-fondoD" contentContainerClassName="pb-8">
-      <HeaderMarca izquierda={<BotonCambiarMateria navigation={navigation} />} />
-      <Columna>
-        <View className="mt-1.5">
-          <Lamina testID="home-tarjeta-materia">
-            <View className="flex-row">
-              <View className="w-24 items-center justify-center border-r border-filete dark:border-fileteD">
-                {materia.ilustracion ? (
-                  <Ilustracion datos={materia.ilustracion} color={tema.filamento} size={ILUSTRACION_MATERIA} />
-                ) : null}
-              </View>
-              <View className="min-w-0 flex-1 px-3 py-2">
-                <RotuloSeccion color="acento">{`${materia.shortName} · ${posicion}`}</RotuloSeccion>
-                <Text className="mt-1.5 font-plex-sans-semibold text-titulo text-tinta dark:text-tintaD">
-                  {materia.name}
-                </Text>
-                <Text className="mt-1.5 font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
-                  {examCount} preguntas reales · {generatedCount} preguntas extra
-                </Text>
-              </View>
+      <HeaderMarca ancho="hoja-amplia" izquierda={<BotonCambiarMateria navigation={navigation} />} />
+      <Hoja ancho="hoja-amplia">
+        <Regiones>
+          <Regiones.Lateral>
+            <View className="mt-1.5">
+              <Lamina testID="home-tarjeta-materia">
+                <View className="flex-row">
+                  <View className="w-24 items-center justify-center border-r border-filete dark:border-fileteD">
+                    {materia.ilustracion ? (
+                      <Ilustracion datos={materia.ilustracion} color={tema.filamento} size={ILUSTRACION_MATERIA} />
+                    ) : null}
+                  </View>
+                  <View className="min-w-0 flex-1 px-3 py-2">
+                    <RotuloSeccion color="acento">{`${materia.shortName} · ${posicion}`}</RotuloSeccion>
+                    <Text className="mt-1.5 font-plex-sans-semibold text-titulo text-tinta dark:text-tintaD">
+                      {materia.name}
+                    </Text>
+                    <Text className="mt-1.5 font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
+                      {examCount} preguntas reales · {generatedCount} preguntas extra
+                    </Text>
+                  </View>
+                </View>
+              </Lamina>
             </View>
-          </Lamina>
-        </View>
 
-        {materia.bancoReducido ? <BancoReducidoBanner tema={tema} /> : null}
+            {materia.bancoReducido ? <BancoReducidoBanner tema={tema} /> : null}
+          </Regiones.Lateral>
 
-        <View className="mb-2 mt-4">
-          <RotuloSeccion testID="home-rotulo-acciones" color="acento">Plano / Acciones</RotuloSeccion>
-        </View>
+          <Regiones.Principal>
+            <View className="mb-2 mt-4">
+              <RotuloSeccion testID="home-rotulo-acciones" color="acento">Plano / Acciones</RotuloSeccion>
+            </View>
 
-        <View testID="home-acciones" className="gap-2.5">
-          <Accion
-            clave="practicar"
-            primaria
-            glifo="glifo-practicar"
-            titulo="Entrena Temas/Parciales"
-            descripcion="Crea tu propio test eligiendo temas o practica para los parciales"
-            onPress={() => requestAnimationFrame(() => navigation.navigate('TopicSelect', { mode: 'practice' }))}
-          />
-          <Accion
-            clave="examen"
-            glifo="glifo-examen"
-            titulo="Modo examen"
-            descripcion={`${examModeCount} preguntas al azar como en el parcial real`}
-            onPress={() => requestAnimationFrame(() => navigation.navigate('TopicSelect', { mode: 'exam' }))}
-          />
-          <Accion
-            clave="repasar"
-            glifo="glifo-repasar"
-            titulo="Repasar fallos"
-            descripcion="Preguntas que te costaron antes"
-            onPress={() => requestAnimationFrame(() => navigation.navigate('TopicSelect', { mode: 'failed' }))}
-          />
-          <Accion
-            clave="estadisticas"
-            glifo="glifo-estadisticas"
-            titulo="Mis estadísticas"
-            descripcion="% de aciertos por tema, preguntas falladas"
-            onPress={() => requestAnimationFrame(() => navigation.navigate('Stats'))}
-          />
-          <Accion
-            clave="agregar"
-            glifo="glifo-agregar"
-            titulo="Agregar pregunta"
-            descripcion="Agregá tus propias preguntas al banco"
-            onPress={() => requestAnimationFrame(() => navigation.navigate('AddQuestion'))}
-          />
-          <Accion
-            clave="ajustes"
-            glifo="glifo-ajustes"
-            titulo="Ajustes"
-            descripcion="Filtrar fuente, resetear estadísticas"
-            onPress={() => requestAnimationFrame(() => navigation.navigate('Settings'))}
-          />
-        </View>
+            <View testID="home-acciones" className="gap-2.5 amplio:grid amplio:grid-cols-2 amplio:gap-4">
+              <Accion
+                clave="practicar"
+                primaria
+                glifo="glifo-practicar"
+                titulo="Entrena Temas/Parciales"
+                descripcion="Crea tu propio test eligiendo temas o practica para los parciales"
+                onPress={() => requestAnimationFrame(() => navigation.navigate('TopicSelect', { mode: 'practice' }))}
+              />
+              <Accion
+                clave="examen"
+                glifo="glifo-examen"
+                titulo="Modo examen"
+                descripcion={`${examModeCount} preguntas al azar como en el parcial real`}
+                onPress={() => requestAnimationFrame(() => navigation.navigate('TopicSelect', { mode: 'exam' }))}
+              />
+              <Accion
+                clave="repasar"
+                glifo="glifo-repasar"
+                titulo="Repasar fallos"
+                descripcion="Preguntas que te costaron antes"
+                onPress={() => requestAnimationFrame(() => navigation.navigate('TopicSelect', { mode: 'failed' }))}
+              />
+              <Accion
+                clave="estadisticas"
+                glifo="glifo-estadisticas"
+                titulo="Mis estadísticas"
+                descripcion="% de aciertos por tema, preguntas falladas"
+                onPress={() => requestAnimationFrame(() => navigation.navigate('Stats'))}
+              />
+              <Accion
+                clave="agregar"
+                glifo="glifo-agregar"
+                titulo="Agregar pregunta"
+                descripcion="Agregá tus propias preguntas al banco"
+                onPress={() => requestAnimationFrame(() => navigation.navigate('AddQuestion'))}
+              />
+              <Accion
+                clave="ajustes"
+                glifo="glifo-ajustes"
+                titulo="Ajustes"
+                descripcion="Filtrar fuente, resetear estadísticas"
+                onPress={() => requestAnimationFrame(() => navigation.navigate('Settings'))}
+              />
+            </View>
 
-        {Platform.OS === 'web' && (
-          <View testID="home-privacidad" className="mx-1 mt-6 items-center">
-            <Text className="text-center font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
-              Tus estadísticas y preguntas se guardan localmente en tu navegador.
-              {'\n'}
-              Se usan analíticas anónimas (sin cookies ni datos personales).
-            </Text>
-          </View>
-        )}
-      </Columna>
+            {Platform.OS === 'web' && (
+              <View testID="home-privacidad" className="mx-1 mt-6 items-center">
+                <Text className="text-center font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
+                  Tus estadísticas y preguntas se guardan localmente en tu navegador.
+                  {'\n'}
+                  Se usan analíticas anónimas (sin cookies ni datos personales).
+                </Text>
+              </View>
+            )}
+          </Regiones.Principal>
+        </Regiones>
+      </Hoja>
     </ScrollView>
   );
 }

@@ -250,6 +250,7 @@ const rgb = (hex) => {
 };
 
 const COLUMNA = 448;                  // max-w-columna
+const CORREO_BANCO = 'pkappsoporte@gmail.com';
 
 // Todo lo que mide la pantalla Home dentro del marco. Los testID de la ficha:
 // home-tarjeta-materia, home-banco-reducido, home-rotulo-acciones, home-acciones,
@@ -310,7 +311,8 @@ const LEER_HOME = EN_MARCO(`
       glifo: svgs[0] ? svgDe(svgs[0]) : null,
       chevron: svgs[1] ? svgDe(svgs[1]) : null,
       titulo: hojas[0] ? { texto: hojas[0].textContent.trim(), caja: caja(hojas[0]), color: estilo(hojas[0], 'color') } : null,
-      descripcion: hojas[1] ? { texto: hojas[1].textContent.trim(), caja: caja(hojas[1]), color: estilo(hojas[1], 'color') } : null,
+      descripcion: hojas[1] ? { texto: hojas[1].textContent.trim(), caja: caja(hojas[1]), color: estilo(hojas[1], 'color'),
+        tamano: estilo(hojas[1], 'fontSize') } : null,
     };
   });
   return {
@@ -344,6 +346,7 @@ const LEER_HOME = EN_MARCO(`
       mayusculas: estilo(rotulo, 'textTransform'), tamano: estilo(rotulo, 'fontSize'),
     } : null,
     privacidad: privacidad ? { caja: caja(privacidad), texto: privacidad.textContent.trim() } : null,
+    listaAcciones: caja(uno('home-acciones')),
     acciones,
     relleno: scroller && privacidad ? scroller.scrollHeight
       - (privacidad.getBoundingClientRect().bottom - scroller.getBoundingClientRect().top + scroller.scrollTop) : null,
@@ -353,11 +356,12 @@ const LEER_HOME = EN_MARCO(`
       const b = visibles('[aria-label="Cambiar materia"]')[0];
       return b ? { caja: caja(b), texto: b.innerText.trim(), rol: b.getAttribute('role') } : null;
     })(),
+    tema: caja(visibles('[role="radiogroup"]')[0]),
   };
 `);
 
-async function entrarAHome(pagina, base, ancho, materia) {
-  await abrirMarco(pagina, base, ancho);
+async function entrarAHome(pagina, base, ancho, materia, alto = 800) {
+  await abrirMarco(pagina, base, ancho, alto);
   // Las últimas tarjetas quedan bajo el pliegue del marco: se traen a la vista antes de tocar.
   const punto = await pagina.evaluar(EN_MARCO(`
     const t = ${JSON.stringify(materia.nombre.toLowerCase())};
@@ -698,9 +702,9 @@ async function homeOscuro(pagina, base, t) {
   t.ok('oscuro: sin imágenes PNG', h.imagenes, 0);
 }
 
-// Corte de 360 px (comun.md §1.1) y desborde a 320, 360, 390, 768 y 1280.
+// Corte de 360 px (comun.md §1.1) y desborde a 320, 360, 390, 768 y 1023 (bajo el corte `escritorio`).
 async function homeAnchos(pagina, base, t) {
-  for (const ancho of [320, 359, 360, 390, 768, 1280]) {
+  for (const ancho of [320, 359, 360, 390, 768, 1023]) {
     t.ok(`${ancho} px: entra a Home`, await entrarAHome(pagina, base, ancho, MATERIAS[2]), true);
     const h = await leerHome(pagina);
     t.ok(`${ancho} px: sin scroll horizontal`, h.desborda, false);
@@ -735,6 +739,274 @@ async function homeAnchos(pagina, base, t) {
   }
 }
 
+// Escritorio (Home.md «Escritorio», ESC-P2; Banners.md «Escritorio», ESC-P11; comun.md §7.2).
+// Los valores se escriben acá a propósito: son el contrato de la ficha.
+const ESC = { corte: 1024, amplio: 1440, lateral: 320, hoja: 952, hojaAmplia: 1440 };
+const SEPARACION = 8 * PASO;   // paso 8: margen lateral de la hoja y entre regiones
+const CELDA = 4 * PASO;        // paso 4: entre celdas de la rejilla de acciones
+const BAJO_BANNER = 3 * PASO;  // paso 3: del banner a la tarjeta
+const AL_PIE = 6 * PASO;       // paso 6: de las acciones a la nota de privacidad
+
+const SONDA_FOCO = EN_MARCO(`
+  const a = d.activeElement;
+  if (!a || a === d.body) return null;
+  // Ordenada en la pantalla, no en la ventana: Tab desplaza el scroll para mostrar el foco.
+  let scroll = 0;
+  for (let n = a.parentElement; n; n = n.parentElement) {
+    const o = w.getComputedStyle(n).overflowY;
+    if ((o === 'auto' || o === 'scroll') && n.scrollHeight > n.clientHeight) { scroll = n.scrollTop; break; }
+  }
+  const r = a.getBoundingClientRect();
+  return { id: a.getAttribute('data-testid') || '', nombre: a.getAttribute('aria-label') || '',
+    x: r.left, y: r.top + scroll };
+`);
+
+
+// Paradas de Tab de Home que se comparan con el orden visual: nombre o testID.
+const PARADAS = ['Cambiar materia', `Escribir a ${CORREO_BANCO}`, ...ACCIONES.map((a) => `home-accion-${a.clave}`)];
+
+// Mide la página (no la ventana) para tres reglas de escritorio de comun.md §7.2:
+//  - Anclado: ninguna región queda fija (sin `sticky` ni `fixed` en la hoja y sus ancestros
+//    hasta el scroll) y, con la página desplazada, cada región se mueve lo que el scroll.
+//  - Foco: ningún ancestro de un control enfocable, bajo el scroll, recorta su contorno, y el
+//    contorno (4 px) cabe en los cuatro bordes del contenido.
+//  - Orden: coordenadas de cada parada relativas a la página, para compararlas con Tab.
+const SONDA_PAGINA = EN_MARCO(`
+  const paradas = ${JSON.stringify(PARADAS)};
+  const buscar = (nombre) => {
+    if (nombre.startsWith('home-accion-')) return visibles('[data-testid="' + nombre + '"]')[0] || null;
+    return visibles('[aria-label="' + nombre + '"]')[0] || null;
+  };
+  const tarjeta = visibles('[data-testid="home-tarjeta-materia"]')[0];
+  const acciones = visibles('[data-testid="home-acciones"]')[0];
+  if (!tarjeta || !acciones) return null;
+  let scroller = null;
+  for (let n = tarjeta.parentElement; n; n = n.parentElement) {
+    const o = w.getComputedStyle(n).overflowY;
+    if (o === 'auto' || o === 'scroll') { scroller = n; break; }
+  }
+  if (!scroller) return null;
+  const raiz = scroller.getBoundingClientRect();
+  const alto = () => scroller.scrollTop;
+  const pagina = (n) => { const r = n.getBoundingClientRect(); return { x: r.left, y: r.top + alto() - raiz.top, ab: r.bottom + alto() - raiz.top, der: r.right }; };
+
+  // Hoja: el ancestro común más bajo de la tarjeta y de las acciones.
+  let hoja = tarjeta.parentElement;
+  while (hoja && !hoja.contains(acciones)) hoja = hoja.parentElement;
+  const fijos = [];
+  const posicion = (n) => w.getComputedStyle(n).position;
+  const revisar = (n) => { const p = posicion(n); if (p === 'sticky' || p === 'fixed') fijos.push(n.getAttribute('data-testid') || n.tagName); };
+  for (let n = hoja; n && n !== scroller; n = n.parentElement) revisar(n);
+  hoja.querySelectorAll('*').forEach(revisar);
+
+  const paradasEl = paradas.map((nombre) => ({ nombre, el: buscar(nombre) }));
+  const tema = visibles('[role="radio"]');
+  const enfocables = paradasEl.map((p) => p.el).filter(Boolean).concat(tema);
+  const recortan = [];
+  for (const el of enfocables) {
+    for (let n = el.parentElement; n && n !== scroller; n = n.parentElement) {
+      const s = w.getComputedStyle(n);
+      if (s.overflowX !== 'visible' || s.overflowY !== 'visible') {
+        recortan.push((el.getAttribute('data-testid') || el.getAttribute('aria-label') || el.tagName)
+          + ' <- ' + (n.getAttribute('data-testid') || n.tagName) + ' ' + s.overflowX + '/' + s.overflowY);
+      }
+    }
+  }
+  const FOCO = 4;
+  const fuera = enfocables.filter((el) => {
+    const p = pagina(el);
+    return p.x - FOCO < raiz.left || p.der + FOCO > raiz.right || p.y - FOCO < 0 || p.ab + FOCO > scroller.scrollHeight;
+  }).map((el) => el.getAttribute('data-testid') || el.getAttribute('aria-label'));
+
+  const posiciones = paradasEl.filter((p) => p.el).map((p) => ({ nombre: p.nombre, ...pagina(p.el) }));
+  const regiones = [tarjeta, acciones].map((n) => pagina(n).y);
+  const maximo = scroller.scrollHeight - scroller.clientHeight;
+  return { fijos, recortan, fuera, posiciones, regiones, maximo, vistaX: raiz.left };
+`);
+
+const SONDA_SCROLL = (y) => EN_MARCO(`
+  const t = visibles('[data-testid="home-tarjeta-materia"]')[0];
+  let s = null;
+  for (let n = t.parentElement; n; n = n.parentElement) {
+    const o = w.getComputedStyle(n).overflowY;
+    if (o === 'auto' || o === 'scroll') { s = n; break; }
+  }
+  s.scrollTop = ${y};
+  const a = visibles('[data-testid="home-acciones"]')[0];
+  return { scroll: s.scrollTop, tarjeta: t.getBoundingClientRect().top, acciones: a.getBoundingClientRect().top };
+`);
+
+// Recorre Tab desde el principio y devuelve, en orden, «Cambiar materia», el contacto del
+// banner y las seis acciones (el control de tema y lo demás no entran en la comparación).
+async function recorrerFoco(pagina) {
+  // Se parte de «Cambiar materia»: tras elegir el tema, el foco quedó en su control.
+  await pagina.evaluar(EN_MARCO(`
+    const b = visibles('[aria-label="Cambiar materia"]')[0];
+    if (b) b.focus();
+    return true;
+  `));
+  const vistos = [];
+  const inicial = await pagina.evaluar(SONDA_FOCO);
+  if (inicial) vistos.push(inicial);
+  for (let i = 0; i < 40; i++) {
+    await pagina.tecla('Tab');
+    const f = await pagina.evaluar(SONDA_FOCO);
+    if (!f) continue;
+    if (f.nombre === 'Cambiar materia' || f.nombre.startsWith('Escribir a') || f.id.startsWith('home-accion-')) {
+      vistos.push(f);
+    }
+    if (f.id === 'home-accion-ajustes') break;
+  }
+  return vistos;
+}
+
+async function capturar(pagina, ancho, alto, nombre) {
+  if (!process.env.PKAPP_CAPTURAS) return;
+  const dir = path.join(RAIZ, 'openspec', 'changes', 'rediseno-plancha', 'evidencia', 'despues', '3.11c');
+  fs.mkdirSync(dir, { recursive: true });
+  await pagina.enviar('Emulation.setDeviceMetricsOverride',
+    { width: ancho, height: alto, deviceScaleFactor: 1, mobile: false });
+  await new Promise((r) => setTimeout(r, 400));
+  const r = await pagina.enviar('Page.captureScreenshot', { format: 'png' });
+  fs.writeFileSync(path.join(dir, nombre), Buffer.from(r.data, 'base64'));
+}
+
+async function homeEscritorio(pagina, base, t) {
+  const reducida = MATERIAS.find((m) => m.reducido);
+  // 1280, 1439 y 1440 miden los bordes del corte `amplio` (1440): 1439 una columna, 1440 dos.
+  const casos = [[1023, 800, ['claro']], [1024, 768, ['claro', 'oscuro']],
+    [1280, 800, ['claro']], [1366, 768, ['claro', 'oscuro']], [1439, 800, ['claro']],
+    [1440, 900, ['claro']], [1920, 1080, ['claro', 'oscuro']]];
+  for (const [ancho, alto, temas] of casos) {
+    for (const tema of temas) {
+      const cuando = (m) => `${ancho} px ${tema}: ${m}`;
+      // El puntero del arnés se mueve en la ventana de la página: tiene que abarcar el marco.
+      await pagina.enviar('Emulation.setDeviceMetricsOverride',
+        { width: ancho, height: alto, deviceScaleFactor: 1, mobile: false });
+      t.ok(cuando('entra a Home'), await entrarAHome(pagina, base, ancho, reducida, alto), true);
+      if (tema === 'oscuro') {
+        await clicEnMarco(pagina, 'oscuro');
+        await pagina.esperarA(async () => {
+          const h = await leerHome(pagina);
+          return !!h.tarjeta && h.tarjeta.fondo === rgb(plancha.oscuro.superficie);
+        }, { limite: 5000 });
+      }
+      const h = await leerHome(pagina);
+      const de = ancho >= ESC.corte;
+      const acc = h.acciones;
+      t.ok(cuando('hay tarjeta, banner, rótulo, seis acciones y nota de privacidad'),
+        !!h.tarjeta && !!h.banner && !!h.rotulo && !!h.privacidad && acc.every((a) => a.existe), true);
+      if (!h.tarjeta || !h.banner || !h.rotulo || !h.privacidad || !acc.every((a) => a.existe)) continue;
+      t.ok(cuando('sin scroll horizontal'), h.desborda, false);
+
+      // 44 × 44 en todo lo que se toca
+      t.ok(cuando('acciones, «Cambiar materia» y contacto del banner de al menos 44 × 44'),
+        acc.every((a) => a.caja.alto >= LADO_TACTIL && a.caja.ancho >= LADO_TACTIL)
+          && !!h.cambiar && h.cambiar.caja.alto >= LADO_TACTIL && h.cambiar.caja.ancho >= LADO_TACTIL
+          && !!h.banner.boton && h.banner.boton.caja.alto >= LADO_TACTIL, true);
+
+      const util = Math.min(ancho >= ESC.amplio ? ESC.hojaAmplia : ESC.hoja, ancho - 2 * SEPARACION);
+      const izq = (ancho - util) / 2;
+      const principalIzq = izq + ESC.lateral + SEPARACION;
+      const principalAncho = util - ESC.lateral - SEPARACION;
+      const ultimoAbajo = Math.max(...acc.map((a) => a.caja.abajo));
+
+      // HeaderMarca: su contenido va en la misma hoja que el contenido (D6). Con `columna` bajo
+      // el corte y `hoja`/`hoja-amplia` desde él; el margen lateral es al menos paso 8.
+      t.ok(cuando('«Cambiar materia» alineado con el borde izquierdo de la hoja'),
+        !!h.cambiar && h.cambiar.caja.izq, h.tarjeta.caja.izq);
+      t.ok(cuando('control de tema alineado con el borde derecho de la hoja'),
+        !!h.tema && h.tema.der, de ? izq + util : h.tarjeta.caja.der);
+      if (de) {
+        t.ok(cuando('margen lateral de la hoja de al menos paso 8'), izq >= SEPARACION, true);
+      }
+
+      if (!de) {
+        // Bajo el corte: igual que hoy (una columna `columna`, todo apilado).
+        t.ok(cuando('tarjeta y banner del ancho de la columna menos paso 5 a cada lado'),
+          `${h.tarjeta.caja.ancho}|${h.banner.caja.ancho}`, `${COLUMNA - 2 * 5 * PASO}|${COLUMNA - 2 * 5 * PASO}`);
+        t.ok(cuando('seis acciones en una columna, bajo el banner'),
+          acc.every((a) => a.caja.izq === acc[0].caja.izq && a.caja.arriba >= h.banner.caja.abajo), true);
+        t.ok(cuando('nota de privacidad bajo las acciones'), h.privacidad.caja.arriba >= ultimoAbajo, true);
+      } else {
+        t.ok(cuando(`tarjeta lateral de ${ESC.lateral} px a la izquierda de la hoja`),
+          `${h.tarjeta.caja.izq}|${h.tarjeta.caja.ancho}`, `${izq}|${ESC.lateral}`);
+        t.ok(cuando('banner en la lateral, a su ancho y bajo la tarjeta a paso 3'),
+          `${h.banner.caja.izq}|${h.banner.caja.ancho}|${h.banner.caja.arriba - h.tarjeta.caja.abajo}`,
+          `${izq}|${ESC.lateral}|${BAJO_BANNER}`);
+        t.ok(cuando('el contacto del banner mide paso 11 y su correo entra en una línea'),
+          !!h.banner.boton && h.banner.boton.caja.alto === LADO_TACTIL
+            && h.banner.boton.caja.der <= h.banner.caja.der, true);
+        t.ok(cuando('rótulo a paso 4 del inicio de la hoja (HOME-P2)'),
+          h.rotulo.caja.arriba - h.header.abajo, 4 * PASO);
+        t.ok(cuando('región principal: a paso 8 de la lateral y del ancho restante'),
+          `${h.listaAcciones.izq}|${h.listaAcciones.ancho}`, `${principalIzq}|${principalAncho}`);
+        t.ok(cuando('la tarjeta queda a la izquierda de las acciones'),
+          acc.every((a) => a.caja.izq > h.tarjeta.caja.der), true);
+
+        if (ancho < ESC.amplio) {
+          t.ok(cuando('seis acciones en una columna, de ancho completo'),
+            acc.every((a) => a.caja.izq === principalIzq && a.caja.ancho === principalAncho), true);
+          t.ok(cuando('la descripción de cada acción en una línea'),
+            acc.every((a) => a.descripcion.caja.alto < 1.75 * parseFloat(a.descripcion.tamano)), true);
+        } else {
+          const celda = (principalAncho - CELDA) / 2;
+          t.ok(cuando('acciones en 2 columnas de igual ancho, separadas por paso 4'),
+            acc.map((a, i) => `${a.caja.ancho}|${a.caja.izq === principalIzq + (i % 2) * (celda + CELDA)}`).join(','),
+            acc.map(() => `${celda}|true`).join(','));
+          t.ok(cuando('orden 1 2 / 3 4 / 5 6, con la primaria primera'),
+            acc.every((a, i) => i < 2 || a.caja.arriba > acc[i - 2].caja.arriba)
+              && acc[0].caja.arriba === acc[1].caja.arriba, true);
+          t.ok(cuando('filas separadas por paso 4'),
+            `${acc[2].caja.arriba - acc[0].caja.abajo}|${acc[4].caja.arriba - acc[2].caja.abajo}`, `${CELDA}|${CELDA}`);
+        }
+        t.ok(cuando('nota de privacidad al pie de la principal, a paso 6'),
+          h.privacidad.caja.arriba - ultimoAbajo, AL_PIE);
+        t.ok(cuando('nota de privacidad centrada en la región principal'),
+          Math.abs((h.privacidad.caja.izq + h.privacidad.caja.der) / 2 - (principalIzq + principalAncho / 2)) <= 0.5, true);
+      }
+
+      // Foco = DOM = visual
+      const foco = await recorrerFoco(pagina);
+      const esperado = ['Cambiar materia', `Escribir a ${CORREO_BANCO}`,
+        ...ACCIONES.map((a) => `home-accion-${a.clave}`)];
+      t.ok(cuando('Tab: «Cambiar materia», contacto del banner y las seis acciones en orden'),
+        foco.map((f) => f.nombre || f.id).join(','), esperado.join(','));
+      // Orden visual medido en la página: cabecera, lateral (arriba-abajo), principal
+      // (arriba-abajo, izquierda-derecha). Tab tiene que coincidir con él.
+      const p = await pagina.evaluar(SONDA_PAGINA);
+      t.ok(cuando('sonda de página disponible'), !!p, true);
+      if (p) {
+        const region = (q) => (q.nombre === 'Cambiar materia' ? 0 : q.x < principalIzq - 1 ? 1 : 2);
+        const visual = p.posiciones.slice().sort((a, b) =>
+          region(a) - region(b) || a.y - b.y || a.x - b.x).map((q) => q.nombre);
+        const tabs = foco.map((f) => f.nombre || f.id);
+        t.ok(cuando('Tab coincide con el orden visual medido en la página'),
+          tabs.join(','), (de ? visual : esperado).join(','));
+        t.ok(cuando('ninguna región queda fija (sin sticky ni fixed)'), p.fijos.join('|'), '');
+        t.ok(cuando('ningún ancestro de un control enfocable recorta su contorno'), p.recortan.join('|'), '');
+        t.ok(cuando('el contorno de foco (4 px) cabe en los cuatro bordes del contenido'), p.fuera.join('|'), '');
+        // Desplazada la página, las regiones se mueven con ella.
+        const tope = Math.min(p.maximo, 200);
+        if (tope > 0) {
+          const antes = await pagina.evaluar(SONDA_SCROLL(0));
+          const despues = await pagina.evaluar(SONDA_SCROLL(tope));
+          t.ok(cuando('desplazada la página, tarjeta y acciones se mueven lo mismo que el scroll'),
+            `${antes.tarjeta - despues.tarjeta}|${antes.acciones - despues.acciones}`,
+            `${despues.scroll}|${despues.scroll}`);
+          await pagina.evaluar(SONDA_SCROLL(0));
+        }
+      }
+
+      // Las figuras muestran el estado en reposo: sin contorno de foco de la pasada de Tab.
+      await pagina.evaluar(EN_MARCO('if (d.activeElement && d.activeElement.blur) d.activeElement.blur(); return true;'));
+      t.ok(cuando('sin foco visible al capturar'),
+        await pagina.evaluar(EN_MARCO('return !d.activeElement || d.activeElement === d.body;')), true);
+      if ([1024, 1366, 1920].includes(ancho)) await capturar(pagina, ancho, alto, `home-${ancho}-${tema}.png`);
+    }
+  }
+}
+
 module.exports = [
   { nombre: 'Home: tarjeta de materia con ilustración, id y conteos separados', correr: homeTarjetaDeMateria },
   { nombre: 'Home: banner de banco reducido solo en cyr y neuro', correr: homeBancoReducido },
@@ -743,6 +1015,7 @@ module.exports = [
   { nombre: 'Home: estados K de las acciones', correr: homeEstadosK },
   { nombre: 'Home: tema oscuro sin baldosa clara', correr: homeOscuro },
   { nombre: 'Home: corte de 360 px y sin scroll horizontal', correr: homeAnchos },
+  { nombre: 'Home: escritorio, regiones, columnas y foco (ESC-P2, ESC-P11)', correr: homeEscritorio },
   { nombre: 'atrás y adelante del navegador', correr: atrasDelNavegador },
   { nombre: 'HeaderMarca: mismo alto en MateriaSelect y Home', correr: altoDeHeaderIgual },
   { nombre: 'Barra interna: mismo alto con y sin volver, quiz sin barra', correr: barraInternaConYSinVolver },
