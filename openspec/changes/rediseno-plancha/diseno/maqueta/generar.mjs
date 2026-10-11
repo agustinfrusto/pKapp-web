@@ -9,9 +9,13 @@
 //                                                 queda como cuadrado de `filete` numerado;
 //   - src/assets/filamentos.js                 -> campo de filamentos (solo MateriaSelect).
 //
-// La maqueta reproduce las fichas aprobadas de `diseno/pantallas/` (1.2 y 1.3); no propone nada.
+// La maqueta reproduce las fichas aprobadas de `diseno/pantallas/` (1.2 y 1.3), incluido el pedido
+// de donación DON-P5 (aprobada por el usuario el 2026-10-11, todavía sin implementar: tarea 3.8).
+// La figura 09 lo compara con DON-P1, el aspecto anterior.
 // Los valores de color no se escriben en ninguna parte de este archivo: todo color sale de
-// `plancha` y se referencia por variable CSS (`var(--tinta)`, ...).
+// `plancha` y se referencia por variable CSS (`var(--tinta)`, ...). Los dos tokens que `plancha`
+// todavía no tiene, `acentoFondo` y `acentoBanda` (nuevos, pendientes, solo DON-P5), se derivan
+// de `acento`, `superficie` y `fondo`.
 //
 // Uso: node openspec/changes/rediseno-plancha/diseno/maqueta/generar.mjs
 
@@ -61,15 +65,35 @@ if (clavesClaro.join() !== clavesOscuro.join()) {
   throw new Error('plancha.claro y plancha.oscuro no tienen las mismas claves');
 }
 
+// Tokens NUEVOS que `colores.js` todavía no tiene (DonationBox.md f.4 y «Tokens nuevos»: nuevos,
+// pendientes; el alta es del Ingeniero). Solo los usa DON-P5. Se derivan de tokens existentes, de
+// modo que este archivo sigue sin escribir ningún color.
+//   `acentoFondo`: tinte de `acento` con el patrón de `aciertoFondo` y `errorFondo`; es el «tinte B»
+//                  de la exploración: 12 % de `acento` sobre `superficie` en claro, 15 % en oscuro.
+//   `acentoBanda`: banda del encabezado. En claro vale lo mismo que `acento` (no cambia nada). En
+//                  oscuro, 73 % de `acento` sobre `fondo`: contra la página mide 5,40:1, lo mismo
+//                  que en claro, y «Volver a practicar» queda como la acción más fuerte.
+const rgbDe = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const hexDe = (c) => '#' + c.map((v) => Math.round(v).toString(16).padStart(2, '0')).join('');
+const mezcla = (a, b, t) => { const A = rgbDe(a), B = rgbDe(b); return hexDe(A.map((v, i) => v * t + B[i] * (1 - t))); };
+const TINTE_ACENTO = { claro: 0.12, oscuro: 0.15 };
+const BANDA_OSCURO = 0.73;
+
 function bloqueColores() {
   const decl = (t) => Object.entries(t).map(([k, v]) => `  --${k}: ${v};`).join('\n');
+  const propuesto = (t, tema) => [
+    `  --acentoFondo: ${mezcla(t.acento, t.superficie, TINTE_ACENTO[tema])}; /* nuevo, pendiente: no está en colores.js */`,
+    `  --acentoBanda: ${tema === 'claro' ? t.acento : mezcla(t.acento, t.fondo, BANDA_OSCURO)}; /* nuevo, pendiente: no está en colores.js */`,
+  ].join('\n');
   return [
     '/* >>> GENERADO por generar.mjs desde src/theme/colores.js (export plancha). No editar a mano. */',
     ':root,\nhtml[data-tema="claro"] {',
     decl(plancha.claro),
+    propuesto(plancha.claro, 'claro'),
     '}',
     'html[data-tema="oscuro"] {',
     decl(plancha.oscuro),
+    propuesto(plancha.oscuro, 'oscuro'),
     '}',
     '/* <<< FIN GENERADO */',
   ].join('\n');
@@ -307,8 +331,8 @@ const MONTOS = /DONATION_AMOUNTS\s*=\s*\[([^\]]*)\]/
 const VERSION = JSON.parse(fs.readFileSync(path.join(RAIZ, 'app.json'), 'utf8')).expo.version;
 
 // K7 de `paso 11` en la esquina superior derecha del cuerpo, a ras del marco.
-const cerrarEsquina = (nombre) =>
-  `<button type="button" class="k7 cerrar-esq" aria-label="${esc(nombre)}">${glifo('glifo-cerrar', 'c-sec')}</button>`;
+const cerrarEsquina = (nombre, claseGlifo = 'c-sec') =>
+  `<button type="button" class="k7 cerrar-esq" aria-label="${esc(nombre)}">${glifo('glifo-cerrar', claseGlifo)}</button>`;
 
 // Banners.md a.2: nota de borde izquierdo `acento`; banco reducido y nota del creador son el
 // mismo componente con otro rótulo y otro glifo.
@@ -342,17 +366,40 @@ const bancoReducido = () => nota({
 
 // DonationBox.md a.2: un solo aspecto para `DonationBox` (persistente, con regla corta) y
 // `DonationPrompt` (descartable); `celebratoria` desde `DONATION_WARM_SCORE`.
-function donacion({ celebratoria = false, descartable = false, regla = false } = {}) {
+//
+// `version`: 'p5' es el pedido de donación aprobado, DON-P5 (DonationBox.md a.2, b, c): marco
+// `acento` de `border-2`, encabezado en banda `acentoBanda` con título y descartar en `fondo`,
+// cuerpo y pie en `acentoFondo`, montos K2 de acento con relleno `superficie`. 'vigente' es
+// DON-P1, el aspecto anterior, que solo dibuja la figura 09 para compararlo. Mismo copy, mismos
+// montos, mismo destino.
+function donacion({ celebratoria = false, descartable = false, regla = false, version = 'p5' } = {}) {
   const titulo = celebratoria ? '¡Gran resultado!' : 'Ayuda a mantener esta aplicación';
   const texto = celebratoria
     ? 'Si pKapp te está ayudando a llegar al examen, dale una mano para mantenerla (no es de Udelar):'
     : 'Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:';
+  const p5 = version === 'p5';
+  const tituloHtml = `${celebratoria ? glifo('glifo-trofeo', p5 ? 'c-fondo' : 'c-acierto') : ''}<span>${esc(titulo)}</span>`;
+  const reglaHtml = regla ? '<div class="don-regla"></div>' : '';
+  if (p5) {
+    return `
+${reglaHtml}
+<section class="lam don don5${descartable ? ' don5-cerrable' : ''}">
+  ${marcas}
+  ${descartable ? cerrarEsquina('Cerrar', 'c-fondo') : ''}
+  <div class="don5-enc"><h3 class="don5-tit t-item c-fondo">${tituloHtml}</h3></div>
+  <div class="don5-cuerpo">
+    <p class="t-cuerpo c-tinta don5-txt">${esc(texto)}</p>
+    <div class="don5-montos">${MONTOS.map((m) => `<button type="button" class="k2 k2-acento monto t-dato">$${esc(m)}</button>`).join('')}</div>
+  </div>
+  <div class="don5-pie t-rotulo c-sec">Vía Mercado Pago</div>
+</section>`;
+  }
   return `
-${regla ? '<div class="don-regla"></div>' : ''}
+${reglaHtml}
 <section class="lam don${descartable ? ' don-cerrable' : ''}">
   ${marcas}
   ${descartable ? cerrarEsquina('Cerrar') : ''}
-  <h3 class="don-tit t-item c-tinta">${celebratoria ? glifo('glifo-trofeo', 'c-acierto') : ''}<span>${esc(titulo)}</span></h3>
+  <h3 class="don-tit t-item c-tinta">${tituloHtml}</h3>
   <p class="t-cuerpo c-tinta don-txt">${esc(texto)}</p>
   <div class="don-montos">${MONTOS.map((m) => `<button type="button" class="k3 monto t-dato">$${esc(m)}</button>`).join('')}</div>
   <div class="t-rotulo c-sec don-pie">Vía Mercado Pago</div>
@@ -661,6 +708,27 @@ function feedback(pct) {
   return { banda: 'baja', msg: 'A estudiar fuerte. Vos podés.' };
 }
 
+// Trío de resultados y botones de Results (Results.md a.2): la figura 09 los reutiliza para
+// mostrar el pedido de donación en su lugar, entre el trío y los botones.
+function trioResults(correctas, total) {
+  return `
+<section class="lam trio">
+  ${marcas}
+  <div class="trio-celda"><span class="t-cifra c-acierto">${correctas}</span><span class="t-rotulo c-sec trio-rot">${glifo('glifo-acierto')}Correctas</span></div>
+  <div class="trio-celda"><span class="t-cifra c-error">${total - correctas}</span><span class="t-rotulo c-sec trio-rot">${glifo('glifo-error')}Incorrectas</span></div>
+  <div class="trio-celda"><span class="t-cifra c-tinta">${total}</span><span class="t-rotulo c-sec trio-rot">Total</span></div>
+</section>`;
+}
+
+function botonesResults() {
+  return `
+<div class="botones">
+  <button type="button" class="k2 k2-acento btn-res t-cuerpo-fuerte">${glifo('glifo-revisar')}<span>Revisar todas las respuestas</span></button>
+  <button type="button" class="k1 btn-res t-cuerpo-fuerte">${glifo('glifo-reintentar')}<span>Volver a practicar</span></button>
+  <button type="button" class="k2 btn-res t-cuerpo-fuerte c-tinta">${glifo('glifo-inicio')}<span>Inicio</span></button>
+</div>`;
+}
+
 // `pedido`: 'normal' | 'celebratoria' | null (sin pedido de donación: menos de DONATION_MIN_SCORE
 // o no le toca por el 1 de cada 3).
 function pantallaResults({ respuestas, topic, pedido = null }) {
@@ -686,20 +754,9 @@ function pantallaResults({ respuestas, topic, pedido = null }) {
       <span class="chip chip-tema t-rotulo">${esc(topic)}</span>
     </section>
   </div>
-  <div class="col mb-3">
-    <section class="lam trio">
-      ${marcas}
-      <div class="trio-celda"><span class="t-cifra c-acierto">${correctas}</span><span class="t-rotulo c-sec trio-rot">${glifo('glifo-acierto')}Correctas</span></div>
-      <div class="trio-celda"><span class="t-cifra c-error">${total - correctas}</span><span class="t-rotulo c-sec trio-rot">${glifo('glifo-error')}Incorrectas</span></div>
-      <div class="trio-celda"><span class="t-cifra c-tinta">${total}</span><span class="t-rotulo c-sec trio-rot">Total</span></div>
-    </section>
-  </div>
+  <div class="col mb-3">${trioResults(correctas, total)}</div>
   ${pedido ? `<div class="col mb-3">${donacion({ celebratoria: pedido === 'celebratoria', descartable: true })}</div>` : ''}
-  <div class="col mt-1_5"><div class="botones">
-    <button type="button" class="k2 k2-acento btn-res t-cuerpo-fuerte">${glifo('glifo-revisar')}<span>Revisar todas las respuestas</span></button>
-    <button type="button" class="k1 btn-res t-cuerpo-fuerte">${glifo('glifo-reintentar')}<span>Volver a practicar</span></button>
-    <button type="button" class="k2 btn-res t-cuerpo-fuerte c-tinta">${glifo('glifo-inicio')}<span>Inicio</span></button>
-  </div></div>
+  <div class="col mt-1_5">${botonesResults()}</div>
   <div class="relleno-8"></div>
 </div>`;
 }
@@ -1014,16 +1071,38 @@ function pantallaVacioLamina({ barra, glifoId, titulo, texto }) {
 // Variantes de componente de 1.3: pedido de donación, avisos, marca de parcial
 // ---------------------------------------------------------------------------
 
+// Figura 09: DON-P1, el aspecto anterior del pedido de donación, y DON-P5, el aprobado (usuario,
+// 2026-10-11), lado a lado. Cada columna dibuja la variante celebratoria sola y las otras dos en
+// su contexto: MateriaSelect (persistente, tras la regla corta, bajo una tarjeta de materia) y
+// Results de 60 a 79 % (descartable, entre el trío y los botones), para ver cómo se lee frente a
+// sus vecinos y frente a «Volver a practicar».
 function pantallaDonacion() {
-  const fila = (rotulo, html) => `
-<div class="estado"><div class="t-rotulo c-sec estado-rot">${rotulo}</div>${html}</div>`;
+  const rotulo = (texto) => `<div class="col don-rot"><div class="t-rotulo c-sec">${texto}</div></div>`;
+  const aviso = '<div class="col"><p class="comp-aviso t-detalle c-tinta">'
+    + '<span class="av-claro">Claro: la banda (5,40:1 contra la página) pesa un tercio de «Volver a practicar» (16,32:1): no compite.</span>'
+    + '<span class="av-oscuro">Oscuro: la banda baja de 9,48:1 a 5,40:1 (acentoBanda), el mismo peso que en claro: un tercio de «Volver a practicar» (15,97:1). Ya no compite.</span>'
+    + '</p></div>';
+  const panel = (version) => `
+<div class="pantalla" data-pantalla="Donacion" data-version="${version}">
+  ${rotulo('Celebratoria · descartable (Results, desde 80 %)')}
+  <div class="col">${donacion({ celebratoria: true, descartable: true, version })}</div>
+  ${rotulo('En contexto · MateriaSelect: persistente, con regla corta')}
+  <div class="col"><div class="lista">${tarjetaMateria(porId.cyr)}</div></div>
+  <div class="col mt-6">${donacion({ regla: true, version })}</div>
+  ${rotulo('En contexto · Results de 60 a 79 %: descartable, entre el trío y los botones')}
+  ${version === 'p5' ? aviso : ''}
+  <div class="col mb-3">${trioResults(15, 24)}</div>
+  <div class="col mb-3">${donacion({ descartable: true, version })}</div>
+  <div class="col mt-1_5">${botonesResults()}</div>
+  <div class="relleno-8"></div>
+</div>`;
+  const columnas = [
+    ['vigente', 'Antes · DON-P1'],
+    ['p5', 'DON-P5 · aprobada (usuario, 2026-10-11) · tokens nuevos, pendientes: acentoFondo y acentoBanda'],
+  ];
   return `
-<div class="pantalla" data-pantalla="Donacion">
-  <div class="col estados">
-    ${fila('Normal · persistente, con regla corta (MateriaSelect)', donacion({ regla: true }))}
-    ${fila('Celebratoria · descartable (Results, desde 80 %)', donacion({ celebratoria: true, descartable: true }))}
-    ${fila('Normal · descartable (Results, de 60 a 79 %)', donacion({ descartable: true }))}
-  </div>
+<div class="comparacion">
+${columnas.map(([version, titulo]) => `  <div class="comp-col"><div class="comp-tit t-rotulo-medio c-tinta">${titulo}</div>${panel(version)}</div>`).join('\n')}
 </div>`;
 }
 
@@ -1143,7 +1222,7 @@ const FIGURAS = [
     explicacion: qAgregar.explanation, guardando: true }) },
   { id: '08a', titulo: 'Ajustes · plegables cerrados · ocultar resultado en «No»', ficha: 'Settings.md · c.2 (SET-P1)', html: pantallaSettings(cyr, { propias: PROPIAS }) },
   { id: '08b', titulo: 'Ajustes · plegables abiertos · ocultar resultado en «Sí»', ficha: 'Settings.md · c.1, c.2 (SET-P1, SET-P2)', html: pantallaSettings(cyr, { propias: PROPIAS, abiertos: { preguntas: true, datos: true }, ocultar: true }) },
-  { id: '09', titulo: 'Pedido de donación · variantes', ficha: 'DonationBox.md · b, c (DON-P1)', html: pantallaDonacion() },
+  { id: '09', clase: 'fig-doble', titulo: 'Pedido de donación · antes (DON-P1) y DON-P5, aprobada', ficha: 'DonationBox.md · a, b, c y f (DON-P5)', html: pantallaDonacion() },
   { id: '10a', titulo: 'Revisión de respuestas · todas', ficha: 'Revision.md · c.2 (REV-P1, REV-P2, REV-P3)', html: pantallaRevision(cyr, REV_MUESTRA) },
   { id: '10b', titulo: 'Revisión de respuestas · solo incorrectas', ficha: 'Revision.md · c.2 (REV-P1)', html: pantallaRevision(cyr, REV_MUESTRA, { soloIncorrectas: true }) },
   { id: '11a', titulo: `Examen en curso · sin responder · ${bcyt.shortName}, 2.º parcial`, ficha: 'ExamenEnCurso.md · c.2 reposo (PAR-P1)', html: pantallaQuiz({ materia: bcyt, pregunta: qParcial2, indice: 11, total: 40, sinFeedback: true }) },
@@ -1162,7 +1241,7 @@ const FIGURAS = [
 ];
 
 const figura = (f) => `
-<figure class="fig" id="fig-${f.id}">
+<figure class="fig${f.clase ? ` ${f.clase}` : ''}" id="fig-${f.id}">
   <figcaption>
     <span class="t-rotulo-medio c-tinta">${f.id} · ${esc(f.titulo)}</span>
     <span class="fig-ficha c-sec">${esc(f.ficha)} · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
@@ -1490,6 +1569,39 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 .monto{flex:1;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
 .don-pie{text-align:center}
 
+/* DON-P5, pedido de donación aprobado (usuario, 2026-10-11). Marco acento de border-2 (las marcas
+   de esquina siguen sobresaliendo paso 1 del borde exterior: 6 px con el marco de 2 px). El panel
+   no lleva relleno propio por franjas: la banda del encabezado (acentoBanda), el cuerpo y el pie
+   (acentoFondo) llevan el suyo. Los montos conservan el relleno superficie de K2: sobre el tinte
+   quedan separados del panel. */
+.don5{border-width:2px;padding:0;background:var(--acentoFondo)}
+.don5 .mk-a{top:-6px;left:-6px}.don5 .mk-b{top:-6px;right:-6px}.don5 .mk-c{bottom:-6px;left:-6px}.don5 .mk-d{bottom:-6px;right:-6px}
+.don5-enc{display:flex;align-items:center;min-height:44px;padding:8px 14px;background:var(--acentoBanda);border-bottom:1px solid var(--acentoBanda)}
+.don5-tit{display:flex;align-items:center;gap:8px}
+.don5-cerrable .don5-tit{padding-right:44px}
+.don5-cuerpo{padding:14px}
+.don5-txt{margin-bottom:14px}
+.don5-montos{display:flex;gap:8px}
+.don5-pie{border-top:1px solid var(--filete);padding:8px 14px;text-align:center}
+/* K7 sobre la banda: foco, hover y presionado en fondo y acentoBanda. El contorno de foco va hacia
+   adentro: a ras del marco, hacia afuera caería sobre el marco y la página. */
+.don5 .cerrar-esq{color:var(--fondo)}
+@media (hover:hover){.don5 .cerrar-esq:hover{outline-color:var(--fondo)}}
+.don5 .cerrar-esq:focus-visible{outline-color:var(--fondo);outline-offset:-4px}
+.don5 .cerrar-esq:active{background:var(--fondo)}
+.don5 .cerrar-esq:active *{color:var(--acentoBanda)}
+
+/* Figura 09: DON-P1 y DON-P5 lado a lado (ocupa dos columnas del tablero) */
+.fig-doble{grid-column:span 2}
+.comparacion{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.comp-col{display:flex;flex-direction:column;gap:8px;width:calc(var(--w) + 2px);min-width:0}
+.comp-tit{min-height:48px}
+.comp-aviso{padding-top:8px}
+.av-oscuro{display:none}
+html[data-tema="oscuro"] .av-oscuro{display:inline}
+html[data-tema="oscuro"] .av-claro{display:none}
+.don-rot{padding-top:16px;padding-bottom:8px}
+
 /* ===== 07 AddQuestion ===== */
 .add-rot{padding-bottom:8px}
 .add-grupo{margin-bottom:24px}
@@ -1657,7 +1769,7 @@ ${sprite}
       <span class="seg"><button type="button" class="seg-op t-rotulo" data-set="tema:claro">Claro</button><button type="button" class="seg-op t-rotulo" data-set="tema:oscuro">Oscuro</button></span></div>
     <div class="herr-grupo"><span class="t-rotulo c-sec">Ir a</span><span class="seg">${navegacion}</span></div>
   </div>
-  <div class="herr-nota t-rotulo c-sec">Fieles a las fichas aprobadas el ${FECHA_FICHAS} (1.2 y 1.3) · colores generados desde src/theme/colores.js · conteos, temas y preguntas reales; resultados, estadísticas, preguntas propias y respuestas de revisión son datos de muestra</div>
+  <div class="herr-nota t-rotulo c-sec">Fieles a las fichas aprobadas (1.2 y 1.3) y al pedido de donación DON-P5, aprobado el 2026-10-11 y todavía sin implementar; la figura 09 lo compara con DON-P1 · tokens nuevos, pendientes: acentoFondo y acentoBanda (derivados de colores.js) · colores generados desde src/theme/colores.js · conteos, temas y preguntas reales; resultados, estadísticas, preguntas propias y respuestas de revisión son datos de muestra</div>
 </header>
 <main class="tablero">
 ${FIGURAS.map(figura).join('\n')}

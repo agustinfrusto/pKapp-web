@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Captura headless de maqueta.html: un tablero PNG por ancho y tema
-// (maqueta-<ancho>-<tema>.png, seis archivos). También verifica que la página no
-// emita errores de consola ni excepciones.
+// (maqueta-<ancho>-<tema>.png, seis archivos) y el recorte de la figura 09, la vigente y las
+// propuestas DON-P2 y DON-P5 del pedido de donación lado a lado (maqueta-donacion-<ancho>-<tema>.png,
+// seis archivos). También verifica que la página no emita errores de consola ni excepciones.
 //
 // Reutiliza el Chrome headless y el cliente CDP del arnés e2e del repo
 // (tools/e2e/entorno.js, tools/e2e/cdp.js); no agrega dependencias.
@@ -25,9 +26,12 @@ const ANCHOS = [390, 768, 1280];
 const TEMAS = ['claro', 'oscuro'];
 // Columnas del tablero por ancho de pantalla: el viewport se calcula para que la grilla
 // (auto-fill) arme exactamente esas columnas. Relleno lateral del tablero: 24 px.
-// Con 30 figuras, dos columnas a 768 y 1280 px pasan los 16 384 px de alto del PNG: tres
-// columnas lo dejan bajo ese tope.
-const COLUMNAS = { 390: 4, 768: 3, 1280: 3 };
+// Con 30 figuras, dos columnas a 768 y 1280 px pasan los 16 384 px de alto del PNG. Tres
+// columnas lo dejaban bajo ese tope hasta que la figura 09 pasó a ocupar varias columnas: con tres,
+// 768 y 1280 px medían 16 475 y 16 459 px. Con cuatro columnas y la figura 09 en dos (antes y
+// DON-P5) quedan, en oscuro (la anotación de la banda es más larga), en 14 360 px (390) y 13 527 px
+// (768 y 1280). Margen al tope: 2 024 px a 390 px.
+const COLUMNAS = { 390: 4, 768: 4, 1280: 4 };
 const viewport = (a) => COLUMNAS[a] * (a + 2) + (COLUMNAS[a] - 1) * 24 + 48;
 
 if (!fs.existsSync(HTML)) throw new Error('Falta maqueta.html: correr generar.mjs primero');
@@ -107,6 +111,23 @@ try {
       const archivo = path.join(AQUI, `maqueta-${ancho}-${tema}.png`);
       fs.writeFileSync(archivo, Buffer.from(data, 'base64'));
       console.log(`${path.basename(archivo)}  ${estado.w}x${estado.h}  figuras ${estado.figuras}  fuentes ${fuentes}`);
+
+      // Recorte de la figura 09 (pedido de donación: vigente, DON-P2 y DON-P5 lado a lado), del
+      // ancho de sus tres columnas y no de la fila entera del tablero.
+      const caja = await evaluar(`(() => {
+        const fig = document.getElementById('fig-09');
+        const b = fig.getBoundingClientRect();
+        const derecha = Math.max(...[...fig.querySelectorAll('.comp-col')].map((c) => c.getBoundingClientRect().right));
+        return { x: b.left + scrollX, y: b.top + scrollY, w: derecha - b.left, h: b.height };
+      })()`);
+      const recorte = await cmd('Page.captureScreenshot', {
+        format: 'png',
+        captureBeyondViewport: true,
+        clip: { x: caja.x, y: caja.y, width: caja.w, height: caja.h, scale: 1 },
+      });
+      const archivoDon = path.join(AQUI, `maqueta-donacion-${ancho}-${tema}.png`);
+      fs.writeFileSync(archivoDon, Buffer.from(recorte.data, 'base64'));
+      console.log(`${path.basename(archivoDon)}  ${Math.round(caja.w)}x${Math.round(caja.h)}`);
 
       await nav.enviar('Target.closeTarget', { targetId });
     }

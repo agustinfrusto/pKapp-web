@@ -5,9 +5,9 @@
 | Change | `openspec/changes/rediseno-plancha` (D3, D6, D7, D9, D10) |
 | Rama | `rediseno` |
 | Pedido | «me gustaría ver una maqueta por parte del diseñador de las pantallas» (usuario, 2026-10-10). Primera pasada: las seis pantallas de 1.2. Segunda pasada: lo aprobado desde entonces |
-| Qué es | Las pantallas y superficies tal como las fijan las fichas aprobadas de 1.2 y 1.3. No es un boceto nuevo: lo que se vea distinto de una ficha es un defecto de la maqueta, salvo lo listado en §6 |
+| Qué es | Las pantallas y superficies tal como las fijan las fichas aprobadas de 1.2 y 1.3. No es un boceto nuevo: lo que se vea distinto de una ficha es un defecto de la maqueta, salvo lo listado en §6. El pedido de donación es `DON-P5`, aprobada el 2026-10-11 y todavía sin implementar (tarea 3.8); la figura 09 lo compara con `DON-P1`, el aspecto anterior |
 | Fuentes | `pantallas/comun.md` y las trece fichas (1.2 y 1.3); `tokens.md`; `src/theme/colores.js` (`plancha`); `svg/<id>.svg` (familia B); `svg/glifos/` (35); `src/assets/filamentos.js`; `src/materias/*`; `src/utils/mercadopago.js` (montos); `app.json` (versión) |
-| Archivos | `maqueta.html`, `generar.mjs`, `capturar.mjs`, `maqueta-<ancho>-<tema>.png` (6), este archivo. Los PNG quedan fuera de git por la regla de `.gitignore` (`openspec/changes/*/diseno/maqueta/*.png`): existen en disco y `capturar.mjs` los regenera |
+| Archivos | `maqueta.html`, `generar.mjs`, `capturar.mjs`, `maqueta-<ancho>-<tema>.png` (6), `maqueta-donacion-<ancho>-<tema>.png` (6, recorte de la figura 09), este archivo. Los PNG quedan fuera de git por la regla de `.gitignore` (`openspec/changes/*/diseno/maqueta/*.png`): existen en disco y `capturar.mjs` los regenera |
 | Fuera de alcance | Diálogos del sistema (`confirm`, `avisar`, V5 de `Vacios.md`) y el selector de archivos; la carga inicial de V1 y V2 (`VAC-P4`: solo la barra, es una ausencia); el tablero a 360 y 320 px: la maqueta dibuja 390, 768 y 1280. La variante de 320 px del botón «Cambiar materia» (`comun.md` §1.1) existe en el HTML (container query sobre el header) y se midió forzando el ancho de la pantalla (§4) |
 
 ---
@@ -23,9 +23,12 @@
 | 5 | Los bloques reservados «ver 1.3» pasan a los componentes de su ficha, en el lugar que fijaban `MateriaSelect.md`, `Home.md` y `Results.md`: nota del creador y donación (01), banner de banco reducido (02), pedido de donación (05a y 05b). 05c queda sin pedido: con 38 % no alcanza `DONATION_MIN_SCORE` | 01, 02, 05a a 05c |
 | 6 | Marca de parcial en el filtro de parcial del selector (`PAR-P2`) | 03a |
 | 7 | Figuras nuevas de 1.3, en los mismos anchos y temas: 07a a 14 (16 figuras) | §2 |
-| 8 | `capturar.mjs`: 3 columnas a 768 y 1280 px (antes 2). Con 30 figuras, 2 columnas pasaban los 16 384 px de alto del PNG (20 519 px). Alturas actuales: 14 544 px (390) y 15 325 px (768 y 1280) | `capturar.mjs` |
-
+| 8 | `capturar.mjs`: 3 columnas a 768 y 1280 px (antes 2). Con 30 figuras, 2 columnas pasaban los 16 384 px de alto del PNG (20 519 px). Alturas de esa pasada: 14 544 px (390) y 15 325 px (768 y 1280). Reemplazadas por las del #10 | `capturar.mjs` |
 | 9 | Corrección de la auditoría 1.5 (2026-10-10): bajo 360 px de ancho el botón «Cambiar materia» de Home es solo `glifo-volver` en un cuadrado de `paso 11`, con `aria-label` (`comun.md` §1.1, `Home.md` g). Alto mínimo `paso 8` del encabezado de la nota del creador, que deja el texto bajo el objetivo de descartar (`Banners.md` a.2, `MAQUETA-P4`). Nada cambia a 390, 768 y 1280 px salvo ese encabezado | 01, 13 y 02 bajo 360 px |
+| 10 | Figura 09 (cuarta vuelta, 2026-10-11): el pedido de donación muestra dos columnas: «Antes» (`DON-P1`) y `DON-P5`, aprobada por el usuario con un ajuste de oscuro: la banda del encabezado baja a `acentoBanda` (#12) y mide 5,45:1 contra la página, como en claro (5,40:1); «Volver a practicar» queda 2,9 veces más fuerte. `DON-P2` y `DON-P4` salen de la figura (descartadas). Cada columna dibuja la celebratoria sola y las otras dos en su contexto: tarjeta de materia con la regla corta (MateriaSelect) y trío con los tres botones (Results, 60 a 79 %). La columna de `DON-P5` anota, en claro y en oscuro, cómo pesa la banda frente a «Volver a practicar». La figura ocupa dos columnas del tablero. `capturar.mjs`: 4 columnas en los tres anchos y un recorte de la figura 09 por ancho y tema. Alturas actuales: 14 360 px (390, oscuro) y 13 527 px (768 y 1280, oscuro), a 2 024 px del tope de 16 384 | 09 y `capturar.mjs` |
+| 11 | La versión de «Acerca de» sale de `app.json`: al regenerar pasó de v1.7.4 a v1.7.5. Es el único otro cambio de la salida; el trío y los botones de Results pasaron a funciones compartidas con la figura 09 sin cambiar su HTML | 08a, 08b y 12c |
+| 12 | `generar.mjs` deriva dos tokens nuevos de `acento`, `superficie` y `fondo` para dibujar `DON-P5`: `acentoFondo` (tinte B de la exploración: 12 % de `acento` sobre `superficie` en claro, #e2eef0, y 15 % en oscuro, #1d3037) y `acentoBanda` (igual que `acento` en claro, #0b6e80; 73 % de `acento` sobre `fondo` en oscuro, #4692a1). Los emite en el bloque generado, comentados como nuevos, pendientes: el archivo sigue sin escribir ningún color y el control de hexadecimales fuera del bloque generado pasa | 01, 05a, 05b y 09 |
+| 13 | Las figuras 01, 05a y 05b dibujan `DON-P5` y no `DON-P1`: la ficha vigente es `DON-P5` y «lo que se vea distinto de una ficha es un defecto de la maqueta». Cambia el pedido de donación y su alto (+21 px); nada más en esas figuras | 01, 05a y 05b |
 
 Las cifras de §4, las decisiones de §6 y las propuestas de §7 reemplazan a las de la primera pasada.
 
@@ -40,10 +43,10 @@ Las cifras de §4, las decisiones de §6 y las propuestas de §7 reemplazan a la
 | Ir a una figura | Botones «Ir a» de la barra superior (01 a 14) |
 | Estados de control | Hover (solo con puntero), presionado y foco de teclado responden como `comun.md` §5 (`COMUN-P2`): pasar el puntero, mantener presionado, Tab |
 | Regenerar | `node openspec/changes/rediseno-plancha/diseno/maqueta/generar.mjs` |
-| Recapturar los PNG | `node openspec/changes/rediseno-plancha/diseno/maqueta/capturar.mjs` (Chrome y cliente CDP de `tools/e2e/`; sin dependencias nuevas) |
+| Recapturar los PNG | `node openspec/changes/rediseno-plancha/diseno/maqueta/capturar.mjs` (Chrome y cliente CDP de `tools/e2e/`; sin dependencias nuevas). Deja los seis tableros y, aparte, el recorte de la figura 09 en cada ancho y tema |
 | Origen de los colores | Bloque entre `>>> GENERADO` y `<<< FIN GENERADO` de `maqueta.html`, generado desde `plancha.claro` y `plancha.oscuro`. Ningún otro lugar del HTML ni de `generar.mjs` escribe un color |
 
-El tablero numera 30 figuras: 24 pantallas, o estados de pantalla, y 6 de componente (01b, 04e, 09, 11c, 13 y 14). Con el ancho elegido, el tablero arma 4 columnas a 390 px y 3 a 768 y 1280.
+El tablero numera 30 figuras: 24 pantallas, o estados de pantalla, y 6 de componente (01b, 04e, 09, 11c, 13 y 14). En el navegador arma las columnas que caben en la ventana; las capturas usan 4 columnas en los tres anchos. La figura 09 ocupa dos columnas.
 
 ---
 
@@ -67,9 +70,9 @@ El tablero numera 30 figuras: 24 pantallas, o estados de pantalla, y 6 de compon
 | 04e | Quiz | Chips de origen: examen, generada, propia | Texto fijo | `Quiz.md` c.3 |
 | 07a | AddQuestion | Formulario inicial: primer tema de CyR, cuatro opciones vacías, ninguna correcta | Reales: `TOPICS` de CyR | `AddQuestion.md` c.2 |
 | 07b | AddQuestion | BCYT (27 temas): completa, correcta marcada, «Guardando...» | Reales: temas de BCYT; texto de la pregunta de muestra tomado de `2025-T1-Q15` | `AddQuestion.md` c.1, c.2 (`ADD-P1`, `ADD-P2`) |
-| 08a | Settings | Plegables cerrados, «No» seleccionado, «2 preguntas propias» | Versión de `app.json` (1.7.1); banco de CyR; 2 propias de muestra | `Settings.md` c.2 (`SET-P1`) |
+| 08a | Settings | Plegables cerrados, «No» seleccionado, «2 preguntas propias» | Versión de `app.json` (1.7.5); banco de CyR; 2 propias de muestra | `Settings.md` c.2 (`SET-P1`) |
 | 08b | Settings | Plegables abiertos, «Sí» seleccionado, dos tarjetas propias, respaldo web y «Resetear estadísticas» en `error` | Igual | `Settings.md` c.1, c.2 (`SET-P1`, `SET-P2`) |
-| 09 | Componente | Pedido de donación: normal persistente con regla corta; celebratorio descartable; normal descartable | Montos de `DONATION_AMOUNTS` | `DonationBox.md` b, c (`DON-P1`) |
+| 09 | Componente | Pedido de donación, antes (`DON-P1`) y `DON-P5`, aprobada, lado a lado. En cada columna: celebratoria descartable (Results, desde 80 %); persistente con regla corta bajo una tarjeta de materia (MateriaSelect); normal descartable entre el trío y los botones (Results, 60 a 79 %). `DON-P5` lleva banda `acentoBanda`, cuerpo en `acentoFondo` (tokens nuevos, pendientes) y una anotación sobre su peso frente a «Volver a practicar» | Montos de `DONATION_AMOUNTS`; tarjeta de CyR y trío de 15 de 24, de muestra | `DonationBox.md` a, b, c y f (`DON-P5`) |
 | 10a | Revisión | Filtro en «Todas», «Volver» arriba, cuatro respuestas (2 acertadas, 2 falladas) con nota | Texto real de CyR; cuáles fallan, de muestra | `Revision.md` c.2 (`REV-P1`, `REV-P2`, `REV-P3`) |
 | 10b | Revisión | Filtro en «Incorrectas»: #2 y #4 con su número original | Igual | `Revision.md` c.2 (`REV-P1`) |
 | 11a | Examen en curso | BCYT, 2.º parcial, sin responder, 12 / 40, sin temporizador | Real: `2025-T1-Q14` | `ExamenEnCurso.md` c.2 reposo; `comun.md` §12 (`PAR-P1`) |
@@ -105,12 +108,21 @@ El tablero numera 30 figuras: 24 pantallas, o estados de pantalla, y 6 de compon
 | `MAQUETA-P3` opciones del control de tema de `paso 11` (desviación por invariante, no propuesta: `comun.md` §2.4) | 01, 02 |
 | `ADD-P1` temas con salto de línea; `ADD-P2` rótulos sin dos puntos | 07a, 07b |
 | `SET-P1` «No \| Sí»; `SET-P2` «Resetear estadísticas» en `error` | 08a, 08b |
-| `DON-P1` montos en K3 con marco `acento` | 01, 05a, 05b, 09 |
+| `DON-P1` montos en K3 con marco `acento` | Reemplazada por `DON-P5`: solo en la columna «Antes» de 09 |
+| `DON-P5` marco `acento` de `border-2`, banda `acentoBanda` en el encabezado, cuerpo en `acentoFondo` y montos K2 de acento con relleno `superficie` (aprobada, usuario, 2026-10-11) | 01, 05a, 05b y 09 (columna derecha) |
 | `REV-P1` filtro; `REV-P2` «Volver» arriba; `REV-P3` rótulo de la nota | 10a, 10b |
 | `EXA-P1` «Resultado oculto hasta el final» | 11b |
 | `PAR-P1` insignia de dos casillas; `PAR-P2` marca en el filtro | 03a, 11a, 11b, 11c |
 | `VAC-P1` lámina vacía; `VAC-P2` acción «Practicar» y «Agregar pregunta»; `VAC-P3` mensaje de V4 | 12a a 12d |
 | `BAN-P1` contacto en botón | 02, 13 |
+
+### Descartadas y retiradas
+
+| Id | Estado |
+|---|---|
+| `DON-P2` marco `acento` de `border-2`, tres franjas y montos K2 de acento | Descartada (el usuario eligió `DON-P5`); ya no se dibuja |
+| `DON-P4` rótulo «Donación» | Descartada por el usuario (2026-10-11); ya no se dibuja. La exploración de la segunda vuelta queda en `.orca/reports/` |
+| `DON-P3` glifo propio | Retirada de la ficha (`DonationBox.md` f.2); nunca se dibujó |
 
 ---
 
@@ -139,13 +151,21 @@ Con las seis materias publicadas sin preguntas generadas, todo `source` es `exam
 
 ## 4. Verificación
 
-Medido en Chrome headless sobre `maqueta.html`, en 390 claro, 390 oscuro, 768 claro y 1280 oscuro.
+Medido en Chrome headless sobre `maqueta.html`, en 390 claro, 390 oscuro, 768 claro y 1280 oscuro. Las filas marcadas «(09)» se midieron en la pasada de `DON-P5` (2026-10-11), en 390 claro y oscuro, 768 claro, 1280 claro y oscuro, y con el ancho de `.pantalla` forzado a 360 y 320 px. Las demás son de la pasada anterior y no se repitieron: salvo la figura 09, el pedido de donación de 01, 05a y 05b y la cadena de versión (§0, #10, #11 y #13), ninguna figura cambió.
 
 | Chequeo | Método | Resultado |
 |---|---|---|
 | Hexadecimales fuera del bloque generado | `generar.mjs` falla si hay alguno | Ninguno |
 | Errores de consola y excepciones | `capturar.mjs`, seis combinaciones | Ninguno |
-| PNG | `capturar.mjs` | 6 regenerados: 1688 × 14544 (390), 2406 × 15325 (768), 3942 × 15325 (1280), cada ancho en claro y oscuro; 30 figuras en cada uno |
+| PNG | `capturar.mjs` | 6 tableros regenerados: 1688 × 14342 (390 claro) y 1688 × 14360 (390 oscuro), 3200 × 13509 (768 claro) y 3200 × 13527 (768 oscuro), 5248 × 13509 (1280 claro) y 5248 × 13527 (1280 oscuro); 30 figuras en cada uno. 6 recortes de la figura 09, de sus dos columnas: 808 × 1395 y 808 × 1413 (390), 1564 × 1373 y 1564 × 1391 (768), 2588 × 1373 y 2588 × 1391 (1280), claro y oscuro |
+| (09) Objetivo táctil (D10) | Todo `button` de las seis secciones de pedido de la figura, tres por columna | 14 por columna; ninguno bajo 44 × 44 px, en las dos. 8 px entre montos. Celdas de monto de `DON-P5`: 73,5 px (390), 88 px (768 y 1280), 66 px (360) y 56 px (320) |
+| (09) Desborde | Rectángulo de cada elemento del panel contra el del panel, y de cada pantalla contra el suyo | Ninguno desborda en ninguna de las dos columnas, a 390, 768, 1280, 360 y 320 px: sin scroll horizontal |
+| (09) Descartar frente al título | Rectángulo del texto del título contra el del objetivo de descartar | Sin solape: libre desde 37,6 px (390 px, título en una línea) hasta 201,8 px. El objetivo queda a 2 px del borde superior y del derecho del panel en `DON-P5` (marco de 2 px) y a 1 px en `DON-P1`: a ras del marco |
+| (09) Propiedades prohibidas | Estilo calculado de cada elemento de las seis secciones | 0 con radio, sombra, degradado, opacidad distinta de 1, cursiva o subrayado |
+| (09) Emojis | `\p{Extended_Pictographic}` sobre el texto de las seis secciones | 0 |
+| (09) Marco y relleno | Estilo calculado del panel y de su encabezado | `DON-P1`: marco de 1 px `acento`, relleno `superficie`. `DON-P5`: marco de 2 px `acento`; cuerpo en `acentoFondo` (claro `rgb(226, 238, 240)` = #e2eef0, oscuro `rgb(29, 48, 55)` = #1d3037); banda en `acentoBanda` (claro `rgb(11, 110, 128)` = #0b6e80, oscuro `rgb(70, 146, 161)` = #4692a1); título y glifo de descartar en `fondo` (claro `rgb(244, 245, 246)`, oscuro `rgb(11, 13, 16)`); celdas de monto en `superficie` |
+| (09) Alto del panel | Medido a 390 px | Normal: 190 px `DON-P1` y 211 px `DON-P5` (+21). Celebratoria: 212 y 233 px. A 360 y 320 px el título salta de línea: banda de 61 px y panel descartable de 228 px (360) y 250 px (320) en `DON-P5` |
+| (09) Banda frente a «Volver a practicar» | Razón de contraste y salto de luminosidad L* contra la página (desde `colores.js`); tamaño medido en el navegador a 390 px | Claro: banda 5,40 y K1 16,32 (0,33); L* 54,1 y 88,4 (0,61). Oscuro antes del ajuste, con `acento`: 9,48 y 15,97 (0,59); L* 70,1 y 88,6 (0,79): competía. Oscuro con `acentoBanda`: 5,45 y 15,97 (0,34); L* 52,9 y 88,6 (0,60); croma 24,3 contra 2,3. Banda de 346 × 44 px y K1 de 350 × 52 px. K1 queda 2,9 veces más fuerte contra la página en oscuro y 3,0 en claro. La figura 09 lo anota en la columna de `DON-P5`, en el tema que corresponde |
 | Fuentes | `document.fonts` | Plex Sans 400 y 600, Plex Mono 400 y 500, cargadas |
 | Radios, sombras, degradados, opacidad, cursiva, subrayado | Estilo calculado de cada elemento de `.pantalla`, en las cuatro combinaciones | 0 |
 | Emojis | `\p{Extended_Pictographic}` sobre el texto del documento | 0 |
@@ -209,13 +229,14 @@ Estas decisiones las tomó la maqueta porque la ficha no las fijaba. La correcci
 | 19 | Marca de parcial | Casilla de 10 px (`paso 2.5`) con borde de 1 px del color del contenedor; la llena, rellena con el mismo color | `comun.md` §12.2 fija medida, marco y relleno; el color es el del texto | Ya en la ficha: `comun.md` §12.2 |
 | 20 | Donación en Results | 05a celebratoria y 05b normal; 05c sin pedido | `DONATION_MIN_SCORE` y `DONATION_WARM_SCORE` (`DonationBox.md` d.1); el «1 de cada 3» es de muestra | Del tablero: muestra; umbrales en `DonationBox.md` d.1 |
 | 21 | Figuras 09, 11c, 13 y 14 | Varias variantes en una figura, con rótulo de estado, como 01b y 04e | Son componentes, no pantallas | Del tablero |
-| 22 | Tablero, columnas | 3 columnas a 768 y 1280 px en la captura | Con 2 el PNG pasaba el tope de alto (§0, #8) | Del tablero |
+| 22 | Tablero, columnas | 4 columnas en la captura, en los tres anchos (antes 3 a 768 y 1280 px) | Con 2 el PNG pasaba el tope de alto (§0, #8); con 3 y una figura 09 de varias columnas también (§0, #10) | Del tablero |
+| 23 | Figura 09, comparación | Dos columnas de pantalla: «Antes» (`DON-P1`) y `DON-P5`. Cada una con la celebratoria sola, la persistente bajo una tarjeta de CyR con su regla corta, y la descartable entre un trío de 15 de 24 y los tres botones de Results. Una anotación en la columna de `DON-P5`, sobre el contexto de Results, dice cómo pesa la banda frente a «Volver a practicar» en el tema activo | Para decidir si el pedido «se nota» y si compite con la acción primaria hay que verlo junto a lo que lo rodea; ninguna ficha fija esos vecinos en una figura | Del tablero: muestra |
 
 ---
 
 ## 7. Propuestas nuevas
 
-Surgieron al maquetar. No se aplicaron en la maqueta: se dibuja lo aprobado.
+Surgieron al maquetar. No se aplicaron en la maqueta: se dibuja lo aprobado. El pedido de donación (`DON-P5`) no surgió al maquetar sino de un pedido del usuario; está aprobado y se dibuja en la maqueta.
 
 ### Estado de las anteriores
 
@@ -224,12 +245,24 @@ Surgieron al maquetar. No se aplicaron en la maqueta: se dibuja lo aprobado.
 | `MAQUETA-P1` | Aprobada (usuario, 2026-10-10); `comun.md` §3.5 | Aplicada en la maqueta (§0, #3) |
 | `MAQUETA-P3` | Desviación por invariante (D10, 44 × 44 pt), no propuesta y sin estado de aprobación: `comun.md` §2.4; la recogen §1, §2.1 y §8 y `tokens.md` c.3 | Aplicada en la maqueta (§0, #4) |
 | `MAQUETA-P2` | Bug, se corrige en 3.6: es un bug de `main`, no una propuesta. `Results.md` (a.1 #7, d.2): el chip muestra `TOPICS[topic]` si `topic` es una clave y «Todos los temas» si no | La figura 05b sigue dibujando la clave cruda hasta que la maqueta se regenere |
+| `DON-P5` | Aprobada (usuario, 2026-10-11) con un ajuste de oscuro: la banda baja a `acentoBanda`; reemplaza a `DON-P1`. `DonationBox.md` f.1 | Aplicada en 01, 05a, 05b y 09 (§0, #10 y #13) |
+| `DON-P2`, `DON-P4` | Descartadas | Ya no se dibujan |
+| `DON-P3` | Retirada de la ficha (`DonationBox.md` f.2) | Nunca se dibujó |
 
 ### Nuevas
 
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
 | `MAQUETA-P4` | En la nota del creador, el texto arranca debajo del objetivo de descartar: el encabezado reserva alto mínimo `paso 8`, que con el relleno superior `paso 3.5` supera el objetivo (`paso 11`) | El objetivo de `paso 11` pegado al marco baja hasta 44 px y el texto arranca a 38 px (`paso 3.5` + rótulo de 16 + `paso 2`): 6 px del objetivo se superponen con la primera línea. En el pedido de donación no ocurre: el título de 22 px lleva el texto a 44. Figuras 01 y 13 | defecto (D10, CD-10) | Resuelta como defecto en `Banners.md` a.2 #1: decisión del Ingeniero, no propuesta. Expresada con un paso existente (`paso 8`) y aplicada en la maqueta (§0, #9) |
+
+### Tokens nuevos, pendientes de alta
+
+Los da de alta el Ingeniero en `tokens.md` y `colores.js` con esta tabla (`DonationBox.md` sección i). Los valores son los que dibuja la maqueta, derivados de tokens existentes por `generar.mjs`.
+
+| Token | Claro | Oscuro | Uso |
+|---|---|---|---|
+| `acentoFondo` | #e2eef0 (12 % de `acento` sobre `superficie`) | #1d3037 (15 % de `acento` sobre `superficie`) | Relleno del cuerpo y del pie del pedido de donación |
+| `acentoBanda` | #0b6e80 (igual que `acento`) | #4692a1 (73 % de `acento` sobre `fondo`) | Relleno de la banda del encabezado del pedido de donación, con título y glifos en `fondo` |
 
 ### Observaciones sin acción propuesta
 

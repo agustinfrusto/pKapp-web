@@ -33,6 +33,8 @@ Nombre = clave en `plancha.claro` y `plancha.oscuro`. En Tailwind: `bg-fondo` y 
 | `aciertoFondo` | `#e6f1ea` | `#10231a` | Relleno de la opción correcta | Valor del boceto: apenas teñido |
 | `error` | `#a32424` | `#f08c8c` | Respuesta incorrecta, banda de menos de 60, validación | Valor del boceto: rojo sobrio |
 | `errorFondo` | `#f8e9e9` | `#2a1414` | Relleno de la opción incorrecta | Valor del boceto |
+| `acentoFondo` | `#e2eef0` | `#1d3037` | Relleno del cuerpo y del pie del pedido de donación (solo ahí, CD-8) | Tinte de `acento` con el patrón de `aciertoFondo`/`errorFondo`: 12 % sobre `superficie` en claro, 15 % en oscuro (DON-P5, aprobada por el usuario el 2026-10-11) |
+| `acentoBanda` | `#0b6e80` | `#4692a1` | Banda del encabezado del pedido de donación; título y glifos encima en `fondo` (solo ahí, CD-8) | En claro igual que `acento`; en oscuro 73 % de `acento` sobre `fondo`, para que la banda no compita con la acción primaria (DON-P5, ajuste de oscuro pedido por el usuario) |
 | `intermedia` | `#3f5f7a` | `#8fb4c9` | Banda de 60 a 79 (D6): porcentaje, barra y marca en estadísticas y resultados | Acero: tercer tono frío, ni cálido ni saturado; separable de verde y rojo en protanopía y deuteranopía (a.3) |
 | `filamento` | `#14181d` | `#8fb4c9` | Trazo del campo de filamentos y de las ilustraciones de materia | Valor del boceto (`--fil`): tinta en claro, acero en oscuro |
 | `manifestTema` | `#0b0d10` | `#0b0d10` | `theme_color` de `public/manifest.json`; `themeColor` de `app.json` | D8: tinta del ícono. No depende del tema |
@@ -133,7 +135,7 @@ Cada paso es un `text-*` (tamaño, interlineado, espaciado) más un `font-plex-*
 | px | Clase | Uso |
 |---|---|---|
 | 1 | `border` | Marco de tarjeta, panel y control; divisores; base de barra |
-| 2 | `border-2` | Estado (acierto, error, seleccionado), acción primaria, panel de mezcla, contorno de foco |
+| 2 | `border-2` | Estado (acierto, error, seleccionado), acción primaria, panel de mezcla, marco `acento` del pedido de donación, contorno de foco |
 | 3 | `border-l-3` | Borde izquierdo de la nota o explicación |
 | 1,5 | Visibles a cualquier tamaño: `stroke-width` del SVG = 1,5 × lado del viewBox / lado en px (con el `0 0 16 16` de 1.4, `24 / lado`) | Trazo de glifos (CD-9, `CONVENCIONES.md`; `svg/glifos/NOTAS-GLIFOS.md` §3) |
 
@@ -286,6 +288,9 @@ node -e "const {plancha:p}=require('./src/theme/colores');const l=h=>{const c=[1
 | T17 | `tinta` sobre `errorFondo` | Texto de la opción incorrecta | 15,12 | 14,26 | sí |
 | T18 | `intermedia` sobre `fondo` | Porcentaje de la banda 60–79 sobre la página | 6,14 | 8,83 | sí |
 | T19 | `intermedia` sobre `superficie` | Cifra o rótulo de la banda intermedia en tarjeta | 6,71 | 8,25 | sí |
+| T20 | `tinta` sobre `acentoFondo` | Texto del aviso del pedido de donación | 15,04 | 11,26 | sí |
+| T21 | `tintaSec` sobre `acentoFondo` | Pie «Vía Mercado Pago» | 6,68 | 5,30 | sí |
+| T22 | `fondo` sobre `acentoBanda` | Título sobre la banda del pedido de donación | 5,40 | 5,45 | sí |
 
 ### E2 · No textual (umbral 3:1, WCAG 1.4.11)
 
@@ -311,6 +316,10 @@ node -e "const {plancha:p}=require('./src/theme/colores');const l=h=>{const c=[1
 | N18 | `acento` sobre `superficie` | Borde izquierdo de la nota y marco del panel de mezcla sobre superficie | 5,90 | 8,84 | sí |
 | N19 | `tintaSec` sobre `fondo` | Chevron y regla graduada (trazo 1,5 px) sobre la página | 7,25 | 7,51 | sí |
 | N20 | `tintaSec` sobre `superficie` | Chevron de acción en tarjeta o panel; cerrar de notas y donación (trazo 1,5 px) sobre superficie | 7,91 | 7,01 | sí |
+| N21 | `fondo` sobre `acentoBanda` | `glifo-cerrar` y `glifo-trofeo` sobre la banda; hover y foco del descartar | 5,40 | 5,45 | sí |
+| N22 | `acento` sobre `acentoFondo` | Borde interior del marco y de las celdas de monto | 4,98 | 6,68 | sí |
+| N23 | `acentoBanda` sobre `fondo` | Banda contra la página | 5,40 | 5,45 | sí |
+| N24 | `foco` sobre `acentoFondo` | Foco de un monto | 6,43 | 8,25 | sí |
 
 ### E3 · Fuera de umbral por regla (informativo)
 
@@ -321,6 +330,8 @@ node -e "const {plancha:p}=require('./src/theme/colores');const l=h=>{const c=[1
 | X3 | `filamento` sobre `superficie` | Decorativo | Campo de filamentos e ilustración de materia (`aria-hidden`) | 17,82 | 8,25 |
 | X4 | `inactivo` sobre `fondo` | Exento (inactivo) | Texto y glifo de un control deshabilitado sobre la página | 3,47 | 4,21 |
 | X5 | `inactivo` sobre `superficie` | Exento (inactivo) | Texto y glifo de un control deshabilitado sobre superficie | 3,78 | 3,93 |
+| X6 | `superficie` sobre `acentoFondo` | Exento (lo delimita su borde) | Celda de monto contra el panel | 1,18 | 1,32 |
+| X7 | `filete` sobre `acentoFondo` | Decorativo | Filete del pie del pedido de donación | 1,56 | 1,05 |
 
 ### E4 · Bordes de app (independientes del tema)
 

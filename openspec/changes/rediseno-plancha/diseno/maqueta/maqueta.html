@@ -31,6 +31,8 @@ html[data-tema="claro"] {
   --manifestTema: #0b0d10;
   --manifestFondo: #0b0d10;
   --iconoFondo: #0b0d10;
+  --acentoFondo: #e2eef0; /* nuevo, pendiente: no está en colores.js */
+  --acentoBanda: #0b6e80; /* nuevo, pendiente: no está en colores.js */
 }
 html[data-tema="oscuro"] {
   --fondo: #0b0d10;
@@ -52,6 +54,8 @@ html[data-tema="oscuro"] {
   --manifestTema: #0b0d10;
   --manifestFondo: #0b0d10;
   --iconoFondo: #0b0d10;
+  --acentoFondo: #1d3037; /* nuevo, pendiente: no está en colores.js */
+  --acentoBanda: #4692a1; /* nuevo, pendiente: no está en colores.js */
 }
 /* <<< FIN GENERADO */
 
@@ -350,6 +354,39 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 .monto{flex:1;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
 .don-pie{text-align:center}
 
+/* DON-P5, pedido de donación aprobado (usuario, 2026-10-11). Marco acento de border-2 (las marcas
+   de esquina siguen sobresaliendo paso 1 del borde exterior: 6 px con el marco de 2 px). El panel
+   no lleva relleno propio por franjas: la banda del encabezado (acentoBanda), el cuerpo y el pie
+   (acentoFondo) llevan el suyo. Los montos conservan el relleno superficie de K2: sobre el tinte
+   quedan separados del panel. */
+.don5{border-width:2px;padding:0;background:var(--acentoFondo)}
+.don5 .mk-a{top:-6px;left:-6px}.don5 .mk-b{top:-6px;right:-6px}.don5 .mk-c{bottom:-6px;left:-6px}.don5 .mk-d{bottom:-6px;right:-6px}
+.don5-enc{display:flex;align-items:center;min-height:44px;padding:8px 14px;background:var(--acentoBanda);border-bottom:1px solid var(--acentoBanda)}
+.don5-tit{display:flex;align-items:center;gap:8px}
+.don5-cerrable .don5-tit{padding-right:44px}
+.don5-cuerpo{padding:14px}
+.don5-txt{margin-bottom:14px}
+.don5-montos{display:flex;gap:8px}
+.don5-pie{border-top:1px solid var(--filete);padding:8px 14px;text-align:center}
+/* K7 sobre la banda: foco, hover y presionado en fondo y acentoBanda. El contorno de foco va hacia
+   adentro: a ras del marco, hacia afuera caería sobre el marco y la página. */
+.don5 .cerrar-esq{color:var(--fondo)}
+@media (hover:hover){.don5 .cerrar-esq:hover{outline-color:var(--fondo)}}
+.don5 .cerrar-esq:focus-visible{outline-color:var(--fondo);outline-offset:-4px}
+.don5 .cerrar-esq:active{background:var(--fondo)}
+.don5 .cerrar-esq:active *{color:var(--acentoBanda)}
+
+/* Figura 09: DON-P1 y DON-P5 lado a lado (ocupa dos columnas del tablero) */
+.fig-doble{grid-column:span 2}
+.comparacion{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.comp-col{display:flex;flex-direction:column;gap:8px;width:calc(var(--w) + 2px);min-width:0}
+.comp-tit{min-height:48px}
+.comp-aviso{padding-top:8px}
+.av-oscuro{display:none}
+html[data-tema="oscuro"] .av-oscuro{display:inline}
+html[data-tema="oscuro"] .av-claro{display:none}
+.don-rot{padding-top:16px;padding-bottom:8px}
+
 /* ===== 07 AddQuestion ===== */
 .add-rot{padding-bottom:8px}
 .add-grupo{margin-bottom:24px}
@@ -513,7 +550,7 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
       <span class="seg"><button type="button" class="seg-op t-rotulo" data-set="tema:claro">Claro</button><button type="button" class="seg-op t-rotulo" data-set="tema:oscuro">Oscuro</button></span></div>
     <div class="herr-grupo"><span class="t-rotulo c-sec">Ir a</span><span class="seg"><button type="button" class="seg-op t-rotulo" data-ir="fig-01">01</button><button type="button" class="seg-op t-rotulo" data-ir="fig-02">02</button><button type="button" class="seg-op t-rotulo" data-ir="fig-03a">03a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-03b">03b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04a">04a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04b">04b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04c">04c</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04d">04d</button><button type="button" class="seg-op t-rotulo" data-ir="fig-05a">05a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-05b">05b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-05c">05c</button><button type="button" class="seg-op t-rotulo" data-ir="fig-06">06</button><button type="button" class="seg-op t-rotulo" data-ir="fig-01b">01b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04e">04e</button><button type="button" class="seg-op t-rotulo" data-ir="fig-07a">07a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-07b">07b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-08a">08a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-08b">08b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-09">09</button><button type="button" class="seg-op t-rotulo" data-ir="fig-10a">10a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-10b">10b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-11a">11a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-11b">11b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-11c">11c</button><button type="button" class="seg-op t-rotulo" data-ir="fig-12a">12a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-12b">12b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-12c">12c</button><button type="button" class="seg-op t-rotulo" data-ir="fig-12d">12d</button><button type="button" class="seg-op t-rotulo" data-ir="fig-13">13</button><button type="button" class="seg-op t-rotulo" data-ir="fig-14">14</button></span></div>
   </div>
-  <div class="herr-nota t-rotulo c-sec">Fieles a las fichas aprobadas el 2026-10-10 (1.2 y 1.3) · colores generados desde src/theme/colores.js · conteos, temas y preguntas reales; resultados, estadísticas, preguntas propias y respuestas de revisión son datos de muestra</div>
+  <div class="herr-nota t-rotulo c-sec">Fieles a las fichas aprobadas (1.2 y 1.3) y al pedido de donación DON-P5, aprobado el 2026-10-11 y todavía sin implementar; la figura 09 lo compara con DON-P1 · tokens nuevos, pendientes: acentoFondo y acentoBanda (derivados de colores.js) · colores generados desde src/theme/colores.js · conteos, temas y preguntas reales; resultados, estadísticas, preguntas propias y respuestas de revisión son datos de muestra</div>
 </header>
 <main class="tablero">
 
@@ -603,13 +640,15 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 </button></div></div>
   <div class="col mt-6">
 <div class="don-regla"></div>
-<section class="lam don">
+<section class="lam don don5">
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
   
-  <h3 class="don-tit t-item c-tinta"><span>Ayuda a mantener esta aplicación</span></h3>
-  <p class="t-cuerpo c-tinta don-txt">Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:</p>
-  <div class="don-montos"><button type="button" class="k3 monto t-dato">$50</button><button type="button" class="k3 monto t-dato">$100</button><button type="button" class="k3 monto t-dato">$200</button><button type="button" class="k3 monto t-dato">$500</button></div>
-  <div class="t-rotulo c-sec don-pie">Vía Mercado Pago</div>
+  <div class="don5-enc"><h3 class="don5-tit t-item c-fondo"><span>Ayuda a mantener esta aplicación</span></h3></div>
+  <div class="don5-cuerpo">
+    <p class="t-cuerpo c-tinta don5-txt">Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:</p>
+    <div class="don5-montos"><button type="button" class="k2 k2-acento monto t-dato">$50</button><button type="button" class="k2 k2-acento monto t-dato">$100</button><button type="button" class="k2 k2-acento monto t-dato">$200</button><button type="button" class="k2 k2-acento monto t-dato">$500</button></div>
+  </div>
+  <div class="don5-pie t-rotulo c-sec">Vía Mercado Pago</div>
 </section></div>
   <div class="relleno-10"></div>
 </div>
@@ -1096,35 +1135,37 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
     </section>
   </div>
   <div class="col mb-3">
-    <section class="lam trio">
-      <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
-      <div class="trio-celda"><span class="t-cifra c-acierto">20</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg>Correctas</span></div>
-      <div class="trio-celda"><span class="t-cifra c-error">4</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg>Incorrectas</span></div>
-      <div class="trio-celda"><span class="t-cifra c-tinta">24</span><span class="t-rotulo c-sec trio-rot">Total</span></div>
-    </section>
-  </div>
+<section class="lam trio">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <div class="trio-celda"><span class="t-cifra c-acierto">20</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg>Correctas</span></div>
+  <div class="trio-celda"><span class="t-cifra c-error">4</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg>Incorrectas</span></div>
+  <div class="trio-celda"><span class="t-cifra c-tinta">24</span><span class="t-rotulo c-sec trio-rot">Total</span></div>
+</section></div>
   <div class="col mb-3">
 
-<section class="lam don don-cerrable">
+<section class="lam don don5 don5-cerrable">
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
-  <button type="button" class="k7 cerrar-esq" aria-label="Cerrar"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
-  <h3 class="don-tit t-item c-tinta"><svg class="g g-chico c-acierto" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M4.5 2.5H11.5L10 8.5H6Z"/>
+  <button type="button" class="k7 cerrar-esq" aria-label="Cerrar"><svg class="g g-grande c-fondo" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+  <div class="don5-enc"><h3 class="don5-tit t-item c-fondo"><svg class="g g-chico c-fondo" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M4.5 2.5H11.5L10 8.5H6Z"/>
 <path d="M4.75 4.5H2.5V7.5H5.5M11.25 4.5H13.5V7.5H10.5"/>
-<path d="M8 8.5V13.5M5.5 13.5H10.5"/></svg><span>¡Gran resultado!</span></h3>
-  <p class="t-cuerpo c-tinta don-txt">Si pKapp te está ayudando a llegar al examen, dale una mano para mantenerla (no es de Udelar):</p>
-  <div class="don-montos"><button type="button" class="k3 monto t-dato">$50</button><button type="button" class="k3 monto t-dato">$100</button><button type="button" class="k3 monto t-dato">$200</button><button type="button" class="k3 monto t-dato">$500</button></div>
-  <div class="t-rotulo c-sec don-pie">Vía Mercado Pago</div>
+<path d="M8 8.5V13.5M5.5 13.5H10.5"/></svg><span>¡Gran resultado!</span></h3></div>
+  <div class="don5-cuerpo">
+    <p class="t-cuerpo c-tinta don5-txt">Si pKapp te está ayudando a llegar al examen, dale una mano para mantenerla (no es de Udelar):</p>
+    <div class="don5-montos"><button type="button" class="k2 k2-acento monto t-dato">$50</button><button type="button" class="k2 k2-acento monto t-dato">$100</button><button type="button" class="k2 k2-acento monto t-dato">$200</button><button type="button" class="k2 k2-acento monto t-dato">$500</button></div>
+  </div>
+  <div class="don5-pie t-rotulo c-sec">Vía Mercado Pago</div>
 </section></div>
-  <div class="col mt-1_5"><div class="botones">
-    <button type="button" class="k2 k2-acento btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="3.5" y="2.5" width="9" height="12"/>
+  <div class="col mt-1_5">
+<div class="botones">
+  <button type="button" class="k2 k2-acento btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="3.5" y="2.5" width="9" height="12"/>
 <path d="M6.5 1.5H9.5"/>
 <path d="M6 5.5H10M6 8.5H10M6 11.5H10"/></svg><span>Revisar todas las respuestas</span></button>
-    <button type="button" class="k1 btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 8.5V4.5H11.75M10 2L12.5 4.5L10 7"/>
+  <button type="button" class="k1 btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 8.5V4.5H11.75M10 2L12.5 4.5L10 7"/>
 <path d="M13.5 7.5V11.5H4.25M6 9L3.5 11.5L6 14"/></svg><span>Volver a practicar</span></button>
-    <button type="button" class="k2 btn-res t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L8 2L13.5 7.5"/>
+  <button type="button" class="k2 btn-res t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L8 2L13.5 7.5"/>
 <path d="M3.5 7.25V14.5H12.5V7.25"/>
 <path d="M6.5 14.5V9.5H9.5V14.5"/></svg><span>Inicio</span></button>
-  </div></div>
+</div></div>
   <div class="relleno-8"></div>
 </div>
 </figure>
@@ -1152,33 +1193,35 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
     </section>
   </div>
   <div class="col mb-3">
-    <section class="lam trio">
-      <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
-      <div class="trio-celda"><span class="t-cifra c-acierto">15</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg>Correctas</span></div>
-      <div class="trio-celda"><span class="t-cifra c-error">9</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg>Incorrectas</span></div>
-      <div class="trio-celda"><span class="t-cifra c-tinta">24</span><span class="t-rotulo c-sec trio-rot">Total</span></div>
-    </section>
-  </div>
+<section class="lam trio">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <div class="trio-celda"><span class="t-cifra c-acierto">15</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg>Correctas</span></div>
+  <div class="trio-celda"><span class="t-cifra c-error">9</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg>Incorrectas</span></div>
+  <div class="trio-celda"><span class="t-cifra c-tinta">24</span><span class="t-rotulo c-sec trio-rot">Total</span></div>
+</section></div>
   <div class="col mb-3">
 
-<section class="lam don don-cerrable">
+<section class="lam don don5 don5-cerrable">
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
-  <button type="button" class="k7 cerrar-esq" aria-label="Cerrar"><svg class="g g-grande c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
-  <h3 class="don-tit t-item c-tinta"><span>Ayuda a mantener esta aplicación</span></h3>
-  <p class="t-cuerpo c-tinta don-txt">Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:</p>
-  <div class="don-montos"><button type="button" class="k3 monto t-dato">$50</button><button type="button" class="k3 monto t-dato">$100</button><button type="button" class="k3 monto t-dato">$200</button><button type="button" class="k3 monto t-dato">$500</button></div>
-  <div class="t-rotulo c-sec don-pie">Vía Mercado Pago</div>
+  <button type="button" class="k7 cerrar-esq" aria-label="Cerrar"><svg class="g g-grande c-fondo" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+  <div class="don5-enc"><h3 class="don5-tit t-item c-fondo"><span>Ayuda a mantener esta aplicación</span></h3></div>
+  <div class="don5-cuerpo">
+    <p class="t-cuerpo c-tinta don5-txt">Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:</p>
+    <div class="don5-montos"><button type="button" class="k2 k2-acento monto t-dato">$50</button><button type="button" class="k2 k2-acento monto t-dato">$100</button><button type="button" class="k2 k2-acento monto t-dato">$200</button><button type="button" class="k2 k2-acento monto t-dato">$500</button></div>
+  </div>
+  <div class="don5-pie t-rotulo c-sec">Vía Mercado Pago</div>
 </section></div>
-  <div class="col mt-1_5"><div class="botones">
-    <button type="button" class="k2 k2-acento btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="3.5" y="2.5" width="9" height="12"/>
+  <div class="col mt-1_5">
+<div class="botones">
+  <button type="button" class="k2 k2-acento btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="3.5" y="2.5" width="9" height="12"/>
 <path d="M6.5 1.5H9.5"/>
 <path d="M6 5.5H10M6 8.5H10M6 11.5H10"/></svg><span>Revisar todas las respuestas</span></button>
-    <button type="button" class="k1 btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 8.5V4.5H11.75M10 2L12.5 4.5L10 7"/>
+  <button type="button" class="k1 btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 8.5V4.5H11.75M10 2L12.5 4.5L10 7"/>
 <path d="M13.5 7.5V11.5H4.25M6 9L3.5 11.5L6 14"/></svg><span>Volver a practicar</span></button>
-    <button type="button" class="k2 btn-res t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L8 2L13.5 7.5"/>
+  <button type="button" class="k2 btn-res t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L8 2L13.5 7.5"/>
 <path d="M3.5 7.25V14.5H12.5V7.25"/>
 <path d="M6.5 14.5V9.5H9.5V14.5"/></svg><span>Inicio</span></button>
-  </div></div>
+</div></div>
   <div class="relleno-8"></div>
 </div>
 </figure>
@@ -1206,24 +1249,24 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
     </section>
   </div>
   <div class="col mb-3">
-    <section class="lam trio">
-      <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
-      <div class="trio-celda"><span class="t-cifra c-acierto">9</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg>Correctas</span></div>
-      <div class="trio-celda"><span class="t-cifra c-error">15</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg>Incorrectas</span></div>
-      <div class="trio-celda"><span class="t-cifra c-tinta">24</span><span class="t-rotulo c-sec trio-rot">Total</span></div>
-    </section>
-  </div>
+<section class="lam trio">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <div class="trio-celda"><span class="t-cifra c-acierto">9</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg>Correctas</span></div>
+  <div class="trio-celda"><span class="t-cifra c-error">15</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg>Incorrectas</span></div>
+  <div class="trio-celda"><span class="t-cifra c-tinta">24</span><span class="t-rotulo c-sec trio-rot">Total</span></div>
+</section></div>
   
-  <div class="col mt-1_5"><div class="botones">
-    <button type="button" class="k2 k2-acento btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="3.5" y="2.5" width="9" height="12"/>
+  <div class="col mt-1_5">
+<div class="botones">
+  <button type="button" class="k2 k2-acento btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="3.5" y="2.5" width="9" height="12"/>
 <path d="M6.5 1.5H9.5"/>
 <path d="M6 5.5H10M6 8.5H10M6 11.5H10"/></svg><span>Revisar todas las respuestas</span></button>
-    <button type="button" class="k1 btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 8.5V4.5H11.75M10 2L12.5 4.5L10 7"/>
+  <button type="button" class="k1 btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 8.5V4.5H11.75M10 2L12.5 4.5L10 7"/>
 <path d="M13.5 7.5V11.5H4.25M6 9L3.5 11.5L6 14"/></svg><span>Volver a practicar</span></button>
-    <button type="button" class="k2 btn-res t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L8 2L13.5 7.5"/>
+  <button type="button" class="k2 btn-res t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L8 2L13.5 7.5"/>
 <path d="M3.5 7.25V14.5H12.5V7.25"/>
 <path d="M6.5 14.5V9.5H9.5V14.5"/></svg><span>Inicio</span></button>
-  </div></div>
+</div></div>
   <div class="relleno-8"></div>
 </div>
 </figure>
@@ -1567,7 +1610,7 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
   
 <div class="col "><div class="t-rotulo c-acento sec-rotulo">Acerca de</div>
 <div class="set-panel">
-  <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.7.4</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
+  <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.7.5</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
   <div class="acerca-franja">
     <div class="acerca-fila"><span class="t-rotulo c-sec">Banco de Cardiovascular y Respiratorio</span><span class="t-dato c-tinta">115</span></div>
     <div class="t-detalle c-sec acerca-des">113 de exámenes · 0 generadas · 2 tuyas</div>
@@ -1645,7 +1688,7 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
   
 <div class="col "><div class="t-rotulo c-acento sec-rotulo">Acerca de</div>
 <div class="set-panel">
-  <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.7.4</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
+  <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.7.5</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
   <div class="acerca-franja">
     <div class="acerca-fila"><span class="t-rotulo c-sec">Banco de Cardiovascular y Respiratorio</span><span class="t-dato c-tinta">115</span></div>
     <div class="t-detalle c-sec acerca-des">113 de exámenes · 0 generadas · 2 tuyas</div>
@@ -1662,27 +1705,17 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 </div>
 </figure>
 
-<figure class="fig" id="fig-09">
+<figure class="fig fig-doble" id="fig-09">
   <figcaption>
-    <span class="t-rotulo-medio c-tinta">09 · Pedido de donación · variantes</span>
-    <span class="fig-ficha c-sec">DonationBox.md · b, c (DON-P1) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+    <span class="t-rotulo-medio c-tinta">09 · Pedido de donación · antes (DON-P1) y DON-P5, aprobada</span>
+    <span class="fig-ficha c-sec">DonationBox.md · a, b, c y f (DON-P5) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
   </figcaption>
   
-<div class="pantalla" data-pantalla="Donacion">
-  <div class="col estados">
-    
-<div class="estado"><div class="t-rotulo c-sec estado-rot">Normal · persistente, con regla corta (MateriaSelect)</div>
-<div class="don-regla"></div>
-<section class="lam don">
-  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
-  
-  <h3 class="don-tit t-item c-tinta"><span>Ayuda a mantener esta aplicación</span></h3>
-  <p class="t-cuerpo c-tinta don-txt">Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:</p>
-  <div class="don-montos"><button type="button" class="k3 monto t-dato">$50</button><button type="button" class="k3 monto t-dato">$100</button><button type="button" class="k3 monto t-dato">$200</button><button type="button" class="k3 monto t-dato">$500</button></div>
-  <div class="t-rotulo c-sec don-pie">Vía Mercado Pago</div>
-</section></div>
-    
-<div class="estado"><div class="t-rotulo c-sec estado-rot">Celebratoria · descartable (Results, desde 80 %)</div>
+<div class="comparacion">
+  <div class="comp-col"><div class="comp-tit t-rotulo-medio c-tinta">Antes · DON-P1</div>
+<div class="pantalla" data-pantalla="Donacion" data-version="vigente">
+  <div class="col don-rot"><div class="t-rotulo c-sec">Celebratoria · descartable (Results, desde 80 %)</div></div>
+  <div class="col">
 
 <section class="lam don don-cerrable">
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
@@ -1694,8 +1727,36 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
   <div class="don-montos"><button type="button" class="k3 monto t-dato">$50</button><button type="button" class="k3 monto t-dato">$100</button><button type="button" class="k3 monto t-dato">$200</button><button type="button" class="k3 monto t-dato">$500</button></div>
   <div class="t-rotulo c-sec don-pie">Vía Mercado Pago</div>
 </section></div>
-    
-<div class="estado"><div class="t-rotulo c-sec estado-rot">Normal · descartable (Results, de 60 a 79 %)</div>
+  <div class="col don-rot"><div class="t-rotulo c-sec">En contexto · MateriaSelect: persistente, con regla corta</div></div>
+  <div class="col"><div class="lista">
+<button type="button" class="lam k6 tarj" aria-label="Cardiovascular y Respiratorio">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <span class="tarj-fila">
+    <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></span>
+    <span class="tarj-txt"><span class="t-rotulo c-acento">CyR · 04</span><span class="t-item c-tinta">Cardiovascular y Respiratorio</span></span>
+  </span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+</button></div></div>
+  <div class="col mt-6">
+<div class="don-regla"></div>
+<section class="lam don">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  
+  <h3 class="don-tit t-item c-tinta"><span>Ayuda a mantener esta aplicación</span></h3>
+  <p class="t-cuerpo c-tinta don-txt">Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:</p>
+  <div class="don-montos"><button type="button" class="k3 monto t-dato">$50</button><button type="button" class="k3 monto t-dato">$100</button><button type="button" class="k3 monto t-dato">$200</button><button type="button" class="k3 monto t-dato">$500</button></div>
+  <div class="t-rotulo c-sec don-pie">Vía Mercado Pago</div>
+</section></div>
+  <div class="col don-rot"><div class="t-rotulo c-sec">En contexto · Results de 60 a 79 %: descartable, entre el trío y los botones</div></div>
+  
+  <div class="col mb-3">
+<section class="lam trio">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <div class="trio-celda"><span class="t-cifra c-acierto">15</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg>Correctas</span></div>
+  <div class="trio-celda"><span class="t-cifra c-error">9</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg>Incorrectas</span></div>
+  <div class="trio-celda"><span class="t-cifra c-tinta">24</span><span class="t-rotulo c-sec trio-rot">Total</span></div>
+</section></div>
+  <div class="col mb-3">
 
 <section class="lam don don-cerrable">
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
@@ -1705,7 +1766,92 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
   <div class="don-montos"><button type="button" class="k3 monto t-dato">$50</button><button type="button" class="k3 monto t-dato">$100</button><button type="button" class="k3 monto t-dato">$200</button><button type="button" class="k3 monto t-dato">$500</button></div>
   <div class="t-rotulo c-sec don-pie">Vía Mercado Pago</div>
 </section></div>
+  <div class="col mt-1_5">
+<div class="botones">
+  <button type="button" class="k2 k2-acento btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="3.5" y="2.5" width="9" height="12"/>
+<path d="M6.5 1.5H9.5"/>
+<path d="M6 5.5H10M6 8.5H10M6 11.5H10"/></svg><span>Revisar todas las respuestas</span></button>
+  <button type="button" class="k1 btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 8.5V4.5H11.75M10 2L12.5 4.5L10 7"/>
+<path d="M13.5 7.5V11.5H4.25M6 9L3.5 11.5L6 14"/></svg><span>Volver a practicar</span></button>
+  <button type="button" class="k2 btn-res t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L8 2L13.5 7.5"/>
+<path d="M3.5 7.25V14.5H12.5V7.25"/>
+<path d="M6.5 14.5V9.5H9.5V14.5"/></svg><span>Inicio</span></button>
+</div></div>
+  <div class="relleno-8"></div>
+</div></div>
+  <div class="comp-col"><div class="comp-tit t-rotulo-medio c-tinta">DON-P5 · aprobada (usuario, 2026-10-11) · tokens nuevos, pendientes: acentoFondo y acentoBanda</div>
+<div class="pantalla" data-pantalla="Donacion" data-version="p5">
+  <div class="col don-rot"><div class="t-rotulo c-sec">Celebratoria · descartable (Results, desde 80 %)</div></div>
+  <div class="col">
+
+<section class="lam don don5 don5-cerrable">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <button type="button" class="k7 cerrar-esq" aria-label="Cerrar"><svg class="g g-grande c-fondo" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+  <div class="don5-enc"><h3 class="don5-tit t-item c-fondo"><svg class="g g-chico c-fondo" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M4.5 2.5H11.5L10 8.5H6Z"/>
+<path d="M4.75 4.5H2.5V7.5H5.5M11.25 4.5H13.5V7.5H10.5"/>
+<path d="M8 8.5V13.5M5.5 13.5H10.5"/></svg><span>¡Gran resultado!</span></h3></div>
+  <div class="don5-cuerpo">
+    <p class="t-cuerpo c-tinta don5-txt">Si pKapp te está ayudando a llegar al examen, dale una mano para mantenerla (no es de Udelar):</p>
+    <div class="don5-montos"><button type="button" class="k2 k2-acento monto t-dato">$50</button><button type="button" class="k2 k2-acento monto t-dato">$100</button><button type="button" class="k2 k2-acento monto t-dato">$200</button><button type="button" class="k2 k2-acento monto t-dato">$500</button></div>
   </div>
+  <div class="don5-pie t-rotulo c-sec">Vía Mercado Pago</div>
+</section></div>
+  <div class="col don-rot"><div class="t-rotulo c-sec">En contexto · MateriaSelect: persistente, con regla corta</div></div>
+  <div class="col"><div class="lista">
+<button type="button" class="lam k6 tarj" aria-label="Cardiovascular y Respiratorio">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <span class="tarj-fila">
+    <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></span>
+    <span class="tarj-txt"><span class="t-rotulo c-acento">CyR · 04</span><span class="t-item c-tinta">Cardiovascular y Respiratorio</span></span>
+  </span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+</button></div></div>
+  <div class="col mt-6">
+<div class="don-regla"></div>
+<section class="lam don don5">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  
+  <div class="don5-enc"><h3 class="don5-tit t-item c-fondo"><span>Ayuda a mantener esta aplicación</span></h3></div>
+  <div class="don5-cuerpo">
+    <p class="t-cuerpo c-tinta don5-txt">Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:</p>
+    <div class="don5-montos"><button type="button" class="k2 k2-acento monto t-dato">$50</button><button type="button" class="k2 k2-acento monto t-dato">$100</button><button type="button" class="k2 k2-acento monto t-dato">$200</button><button type="button" class="k2 k2-acento monto t-dato">$500</button></div>
+  </div>
+  <div class="don5-pie t-rotulo c-sec">Vía Mercado Pago</div>
+</section></div>
+  <div class="col don-rot"><div class="t-rotulo c-sec">En contexto · Results de 60 a 79 %: descartable, entre el trío y los botones</div></div>
+  <div class="col"><p class="comp-aviso t-detalle c-tinta"><span class="av-claro">Claro: la banda (5,40:1 contra la página) pesa un tercio de «Volver a practicar» (16,32:1): no compite.</span><span class="av-oscuro">Oscuro: la banda baja de 9,48:1 a 5,40:1 (acentoBanda), el mismo peso que en claro: un tercio de «Volver a practicar» (15,97:1). Ya no compite.</span></p></div>
+  <div class="col mb-3">
+<section class="lam trio">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <div class="trio-celda"><span class="t-cifra c-acierto">15</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg>Correctas</span></div>
+  <div class="trio-celda"><span class="t-cifra c-error">9</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg>Incorrectas</span></div>
+  <div class="trio-celda"><span class="t-cifra c-tinta">24</span><span class="t-rotulo c-sec trio-rot">Total</span></div>
+</section></div>
+  <div class="col mb-3">
+
+<section class="lam don don5 don5-cerrable">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <button type="button" class="k7 cerrar-esq" aria-label="Cerrar"><svg class="g g-grande c-fondo" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+  <div class="don5-enc"><h3 class="don5-tit t-item c-fondo"><span>Ayuda a mantener esta aplicación</span></h3></div>
+  <div class="don5-cuerpo">
+    <p class="t-cuerpo c-tinta don5-txt">Esta web NO ES DE UDELAR y se mantiene por donaciones. Para hacerla posible:</p>
+    <div class="don5-montos"><button type="button" class="k2 k2-acento monto t-dato">$50</button><button type="button" class="k2 k2-acento monto t-dato">$100</button><button type="button" class="k2 k2-acento monto t-dato">$200</button><button type="button" class="k2 k2-acento monto t-dato">$500</button></div>
+  </div>
+  <div class="don5-pie t-rotulo c-sec">Vía Mercado Pago</div>
+</section></div>
+  <div class="col mt-1_5">
+<div class="botones">
+  <button type="button" class="k2 k2-acento btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="3.5" y="2.5" width="9" height="12"/>
+<path d="M6.5 1.5H9.5"/>
+<path d="M6 5.5H10M6 8.5H10M6 11.5H10"/></svg><span>Revisar todas las respuestas</span></button>
+  <button type="button" class="k1 btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 8.5V4.5H11.75M10 2L12.5 4.5L10 7"/>
+<path d="M13.5 7.5V11.5H4.25M6 9L3.5 11.5L6 14"/></svg><span>Volver a practicar</span></button>
+  <button type="button" class="k2 btn-res t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L8 2L13.5 7.5"/>
+<path d="M3.5 7.25V14.5H12.5V7.25"/>
+<path d="M6.5 14.5V9.5H9.5V14.5"/></svg><span>Inicio</span></button>
+</div></div>
+  <div class="relleno-8"></div>
+</div></div>
 </div>
 </figure>
 
@@ -2011,7 +2157,7 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
   
 <div class="col "><div class="t-rotulo c-acento sec-rotulo">Acerca de</div>
 <div class="set-panel">
-  <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.7.4</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
+  <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.7.5</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
   <div class="acerca-franja">
     <div class="acerca-fila"><span class="t-rotulo c-sec">Banco de Cardiovascular y Respiratorio</span><span class="t-dato c-tinta">113</span></div>
     <div class="t-detalle c-sec acerca-des">113 de exámenes · 0 generadas · 0 tuyas</div>
