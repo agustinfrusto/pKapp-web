@@ -189,7 +189,8 @@ export default function AddQuestionScreen({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView className="flex-1" contentContainerClassName="pb-8 pt-4">
-        <Columna>
+        {/* Columna `lectura` desde el corte `escritorio` (AddQuestion.md, Escritorio); `columna` bajo él. */}
+        <Columna ancho="lectura">
           {/* Tema */}
           <Grupo nombre="Tema">
             {/* Lista plana: el parcial de cada tema no es un dato todavía (ADD-P3 e.2). */}

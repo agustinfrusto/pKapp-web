@@ -29,6 +29,11 @@ const phOpcion = (letra) => `Opción ${letra}`;
 const celda = (letra) => `Opción ${letra}, marcar como correcta`;
 const quitar = (letra) => `Quitar opción ${letra}`;
 
+// Anchos de la hoja (comun.md §7.2): `columna` bajo el corte `escritorio`, `lectura` desde él.
+const COLUMNA = 448;
+const LECTURA = 600;
+const CORTE = 1024;
+
 const EMOJI_O_SIMBOLO = /[\p{Extended_Pictographic}✓✕▲▼×+]/u;
 
 // Lectura de un elemento del marco: caja, colores computados del contenedor interno
@@ -114,6 +119,11 @@ const valorDe = (pagina, ph) => pagina.evaluar(EN_MARCO(`
 
 // Selector → Home → Agregar pregunta, en el tema y el ancho pedidos.
 async function abrirAgregar(pagina, base, { ancho = 390, alto = 900, oscuro = false, materia = MATERIA } = {}) {
+  // La página del arnés mide 900 px: el marco de 1024 o más se sale y los toques no llegan.
+  if (ancho > 900) {
+    await pagina.enviar('Emulation.setDeviceMetricsOverride',
+      { width: ancho, height: Math.max(alto, 900), deviceScaleFactor: 1, mobile: false });
+  }
   if (!await abrirMarco(pagina, base, ancho, alto)) return false;
   if (oscuro) {
     await clicEnMarco(pagina, 'oscuro');
@@ -897,8 +907,10 @@ async function desplegableAnchos(pagina, base, t) {
         l.opciones.length > 0 && l.opciones.every((o) => o.alto >= LADO_TACTIL - 0.5 && o.ancho >= LADO_TACTIL - 0.5), true);
       t.ok(c('abierto: la lista del ancho del disparador'),
         !!l.lista && !!l.disp && Math.abs(l.lista.ancho_marco - l.disp.ancho) < 1, true);
+      // Hasta 768 la columna sigue en 448; desde el corte `escritorio` rige `lectura` (600).
       if (ancho >= 768) {
-        t.ok(c('una sola columna de a lo sumo 448 px'), !!l.disp && l.disp.ancho <= 448 + 1, true);
+        const tope = ancho >= CORTE ? LECTURA : COLUMNA;
+        t.ok(c(`una sola columna de a lo sumo ${tope} px`), !!l.disp && l.disp.ancho <= tope + 1, true);
       }
     }
   }
@@ -1392,10 +1404,238 @@ async function anchos(pagina, base, t) {
       t.ok(c('el botón de guardar mide el ancho de la columna'),
         !!m.enun && !!m.guardar && Math.abs(m.enun.ancho - m.guardar.ancho) < 1, true);
       if (ancho >= 768) {
-        t.ok(c('una sola columna de a lo sumo 448 px'), !!m.enun && m.enun.ancho <= 448 + 1, true);
+        const tope = ancho >= CORTE ? LECTURA : COLUMNA;
+        t.ok(c(`una sola columna de a lo sumo ${tope} px`), !!m.enun && m.enun.ancho <= tope + 1, true);
       }
     }
   }
+}
+
+// ---------------------------------------------------------------------------
+// Escritorio (AddQuestion.md «Escritorio · columna `lectura`», i.18 y i.19; comun.md §7.2):
+// una sola columna `lectura` (600) centrada y anclada arriba desde el corte `escritorio`
+// (1024); bajo él, la `columna` de siempre. El orden de Tab se compara con el orden VISUAL
+// medido en coordenadas de página (no con el del DOM): ninguna región queda fija al
+// desplazar y ningún `overflow` recorta el contorno de foco.
+
+const MEDIR_ESCRITORIO = EN_MARCO(`
+  const caja = (n) => {
+    if (!n) return null;
+    const r = n.getBoundingClientRect();
+    return { izq: r.left, der: r.right, arriba: r.top, abajo: r.bottom, ancho: r.width, alto: r.height };
+  };
+  const desplazable = (n) => {
+    for (let a = n && n.parentElement; a; a = a.parentElement) {
+      const o = w.getComputedStyle(a).overflowY;
+      if (o === 'auto' || o === 'scroll') return a;
+    }
+    return null;
+  };
+  const nombre = (n) => (n.getAttribute('aria-label') || n.getAttribute('placeholder') || n.textContent || '').trim();
+  // Coordenada de página: la del marco más lo que ya se desplazó cada contenedor.
+  const pagina = (n) => {
+    let y = n.getBoundingClientRect().top;
+    for (let a = n.parentElement; a; a = a.parentElement) y += a.scrollTop || 0;
+    return y;
+  };
+  const barra = visibles('[data-testid="barra-interna"]')[0] || null;
+  const volver = visibles('[data-testid="barra-volver"]')[0] || null;
+  const disp = visibles('[aria-haspopup="listbox"]')[0] || null;
+  const lista = visibles('[role="listbox"]')[0] || null;
+  const enun = visibles('[placeholder]').find((n) => n.getAttribute('placeholder') === ${JSON.stringify(PH_ENUNCIADO)}) || null;
+  const guardar = visibles('[role="button"]').find((n) => n.textContent.trim().toLowerCase() === 'guardar pregunta') || null;
+  const rotulo = visibles('*').find((n) => n.children.length === 0 && n.textContent.trim().toLowerCase() === 'tema') || null;
+  const sc = desplazable(enun);
+  const controles = visibles('[role="button"], [role="radio"], [role="option"], input, textarea, [aria-haspopup]')
+    .filter((n) => !n.closest('[role="listbox"]') || n.getAttribute('role') === 'option')
+    .map((n) => ({ nombre: nombre(n), ...caja(n), pagina: pagina(n), tab: n.tabIndex >= 0 && !n.disabled }));
+  const textos = visibles('*').filter((n) => n.children.length === 0 && n.textContent.trim() !== '' &&
+    !n.closest('[data-testid="barra-interna"]')).map((n) => ({ texto: n.textContent.trim().slice(0, 30), ...caja(n) }));
+  const alta = !!sc && sc.scrollHeight > sc.clientHeight + 1;
+  return {
+    vista: w.innerWidth, alto: w.innerHeight,
+    desborda: desbordes().length > 0,
+    barra: caja(barra), volver: caja(volver), disp: caja(disp), enun: caja(enun), guardar: caja(guardar),
+    rotulo: caja(rotulo), lista: lista ? { ...caja(lista), marcoAbajo: lista.parentElement.getBoundingClientRect().bottom,
+      marcoAncho: lista.parentElement.getBoundingClientRect().width } : null,
+    centro: sc ? sc.getBoundingClientRect().left + sc.clientWidth / 2 : null,
+    scroll: sc ? { top: sc.scrollTop, max: sc.scrollHeight - sc.clientHeight, alta } : null,
+    controles, textos,
+  };
+`);
+
+// Contorno de foco del elemento activo contra cada ancestro que recorta (overflow distinto
+// de `visible`): lista los que lo cortan. El elemento se centra antes de medir.
+const CONTORNO_RECORTADO = EN_MARCO(`
+  const el = d.activeElement;
+  if (!el || el === d.body) return null;
+  el.scrollIntoView({ block: 'center' });
+  const c = w.getComputedStyle(el);
+  const g = parseFloat(c.outlineWidth) || 0, o = parseFloat(c.outlineOffset) || 0;
+  const r = el.getBoundingClientRect();
+  const f = { izq: r.left - g - o, der: r.right + g + o, arriba: r.top - g - o, abajo: r.bottom + g + o };
+  const recortan = [];
+  for (let a = el.parentElement; a && a !== d.documentElement; a = a.parentElement) {
+    const s = w.getComputedStyle(a);
+    if (s.overflowX === 'visible' && s.overflowY === 'visible') continue;
+    const q = a.getBoundingClientRect();
+    if (f.izq < q.left - 0.5 || f.der > q.right + 0.5 || f.arriba < q.top - 0.5 || f.abajo > q.bottom + 0.5) {
+      recortan.push((a.getAttribute('role') || a.tagName) + ':' + s.overflowX + '/' + s.overflowY);
+    }
+  }
+  return { nombre: (el.getAttribute('aria-label') || el.getAttribute('placeholder') || el.textContent || '').trim().slice(0, 30),
+    ancho: g, recortan };
+`);
+
+const NOMBRE_ACTIVO = EN_MARCO(`
+  const a = d.activeElement;
+  return a && a !== d.body ? (a.getAttribute('aria-label') || a.getAttribute('placeholder') || a.textContent || '').trim() : null;
+`);
+
+// Tab real desde «Volver» (el primer control de la pantalla) hasta «Guardar pregunta»: los
+// nombres, en orden. Se parte de un foco explícito: tras un clic el punto de partida de Tab
+// es el del clic, no el inicio del documento.
+async function recorrerConTab(pagina) {
+  await pagina.evaluar(EN_MARCO(`
+    m.contentWindow.focus();
+    visibles('[data-testid="barra-volver"]')[0].focus();
+  `));
+  await pausa(100);
+  const vistos = [await pagina.evaluar(NOMBRE_ACTIVO)];
+  for (let i = 0; i < 40; i++) {
+    await pagina.tecla('Tab');
+    const n = await pagina.evaluar(NOMBRE_ACTIVO);
+    // `null` es el foco sobre el documento (el primer Tab tras abrir la página en frío), no una parada.
+    if (n === null) continue;
+    vistos.push(n);
+    if (n.toLowerCase() === 'guardar pregunta') break;
+  }
+  return vistos;
+}
+
+async function escritorio(pagina, base, t) {
+  const medidas = {};
+  for (const oscuro of [false, true]) {
+    const tema = oscuro ? 'oscuro' : 'claro';
+    for (const [ancho, alto] of [[768, 800], [1023, 700], [1024, 700], [1366, 768], [1920, 1080]]) {
+      if (oscuro && ancho === 768) continue;
+      const c = (s) => `${ancho} px · ${tema} · Escritorio · ${s}`;
+      if (!await abrirAgregar(pagina, base, { ancho, alto, oscuro })) {
+        t.ok(c('llega a /agregar'), false, true);
+        continue;
+      }
+      const m = await pagina.evaluar(MEDIR_ESCRITORIO);
+      t.ok(c('hay disparador, enunciado, «Guardar pregunta» y barra'),
+        !!m.disp && !!m.enun && !!m.guardar && !!m.barra && !!m.volver, true);
+      if (!m.disp || !m.enun || !m.guardar || !m.barra || !m.volver) continue;
+      t.ok(c('sin scroll horizontal'), m.desborda, false);
+      const esc = ancho >= CORTE;
+      if (ancho === 768 || ancho === 1023) medidas[ancho] = m.enun.ancho;
+
+      // Ancho de la columna: `columna` (igual que hoy) bajo el corte, `lectura` desde él.
+      const columna = esc ? LECTURA : null;
+      if (esc) {
+        t.ok(c(`una sola columna \`lectura\` de ${LECTURA} px`), Math.round(m.enun.ancho), LECTURA);
+        t.ok(c('el disparador mide el ancho de la columna'), Math.abs(m.disp.ancho - m.enun.ancho) < 1, true);
+        t.ok(c('«Guardar pregunta» mide el ancho de la columna'), Math.abs(m.guardar.ancho - m.enun.ancho) < 1, true);
+        t.ok(c('la columna está centrada'), m.centro !== null && Math.abs((m.enun.izq + m.enun.der) / 2 - m.centro) < 1, true);
+        t.ok(c('la barra interna lleva el volver sobre el borde izquierdo de la columna'),
+          Math.abs(m.volver.izq - m.enun.izq) < 1, true);
+      } else {
+        t.ok(c(`sigue la columna de a lo sumo ${COLUMNA} px`), m.enun.ancho <= COLUMNA + 1, true);
+        t.ok(c('el disparador mide el ancho del campo'), Math.abs(m.disp.ancho - m.enun.ancho) < 1, true);
+      }
+      // La barra con su filete a todo el ancho de la ventana, en todos los anchos.
+      t.ok(c('la barra interna ocupa todo el ancho de la ventana'),
+        Math.abs(m.barra.izq) < 1 && Math.abs(m.barra.der - m.vista) < 1, true);
+
+      // Sin segunda columna ni región lateral: todo cae dentro del ancho del campo.
+      const fuera = m.textos.concat(m.controles).filter((n) =>
+        n.izq < m.enun.izq - 1 || n.der > m.enun.der + 1).map((n) => n.texto || n.nombre);
+      t.ok(c('nada fuera de la única columna'), JSON.stringify(fuera), '[]');
+
+      // Anclada arriba: el tema es lo primero bajo la barra.
+      t.ok(c('el tema arranca junto a la barra (anclada arriba)'),
+        m.rotulo.arriba - m.barra.abajo >= 0 && m.rotulo.arriba - m.barra.abajo <= 40, true);
+
+      // 44 × 44 en todo lo tocable.
+      const chicos = m.controles.filter((n) => n.ancho < LADO_TACTIL - 0.5 || n.alto < LADO_TACTIL - 0.5)
+        .map((n) => n.nombre.slice(0, 30));
+      t.ok(c('ningún control baja de 44 × 44'), JSON.stringify(chicos), '[]');
+
+      // Orden de Tab = orden visual medido (coordenadas de página): arriba abajo, sin saltos atrás.
+      const visual = m.controles.filter((n) => n.tab)
+        .sort((a, b) => Math.round(a.pagina) - Math.round(b.pagina) || a.izq - b.izq)
+        .map((n) => n.nombre);
+      const real = await recorrerConTab(pagina);
+      t.ok(c('Tab recorre el orden visual'), JSON.stringify(real),
+        JSON.stringify(visual.slice(0, real.length)));
+      t.ok(c('Tab llega hasta «Guardar pregunta»'), (real[real.length - 1] || '').toLowerCase(), 'guardar pregunta');
+      const rg = await pagina.evaluar(CONTORNO_RECORTADO);
+      t.ok(c('el contorno de «Guardar pregunta» no lo recorta ningún overflow'), rg && JSON.stringify(rg.recortan), '[]');
+
+      // Ninguna región queda fija al desplazar (sin sticky): al bajar, todas suben lo mismo.
+      // A 1920 × 1080 todo entra en la ventana (0,9): se baja el marco para que haya recorrido.
+      await pagina.evaluar(EN_MARCO(`
+        m.style.height = '480px';
+        for (const n of d.querySelectorAll('*')) if (n.scrollTop) n.scrollTop = 0;
+        return true;`));
+      await pausa(200);
+      const m0 = await pagina.evaluar(MEDIR_ESCRITORIO);
+      if (m0.scroll && m0.scroll.alta) {
+        const bajar = Math.min(120, m0.scroll.max);
+        await pagina.evaluar(EN_MARCO(`
+          const n = visibles('[placeholder]')[0];
+          for (let a = n.parentElement; a; a = a.parentElement) {
+            const o = w.getComputedStyle(a).overflowY;
+            if (o === 'auto' || o === 'scroll') { a.scrollTop = ${bajar}; break; }
+          }
+          return true;`));
+        await pausa(120);
+        const d2 = await pagina.evaluar(MEDIR_ESCRITORIO);
+        const mov = (a, b) => Math.round(a - b);
+        t.ok(c('al desplazar, el tema se mueve con el contenido'), mov(m0.disp.arriba, d2.disp ? d2.disp.arriba : NaN), bajar);
+        t.ok(c('al desplazar, el enunciado se mueve con el contenido'), mov(m0.enun.arriba, d2.enun ? d2.enun.arriba : NaN), bajar);
+        t.ok(c('al desplazar, «Guardar pregunta» se mueve con el contenido'),
+          mov(m0.guardar.arriba, d2.guardar ? d2.guardar.arriba : NaN), bajar);
+        t.ok(c('al desplazar, la barra interna no se mueve'), Math.round(d2.barra.arriba), Math.round(m0.barra.arriba));
+        await pagina.evaluar(EN_MARCO(`
+          for (const n of d.querySelectorAll('*')) if (n.scrollTop) n.scrollTop = 0;
+          return true;`));
+      } else {
+        t.ok(c('hay desplazamiento para medir sticky'), false, true);
+      }
+      await pagina.evaluar(EN_MARCO(`m.style.height = '${alto}px'; return true;`));
+      await pausa(150);
+
+      // Contorno de foco sin recorte: «Guardar pregunta» (donde acabó Tab), el disparador y una fila abierta.
+      const l0 = await leerDesp(pagina);
+      if (l0.disp && await enfocarConTabPorNombre(pagina, l0.disp.nombre)) {
+        const r = await pagina.evaluar(CONTORNO_RECORTADO);
+        t.ok(c('el contorno del disparador no lo recorta ningún overflow'), r && JSON.stringify(r.recortan), '[]');
+        await pagina.tecla('Enter');
+        await pausa(150);
+        const ab = await leerDesp(pagina);
+        t.ok(c('abierto, hay una lista'), ab.nListasEnDom, 1);
+        if (esc && ab.lista) {
+          t.ok(c('abierto, la lámina mide el ancho del disparador y de la columna'),
+            Math.abs(ab.lista.ancho_marco - ab.disp.ancho) < 1 && Math.abs(ab.disp.ancho - LECTURA) < 1, true);
+          t.ok(c('abierto, la lámina entra completa en la ventana'),
+            ab.lista.marco.abajo <= ab.alto + 0.5 && ab.disp.arriba >= 0, true);
+          t.ok(c('abierto, sin scroll horizontal'), ab.desborda, false);
+        }
+        const rf = await pagina.evaluar(CONTORNO_RECORTADO);
+        t.ok(c('el contorno de la fila enfocada no lo recorta ningún overflow'), rf && JSON.stringify(rf.recortan), '[]');
+        await teclaSintetica(pagina, 'Escape');
+      } else {
+        t.ok(c('el disparador recibe el foco con Tab'), false, true);
+      }
+    }
+  }
+  await pagina.enviar('Emulation.setDeviceMetricsOverride',
+    { width: 900, height: 1400, deviceScaleFactor: 1, mobile: false });
+  t.ok('a 1023 px la columna mide lo mismo que a 768 px',
+    !!medidas[1023] && Math.abs(medidas[1023] - medidas[768]) < 1, true);
 }
 
 module.exports = [
@@ -1422,4 +1662,5 @@ module.exports = [
   { nombre: 'Agregar: validación de campos vacíos, en orden', correr: validaciones },
   { nombre: 'Agregar: guardado, «Agregar otra» y aparición en «Mis preguntas»', correr: guardarYVerEnMisPreguntas },
   { nombre: 'Agregar: sin desborde y 44 × 44 a 320, 360, 390, 768 y 1280 en claro y oscuro', correr: anchos },
+  { nombre: 'Agregar: escritorio, columna `lectura` a 1024, 1366 y 1920 en claro y oscuro', correr: escritorio },
 ];
