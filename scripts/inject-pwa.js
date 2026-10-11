@@ -7,6 +7,9 @@ const DIST = path.resolve(__dirname, '..', process.env.PKAPP_DIST || 'dist');
 const PUBLIC = path.resolve(__dirname, '..', 'public');
 const indexHtml = path.join(DIST, 'index.html');
 
+// El theme-color inicial sale del token (D8); en ejecución App.js lo cambia con el tema.
+const { plancha } = require('../src/theme/colores');
+
 if (!fs.existsSync(indexHtml)) {
   console.error('No se encontró dist/index.html. ¿Corriste expo export antes?');
   process.exit(1);
@@ -25,16 +28,29 @@ if (fs.existsSync(PUBLIC)) {
 // 2. Inyectar tags PWA en index.html
 let html = fs.readFileSync(indexHtml, 'utf8');
 
+// Expo declara <link rel="icon" href="/favicon.ico">: el navegador usaría ese .ico y no los PNG
+// de abajo. Se quita, y el build falla si el marcado de Expo cambió y el link sigue.
+html = html.replace(/<link\s+rel="icon"\s+href="\/favicon\.ico"\s*\/?>/g, '');
+if (/href="\/favicon\.ico"/.test(html)) {
+  console.error('inject-pwa: el index.html de Expo sigue declarando /favicon.ico; actualizá la regex.');
+  process.exit(1);
+}
+
 const pwaTags = `
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#1a3f6f">
-    <link rel="apple-touch-icon" href="/icon-192.png">
+    <meta name="theme-color" content="${plancha.claro.manifestTema}">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="pKapp">
     <meta name="mobile-web-app-capable" content="yes">`;
 
 if (!html.includes('rel="manifest"')) {
+  // Expo ya emite un theme-color (web.themeColor de app.json): se quita para que quede UNA
+  // sola, la inyectada, que es la que App.js actualiza en ejecución.
+  html = html.replace(/<meta\s+name="theme-color"[^>]*>\s*/g, '');
   html = html.replace('</head>', `${pwaTags}\n  </head>`);
   console.log('  PWA tags inyectados en index.html');
 } else {

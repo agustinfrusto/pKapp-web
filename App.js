@@ -22,7 +22,7 @@ import { MateriaProvider, useMateria } from './src/materia/MateriaContext';
 import { linking } from './src/navigation/linking';
 import { injectWebStyles } from './src/utils/webStyles';
 import { TemaProvider, useTema } from './src/theme/TemaContext';
-import { colores, oscuro, plancha } from './src/theme/colores';
+import { plancha } from './src/theme/colores';
 import Glifo from './src/components/Glifo';
 import { trackPageview } from './src/utils/track';
 import { cargarFuentes } from './src/theme/fuentes';
@@ -35,7 +35,7 @@ const Stack = createNativeStackNavigator();
 const splashStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a3f6f',
+    backgroundColor: plancha.oscuro.manifestFondo,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -44,7 +44,7 @@ const splashStyles = StyleSheet.create({
     height: 100,
   },
   tagline: {
-    color: '#a8c8e0',
+    color: plancha.oscuro.tintaSec,
     fontSize: 14,
     marginTop: 12,
     letterSpacing: 0.5,
@@ -139,10 +139,8 @@ function AppContent() {
   const esOscuro = colorScheme === 'dark';
   // El chrome del navegador vive fuera del árbol de estilos de NativeWind:
   // si no se pinta a mano, queda un borde claro delatando el tema anterior.
-  const chrome = esOscuro
-    ? { cabecera: oscuro.brand.deep }
-    : { cabecera: colores.brand.DEFAULT };
   const tema = esOscuro ? plancha.oscuro : plancha.claro;
+  const chrome = { cabecera: tema.fondo };
   const [splashDone, setSplashDone] = useState(false);
   const opacity = useRef(new Animated.Value(0)).current;
   const navigationRef = useNavigationContainerRef();
@@ -194,7 +192,7 @@ function AppContent() {
   if (!splashDone) {
     return (
       <View style={splashStyles.container}>
-        <StatusBar style="light" />
+        <StatusBar style="light" backgroundColor={plancha.oscuro.manifestFondo} />
         <Animated.Image
           source={logo}
           style={[splashStyles.logo, { opacity }]}
@@ -229,7 +227,7 @@ function AppContent() {
         formatter: () => 'pKapp',
       }}
     >
-      <StatusBar style={esOscuro ? 'light' : 'light'} backgroundColor={chrome.cabecera} />
+      <StatusBar style={esOscuro ? 'light' : 'dark'} backgroundColor={chrome.cabecera} />
       <Stack.Navigator
         initialRouteName="MateriaSelect"
         screenOptions={{

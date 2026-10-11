@@ -8,7 +8,7 @@
     "splash": {
       "image": "./src/assets/logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#1a3f6f"
+      "backgroundColor": "#0b0d10"
     },
     "ios": {
       "supportsTablet": true,
@@ -19,7 +19,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#6366f1"
+        "backgroundColor": "#0b0d10"
       },
       "package": "com.agustinfrusto.pkapp"
     },
@@ -30,8 +30,8 @@
       "shortName": "pKapp",
       "description": "Preparación para ESFUNO (Biología Celular y Tisular, Anatomía, Neurobiología y demás módulos)",
       "lang": "es",
-      "themeColor": "#1a3f6f",
-      "backgroundColor": "#1a3f6f",
+      "themeColor": "#0b0d10",
+      "backgroundColor": "#0b0d10",
       "display": "standalone",
       "orientation": "portrait",
       "startUrl": "/"
