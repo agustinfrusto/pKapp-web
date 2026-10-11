@@ -1,24 +1,70 @@
 // Pantalla de ajustes: gestión de preguntas custom, reseteo de stats, info.
+// Plancha (change rediseno-plancha, tarea 3.8): diseno/pantallas/Settings.md y el estado
+// vacío V3 de Vacios.md.
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, TouchableOpacity, ScrollView, Switch, Linking,
+  View, Text, ScrollView, Linking, Platform,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { useMateria } from '../materia/MateriaContext';
-
-// La version se lee desde app.json; al bumpearla ahi se actualiza acá automáticamente
-const APP_VERSION = Constants.expoConfig?.version || '?';
 import {
   resetStats, getUserQuestions, deleteUserQuestion,
   getSetting, saveSetting,
 } from '../db/database';
 import { confirm, avisar } from '../utils/confirm';
 import { pickAndImportBackup, downloadBackup } from '../utils/migration';
-import { colores } from '../theme/colores';
-import { Platform } from 'react-native';
+import {
+  BotonRelleno, BotonMarco, ControlMarco, Segmento, FilaLista, MarcaEstado, RotuloSeccion, Columna,
+} from '../components/plancha';
+import { useTokens, GLIFO_CHICO } from '../components/plancha/Control';
+import Glifo from '../components/Glifo';
+
+// La version se lee desde app.json; al bumpearla ahi se actualiza acá automáticamente
+const APP_VERSION = Constants.expoConfig?.version || '?';
+
+const PANEL = 'border border-linea bg-superficie p-3.5 dark:border-lineaD dark:bg-superficieD';
+const SECCION = 'mb-8';
+const FILETE = 'border-t border-filete dark:border-fileteD';
+
+const OPCIONES_OCULTAR = [
+  { valor: 'no', etiqueta: 'No' },
+  { valor: 'si', etiqueta: 'Sí' },
+];
+
+// Cabecera de un plegable (K3): nombre a la izquierda; a la derecha, «Ver» u «Ocultar» y
+// el chevron, que gira al abrir. Presionado invierte todo (fondo `tinta`, resto `fondo`).
+// K3 fija el relleno horizontal en paso 4 y la ficha pide paso 3.5 (a.3): el contenido
+// cede paso 0.5 por lado con un margen negativo y llena el ancho con `flex-1`.
+function Plegable({ nombre, abierto, onPress }) {
+  const tema = useTokens();
+  return (
+    <ControlMarco abierto={abierto} onPress={onPress} className="w-full">
+      {({ texto, glifo, invertido }) => (
+        <View className="-mx-0.5 flex-1 flex-row items-center justify-between py-3">
+          <Text className={`flex-1 font-plex-sans-semibold text-item ${texto}`}>{nombre}</Text>
+          <View className="flex-row items-center gap-2">
+            <Text
+              className={`font-plex-sans-semibold text-cuerpo ${
+                invertido ? texto : 'text-acento dark:text-acentoD'
+              }`}
+            >
+              {abierto ? 'Ocultar' : 'Ver'}
+            </Text>
+            <View className={abierto ? 'rotate-180' : ''}>
+              <Glifo id="glifo-chevron" size={GLIFO_CHICO} color={tema[invertido ? glifo : 'acento']} />
+            </View>
+          </View>
+        </View>
+      )}
+    </ControlMarco>
+  );
+}
 
 export default function SettingsScreen() {
+  const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const { materiaId, materia } = useMateria();
   const QUESTIONS = materia?.QUESTIONS || [];
   const TOPICS = materia?.TOPICS || {};
@@ -74,164 +120,185 @@ export default function SettingsScreen() {
   const generatedCount = QUESTIONS.filter(q => q.source === 'generated').length;
 
   return (
-    <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900" contentContainerClassName="p-4 pb-[30px]">
-      {/* 1. Cuestionario (el ajuste configurable, arriba) */}
-      <View className="mb-6">
-        <Text className="mb-2.5 text-base font-bold uppercase tracking-[0.5px] text-brand dark:text-brandD-light">Cuestionario</Text>
-        <View className="flex-row items-center rounded-md bg-white p-4 dark:bg-slate-800">
-          <View className="mr-3 flex-1">
-            <Text className="text-base font-semibold text-brand-ink dark:text-brandD-ink">Ocultar resultado hasta el final</Text>
-            <Text className="mt-[3px] text-xs leading-4 text-brand-soft dark:text-brandD-soft">
-              Respondé sin ver si acertás. Al terminar, revisás todo junto.
-            </Text>
+    <ScrollView
+      className="flex-1 bg-fondo dark:bg-fondoD"
+      contentContainerClassName="pb-8 pt-4"
+    >
+      <Columna>
+        {/* 1. Cuestionario (el ajuste configurable, arriba) */}
+        <View className={SECCION}>
+          <View className="mb-2"><RotuloSeccion color="acento">Cuestionario</RotuloSeccion></View>
+          <View className={`flex-row items-center gap-3.5 ${PANEL}`}>
+            <View className="flex-1">
+              <Text className="font-plex-sans-semibold text-item text-tinta dark:text-tintaD">
+                Ocultar resultado hasta el final
+              </Text>
+              <Text className="mt-1 font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
+                Respondé sin ver si acertás. Al terminar, revisás todo junto.
+              </Text>
+            </View>
+            <Segmento
+              forma="segmentado"
+              opciones={OPCIONES_OCULTAR}
+              valor={hideFeedback ? 'si' : 'no'}
+              alCambiar={(v) => handleToggleHideFeedback(v === 'si')}
+              accessibilityLabel="Ocultar resultado hasta el final"
+            />
           </View>
-          <Switch
-            value={hideFeedback}
-            onValueChange={handleToggleHideFeedback}
-            trackColor={{ false: colores.brand.border, true: colores.accent.DEFAULT }}
-            thumbColor="white"
-          />
         </View>
-      </View>
 
-      {/* 2. Mis preguntas (desplegable, con contador) */}
-      <View className="mb-6">
-        <Text className="mb-2.5 text-base font-bold uppercase tracking-[0.5px] text-brand dark:text-brandD-light">Mis preguntas</Text>
-        <TouchableOpacity
-          className={`flex-row items-center justify-between rounded-md bg-white px-4 py-3.5 dark:bg-slate-800 ${
-            showQuestions ? 'rounded-b-none border-b border-b-brand-wash dark:border-b-brandD-wash' : ''
-          }`}
-          onPress={() => setShowQuestions((v) => !v)}
-          activeOpacity={0.7}
-        >
-          <Text className="text-base font-semibold text-brand-ink dark:text-brandD-ink">
-            {userQuestions.length} {userQuestions.length === 1 ? 'pregunta propia' : 'preguntas propias'}
-          </Text>
-          <Text className="text-sm font-bold text-accent dark:text-accentD">{showQuestions ? '▲  Ocultar' : '▼  Ver'}</Text>
-        </TouchableOpacity>
-        {showQuestions && (
-          <View className="mt-2.5">
-            {userQuestions.length === 0 ? (
-              <View className="rounded bg-white p-5 dark:bg-slate-800">
-                <Text className="text-center text-sm leading-5 text-muted dark:text-mutedD">
-                  No agregaste preguntas todavía. Usá "Agregar pregunta" en el menú principal.
-                </Text>
-              </View>
-            ) : (
-              userQuestions.map((q) => (
-                <View key={q.id} className="mb-2 rounded bg-white p-3 dark:bg-slate-800">
-                  <View className="mb-1.5 flex-row items-center justify-between">
-                    <Text className="text-xxs font-semibold uppercase text-brand dark:text-brandD-light">
-                      {TOPICS[q.topic] || q.topic}
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() => handleDeleteUserQuestion(q.id)}
-                      className="p-1"
-                    >
-                      <Text className="text-md">×</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <Text className="mb-1.5 text-sm leading-[18px] text-slate-800 dark:text-brandD-ink" numberOfLines={2}>
-                    {q.question}
+        {/* 2. Mis preguntas (desplegable, con contador) */}
+        <View className={SECCION}>
+          <View className="mb-2"><RotuloSeccion color="acento">Mis preguntas</RotuloSeccion></View>
+          <Plegable
+            nombre={`${userQuestions.length} ${userQuestions.length === 1 ? 'pregunta propia' : 'preguntas propias'}`}
+            abierto={showQuestions}
+            onPress={() => setShowQuestions((v) => !v)}
+          />
+          {showQuestions && (
+            <View className="mt-2.5">
+              {userQuestions.length === 0 ? (
+                <View className={`items-center ${PANEL}`}>
+                  <Text className="text-center font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
+                    No agregaste preguntas todavía. Usá "Agregar pregunta" en el menú principal.
                   </Text>
-                  <Text className="text-xs font-medium text-success dark:text-successD">
-                    {q.options[q.correctIndex]}
-                  </Text>
+                  <BotonMarco
+                    etiqueta="Agregar pregunta"
+                    relleno="amplio"
+                    className="mt-3"
+                    onPress={() => navigation.navigate('AddQuestion')}
+                  />
                 </View>
-              ))
-            )}
-          </View>
-        )}
-      </View>
+              ) : (
+                userQuestions.map((q, i) => (
+                  <View key={q.id} className={`${i > 0 ? 'mt-2.5' : ''} ${PANEL}`}>
+                    <View className="flex-row items-center justify-between gap-2">
+                      <Text className="flex-1 font-plex-mono text-rotulo uppercase text-acento dark:text-acentoD">
+                        {TOPICS[q.topic] || q.topic}
+                      </Text>
+                      <FilaLista
+                        glifo="glifo-eliminar"
+                        tono="sec"
+                        accessibilityLabel="Eliminar pregunta"
+                        onPress={() => handleDeleteUserQuestion(q.id)}
+                      />
+                    </View>
+                    <Text
+                      className="mt-1.5 font-plex-sans text-cuerpo text-tinta dark:text-tintaD"
+                      numberOfLines={2}
+                    >
+                      {q.question}
+                    </Text>
+                    <View className="mt-1.5">
+                      <MarcaEstado estado="acierto" texto={q.options[q.correctIndex]} paso="detalle" />
+                    </View>
+                  </View>
+                ))
+              )}
+            </View>
+          )}
+        </View>
 
-      {/* 3. Tus datos (desplegable: respaldo + reset) */}
-      <View className="mb-6">
-        <Text className="mb-2.5 text-base font-bold uppercase tracking-[0.5px] text-brand dark:text-brandD-light">Tus datos</Text>
-        <TouchableOpacity
-          className={`flex-row items-center justify-between rounded-md bg-white px-4 py-3.5 dark:bg-slate-800 ${
-            showData ? 'rounded-b-none border-b border-b-brand-wash dark:border-b-brandD-wash' : ''
-          }`}
-          onPress={() => setShowData((v) => !v)}
-          activeOpacity={0.7}
-        >
-          <Text className="text-base font-semibold text-brand-ink dark:text-brandD-ink">Respaldo y reseteo</Text>
-          <Text className="text-sm font-bold text-accent dark:text-accentD">{showData ? '▲  Ocultar' : '▼  Ver'}</Text>
-        </TouchableOpacity>
-        {showData && (
-          <View className="mt-2.5">
-            <View className="rounded-md bg-white p-3.5 dark:bg-slate-800">
+        {/* 3. Tus datos (desplegable: respaldo + reset) */}
+        <View className={SECCION}>
+          <View className="mb-2"><RotuloSeccion color="acento">Tus datos</RotuloSeccion></View>
+          <Plegable
+            nombre="Respaldo y reseteo"
+            abierto={showData}
+            onPress={() => setShowData((v) => !v)}
+          />
+          {showData && (
+            <View className={`mt-2.5 ${PANEL}`}>
               {Platform.OS === 'web' && (
                 <>
-                  <Text className="mb-2.5 text-xs leading-[17px] text-brand-soft dark:text-brandD-soft">
+                  <Text className="mb-2.5 font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
                     Descargá un respaldo de tu progreso para no perderlo o pasarlo a otro dispositivo.
                   </Text>
-                  <TouchableOpacity
-                    className="mb-2 items-center rounded border border-brand-border bg-brand-tint py-2.5 dark:border-brandD-border dark:bg-brandD-tint"
+                  <ControlMarco
+                    etiqueta="Descargar respaldo"
+                    glifo="glifo-guardar"
+                    className="mb-2 w-full"
                     onPress={() => {
                       const ok = downloadBackup();
                       if (!ok) avisar('Error', 'No se pudo generar el respaldo.');
                     }}
-                  >
-                    <Text className="text-xs font-semibold text-brand-ink dark:text-brandD-ink">💾 Descargar respaldo</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    className="mb-2 items-center rounded bg-brand py-[11px] dark:bg-brandD-deep"
+                  />
+                  <BotonRelleno
+                    etiqueta="Importar respaldo"
+                    glifo="glifo-importar"
+                    className="w-full"
                     onPress={() => pickAndImportBackup((r) => {
                       avisar(r.ok ? 'Listo' : 'Error', r.message);
                       if (r.ok) loadData();
                     })}
-                  >
-                    <Text className="text-sm font-semibold text-white">📂 Importar respaldo</Text>
-                  </TouchableOpacity>
-                  <View className="my-3 h-px bg-slate-200 dark:bg-brandD-border" />
+                  />
+                  <View
+                    aria-hidden
+                    accessibilityElementsHidden
+                    importantForAccessibility="no-hide-descendants"
+                    className={`my-3 ${FILETE}`}
+                  />
                 </>
               )}
-              <TouchableOpacity
-                className="items-center rounded border border-danger-border bg-danger-surface py-3.5 dark:border-dangerD-border dark:bg-dangerD-surface"
+              <BotonMarco
+                etiqueta="Resetear estadísticas"
+                tono="peligro"
+                className="w-full"
                 onPress={handleResetStats}
-              >
-                <Text className="text-base font-semibold text-danger dark:text-dangerD">Resetear estadísticas</Text>
-              </TouchableOpacity>
+              />
+            </View>
+          )}
+        </View>
+
+        {/* 4. Acerca de (info compacta) */}
+        <View>
+          <View className="mb-2"><RotuloSeccion color="acento">Acerca de</RotuloSeccion></View>
+          <View className={PANEL}>
+            <View className="flex-row flex-wrap items-baseline justify-between gap-2">
+              <View className="flex-row items-baseline gap-2">
+                <Text className="font-plex-sans-semibold text-item text-tinta dark:text-tintaD">pKapp</Text>
+                <Text className="font-plex-mono-medium text-rotulo uppercase text-tintaSec dark:text-tintaSecD">
+                  v{APP_VERSION}
+                </Text>
+              </View>
+              <Text className="font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
+                Preparación para ESFUNO
+              </Text>
+            </View>
+
+            <View className={`mt-3 pt-3 ${FILETE}`}>
+              <View className="flex-row items-baseline justify-between gap-2">
+                <Text className="flex-1 font-plex-mono text-rotulo uppercase text-tintaSec dark:text-tintaSecD">
+                  Banco de {materia?.name || 'preguntas'}
+                </Text>
+                <Text className="font-plex-mono-medium text-dato text-tinta dark:text-tintaD">
+                  {examCount + generatedCount + userQuestions.length}
+                </Text>
+              </View>
+              <Text className="mt-1 font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
+                {examCount} de exámenes · {generatedCount} generadas · {userQuestions.length} tuyas
+              </Text>
+            </View>
+
+            <View className={`mt-3 flex-row flex-wrap gap-2 pt-3 ${FILETE}`}>
+              <BotonMarco
+                etiqueta="Reportar un error"
+                glifo="glifo-correo"
+                tono="acento"
+                onPress={() => Linking.openURL('mailto:pkappsoporte@gmail.com')}
+              />
+              <BotonMarco
+                etiqueta="Código fuente"
+                glifo="glifo-externo"
+                glifoPosicion="detras"
+                tono="acento"
+                onPress={() => Linking.openURL('https://github.com/agustinfrusto/pKapp-web')}
+              />
             </View>
           </View>
-        )}
-      </View>
-
-      {/* 4. Acerca de (info compacta) */}
-      <View className="mb-6">
-        <Text className="mb-2.5 text-base font-bold uppercase tracking-[0.5px] text-brand dark:text-brandD-light">Acerca de</Text>
-        <View className="rounded bg-white p-3.5 dark:bg-slate-800">
-          <View className="flex-row flex-wrap items-baseline justify-between gap-2">
-            <Text className="text-base font-bold text-slate-800 dark:text-brandD-ink">pKapp <Text className="text-xs font-medium text-muted dark:text-mutedD">v{APP_VERSION}</Text></Text>
-            <Text className="text-xs text-brand-soft dark:text-brandD-soft">Preparación para ESFUNO</Text>
-          </View>
-
-          <View className="mt-3 flex-row items-baseline justify-between border-t border-t-brand-wash pt-2.5 dark:border-t-brandD-wash">
-            <Text className="text-xxs font-semibold uppercase tracking-[0.4px] text-muted dark:text-mutedD">Banco de {materia?.name || 'preguntas'}</Text>
-            <Text className="text-md font-bold text-brand dark:text-brandD-light">{examCount + generatedCount + userQuestions.length}</Text>
-          </View>
-          <Text className="mt-0.5 text-xs text-brand-soft dark:text-brandD-soft">
-            {examCount} de exámenes · {generatedCount} generadas · {userQuestions.length} tuyas
-          </Text>
-
-          <View className="mt-3 flex-row flex-wrap gap-2">
-            <TouchableOpacity
-              onPress={() => Linking.openURL('mailto:pkappsoporte@gmail.com')}
-              className="rounded-full border border-slate-200 bg-slate-100 px-[13px] py-2 dark:border-brandD-border dark:bg-slate-800"
-              activeOpacity={0.7}
-            >
-              <Text className="text-sm font-semibold text-accent dark:text-accentD">✉️  Reportar un error</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => Linking.openURL('https://github.com/agustinfrusto/pKapp-web')}
-              className="rounded-full border border-slate-200 bg-slate-100 px-[13px] py-2 dark:border-brandD-border dark:bg-slate-800"
-              activeOpacity={0.7}
-            >
-              <Text className="text-sm font-semibold text-accent dark:text-accentD">Código fuente ↗</Text>
-            </TouchableOpacity>
-          </View>
         </View>
-      </View>
+      </Columna>
+      <View style={{ height: insets.bottom }} />
     </ScrollView>
   );
 }

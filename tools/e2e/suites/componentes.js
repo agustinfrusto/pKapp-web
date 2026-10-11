@@ -427,7 +427,24 @@ async function probarTema(navegador, base, t, tema) {
       sinFoco: true,
     });
 
+    // Deuda de la 2.9 (cubierta en 3.8): texto de K7 `tono="sec"` en `tintaSec` (FilaLista.js:36)
+    await estadosDe(ctx, 'K7 tono sec texto', sel('k7-sec-texto'), {
+      reposo: { fondo: transparente, texto: rgb(T.tintaSec) },
+      hover: { texto: rgb(T.tintaSec), contorno: cont('1px', 'linea') },
+      presionado: { fondo: rgb(T.tinta), texto: rgb(T.fondo) },
+      sinFoco: true,
+    });
+
     await pagina.moverA(1, 1);
+
+    // Deuda de la 2.9 (cubierta en 3.8): contenedor del segmentado (Segmento.js:43)
+    const contenedor = await pagina.evaluar(`(function () {
+      const s = getComputedStyle(document.querySelector(${JSON.stringify(GRUPO_SEG)}));
+      return { fondo: s.backgroundColor, borde: s.borderTopColor, ancho: s.borderTopWidth, estilo: s.borderTopStyle };
+    })()`);
+    t.ok(`${tema} · K4 segmentado contenedor: fondo \`superficie\``, contenedor.fondo, rgb(T.superficie));
+    t.ok(`${tema} · K4 segmentado contenedor: borde \`linea\`, border`,
+      `${contenedor.estilo} ${contenedor.ancho} ${contenedor.borde}`, `solid 1px ${rgb(T.linea)}`);
 
     // Filete inferior de K7 (listas)
     const k7 = await pagina.evaluar(LEER(sel('k7')));

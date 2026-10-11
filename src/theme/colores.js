@@ -128,6 +128,8 @@ const plancha = {
     aciertoFondo: '#e6f1ea',
     error: '#a32424',         // respuesta incorrecta y banda de menos de 60
     errorFondo: '#f8e9e9',
+    acentoFondo: '#e2eef0',   // cuerpo y pie del pedido de donación (solo ahí, CD-8)
+    acentoBanda: '#0b6e80',   // banda del encabezado del pedido de donación (solo ahí, CD-8)
     intermedia: '#3f5f7a',    // banda de 60 a 79 (D6)
     filamento: '#14181d',     // tinta del campo de filamentos
     // Bordes de app (D8): no dependen del tema, mismo valor en los dos objetos.
@@ -150,6 +152,8 @@ const plancha = {
     aciertoFondo: '#10231a',
     error: '#f08c8c',
     errorFondo: '#2a1414',
+    acentoFondo: '#1d3037',
+    acentoBanda: '#4692a1',
     intermedia: '#8fb4c9',
     filamento: '#8fb4c9',
     manifestTema: '#0b0d10',

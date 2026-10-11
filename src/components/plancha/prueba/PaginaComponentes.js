@@ -12,6 +12,7 @@ import {
 } from '..';
 import { useTokens } from '../Control';
 import Glifo from '../../Glifo';
+import DonationBox from '../../DonationBox';
 
 const FILTRO = [
   { valor: 'todas', etiqueta: 'Todas' },
@@ -143,6 +144,21 @@ export default function PaginaComponentes() {
           </View>
           <FilaLista testID="k7-glifo" onPress={tocar('k7-glifo')} glifo="glifo-volver" accessibilityLabel="Volver" />
           <FilaLista testID="k7-sec" onPress={tocar('k7-sec')} glifo="glifo-cerrar" tono="sec" accessibilityLabel="Quitar" />
+          <FilaLista testID="k7-sec-texto" onPress={tocar('k7-sec-texto')} tono="sec">
+            {({ texto }) => <Text className={`font-plex-sans text-cuerpo ${texto}`}>Quitar fila</Text>}
+          </FilaLista>
+        </Grupo>
+
+        <Grupo titulo="Pedido de donación (3.8)">
+          <View className="w-full px-1 py-1">
+            <DonationBox testID="don-normal" origen="prueba-normal" />
+          </View>
+          <View className="w-full px-1 py-1">
+            <DonationBox testID="don-descartable" origen="prueba-descartable" descartable />
+          </View>
+          <View className="w-full px-1 py-1">
+            <DonationBox testID="don-celebratoria" origen="prueba-celebratoria" celebratoria descartable />
+          </View>
         </Grupo>
 
         <Grupo titulo="Lámina">

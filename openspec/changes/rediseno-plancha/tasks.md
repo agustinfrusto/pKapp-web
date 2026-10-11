@@ -42,7 +42,7 @@ Rama: `rediseno`. Una tarea por despacho, en orden, un commit por tarea. Compuer
 - [x] 3.5 (con 3.5b: la meta pasa a su propia línea sin recorte, D10 por encima de QUIZ-P8; para revisar en 6.0) `QuizScreen`, incluido el examen en curso (la revisión de respuestas vive en `ResultsScreen.js`: pasa a 3.6)
 - [ ] 3.6 `ResultsScreen`, incluida la revisión de respuestas (`Revision.md`), con los umbrales de D6 intactos. Corrige el chip de tema que hoy muestra la clave cruda (`HISTOLOGIA-CYR`): muestra `TOPICS[topic]` o «Todos los temas» (bug de `main` hallado en la maqueta, MAQUETA-P2)
 - [x] 3.7 (con 3.7b; `rotulo-medio` sumado a MarcaEstado; VAC-P2 aprobado por el usuario el 2026-10-11) `StatsScreen`, con las bandas 80/60 distinguibles sin color **Compuerta de usuario: mostrar ADD-P1/VAC-P2 implementadas al usuario antes del commit.**
-- [ ] 3.8 `SettingsScreen` y `DonationBox` **Compuerta de usuario: mostrar ADD-P1/VAC-P2 implementadas al usuario antes del commit.**
+- [x] 3.8 (con 3.8b; DON-P5 y VAC-P2 aprobados por el usuario el 2026-10-11; tokens `acentoFondo` y `acentoBanda` en colores.js) `SettingsScreen` y `DonationBox` **Compuerta de usuario: mostrar ADD-P1/VAC-P2 implementadas al usuario antes del commit.**
 - [ ] 3.9 `AddQuestionScreen` **Compuerta de usuario: mostrar ADD-P1/VAC-P2 implementadas al usuario antes del commit.**
 
 Aceptación común de 3.x: build y e2e en verde; captura en claro y oscuro a 360, 390, 768
