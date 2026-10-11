@@ -65,4 +65,5 @@ al Analista.
 
 ## 6. Después del merge (fuera de este change)
 
+- [ ] 6.0 Pulido final con un agente Fable, una sola vez, al terminar el rediseño (pedido del usuario 2026-10-11): pule la implementación y deja todo anotado en specs. El Ingeniero le prepara antes un traspaso (contratos de `diseno/`, `CONVENCIONES.md`, D1–D10, invariantes de Engram y pendientes) y revisa su salida antes del archivo del change
 - [ ] 6.1 Actualizar a Expo SDK 57, solo web (pedido del usuario 2026-10-11). Change propio, en una rama desde `main` ya mergeado. Base: `evidencia/investigacion-expo-57.md` (≈ 3–4 h, riesgo bajo: `expo@^57` + `nativewind ^4.2.7`, splash de `app.json` a plugin, quitar `backgroundColor` de `StatusBar`, compuerta y peso). Sin NativeWind 5 hasta su versión estable
