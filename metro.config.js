@@ -13,6 +13,11 @@ const config = withNativeWind(getDefaultConfig(__dirname), {
 // Stub vacío al que redirigir expo-sqlite y sus internals en web
 const emptyShim = path.resolve(__dirname, 'src/db/sqlite-stub.js');
 
+// query-string@7 (dependencia de @react-navigation/core) hace require() de
+// decode-uri-component, que desde la 0.5.0 es ESM puro. Se mantiene la 0.5.0
+// por la vulnerabilidad de DoS de las anteriores y se resuelve la interop acá.
+const decodeUriComponentShim = path.resolve(__dirname, 'src/shims/decode-uri-component.js');
+
 const originalResolveRequest = config.resolver.resolveRequest;
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {
@@ -25,6 +30,10 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     ) {
       return { type: 'sourceFile', filePath: emptyShim };
     }
+  }
+  // Solo este módulo: el resto de las resoluciones no se toca.
+  if (moduleName === 'decode-uri-component') {
+    return { type: 'sourceFile', filePath: decodeUriComponentShim };
   }
   if (originalResolveRequest) {
     return originalResolveRequest(context, moduleName, platform);
