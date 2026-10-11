@@ -63,7 +63,8 @@ los assets y pierde nitidez; un SVG estático en `<Image>` no se renderiza en na
   color literal en los datos. Campo opcional `encuadre`: `'meet'` (por defecto), `'slice'`
   o `'none'`, que se traduce a `preserveAspectRatio`; el campo de filamentos usa `'none'`
   como el boceto (estiramiento acotado por `columna`: si `columna` supera 448 o aparece un
-  ancho de escritorio propio, se revisa y por encima de ~1,4× pasa a `'slice'`). `strokeOpacity` vale solo en el campo de filamentos (jerarquía de
+  ancho de escritorio propio, se revisa y por encima de ~1,4× pasa a `'slice'`; revisado para escritorio: la
+  lámina va en `lateral` (320) y estira el campo 0,92×, sin cambio). `strokeOpacity` vale solo en el campo de filamentos (jerarquía de
   trazo del boceto); nunca en controles, texto, estados ni ilustraciones de materia, que
   son monocromas y sin `tono`.
 - **Compuerta**: si `react-native-svg` suma más de **25 KB gzip** al bundle web, se adopta
@@ -178,9 +179,12 @@ tablet, PC, Mac, iPhone y Android.
   tokens Plancha, nunca `main`. Si disposición (boceto) y orden de uso (`main`) chocan,
   gana el orden de uso y el Diseñador resuelve la disposición dentro de él. Agregar un texto del boceto que `main`
   no tiene sí es una propuesta, y si se rechaza queda el texto de `main`.
-- **Anchos**: cada ficha define el layout en tres anchos: teléfono (390 px), tablet
-  (768 px) y escritorio (1280 px). En tablet y escritorio, el contenido no se estira a
-  todo el ancho: la ficha fija su ancho máximo y su alineación.
+- **Anchos**: cada ficha define el layout en teléfono (390 px), tablet (768 px) y
+  escritorio. Bajo el corte `escritorio` (1024 px) rige la columna única `columna`; desde él,
+  las regiones de `comun.md` §7.2 (`lectura`, `lateral`, `hoja`, `hoja-amplia`, corte `amplio`
+  en 1440), verificadas en 1024, 1280, 1366 y 1920 (propuestas ESC aprobadas por el usuario el
+  2026-10-11: buena parte de las visitas llega desde escritorio con Windows). El contenido no se
+  estira a todo el ancho: la ficha fija su ancho máximo y su alineación.
 - **Entrada**: táctil (iPhone, Android, tablet) con objetivo mínimo de 44 × 44 pt;
   puntero (PC, Mac) con hover solo bajo `@media (hover: hover)`, como hoy en
   `webStyles.js`; teclado con foco visible (token `foco`).
