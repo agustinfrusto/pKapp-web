@@ -1,16 +1,77 @@
 // Pantalla central del quiz: muestra una pregunta a la vez,
 // permite seleccionar respuesta, muestra explicación tras responder,
 // y guarda el resultado en la base de datos.
+// Fichas: openspec/changes/rediseno-plancha/diseno/pantallas/Quiz.md y ExamenEnCurso.md.
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, TouchableOpacity, ScrollView, Platform,
+  View, Text, ScrollView, Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { recordAnswer } from '../db/database';
 import { confirm } from '../utils/confirm';
 import { useMateria } from '../materia/MateriaContext';
+import { useTema } from '../theme/TemaContext';
+import { plancha } from '../theme/colores';
 import { reportQuestion } from '../utils/report';
-import { sombras } from '../theme/sombras';
+import Glifo from '../components/Glifo';
+import {
+  BotonRelleno, Columna, ControlMarco, FilaLista, MarcaEstado, RotuloSeccion,
+} from '../components/plancha';
+
+// Escala de 4 px por paso (tokens.md c.3, comun.md §8).
+const GLIFO_CHICO = 4 * 4;
+// Hasta este total, una casilla por pregunta; con más, una barra continua (QUIZ-P4).
+const TOPE_DE_CASILLAS = 40;
+// Bajo este tiempo restante (en segundos) el reloj pasa a alerta (QUIZ-P3).
+const SEGUNDOS_DE_ALERTA = 120;
+
+const TINTA = 'text-tinta dark:text-tintaD';
+const TINTA_SEC = 'text-tintaSec dark:text-tintaSecD';
+
+// Chip de origen (Quiz.md c.3): tres siluetas, glifos y textos que no se parecen entre sí.
+const ORIGENES = {
+  exam: {
+    caja: 'border-acento bg-superficie dark:border-acentoD dark:bg-superficieD',
+    texto: 'text-acento dark:text-acentoD',
+    glifo: 'glifo-origen-examen',
+    color: 'acento',
+  },
+  generated: {
+    caja: 'border-tinta bg-tinta dark:border-tintaD dark:bg-tintaD',
+    texto: 'text-fondo dark:text-fondoD',
+    glifo: 'glifo-origen-generada',
+    color: 'fondo',
+  },
+  user: {
+    caja: 'border-linea bg-superficie dark:border-lineaD dark:bg-superficieD',
+    texto: TINTA,
+    glifo: 'glifo-origen-propia',
+    color: 'tinta',
+  },
+};
+
+// Opción respondida (Quiz.md c.2): ya no es un control, así que no usa K3. `celda` es la
+// celda de letra; `texto`, el paso tipográfico del enunciado de la opción.
+const ESTADOS_DE_OPCION = {
+  acierto: {
+    caja: 'border-2 border-acierto bg-aciertoFondo dark:border-aciertoD dark:bg-aciertoFondoD',
+    celda: 'border-r-2 border-acierto bg-acierto dark:border-aciertoD dark:bg-aciertoD',
+    letra: 'text-fondo dark:text-fondoD',
+    texto: `font-plex-sans-semibold ${TINTA}`,
+  },
+  error: {
+    caja: 'border-2 border-error bg-errorFondo dark:border-errorD dark:bg-errorFondoD',
+    celda: 'border-r-2 border-error bg-error dark:border-errorD dark:bg-errorD',
+    letra: 'text-fondo dark:text-fondoD',
+    texto: `font-plex-sans ${TINTA}`,
+  },
+  apagada: {
+    caja: 'border border-filete bg-superficie dark:border-fileteD dark:bg-superficieD',
+    celda: 'border-r border-filete dark:border-fileteD',
+    letra: TINTA_SEC,
+    texto: `font-plex-sans ${TINTA_SEC}`,
+  },
+};
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
@@ -26,6 +87,8 @@ export default function QuizScreen({ route, navigation }) {
   const preguntas = Array.isArray(questions) ? questions : [];
   const sinQuiz = preguntas.length === 0;
   const insets = useSafeAreaInsets();
+  const { oscuro } = useTema();
+  const tokens = oscuro ? plancha.oscuro : plancha.claro;
   const { materiaId, materia } = useMateria();
   const TOPICS = materia?.TOPICS || {};
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -42,7 +105,6 @@ export default function QuizScreen({ route, navigation }) {
 
   const currentQuestion = preguntas[currentIndex];
   const isLast = currentIndex === preguntas.length - 1;
-  const progress = preguntas.length ? ((currentIndex + 1) / preguntas.length) * 100 : 0;
 
   // Sin quiz que mostrar, al selector. Va en efecto porque no se puede navegar
   // durante el render.
@@ -167,162 +229,295 @@ export default function QuizScreen({ route, navigation }) {
 
   if (sinQuiz) return null;
 
+  const total = preguntas.length;
+  const enAlerta = timeLeft !== null && timeLeft < SEGUNDOS_DE_ALERTA;
+  const origen = ORIGENES[currentQuestion.source];
+  const nombreOrigen = {
+    exam: currentQuestion.exam, generated: 'Práctica', user: 'Tuya',
+  }[currentQuestion.source];
+  const verOrigen = origen && nombreOrigen;
+  const parciales = materia?.config?.parciales || [];
+  const posParcial = parciales.findIndex((p) => p.id === currentQuestion.parcial);
+  const etiquetaParcial = posParcial >= 0
+    ? parciales[posParcial].label
+    : (currentQuestion.parcial === 'primero' ? '1er Parcial' : '2do Parcial');
+  const casillasParcial = parciales.length > 1 ? parciales.length : 2;
+  const llenaParcial = posParcial >= 0 ? posParcial : (currentQuestion.parcial === 'primero' ? 0 : 1);
+  const tema = TOPICS[currentQuestion.topic] || currentQuestion.topic;
+
   return (
-    <View className="flex-1 bg-slate-100 dark:bg-slate-900" style={{ paddingTop: insets.top }}>
-      {/* Header con progreso */}
-      <View className="flex-row items-center bg-brand px-3 py-3 dark:bg-brandD-deep">
-        <TouchableOpacity onPress={handleQuit}>
-          <Text className="px-2.5 text-xl text-white">✕</Text>
-        </TouchableOpacity>
-        <View className="ml-3 flex-1 flex-row items-center">
-          <View className="h-1.5 flex-1 overflow-hidden rounded-xs bg-white/30">
-            <View className="h-full bg-white" style={{ width: `${progress}%` }} />
+    <View className="flex-1 bg-fondo dark:bg-fondoD">
+      {/* Barra propia del quiz (QUIZ-P1): suma el área segura superior */}
+      <View
+        testID="barra-quiz"
+        className="border-b border-linea bg-fondo dark:border-lineaD dark:bg-fondoD"
+        style={{ paddingTop: insets.top }}
+      >
+        <Columna>
+          <View className="flex-row items-center gap-3.5 py-2">
+            <FilaLista
+              testID="cerrar-quiz"
+              glifo="glifo-cerrar"
+              accessibilityLabel="Salir"
+              onPress={handleQuit}
+            />
+            <View testID="progreso-quiz" className="flex-1">
+              {total > TOPE_DE_CASILLAS ? (
+                <View
+                  testID="barra-progreso"
+                  className="h-2.5 border border-filete bg-fondo dark:border-fileteD dark:bg-fondoD"
+                >
+                  <View
+                    testID="relleno-progreso"
+                    className="h-full bg-tinta dark:bg-tintaD"
+                    style={{ width: `${((currentIndex + 1) / total) * 100}%` }}
+                  />
+                </View>
+              ) : (
+                <View className="flex-row gap-0.5">
+                  {preguntas.map((_, i) => (
+                    <View
+                      key={i}
+                      testID={i <= currentIndex ? 'casilla-llena' : 'casilla-vacia'}
+                      className={`h-2.5 flex-1 border ${
+                        i <= currentIndex
+                          ? 'border-tinta bg-tinta dark:border-tintaD dark:bg-tintaD'
+                          : 'border-filete bg-fondo dark:border-fileteD dark:bg-fondoD'
+                      }`}
+                    />
+                  ))}
+                </View>
+              )}
+            </View>
+            <View className="items-end">
+              <Text testID="contador-quiz" className={`font-plex-mono text-rotulo uppercase ${TINTA}`}>
+                {`${String(currentIndex + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`}
+              </Text>
+              {timeLeft !== null && (
+                <View
+                  testID="tiempo-quiz"
+                  className={`min-w-20 flex-row items-center justify-end gap-1 ${
+                    enAlerta ? 'border-2 border-error dark:border-errorD' : 'p-0.5'
+                  }`}
+                >
+                  <Glifo id="glifo-reloj" size={GLIFO_CHICO} color={enAlerta ? tokens.error : tokens.tinta} />
+                  <Text
+                    className={`font-plex-mono-medium text-rotulo uppercase ${
+                      enAlerta ? 'text-error dark:text-errorD' : TINTA
+                    }`}
+                  >
+                    {formatTime(timeLeft)}
+                  </Text>
+                </View>
+              )}
+            </View>
           </View>
-          <Text className="ml-3 min-w-[50px] text-sm font-semibold text-white">
-            {currentIndex + 1} / {preguntas.length}
-          </Text>
-        </View>
-        {timeLeft !== null && (
-          <Text
-            className={`ml-2.5 text-sm font-bold ${
-              timeLeft < 120 ? 'text-dangerD' : 'text-white'
-            }`}
-          >
-            ⏱ {formatTime(timeLeft)}
-          </Text>
-        )}
+        </Columna>
       </View>
 
-      <ScrollView ref={scrollRef} className="flex-1" contentContainerClassName="p-4 pb-[100px]">
-        {/* Tema y fuente */}
-        <View className="mb-2 flex-row items-start justify-between px-1">
-          <View className="mr-2 flex-1">
-            {currentQuestion.parcial && (
-              <View
-                className={`mb-1 self-start rounded-xs px-2 py-0.5 ${
-                  currentQuestion.parcial === 'primero'
-                    ? 'bg-parcial-1 dark:bg-parcialD-1'
-                    : 'bg-parcial-2 dark:bg-parcialD-2'
-                }`}
-              >
-                <Text className="text-[10px] font-bold uppercase tracking-[0.3px] text-slate-700 dark:text-brandD-ink">
-                  {currentQuestion.parcial === 'primero' ? '1er Parcial' : '2do Parcial'}
-                </Text>
-              </View>
-            )}
-            <Text className="text-xs font-semibold uppercase text-accent dark:text-accentD">
-              {TOPICS[currentQuestion.topic] || currentQuestion.topic}
+      <ScrollView ref={scrollRef} className="flex-1">
+        <Columna>
+          {/* Contexto: parcial, origen y meta. La meta va a la derecha si entra; si no,
+              pasa a su propia línea, a todo el ancho y sin límite de líneas (D10: el
+              tema nunca se recorta). */}
+          <View className="flex-row flex-wrap items-start justify-between gap-3 pb-3 pt-4">
+            <View className="max-w-full items-start">
+              {currentQuestion.parcial && (
+                <View testID="insignia-parcial" className="mb-1 flex-row items-center gap-1.5">
+                  <View
+                    aria-hidden
+                    accessibilityElementsHidden
+                    importantForAccessibility="no-hide-descendants"
+                    className="flex-row items-center gap-0.5"
+                  >
+                    {Array.from({ length: casillasParcial }, (_, i) => (
+                      <View
+                        key={i}
+                        className={`h-2.5 w-2.5 border border-tinta dark:border-tintaD ${
+                          i === llenaParcial ? 'bg-tinta dark:bg-tintaD' : ''
+                        }`}
+                      />
+                    ))}
+                  </View>
+                  <Text className={`font-plex-mono text-rotulo uppercase ${TINTA}`}>{etiquetaParcial}</Text>
+                </View>
+              )}
+              {verOrigen && (
+                <View
+                  testID="chip-origen"
+                  className={`max-w-full flex-row items-center gap-1.5 border px-2 py-0.5 ${origen.caja}`}
+                >
+                  <Glifo id={origen.glifo} size={GLIFO_CHICO} color={tokens[origen.color]} />
+                  <Text
+                    numberOfLines={1}
+                    className={`shrink font-plex-mono text-rotulo uppercase ${origen.texto}`}
+                  >
+                    {nombreOrigen}
+                  </Text>
+                </View>
+              )}
+            </View>
+            <Text
+              testID="meta-pregunta"
+              className={`min-w-0 max-w-full shrink grow text-right font-plex-mono text-rotulo uppercase ${TINTA_SEC}`}
+            >
+              {`${materia?.shortName || ''} · ${tema}`}
             </Text>
           </View>
-          <View className="items-end">
-            {currentQuestion.source === 'exam' && currentQuestion.exam && (
-              <Text className="text-xxs text-brand-soft dark:text-brandD-soft">📄 {currentQuestion.exam}</Text>
-            )}
-            {currentQuestion.source === 'generated' && (
-              <Text className="text-xxs text-brand-soft dark:text-brandD-soft">✨ Práctica</Text>
-            )}
-            {currentQuestion.source === 'user' && (
-              <Text className="text-xxs text-brand-soft dark:text-brandD-soft">👤 Tuya</Text>
-            )}
-          </View>
-        </View>
 
-        {/* Pregunta */}
-        <View className="mb-4 rounded-md bg-white p-[18px] dark:bg-slate-800" style={sombras.card}>
-          <Text className="text-md leading-6 text-brand-ink dark:text-brandD-ink">{currentQuestion.question}</Text>
-        </View>
-
-        {/* Opciones */}
-        <View className="gap-2.5">
-          {currentQuestion.options.map((option, idx) => {
-            const isSelected = selectedIndex === idx;
-            const isCorrect = idx === currentQuestion.correctIndex;
-            const showResult = answered;
-            
-            // Las clases se eligen enteras y nunca se arman por concatenación
-            // de fragmentos: Tailwind no puede ver un nombre construido a pedazos.
-            // El color de fondo y de borde no puede estar también en la clase
-            // base: dos utilidades del mismo tipo tienen igual especificidad y
-            // gana la que va después en la hoja, no en el string.
-            const NEUTRA = 'border-brand-border bg-white dark:border-brandD-border dark:bg-slate-800';
-            const SEL = 'border-brand bg-brand-surface dark:border-brandD-light dark:bg-brandD-surface';
-            const OK = 'border-success bg-success-surface dark:border-successD dark:bg-successD-surface';
-            const MAL = 'border-danger bg-danger-surface dark:border-dangerD dark:bg-dangerD-surface';
-            const APAGADA = NEUTRA + ' opacity-50';
-            let estado = NEUTRA;
-            let textoEstado = 'text-brand-ink dark:text-brandD-ink';
-            let icon = null;
-
-            if (showResult) {
-              if (hideFeedback) {
-                estado = isSelected ? SEL : APAGADA;
-              } else if (isCorrect) {
-                estado = OK;
-                textoEstado = 'font-semibold text-success-strong dark:text-successD-strong';
-                icon = '✓';
-              } else if (isSelected) {
-                estado = MAL;
-                textoEstado = 'text-danger-strong dark:text-dangerD-strong';
-                icon = '✗';
-              } else {
-                estado = APAGADA;
-              }
-            } else if (isSelected) {
-              estado = SEL;
-            }
-
-            return (
-              <TouchableOpacity
-                key={idx}
-                className={`flex-row items-center rounded border-2 p-3.5 ${estado}`}
-                onPress={() => handleSelectOption(idx)}
-                disabled={answered}
-                activeOpacity={0.7}
-              >
-                <Text className="mr-3 min-w-[20px] text-base font-bold text-brand-soft dark:text-brandD-soft">
-                  {String.fromCharCode(65 + idx)}
-                </Text>
-                <Text className={`flex-1 text-base leading-5 ${textoEstado}`}>{option}</Text>
-                {icon && <Text className="ml-2 text-md font-bold">{icon}</Text>}
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {/* Explicación después de responder */}
-        {answered && !hideFeedback && currentQuestion.explanation ? (
-          <View className="mt-4 rounded border-l-4 border-l-accent bg-accent-surface p-3.5 dark:border-l-accentD dark:bg-accentD-surface">
-            <Text className="mb-1.5 text-base font-bold text-accent-strong dark:text-accentD-strong">💡 Explicación</Text>
-            <Text className="text-base leading-5 text-accent-strong dark:text-accentD-strong">{currentQuestion.explanation}</Text>
-          </View>
-        ) : null}
-
-        {answered && (
-          <TouchableOpacity
-            className="mt-3.5 self-center rounded-full border border-danger-border bg-danger-surface px-4 py-[9px] dark:border-dangerD-border dark:bg-dangerD-surface"
-            onPress={() => reportQuestion(currentQuestion, materia?.name)}
-            activeOpacity={0.7}
+          {/* Pregunta */}
+          <View
+            testID="enunciado-quiz"
+            className="mb-4 border border-linea bg-superficie px-3.5 pb-4 pt-3.5 dark:border-lineaD dark:bg-superficieD"
           >
-            <Text className="text-sm font-bold text-danger dark:text-dangerD">🚩 Reportar pregunta</Text>
-          </TouchableOpacity>
-        )}
+            <RotuloSeccion testID="rotulo-enunciado">Enunciado</RotuloSeccion>
+            <Text className={`mt-1.5 font-plex-sans-semibold text-titulo ${TINTA}`}>
+              {currentQuestion.question}
+            </Text>
+          </View>
+
+          {/* Opciones */}
+          <View className="gap-2.5">
+            {currentQuestion.options.map((option, idx) => {
+              const isSelected = selectedIndex === idx;
+              const isCorrect = idx === currentQuestion.correctIndex;
+              const letra = String.fromCharCode(65 + idx);
+
+              // Sin responder, o la elegida sin retroalimentación: es un control (K3).
+              // Con retroalimentación respondida, la opción ya no recibe toque y toma la
+              // caja de su estado (c.2).
+              if (!answered || (hideFeedback && isSelected)) {
+                return (
+                  <ControlMarco
+                    key={idx}
+                    testID={`opcion-quiz-${idx}`}
+                    seleccionado={answered && isSelected}
+                    onPress={() => handleSelectOption(idx)}
+                  >
+                    {({ texto }) => (
+                      <View className="flex-1 flex-row items-stretch">
+                        <View
+                          testID={`letra-opcion-quiz-${idx}`}
+                          className="w-11 items-center justify-center border-r border-filete dark:border-fileteD"
+                        >
+                          <Text className={`font-plex-mono-medium text-dato ${texto}`}>{letra}</Text>
+                        </View>
+                        <View className="flex-1 justify-center px-3 py-3">
+                          <Text
+                            testID={`texto-opcion-quiz-${idx}`}
+                            className={`text-cuerpo ${
+                              answered ? 'font-plex-sans-semibold' : 'font-plex-sans'
+                            } ${texto}`}
+                          >
+                            {option}
+                          </Text>
+                        </View>
+                      </View>
+                    )}
+                  </ControlMarco>
+                );
+              }
+
+              let estado = 'apagada';
+              if (!hideFeedback && isCorrect) estado = 'acierto';
+              else if (!hideFeedback && isSelected) estado = 'error';
+              const e = ESTADOS_DE_OPCION[estado];
+              return (
+                <View key={idx} testID={`opcion-quiz-${idx}`}>
+                  <View className={`min-h-11 flex-row items-stretch ${e.caja}`}>
+                    <View
+                      testID={`letra-opcion-quiz-${idx}`}
+                      className={`w-11 items-center justify-center ${e.celda}`}
+                    >
+                      <Text className={`font-plex-mono-medium text-dato ${e.letra}`}>{letra}</Text>
+                    </View>
+                    <View className="flex-1 justify-center px-3 py-3">
+                      <Text testID={`texto-opcion-quiz-${idx}`} className={`text-cuerpo ${e.texto}`}>
+                        {option}
+                      </Text>
+                      {estado === 'acierto' && (
+                        <View className="mt-1">
+                          <MarcaEstado testID={`estado-opcion-${idx}`} estado="acierto" texto="Correcta" />
+                        </View>
+                      )}
+                      {estado === 'error' && (
+                        <View className="mt-1">
+                          <MarcaEstado
+                            testID={`estado-opcion-${idx}`}
+                            estado="error"
+                            texto="Incorrecta · tu respuesta"
+                          />
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+
+          {/* Nota de explicación después de responder (QUIZ-P6) */}
+          {answered && !hideFeedback && currentQuestion.explanation ? (
+            <View
+              testID="nota-explicacion"
+              className="mt-4 border border-l-3 border-filete border-l-acento bg-superficie p-3.5 dark:border-fileteD dark:border-l-acentoD dark:bg-superficieD"
+            >
+              <View className="flex-row items-center gap-1.5">
+                <Glifo id="glifo-explicacion" size={GLIFO_CHICO} color={tokens.acento} />
+                <RotuloSeccion color="acento">Nota / Explicación</RotuloSeccion>
+              </View>
+              <Text className={`mt-1.5 font-plex-sans text-cuerpo ${TINTA}`}>
+                {currentQuestion.explanation}
+              </Text>
+            </View>
+          ) : null}
+
+          {/* Examen en curso (EXA-P1): ocupa el lugar de la nota */}
+          {answered && hideFeedback ? (
+            <Text
+              testID="aviso-resultado-oculto"
+              className={`mt-4 font-plex-mono text-rotulo uppercase ${TINTA_SEC}`}
+            >
+              Resultado oculto hasta el final
+            </Text>
+          ) : null}
+
+          {answered && (
+            <View className="mt-3.5 items-center">
+              <ControlMarco
+                testID="boton-reportar"
+                etiqueta="Reportar pregunta"
+                glifo="glifo-reportar"
+                onPress={() => reportQuestion(currentQuestion, materia?.name)}
+              />
+            </View>
+          )}
+
+          {/* Relleno inferior: deja libre la barra de abajo */}
+          <View className="h-24" style={{ marginBottom: insets.bottom }} />
+        </Columna>
       </ScrollView>
 
       {/* Botón siguiente */}
       {answered && (
         <View
-          className="border-t border-t-brand-border bg-white px-4 pt-4 dark:border-t-brandD-border dark:bg-slate-800"
-          style={{ paddingBottom: insets.bottom + 16 }}
+          testID="barra-inferior"
+          className="border-t border-linea bg-fondo dark:border-lineaD dark:bg-fondoD"
+          style={{ paddingBottom: insets.bottom }}
         >
-          <TouchableOpacity
-            className="items-center rounded bg-brand py-3.5 dark:bg-brandD-deep"
-            onPress={handleNext}
-            activeOpacity={0.8}
-          >
-            <Text className="text-md font-bold text-white">
-              {isLast ? 'Ver resultados' : 'Siguiente →'}
-            </Text>
-          </TouchableOpacity>
+          <Columna>
+            <View className="pb-4 pt-3">
+              <BotonRelleno
+                testID="boton-siguiente"
+                etiqueta={isLast ? 'Ver resultados' : 'Siguiente'}
+                glifo="glifo-siguiente"
+                glifoPosicion="extremo"
+                tamano="grande"
+                className="w-full"
+                onPress={handleNext}
+              />
+            </View>
+          </Columna>
         </View>
       )}
     </View>
