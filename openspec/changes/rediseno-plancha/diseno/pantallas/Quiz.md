@@ -132,6 +132,8 @@ Regla: una pregunta generada nunca se presenta como de examen real. El chip de e
 | Propia | `source === 'user'` | «Tuya» | `glifo-origen-propia` | `tinta` | `superficie` | `linea`, `border` | T2, N2 |
 | Sin dato | `source` ausente, o `exam` sin nombre | Sin chip (comportamiento actual) | — | — | — | — | — |
 
+Decisión del usuario (2026-10-11, relevamiento de «generada»): la variante «Generada» se conserva tal cual. Hoy ningún banco publicado ni propio la produce (los seis son `source: 'exam'` y las propias, `user`), pero es el soporte deliberado de la regla de arriba y de D6; el chip «Práctica», su texto y `glifo-origen-generada` no cambian. La maqueta la dibuja en 04e.
+
 Medidas del chip: relleno vertical `paso 0.5`, horizontal `paso 2`; glifo chico; separación `paso 1.5` entre glifo y texto. Una línea.
 
 | Posición | Detalle |

@@ -133,7 +133,7 @@ html[data-tema="oscuro"] .txt-tema::before{content:"Oscuro"}
 .divisor{height:1px;background:var(--filete);margin-block:14px}
 .estados{display:flex;flex-direction:column;gap:16px;padding-block:16px}
 .estado{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
-.estado>.k6,.estado>.lam,.estado>.nota,.estado>.parc-caja{width:100%}
+.estado>.k6,.estado>.lam,.estado>.nota,.estado>.parc-caja,.estado>.panel{width:100%}
 
 /* ===== glifos e ilustraciones ===== */
 .g{flex:none}.g-grande{width:24px;height:24px}.g-chico{width:16px;height:16px}
@@ -213,8 +213,7 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 .tarj-ilu{width:64px;flex:none;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--filete);color:var(--filamento)}
 .tarj-txt{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:8px 12px}
 .tarj-caj{display:flex;border-top:1px solid var(--filete)}
-.celda{padding:6px 12px}
-.celda+.celda{border-left:1px solid var(--filete)}
+.celda{flex:1;padding:6px 12px}
 
 /* ===== 02 Home ===== */
 .mat-card{display:grid;grid-template-columns:96px 1fr}
@@ -527,10 +526,12 @@ html[data-ancho="1920"] .esc.quiz{min-height:960px}
 .reg-pri{flex:1;min-width:0}
 .reg-pri .mezcla,.reg-pri .examen{margin-top:0}
 
-/* panel de filtros de TopicSelect: los grupos en una fila, separados por un filete vertical */
+/* panel de filtros de TopicSelect: los grupos presentes en una fila, separados por un filete
+   vertical. TOPIC-P6 (R2): «Fuente» y «Temporizador» toman el ancho de su contenido y «Parcial», el
+   sobrante; sin «Parcial», el sobrante queda a la derecha del último grupo */
 .esc .panel{display:flex;align-items:flex-start;gap:0}
-.esc .panel .grupo{flex:1 1 0;min-width:0}
-.esc .panel .grupo:last-child{flex:none}
+.esc .panel .grupo{flex:none}
+.esc .panel .grupo-parcial{flex:1 1 0;min-width:0}
 .esc .panel .divisor{width:1px;height:auto;align-self:stretch;margin:0 14px}
 .esc .examen{max-width:var(--lectura);margin-inline:auto}
 .esc .col.col-lec{max-width:var(--lectura)}
@@ -624,7 +625,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
       <span class="seg"><button type="button" class="seg-op t-rotulo" data-set="ancho:390">390</button><button type="button" class="seg-op t-rotulo" data-set="ancho:768">768</button><button type="button" class="seg-op t-rotulo" data-set="ancho:1280">1280</button><button type="button" class="seg-op t-rotulo" data-set="ancho:1366">1366</button><button type="button" class="seg-op t-rotulo" data-set="ancho:1920">1920</button></span></div>
     <div class="herr-grupo"><span class="t-rotulo c-sec">Tema</span>
       <span class="seg"><button type="button" class="seg-op t-rotulo" data-set="tema:claro">Claro</button><button type="button" class="seg-op t-rotulo" data-set="tema:oscuro">Oscuro</button></span></div>
-    <div class="herr-grupo"><span class="t-rotulo c-sec">Ir a</span><span class="seg"><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-01">01</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-02">02</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-03a">03a</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-03b">03b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-04a">04a</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-04b">04b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-04c">04c</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-04d">04d</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-05a">05a</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-05b">05b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-05c">05c</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-06">06</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-01b">01b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-04e">04e</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-07a">07a</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-07b">07b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-07c">07c</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-08a">08a</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-08b">08b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-09">09</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-10a">10a</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-10b">10b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-11a">11a</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-11b">11b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-11c">11c</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-12a">12a</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-12b">12b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-12c">12c</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-12d">12d</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-13">13</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-14">14</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E01">E01</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E02">E02</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E03a">E03a</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E03b">E03b</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E04a">E04a</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E04b">E04b</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E04c">E04c</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E05a">E05a</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E05b">E05b</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E06">E06</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E07">E07</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E08a">E08a</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E08b">E08b</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E09a">E09a</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E09b">E09b</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E10">E10</button></span></div>
+    <div class="herr-grupo"><span class="t-rotulo c-sec">Ir a</span><span class="seg"><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-01">01</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-02">02</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-03a">03a</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-03b">03b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-04a">04a</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-04b">04b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-04c">04c</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-04d">04d</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-05a">05a</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-05b">05b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-05c">05c</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-06">06</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-01b">01b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-04e">04e</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-03c">03c</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-07a">07a</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-07b">07b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-07c">07c</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-08a">08a</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-08b">08b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-09">09</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-10a">10a</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-10b">10b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-11a">11a</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-11b">11b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-11c">11c</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-12a">12a</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-12b">12b</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-12c">12c</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-12d">12d</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-12e">12e</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-13">13</button><button type="button" class="seg-op t-rotulo nav-vig" data-ir="fig-14">14</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E01">E01</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E02">E02</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E03a">E03a</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E03b">E03b</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E03c">E03c</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E04a">E04a</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E04b">E04b</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E04c">E04c</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E05a">E05a</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E05b">E05b</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E06">E06</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E07">E07</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E08a">E08a</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E08b">E08b</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E09a">E09a</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E09b">E09b</button><button type="button" class="seg-op t-rotulo nav-esc" data-ir="fig-E10">E10</button></span></div>
   </div>
   <div class="herr-nota t-rotulo c-sec">Fieles a las fichas aprobadas (1.2 y 1.3) y al pedido de donación DON-P5, aprobado el 2026-10-11 y todavía sin implementar; la figura 09 lo compara con DON-P1 · tokens nuevos, pendientes: acentoFondo y acentoBanda (derivados de colores.js) · colores generados desde src/theme/colores.js · conteos, temas y preguntas reales; resultados, estadísticas, preguntas propias y respuestas de revisión son datos de muestra · El campo de filamentos de MateriaSelect es V5 «Fusiforme» (elegida el 2026-10-11) y el selector de tema de AddQuestion, el desplegable de ADD-P3 (aprobada el 2026-10-11) · A 1366 y 1920 px el tablero muestra solo E01 a E10, el escritorio ESC-P0 a ESC-P12 (tarea 3.10, aprobado el 2026-10-11; ESC-P9 rechazada: AddQuestion en una columna lectura); a 1280 px muestra la columna única anterior al escritorio, para comparar</div>
 </header>
@@ -671,7 +672,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-bcyt"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">BCYT · 01</span><span class="t-item c-tinta">Biología Celular y Tisular</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">385</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">385</span> <span class="t-rotulo c-sec">preguntas</span></span></span>
 </button>
 <button type="button" class="lam k6 tarj" aria-label="Anatomía">
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
@@ -679,7 +680,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-anatomia"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">Anatomía · 02</span><span class="t-item c-tinta">Anatomía</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">471</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">471</span> <span class="t-rotulo c-sec">preguntas</span></span></span>
 </button>
 <button type="button" class="lam k6 tarj" aria-label="Neurobiología">
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
@@ -687,7 +688,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-neuro"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">Neuro · 03</span><span class="t-item c-tinta">Neurobiología</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">193</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">193</span> <span class="t-rotulo c-sec">preguntas</span></span></span>
 </button>
 <button type="button" class="lam k6 tarj" aria-label="Cardiovascular y Respiratorio">
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
@@ -695,7 +696,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">CyR · 04</span><span class="t-item c-tinta">Cardiovascular y Respiratorio</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span></span>
 </button>
 <button type="button" class="lam k6 tarj" aria-label="Digestivo, Renal y Endócrino">
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
@@ -703,7 +704,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-dre"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">DRE · 05</span><span class="t-item c-tinta">Digestivo, Renal y Endócrino</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">451</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">451</span> <span class="t-rotulo c-sec">preguntas</span></span></span>
 </button>
 <button type="button" class="lam k6 tarj" aria-label="Reproductor y Desarrollo">
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
@@ -711,7 +712,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-ryd"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">RyD · 06</span><span class="t-item c-tinta">Reproductor y Desarrollo</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">172</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">172</span> <span class="t-rotulo c-sec">preguntas</span></span></span>
 </button></div></div>
   <div class="col mt-6">
 <div class="don-regla"></div>
@@ -751,7 +752,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
   <div class="mat-card-txt">
     <span class="t-rotulo c-acento">CyR · 04</span>
     <span class="t-titulo c-tinta">Cardiovascular y Respiratorio</span>
-    <span class="t-detalle c-sec">113 preguntas reales · 0 preguntas extra</span>
+    <span class="t-detalle c-sec">113 preguntas reales</span>
   </div>
 </section></div>
   <div class="col mt-3">
@@ -804,7 +805,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
   <span class="ico"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M1.5 4.5H8.5M12.5 4.5H14.5M1.5 11.5H3.5M7.5 11.5H14.5"/>
 <rect x="8.5" y="2.5" width="4" height="4"/>
 <rect x="3.5" y="9.5" width="4" height="4"/></svg></span>
-  <span class="accion-txt"><span class="t-item c-tinta">Ajustes</span><span class="t-detalle c-sec">Filtrar fuente, resetear estadísticas</span></span>
+  <span class="accion-txt"><span class="t-item c-tinta">Ajustes</span><span class="t-detalle c-sec">Ocultar resultado, resetear estadísticas</span></span>
   <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
 </button></div></div>
   <div class="col mt-6"><p class="t-detalle c-sec nota-web">Tus estadísticas y preguntas se guardan localmente en tu navegador.<br>Se usan analíticas anónimas (sin cookies ni datos personales).</p></div>
@@ -814,8 +815,8 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
 
 <figure class="fig" id="fig-03a">
   <figcaption>
-    <span class="t-rotulo-medio c-tinta">03a · Elegir tema · practicar · BCYT, con parcial</span>
-    <span class="fig-ficha c-sec">TopicSelect.md · variante A · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+    <span class="t-rotulo-medio c-tinta">03a · Elegir tema · practicar · BCYT, con parcial y con propias</span>
+    <span class="fig-ficha c-sec">TopicSelect.md · variante A (TOPIC-P6, caso 4) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
   </figcaption>
   
 <div class="pantalla" data-pantalla="TopicSelect-practice">
@@ -823,14 +824,13 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
 <header class="barra-int"><div class="col barra-int-fila"><button type="button" class="k7 btn-volver" aria-label="Volver"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></button><h1 class="t-titulo c-tinta">pKapp · Elegir tema</h1></div></header>
   <div class="col mt-4">
 <section class="panel">
-  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
-    <div class="filtros"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" aria-pressed="true">Todas</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">Solo preguntas reales</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">Solo generadas</button></div></div>
-  
-    <div class="divisor"></div>
-    <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Parcial</div>
-      <div class="filtros"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" aria-pressed="true">Examen</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false"><span class="parc-mk" aria-hidden="true"><i class="on"></i><i></i></span><span>1er Parcial</span></button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false"><span class="parc-mk" aria-hidden="true"><i></i><i class="on"></i></span><span>2do Parcial</span></button></div></div>
+  <div class="grupo grupo-fuente"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
+    <div class="filtros" role="radiogroup" aria-label="Fuente"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Todas</button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false">Solo mías</button></div></div>
   <div class="divisor"></div>
-  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+  <div class="grupo grupo-parcial"><div class="t-rotulo c-sec grupo-rot">Parcial</div>
+    <div class="filtros" role="radiogroup" aria-label="Parcial"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Examen</button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false"><span class="parc-mk" aria-hidden="true"><i class="on"></i><i></i></span><span>1er Parcial</span></button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false"><span class="parc-mk" aria-hidden="true"><i></i><i class="on"></i></span><span>2do Parcial</span></button></div></div>
+  <div class="divisor"></div>
+  <div class="grupo grupo-timer"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
     <div class="timer">
       <button type="button" class="k5 cuadrado" aria-label="Menos tiempo" disabled><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></button>
       <span class="t-cuerpo-fuerte c-tinta timer-valor">Sin límite</span>
@@ -845,18 +845,18 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
 <circle cx="8" cy="8" r="0.75"/>
 <circle cx="5" cy="11" r="0.75"/>
 <circle cx="11" cy="11" r="0.75"/></svg>
-  <span class="mezcla-txt"><span class="t-rotulo c-acento">Mezcla</span><span class="t-item c-tinta">Todos los temas mezclados</span><span class="t-detalle c-sec">385 preguntas</span></span>
+  <span class="mezcla-txt"><span class="t-rotulo c-acento">Mezcla</span><span class="t-item c-tinta">Todos los temas mezclados</span><span class="t-detalle c-sec">387 preguntas</span></span>
 </button></div>
 <div class="col"><div class="t-rotulo c-acento sec-rotulo sec-4">O elegí un tema específico:</div></div>
 <div class="col"><div class="lista-temas">
 <button type="button" class="k7 fila-tema">
   <span class="t-rotulo c-sec fila-idx">01</span>
-  <span class="fila-nom"><span class="t-item c-tinta">Química del agua, pH y tampones</span><span class="t-detalle c-sec">24 preguntas</span></span>
+  <span class="fila-nom"><span class="t-item c-tinta">Química del agua, pH y tampones</span><span class="t-detalle c-sec">25 preguntas</span></span>
   <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
 </button>
 <button type="button" class="k7 fila-tema">
   <span class="t-rotulo c-sec fila-idx">02</span>
-  <span class="fila-nom"><span class="t-item c-tinta">Aminoácidos y proteínas</span><span class="t-detalle c-sec">12 preguntas</span></span>
+  <span class="fila-nom"><span class="t-item c-tinta">Aminoácidos y proteínas</span><span class="t-detalle c-sec">13 preguntas</span></span>
   <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
 </button>
 <button type="button" class="k7 fila-tema">
@@ -990,8 +990,8 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
 
 <figure class="fig" id="fig-03b">
   <figcaption>
-    <span class="t-rotulo-medio c-tinta">03b · Elegir tema · modo examen · CyR, sin parcial</span>
-    <span class="fig-ficha c-sec">TopicSelect.md · variante B (TOPIC-P5) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+    <span class="t-rotulo-medio c-tinta">03b · Elegir tema · modo examen · CyR, sin parcial y con propias</span>
+    <span class="fig-ficha c-sec">TopicSelect.md · variante B (TOPIC-P5, TOPIC-P6, caso 2) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
   </figcaption>
   
 <div class="pantalla" data-pantalla="TopicSelect-exam">
@@ -999,11 +999,10 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
 <header class="barra-int"><div class="col barra-int-fila"><button type="button" class="k7 btn-volver" aria-label="Volver"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></button><h1 class="t-titulo c-tinta">pKapp · Elegir tema</h1></div></header>
   <div class="col mt-4">
 <section class="panel">
-  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
-    <div class="filtros"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" aria-pressed="true">Todas</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">Solo preguntas reales</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">Solo generadas</button></div></div>
-  
+  <div class="grupo grupo-fuente"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
+    <div class="filtros" role="radiogroup" aria-label="Fuente"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Todas</button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false">Solo mías</button></div></div>
   <div class="divisor"></div>
-  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+  <div class="grupo grupo-timer"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
     <div class="timer">
       <button type="button" class="k5 cuadrado" aria-label="Menos tiempo" disabled><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></button>
       <span class="t-cuerpo-fuerte c-tinta timer-valor">Sin límite</span>
@@ -1015,7 +1014,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
   <h2 class="t-titulo c-tinta">Modo Examen</h2>
   <p class="t-cuerpo c-sec examen-sorteo">Se sortean 50 preguntas al azar de todos los temas, como en el examen real.</p>
-  <p class="t-cuerpo-fuerte c-acento examen-disp">Disponibles: 113 preguntas</p>
+  <p class="t-cuerpo-fuerte c-acento examen-disp">Disponibles: 115 preguntas</p>
   <button type="button" class="k1 btn-examen t-cuerpo-fuerte">Comenzar examen</button>
 </section></div>
   <div class="relleno-8"></div>
@@ -1477,7 +1476,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">CyR · 04</span><span class="t-item c-tinta">Cardiovascular y Respiratorio</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span></span>
 </button></div>
     
 <div class="estado"><div class="t-rotulo c-sec estado-rot">Presionado · inversión total</div>
@@ -1487,7 +1486,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">CyR · 04</span><span class="t-item c-tinta">Cardiovascular y Respiratorio</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span></span>
 </button></div>
     
 <div class="estado"><div class="t-rotulo c-sec estado-rot">Foco de teclado</div>
@@ -1497,7 +1496,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">CyR · 04</span><span class="t-item c-tinta">Cardiovascular y Respiratorio</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span></span>
 </button></div>
     
 <div class="estado"><div class="t-rotulo c-sec estado-rot">Cargando</div>
@@ -1507,7 +1506,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">CyR · 04</span><span class="t-item c-tinta">Cardiovascular y Respiratorio</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo c-sec">Cargando…</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo c-sec">Cargando…</span></span></span>
 </button></div>
     
 <div class="estado"><div class="t-rotulo c-sec estado-rot">No disponible · available en falso</div>
@@ -1517,7 +1516,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">CyR · 04</span><span class="t-item c-tinta">Cardiovascular y Respiratorio</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo">Próximamente</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo">Próximamente</span></span></span>
 </button></div>
   </div>
 </div>
@@ -1540,6 +1539,70 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     
 <div class="estado"><div class="t-rotulo c-sec estado-rot">Propia · source 'user'</div><span class="chip chip-propia t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><circle cx="8" cy="4.5" r="2.5"/>
 <path d="M3 14.5A5 5 0 0 1 13 14.5"/></svg><span>Tuya</span></span></div>
+  </div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-03c">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">03c · Panel de filtros · de uno a tres grupos</span>
+    <span class="fig-ficha c-sec">TopicSelect.md · f.1 (TOPIC-P6, tabla 1) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="PanelFiltros">
+  <div class="col estados">
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Caso 1 · CyR: sin parciales y sin propias · solo «Temporizador»</div>
+<section class="panel">
+  <div class="grupo grupo-timer"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+    <div class="timer">
+      <button type="button" class="k5 cuadrado" aria-label="Menos tiempo" disabled><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></button>
+      <span class="t-cuerpo-fuerte c-tinta timer-valor">Sin límite</span>
+      <button type="button" class="k5 cuadrado" aria-label="Más tiempo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5M8.5 3.5V13.5"/></svg></button>
+    </div></div>
+</section></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Caso 2 · CyR: sin parciales y con propias · «Fuente» y «Temporizador»</div>
+<section class="panel">
+  <div class="grupo grupo-fuente"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
+    <div class="filtros" role="radiogroup" aria-label="Fuente"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Todas</button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false">Solo mías</button></div></div>
+  <div class="divisor"></div>
+  <div class="grupo grupo-timer"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+    <div class="timer">
+      <button type="button" class="k5 cuadrado" aria-label="Menos tiempo" disabled><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></button>
+      <span class="t-cuerpo-fuerte c-tinta timer-valor">Sin límite</span>
+      <button type="button" class="k5 cuadrado" aria-label="Más tiempo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5M8.5 3.5V13.5"/></svg></button>
+    </div></div>
+</section></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Caso 3 · BCYT: con parciales y sin propias · «Parcial» y «Temporizador»</div>
+<section class="panel">
+  <div class="grupo grupo-parcial"><div class="t-rotulo c-sec grupo-rot">Parcial</div>
+    <div class="filtros" role="radiogroup" aria-label="Parcial"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Examen</button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false"><span class="parc-mk" aria-hidden="true"><i class="on"></i><i></i></span><span>1er Parcial</span></button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false"><span class="parc-mk" aria-hidden="true"><i></i><i class="on"></i></span><span>2do Parcial</span></button></div></div>
+  <div class="divisor"></div>
+  <div class="grupo grupo-timer"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+    <div class="timer">
+      <button type="button" class="k5 cuadrado" aria-label="Menos tiempo" disabled><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></button>
+      <span class="t-cuerpo-fuerte c-tinta timer-valor">Sin límite</span>
+      <button type="button" class="k5 cuadrado" aria-label="Más tiempo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5M8.5 3.5V13.5"/></svg></button>
+    </div></div>
+</section></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Caso 4 · BCYT: con parciales y con propias · «Fuente», «Parcial» y «Temporizador»</div>
+<section class="panel">
+  <div class="grupo grupo-fuente"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
+    <div class="filtros" role="radiogroup" aria-label="Fuente"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Todas</button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false">Solo mías</button></div></div>
+  <div class="divisor"></div>
+  <div class="grupo grupo-parcial"><div class="t-rotulo c-sec grupo-rot">Parcial</div>
+    <div class="filtros" role="radiogroup" aria-label="Parcial"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Examen</button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false"><span class="parc-mk" aria-hidden="true"><i class="on"></i><i></i></span><span>1er Parcial</span></button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false"><span class="parc-mk" aria-hidden="true"><i></i><i class="on"></i></span><span>2do Parcial</span></button></div></div>
+  <div class="divisor"></div>
+  <div class="grupo grupo-timer"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+    <div class="timer">
+      <button type="button" class="k5 cuadrado" aria-label="Menos tiempo" disabled><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></button>
+      <span class="t-cuerpo-fuerte c-tinta timer-valor">Sin límite</span>
+      <button type="button" class="k5 cuadrado" aria-label="Más tiempo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5M8.5 3.5V13.5"/></svg></button>
+    </div></div>
+</section></div>
   </div>
 </div>
 </figure>
@@ -1746,7 +1809,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
   <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.8.0</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
   <div class="acerca-franja">
     <div class="acerca-fila"><span class="t-rotulo c-sec">Banco de Cardiovascular y Respiratorio</span><span class="t-dato c-tinta">115</span></div>
-    <div class="t-detalle c-sec acerca-des">113 de exámenes · 0 generadas · 2 tuyas</div>
+    <div class="t-detalle c-sec acerca-des">113 de exámenes · 2 tuyas</div>
   </div>
   <div class="acerca-franja acerca-enlaces">
     <button type="button" class="k2 k2-acento btn-enlace t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="1.5" y="3.5" width="13" height="9"/>
@@ -1824,7 +1887,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
   <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.8.0</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
   <div class="acerca-franja">
     <div class="acerca-fila"><span class="t-rotulo c-sec">Banco de Cardiovascular y Respiratorio</span><span class="t-dato c-tinta">115</span></div>
-    <div class="t-detalle c-sec acerca-des">113 de exámenes · 0 generadas · 2 tuyas</div>
+    <div class="t-detalle c-sec acerca-des">113 de exámenes · 2 tuyas</div>
   </div>
   <div class="acerca-franja acerca-enlaces">
     <button type="button" class="k2 k2-acento btn-enlace t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="1.5" y="3.5" width="13" height="9"/>
@@ -1868,7 +1931,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">CyR · 04</span><span class="t-item c-tinta">Cardiovascular y Respiratorio</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span></span>
 </button></div></div>
   <div class="col mt-6">
 <div class="don-regla"></div>
@@ -1937,7 +2000,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">CyR · 04</span><span class="t-item c-tinta">Cardiovascular y Respiratorio</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span></span>
 </button></div></div>
   <div class="col mt-6">
 <div class="don-regla"></div>
@@ -2293,7 +2356,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
   <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.8.0</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
   <div class="acerca-franja">
     <div class="acerca-fila"><span class="t-rotulo c-sec">Banco de Cardiovascular y Respiratorio</span><span class="t-dato c-tinta">113</span></div>
-    <div class="t-detalle c-sec acerca-des">113 de exámenes · 0 generadas · 0 tuyas</div>
+    <div class="t-detalle c-sec acerca-des">113 de exámenes · 0 tuyas</div>
   </div>
   <div class="acerca-franja acerca-enlaces">
     <button type="button" class="k2 k2-acento btn-enlace t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="1.5" y="3.5" width="13" height="9"/>
@@ -2309,7 +2372,47 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
 
 <figure class="fig" id="fig-12d">
   <figcaption>
-    <span class="t-rotulo-medio c-tinta">12d · Vacío · ningún tema con los filtros actuales (V4) · CyR</span>
+    <span class="t-rotulo-medio c-tinta">12d · Vacío · «Solo mías» con un parcial (V4) · BCYT</span>
+    <span class="fig-ficha c-sec">Vacios.md · a.4 (VAC-P5) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="TopicSelect-vacio">
+  
+<header class="barra-int"><div class="col barra-int-fila"><button type="button" class="k7 btn-volver" aria-label="Volver"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></button><h1 class="t-titulo c-tinta">pKapp · Elegir tema</h1></div></header>
+  <div class="col mt-4">
+<section class="panel">
+  <div class="grupo grupo-fuente"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
+    <div class="filtros" role="radiogroup" aria-label="Fuente"><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false">Todas</button><button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Solo mías</button></div></div>
+  <div class="divisor"></div>
+  <div class="grupo grupo-parcial"><div class="t-rotulo c-sec grupo-rot">Parcial</div>
+    <div class="filtros" role="radiogroup" aria-label="Parcial"><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false">Examen</button><button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true"><span class="parc-mk" aria-hidden="true"><i class="on"></i><i></i></span><span>1er Parcial</span></button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false"><span class="parc-mk" aria-hidden="true"><i></i><i class="on"></i></span><span>2do Parcial</span></button></div></div>
+  <div class="divisor"></div>
+  <div class="grupo grupo-timer"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+    <div class="timer">
+      <button type="button" class="k5 cuadrado" aria-label="Menos tiempo" disabled><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></button>
+      <span class="t-cuerpo-fuerte c-tinta timer-valor">Sin límite</span>
+      <button type="button" class="k5 cuadrado" aria-label="Más tiempo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5M8.5 3.5V13.5"/></svg></button>
+    </div></div>
+</section></div>
+  <div class="col">
+<button type="button" class="k6 mezcla">
+  <svg class="g g-grande c-acento" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="1.5" y="1.5" width="13" height="13"/>
+<circle cx="5" cy="5" r="0.75"/>
+<circle cx="11" cy="5" r="0.75"/>
+<circle cx="8" cy="8" r="0.75"/>
+<circle cx="5" cy="11" r="0.75"/>
+<circle cx="11" cy="11" r="0.75"/></svg>
+  <span class="mezcla-txt"><span class="t-rotulo c-acento">Mezcla</span><span class="t-item c-tinta">Todos los temas mezclados</span><span class="t-detalle c-sec">0 preguntas</span></span>
+</button></div>
+<div class="col"><div class="t-rotulo c-acento sec-rotulo sec-4">O elegí un tema específico:</div></div>
+<div class="col"><p class="t-cuerpo c-sec">Tus preguntas no tienen parcial. Elegí "Examen" para verlas.</p></div>
+  <div class="relleno-8"></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-12e">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">12e · Vacío · repasar fallos con «Solo mías» y ninguna propia fallada (V4) · CyR</span>
     <span class="fig-ficha c-sec">Vacios.md · a.4 (VAC-P3) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
   </figcaption>
   
@@ -2318,11 +2421,10 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
 <header class="barra-int"><div class="col barra-int-fila"><button type="button" class="k7 btn-volver" aria-label="Volver"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></button><h1 class="t-titulo c-tinta">pKapp · Elegir tema</h1></div></header>
   <div class="col mt-4">
 <section class="panel">
-  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
-    <div class="filtros"><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">Todas</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">Solo preguntas reales</button><button type="button" class="k4 filtro t-cuerpo-fuerte sel" aria-pressed="true">Solo generadas</button></div></div>
-  
+  <div class="grupo grupo-fuente"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
+    <div class="filtros" role="radiogroup" aria-label="Fuente"><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false">Todas</button><button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Solo mías</button></div></div>
   <div class="divisor"></div>
-  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+  <div class="grupo grupo-timer"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
     <div class="timer">
       <button type="button" class="k5 cuadrado" aria-label="Menos tiempo" disabled><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></button>
       <span class="t-cuerpo-fuerte c-tinta timer-valor">Sin límite</span>
@@ -2519,7 +2621,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-bcyt"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">BCYT · 01</span><span class="t-item c-tinta">Biología Celular y Tisular</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">385</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">385</span> <span class="t-rotulo c-sec">preguntas</span></span></span>
 </button>
 <button type="button" class="lam k6 tarj" aria-label="Anatomía">
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
@@ -2527,7 +2629,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-anatomia"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">Anatomía · 02</span><span class="t-item c-tinta">Anatomía</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">471</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">471</span> <span class="t-rotulo c-sec">preguntas</span></span></span>
 </button>
 <button type="button" class="lam k6 tarj" aria-label="Neurobiología">
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
@@ -2535,7 +2637,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-neuro"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">Neuro · 03</span><span class="t-item c-tinta">Neurobiología</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">193</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">193</span> <span class="t-rotulo c-sec">preguntas</span></span></span>
 </button>
 <button type="button" class="lam k6 tarj" aria-label="Cardiovascular y Respiratorio">
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
@@ -2543,7 +2645,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">CyR · 04</span><span class="t-item c-tinta">Cardiovascular y Respiratorio</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span></span>
 </button>
 <button type="button" class="lam k6 tarj" aria-label="Digestivo, Renal y Endócrino">
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
@@ -2551,7 +2653,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-dre"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">DRE · 05</span><span class="t-item c-tinta">Digestivo, Renal y Endócrino</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">451</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">451</span> <span class="t-rotulo c-sec">preguntas</span></span></span>
 </button>
 <button type="button" class="lam k6 tarj" aria-label="Reproductor y Desarrollo">
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
@@ -2559,7 +2661,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
     <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-ryd"/></svg></span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">RyD · 06</span><span class="t-item c-tinta">Reproductor y Desarrollo</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">172</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">172</span> <span class="t-rotulo c-sec">preguntas</span></span></span>
 </button></div>
       <div class="mt-6">
 <div class="don-regla"></div>
@@ -2603,7 +2705,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
   <div class="mat-card-txt">
     <span class="t-rotulo c-acento">CyR · 04</span>
     <span class="t-titulo c-tinta">Cardiovascular y Respiratorio</span>
-    <span class="t-detalle c-sec">113 preguntas reales · 0 preguntas extra</span>
+    <span class="t-detalle c-sec">113 preguntas reales</span>
   </div>
 </section>
       <div class="mt-3">
@@ -2658,7 +2760,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
   <span class="ico"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M1.5 4.5H8.5M12.5 4.5H14.5M1.5 11.5H3.5M7.5 11.5H14.5"/>
 <rect x="8.5" y="2.5" width="4" height="4"/>
 <rect x="3.5" y="9.5" width="4" height="4"/></svg></span>
-  <span class="accion-txt"><span class="t-item c-tinta">Ajustes</span><span class="t-detalle c-sec">Filtrar fuente, resetear estadísticas</span></span>
+  <span class="accion-txt"><span class="t-item c-tinta">Ajustes</span><span class="t-detalle c-sec">Ocultar resultado, resetear estadísticas</span></span>
   <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
 </button></div>
       <div class="mt-6"><p class="t-detalle c-sec nota-web">Tus estadísticas y preguntas se guardan localmente en tu navegador.<br>Se usan analíticas anónimas (sin cookies ni datos personales).</p></div>
@@ -2670,8 +2772,8 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
 
 <figure class="fig fig-esc" id="fig-E03a">
   <figcaption>
-    <span class="t-rotulo-medio c-tinta">E03a · Elegir tema · practicar · BCYT, con parcial, 27 temas</span>
-    <span class="fig-ficha c-sec">TopicSelect.md · Escritorio (ESC-P3) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+    <span class="t-rotulo-medio c-tinta">E03a · Elegir tema · practicar · BCYT, con parcial y con propias, 27 temas</span>
+    <span class="fig-ficha c-sec">TopicSelect.md · Escritorio (ESC-P3, TOPIC-P6) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
   </figcaption>
   
 <div class="pantalla esc" data-pantalla="TopicSelect-practice" data-hoja="rej">
@@ -2679,14 +2781,13 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
 <header class="barra-int"><div class="col barra-int-fila"><button type="button" class="k7 btn-volver" aria-label="Volver"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></button><h1 class="t-titulo c-tinta">pKapp · Elegir tema</h1></div></header>
   <div class="col mt-4">
 <section class="panel">
-  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
-    <div class="filtros"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" aria-pressed="true">Todas</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">Solo preguntas reales</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">Solo generadas</button></div></div>
-  
-    <div class="divisor"></div>
-    <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Parcial</div>
-      <div class="filtros"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" aria-pressed="true">Examen</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false"><span class="parc-mk" aria-hidden="true"><i class="on"></i><i></i></span><span>1er Parcial</span></button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false"><span class="parc-mk" aria-hidden="true"><i></i><i class="on"></i></span><span>2do Parcial</span></button></div></div>
+  <div class="grupo grupo-fuente"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
+    <div class="filtros" role="radiogroup" aria-label="Fuente"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Todas</button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false">Solo mías</button></div></div>
   <div class="divisor"></div>
-  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+  <div class="grupo grupo-parcial"><div class="t-rotulo c-sec grupo-rot">Parcial</div>
+    <div class="filtros" role="radiogroup" aria-label="Parcial"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Examen</button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false"><span class="parc-mk" aria-hidden="true"><i class="on"></i><i></i></span><span>1er Parcial</span></button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false"><span class="parc-mk" aria-hidden="true"><i></i><i class="on"></i></span><span>2do Parcial</span></button></div></div>
+  <div class="divisor"></div>
+  <div class="grupo grupo-timer"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
     <div class="timer">
       <button type="button" class="k5 cuadrado" aria-label="Menos tiempo" disabled><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></button>
       <span class="t-cuerpo-fuerte c-tinta timer-valor">Sin límite</span>
@@ -2701,18 +2802,18 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
 <circle cx="8" cy="8" r="0.75"/>
 <circle cx="5" cy="11" r="0.75"/>
 <circle cx="11" cy="11" r="0.75"/></svg>
-  <span class="mezcla-txt"><span class="t-rotulo c-acento">Mezcla</span><span class="t-item c-tinta">Todos los temas mezclados</span><span class="t-detalle c-sec">385 preguntas</span></span>
+  <span class="mezcla-txt"><span class="t-rotulo c-acento">Mezcla</span><span class="t-item c-tinta">Todos los temas mezclados</span><span class="t-detalle c-sec">387 preguntas</span></span>
 </button></div>
 <div class="col"><div class="t-rotulo c-acento sec-rotulo sec-4">O elegí un tema específico:</div></div>
 <div class="col"><div class="lista-temas lista-cols">
 <button type="button" class="k7 fila-tema">
   <span class="t-rotulo c-sec fila-idx">01</span>
-  <span class="fila-nom"><span class="t-item c-tinta">Química del agua, pH y tampones</span><span class="t-detalle c-sec">24 preguntas</span></span>
+  <span class="fila-nom"><span class="t-item c-tinta">Química del agua, pH y tampones</span><span class="t-detalle c-sec">25 preguntas</span></span>
   <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
 </button>
 <button type="button" class="k7 fila-tema">
   <span class="t-rotulo c-sec fila-idx">02</span>
-  <span class="fila-nom"><span class="t-item c-tinta">Aminoácidos y proteínas</span><span class="t-detalle c-sec">12 preguntas</span></span>
+  <span class="fila-nom"><span class="t-item c-tinta">Aminoácidos y proteínas</span><span class="t-detalle c-sec">13 preguntas</span></span>
   <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
 </button>
 <button type="button" class="k7 fila-tema">
@@ -2846,8 +2947,8 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
 
 <figure class="fig fig-esc" id="fig-E03b">
   <figcaption>
-    <span class="t-rotulo-medio c-tinta">E03b · Elegir tema · modo examen · CyR</span>
-    <span class="fig-ficha c-sec">TopicSelect.md · Escritorio (ESC-P3) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+    <span class="t-rotulo-medio c-tinta">E03b · Elegir tema · modo examen · CyR, con propias</span>
+    <span class="fig-ficha c-sec">TopicSelect.md · Escritorio (ESC-P3, TOPIC-P6) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
   </figcaption>
   
 <div class="pantalla esc" data-pantalla="TopicSelect-exam" data-hoja="rej">
@@ -2855,11 +2956,10 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
 <header class="barra-int"><div class="col barra-int-fila"><button type="button" class="k7 btn-volver" aria-label="Volver"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></button><h1 class="t-titulo c-tinta">pKapp · Elegir tema</h1></div></header>
   <div class="col mt-4">
 <section class="panel">
-  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
-    <div class="filtros"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" aria-pressed="true">Todas</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">Solo preguntas reales</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">Solo generadas</button></div></div>
-  
+  <div class="grupo grupo-fuente"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
+    <div class="filtros" role="radiogroup" aria-label="Fuente"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Todas</button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false">Solo mías</button></div></div>
   <div class="divisor"></div>
-  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+  <div class="grupo grupo-timer"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
     <div class="timer">
       <button type="button" class="k5 cuadrado" aria-label="Menos tiempo" disabled><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></button>
       <span class="t-cuerpo-fuerte c-tinta timer-valor">Sin límite</span>
@@ -2871,10 +2971,74 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
   <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
   <h2 class="t-titulo c-tinta">Modo Examen</h2>
   <p class="t-cuerpo c-sec examen-sorteo">Se sortean 50 preguntas al azar de todos los temas, como en el examen real.</p>
-  <p class="t-cuerpo-fuerte c-acento examen-disp">Disponibles: 113 preguntas</p>
+  <p class="t-cuerpo-fuerte c-acento examen-disp">Disponibles: 115 preguntas</p>
   <button type="button" class="k1 btn-examen t-cuerpo-fuerte">Comenzar examen</button>
 </section></div>
   <div class="relleno-8"></div>
+</div>
+</figure>
+
+<figure class="fig fig-esc" id="fig-E03c">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">E03c · Panel de filtros · de uno a tres grupos</span>
+    <span class="fig-ficha c-sec">TopicSelect.md · Escritorio (ESC-P3, TOPIC-P6, tabla 4) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla esc" data-hoja="rej" data-pantalla="PanelFiltros">
+  <div class="col estados">
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Caso 1 · CyR: sin parciales y sin propias · solo «Temporizador»</div>
+<section class="panel">
+  <div class="grupo grupo-timer"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+    <div class="timer">
+      <button type="button" class="k5 cuadrado" aria-label="Menos tiempo" disabled><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></button>
+      <span class="t-cuerpo-fuerte c-tinta timer-valor">Sin límite</span>
+      <button type="button" class="k5 cuadrado" aria-label="Más tiempo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5M8.5 3.5V13.5"/></svg></button>
+    </div></div>
+</section></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Caso 2 · CyR: sin parciales y con propias · «Fuente» y «Temporizador»</div>
+<section class="panel">
+  <div class="grupo grupo-fuente"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
+    <div class="filtros" role="radiogroup" aria-label="Fuente"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Todas</button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false">Solo mías</button></div></div>
+  <div class="divisor"></div>
+  <div class="grupo grupo-timer"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+    <div class="timer">
+      <button type="button" class="k5 cuadrado" aria-label="Menos tiempo" disabled><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></button>
+      <span class="t-cuerpo-fuerte c-tinta timer-valor">Sin límite</span>
+      <button type="button" class="k5 cuadrado" aria-label="Más tiempo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5M8.5 3.5V13.5"/></svg></button>
+    </div></div>
+</section></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Caso 3 · BCYT: con parciales y sin propias · «Parcial» y «Temporizador»</div>
+<section class="panel">
+  <div class="grupo grupo-parcial"><div class="t-rotulo c-sec grupo-rot">Parcial</div>
+    <div class="filtros" role="radiogroup" aria-label="Parcial"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Examen</button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false"><span class="parc-mk" aria-hidden="true"><i class="on"></i><i></i></span><span>1er Parcial</span></button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false"><span class="parc-mk" aria-hidden="true"><i></i><i class="on"></i></span><span>2do Parcial</span></button></div></div>
+  <div class="divisor"></div>
+  <div class="grupo grupo-timer"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+    <div class="timer">
+      <button type="button" class="k5 cuadrado" aria-label="Menos tiempo" disabled><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></button>
+      <span class="t-cuerpo-fuerte c-tinta timer-valor">Sin límite</span>
+      <button type="button" class="k5 cuadrado" aria-label="Más tiempo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5M8.5 3.5V13.5"/></svg></button>
+    </div></div>
+</section></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Caso 4 · BCYT: con parciales y con propias · «Fuente», «Parcial» y «Temporizador»</div>
+<section class="panel">
+  <div class="grupo grupo-fuente"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
+    <div class="filtros" role="radiogroup" aria-label="Fuente"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Todas</button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false">Solo mías</button></div></div>
+  <div class="divisor"></div>
+  <div class="grupo grupo-parcial"><div class="t-rotulo c-sec grupo-rot">Parcial</div>
+    <div class="filtros" role="radiogroup" aria-label="Parcial"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" role="radio" aria-checked="true">Examen</button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false"><span class="parc-mk" aria-hidden="true"><i class="on"></i><i></i></span><span>1er Parcial</span></button><button type="button" class="k4 filtro t-cuerpo c-tinta" role="radio" aria-checked="false"><span class="parc-mk" aria-hidden="true"><i></i><i class="on"></i></span><span>2do Parcial</span></button></div></div>
+  <div class="divisor"></div>
+  <div class="grupo grupo-timer"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+    <div class="timer">
+      <button type="button" class="k5 cuadrado" aria-label="Menos tiempo" disabled><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></button>
+      <span class="t-cuerpo-fuerte c-tinta timer-valor">Sin límite</span>
+      <button type="button" class="k5 cuadrado" aria-label="Más tiempo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5M8.5 3.5V13.5"/></svg></button>
+    </div></div>
+</section></div>
+  </div>
 </div>
 </figure>
 
@@ -3352,7 +3516,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
   <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.8.0</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
   <div class="acerca-franja">
     <div class="acerca-fila"><span class="t-rotulo c-sec">Banco de Cardiovascular y Respiratorio</span><span class="t-dato c-tinta">115</span></div>
-    <div class="t-detalle c-sec acerca-des">113 de exámenes · 0 generadas · 2 tuyas</div>
+    <div class="t-detalle c-sec acerca-des">113 de exámenes · 2 tuyas</div>
   </div>
   <div class="acerca-franja acerca-enlaces">
     <button type="button" class="k2 k2-acento btn-enlace t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="1.5" y="3.5" width="13" height="9"/>
@@ -3434,7 +3598,7 @@ html[data-ancho="1920"] .esc .s-filas{columns:2;column-gap:32px}
   <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.8.0</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
   <div class="acerca-franja">
     <div class="acerca-fila"><span class="t-rotulo c-sec">Banco de Cardiovascular y Respiratorio</span><span class="t-dato c-tinta">115</span></div>
-    <div class="t-detalle c-sec acerca-des">113 de exámenes · 0 generadas · 2 tuyas</div>
+    <div class="t-detalle c-sec acerca-des">113 de exámenes · 2 tuyas</div>
   </div>
   <div class="acerca-franja acerca-enlaces">
     <button type="button" class="k2 k2-acento btn-enlace t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="1.5" y="3.5" width="13" height="9"/>

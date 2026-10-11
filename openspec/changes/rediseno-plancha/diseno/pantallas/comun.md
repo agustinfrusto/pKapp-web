@@ -8,7 +8,7 @@
 | Lo usan | `MateriaSelect.md`, `Home.md`, `TopicSelect.md`, `Quiz.md`, `Results.md`, `Stats.md` |
 | Resuelto en 1.3 | `AddQuestion.md`, `Revision.md`, `ExamenEnCurso.md`, `Settings.md`, `DonationBox.md`, `Vacios.md` y `Banners.md`; la distinción de parciales está en §12. Las referencias de las fichas de 1.2 apuntan a archivo y sección |
 | Glifos | Se nombran en §9, con su función y el porqué de su color; se dibujan en 1.4 |
-| Propuestas | §11 (`COMUN-P1`, `COMUN-P2`) y sección f de cada ficha. Aprobadas por el usuario el 2026-10-10 (D10). Lo conservado de `main` va en la sección h de cada ficha. Aprobadas el 2026-10-11: el escritorio de la tarea 3.10, en §7.2 (`ESC-P0`) y en la sección «Escritorio» de cada ficha (`ESC-P1` a `ESC-P8` y `ESC-P10` a `ESC-P12`; `ESC-P9`, rechazada), y el selector de tema desplegable `ADD-P3` (§5.3 y `AddQuestion.md`; `ADD-P1`, rechazada) |
+| Propuestas | §11 (`COMUN-P1`, `COMUN-P2`) y sección f de cada ficha. Aprobadas por el usuario el 2026-10-10 (D10). Lo conservado de `main` va en la sección h de cada ficha. Aprobadas el 2026-10-11: el escritorio de la tarea 3.10, en §7.2 (`ESC-P0`) y en la sección «Escritorio» de cada ficha (`ESC-P1` a `ESC-P8` y `ESC-P10` a `ESC-P12`; `ESC-P9`, rechazada), el selector de tema desplegable `ADD-P3` (§5.3 y `AddQuestion.md`; `ADD-P1`, rechazada), el grupo «Fuente» de TopicSelect, `TOPIC-P6` (`TopicSelect.md` f.1), y el relevamiento de «generada»: `HOME-P4` y `HOME-P5` (`Home.md`), `SET-P3` (`Settings.md`), `MATERIA-P4` (`MateriaSelect.md`; reemplaza a `MATERIA-P2`) y `VAC-P5` (`Vacios.md`) |
 | Orden de lectura | Primero este archivo; cada ficha lo cita por sección (§N) y por clase de control (K1 a K7) |
 
 ---
@@ -25,7 +25,7 @@
 | K1 a K7 | Clases de control de §5 |
 | Fichas de 1.3 | `AddQuestion.md`, `Settings.md`, `DonationBox.md`, `Revision.md`, `ExamenEnCurso.md`, `Vacios.md` y `Banners.md`; sus propuestas llevan los prefijos `ADD-`, `SET-`, `DON-`, `REV-`, `EXA-`, `VAC-`, `BAN-` y `PAR-` |
 | «—» | No aplica |
-| `COMUN-P#`, `MATERIA-P#`, `HOME-P#`, `TOPIC-P#`, `QUIZ-P#`, `RESULTS-P#`, `STATS-P#` | Propuestas aprobadas por el usuario el 2026-10-10 (D10): §11 y sección f de cada ficha. Los ids son únicos en todo el change; 1.3 usa sus propios prefijos |
+| `COMUN-P#`, `MATERIA-P#`, `HOME-P#`, `TOPIC-P#`, `QUIZ-P#`, `RESULTS-P#`, `STATS-P#` | Propuestas aprobadas por el usuario el 2026-10-10 (D10): §11 y sección f de cada ficha; `TOPIC-P6`, `HOME-P4`, `HOME-P5` y `MATERIA-P4` son del 2026-10-11, y `MATERIA-P2` quedó reemplazada por `MATERIA-P4`. Los ids son únicos en todo el change; 1.3 usa sus propios prefijos (`SET-P3` y `VAC-P5` también son del 2026-10-11) |
 | `ESC-P0` a `ESC-P12` | Propuestas de escritorio (tarea 3.10), aprobadas por el usuario el 2026-10-11 (D10), salvo `ESC-P9`, rechazada: §7.2 y la sección «Escritorio» de cada ficha. No están entre las aprobadas del 2026-10-10 de arriba; bajo el corte `escritorio` rige la columna de la propia ficha |
 | `ADD-P1`, `ADD-P3` | Selector de tema de AddQuestion: `ADD-P1` rechazada y `ADD-P3` aprobada por el usuario el 2026-10-11 (D10): §5.3 y `AddQuestion.md` f. `ADD-P2` es del 2026-10-10 |
 | `TOPIC-C#`, `RESULTS-C#` y los `-C#` de 1.3 | Lo conservado de `main` (sección h de la ficha). No son propuestas ni pasan por aprobación (D10, base de comparación) |
@@ -390,7 +390,7 @@ Pedido del usuario (2026-10-11): «La UI debería adaptarse también a un monito
 |---|---|---|---|---|
 | MateriaSelect | `hoja`; `hoja-amplia` | Lateral: lámina y nota del creador. Principal: rejilla de 2 columnas y, debajo, la regla corta y el pedido de donación | Rejilla de 3 columnas | `ESC-P1` |
 | Home | `hoja`; `hoja-amplia` | Lateral: tarjeta de materia y banner de banco reducido. Principal: «Plano / Acciones», las seis acciones en una columna y la nota de privacidad | Acciones en 2 columnas | `ESC-P2` |
-| TopicSelect | `hoja`; `hoja-amplia` | Sin región lateral: el panel con sus tres grupos en una fila, la mezcla a ancho de hoja y los temas en 2 columnas con flujo por columnas. Modo examen: tarjeta «Modo Examen» centrada, con tope `lectura` | Temas en 3 columnas | `ESC-P3` |
+| TopicSelect | `hoja`; `hoja-amplia` | Sin región lateral: el panel con sus grupos (de uno a tres: fuente, parcial y temporizador; `TOPIC-P6`) en una fila, la mezcla a ancho de hoja y los temas en 2 columnas con flujo por columnas. Modo examen: tarjeta «Modo Examen» centrada, con tope `lectura` | Temas en 3 columnas | `ESC-P3` |
 | Quiz y examen en curso | `lectura` | Una columna; barras y botón «Siguiente» al ancho de `lectura` | Sin cambio | `ESC-P4` |
 | Results | `hoja` | Lateral: tarjeta de resultado. Principal: trío, pedido de donación y los tres botones, apilados y en su orden | Sin cambio | `ESC-P5` |
 | Revisión | `hoja` | Lateral: encabezado, «Volver» y filtro. Principal: tarjetas de respuesta y botones finales. Misma hoja que el resumen de Results | Sin cambio | `ESC-P6` |

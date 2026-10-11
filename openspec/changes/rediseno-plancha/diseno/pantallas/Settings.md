@@ -8,7 +8,7 @@
 | Navegador | Barra interna con título «pKapp · Ajustes» y volver (`comun.md` §3.3) |
 | Variantes | Plegables cerrados o abiertos; con y sin preguntas propias; web (con respaldo) o nativo (sin respaldo) |
 | Fuera de alcance | Diálogos del sistema (`confirm`, `avisar`) y el selector de archivos del navegador: su aspecto no es del sistema visual. El estado vacío de «Mis preguntas» tiene su ficha en `Vacios.md` |
-| Propuestas | Sección f: `SET-P1` y `SET-P2`, aprobadas (usuario, 2026-10-10). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Propuestas | Sección f: `SET-P1` y `SET-P2`, aprobadas (usuario, 2026-10-10), y `SET-P3`, aprobada (usuario, 2026-10-11). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P8`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.6 |
 
 ---
@@ -154,7 +154,7 @@ Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—)
 | Correcta de una pregunta propia | `q.options[q.correctIndex]` | — |
 | Versión | `Constants.expoConfig?.version`, o «?» | Sale de `app.json`; al subir la versión ahí se actualiza |
 | Materia | `materia?.name`, o «preguntas» | Va en «Banco de {materia}» |
-| Conteo por origen | `QUESTIONS` filtradas por `source === 'exam'` y `source === 'generated'`, más `userQuestions.length` | El total es la suma de los tres |
+| Conteo por origen | `QUESTIONS` filtradas por `source === 'exam'` y `source === 'generated'`, más `userQuestions.length` | El total es la suma de los tres. El término «generadas» se dibuja solo si es mayor que cero (`SET-P3`); el total no cambia |
 
 ### d.2 Invariantes
 
@@ -163,11 +163,12 @@ Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—)
 | Un gesto guarda el ajuste | Tocar una opción llama `handleToggleHideFeedback(value)` y `saveSetting('hide_feedback', value)`; no hay botón de guardar |
 | El ajuste vale en todos los modos | Lo lee `TopicSelectScreen` al iniciar cualquier quiz; la ficha no lo limita al modo examen |
 | Eliminar pregunta propia | `confirm('Eliminar pregunta', '¿Seguro? Esta acción no se puede deshacer.', …, { confirmLabel: 'Eliminar', destructive: true })`, luego `deleteUserQuestion(materiaId, id)` y recarga |
+| Efecto en TopicSelect | Eliminar la última pregunta propia de la materia, o importar un respaldo que trae las primeras, cambia si TopicSelect ofrece el filtro «Solo mías» (`TopicSelect.md` f.1, `TOPIC-P6`). TopicSelect lee las propias al abrirse: Ajustes no le avisa |
 | Resetear estadísticas | `confirm('Resetear estadísticas', '¿Seguro que querés borrar todas las estadísticas? Esto no se puede deshacer.', …, { confirmLabel: 'Borrar', destructive: true })`, luego `resetStats(materiaId)` y `avisar('Listo', 'Estadísticas borradas.')`. Alcanza solo a la materia activa |
 | Descargar respaldo | `downloadBackup()`; si devuelve falso, `avisar('Error', 'No se pudo generar el respaldo.')` |
 | Importar respaldo | `pickAndImportBackup(cb)`: `avisar(r.ok ? 'Listo' : 'Error', r.message)` y, si `r.ok`, recarga. No pisa claves existentes (comportamiento de `importBackupFromText`) |
 | Solo web | Descargar e importar respaldo no existen en nativo |
-| Origen visible (D6) | El desglose «exámenes · generadas · tuyas» muestra los tres orígenes por separado |
+| Origen visible (D6) | El desglose muestra los orígenes por separado: «exámenes», «generadas» (solo si hay: `SET-P3`) y «tuyas» |
 | Sin emoji, radio ni sombra | Los cuatro emojis, los símbolos de plegado y de salida, `rounded-*`, las píldoras de los enlaces y `activeOpacity` salen de esta pantalla (`comun.md` §9, D9) |
 
 ### d.3 Eventos `track(...)`
@@ -196,7 +197,7 @@ Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—)
 | Importar | Emoji de carpeta y «Importar respaldo» | «Importar respaldo» con `glifo-importar` | Reemplazo de emoji |
 | Resetear | «Resetear estadísticas» | Igual | — |
 | Identidad | «pKapp v{versión}» y «Preparación para ESFUNO» | Iguales | — |
-| Banco | «Banco de {materia}», total y «{n} de exámenes · {n} generadas · {n} tuyas» | Iguales | — |
+| Banco | «Banco de {materia}», total y «{n} de exámenes · {n} generadas · {n} tuyas» | «Banco de {materia}», total y «{n} de exámenes · {n} tuyas»; con generadas (mayor que cero), «{n} de exámenes · {n} generadas · {n} tuyas» | `SET-P3` |
 | Reportar | Emoji de sobre y «Reportar un error» | «Reportar un error» con `glifo-correo` | Reemplazo de emoji |
 | Código | «Código fuente» y flecha de salida | «Código fuente» con `glifo-externo` | Reemplazo de símbolo |
 
@@ -204,12 +205,25 @@ Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—)
 
 ## f. Propuestas aprobadas (D10)
 
-Cambios respecto de `main` que el boceto no dibuja. El usuario los aprobó el 2026-10-10 (D10): rigen tal como están descritos acá y en el cuerpo de la ficha (a a e). No hay variantes alternativas.
+Cambios respecto de `main` que el boceto no dibuja. El usuario aprobó `SET-P1` y `SET-P2` el 2026-10-10 (D10) y `SET-P3` el 2026-10-11: rigen tal como están descritos acá y en el cuerpo de la ficha (a a e). No hay variantes alternativas.
 
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
 | SET-P1 | El `Switch` de «Ocultar resultado hasta el final» pasa a un control segmentado de dos opciones, «No» y «Sí», de la misma clase K4 que el control «Claro \| Oscuro» (D7). Un toque en la opción no seleccionada cambia el ajuste, como hoy | El `Switch` es un elemento circular de plataforma que no admite radio 0 ni los tokens (`tokens.md` c.1); D7 ya resolvió el mismo problema con el control de tema. El estado se lee con palabra e inversión de valor, no solo por posición | visual | aprobada (usuario, 2026-10-10) |
 | SET-P2 | «Resetear estadísticas» usa `error` en borde y texto (K2 de peligro). Es la única acción destructiva e irreversible de la pantalla | `main` la distingue con tono de peligro y el usuario ya la reconoce así. Es una excepción a la reserva de `error` (incorrecta, banda baja, validación y alerta de tiempo: `tokens.md` a.1 y CD-8 de `CONVENCIONES.md`), aprobada por el usuario | visual | aprobada (usuario, 2026-10-10) |
+| SET-P3 | El desglose del banco por origen de «Acerca de» omite el término «{n} generadas» cuando vale cero: «{n} de exámenes · {n} tuyas». Con generadas (mayor que cero) el texto es el de `main`, «{n} de exámenes · {n} generadas · {n} tuyas». El total y «tuyas» no cambian; «tuyas» se dibuja también con cero. La condición es del dato, no de la materia ni una constante: si un banco vuelve a traer generadas, el término reaparece | `generadas` vale cero en las seis materias: «0 generadas» era una constante en un panel de datos. Es la misma razón que `HOME-P4`; D6 (origen visible) se cumple igual, porque cada origen que existe sigue separado | copy | aprobada (usuario, 2026-10-11) |
+
+### f.1 Aceptación observable (`SET-P3`)
+
+Para la tarea 3.x que lo implementa. Las suites de Ajustes (`ajustes.js`) hoy no afirman este texto. Matriz: CyR y BCYT, con y sin propias, 390 y 1366 × 768.
+
+| # | Comprobación | Esperado |
+|---|---|---|
+| 1 | «Acerca de», franja «Banco», con 2 propias | El total es la suma de los orígenes con dato y el desglose dice «{n} de exámenes · 2 tuyas», con n igual a las `source: 'exam'` de la materia; ningún texto dice «generadas» |
+| 2 | Sin propias | «{n} de exámenes · 0 tuyas»: «tuyas» se dibuja con cero |
+| 3 | Banco con preguntas `generated` (n mayor que cero) | «{n} de exámenes · {g} generadas · {t} tuyas». Con los datos de hoy no hay camino e2e (ningún banco publicado trae `source: 'generated'`): lo verifica la lectura del Analista, que la condición es `generatedCount > 0` sobre el dato |
+| 4 | Total | Igual al de antes: `examCount + generatedCount + userQuestions.length` |
+| 5 | Sin cambio | Las otras franjas de «Acerca de», los enlaces, el resto de la pantalla y sus textos |
 
 ---
 
@@ -238,7 +252,7 @@ Elementos de `main` que el boceto omite. No son propuestas: `main` es la base de
 | SET-C3 | El ajuste se guarda al tocarlo, sin botón de guardar, y vale para todos los modos | Función de `main` | uso |
 | SET-C4 | Respaldo solo en web; reseteo en todas las plataformas; confirmaciones del sistema para eliminar y resetear | Función y copy de `main` | uso |
 | SET-C5 | «Importar respaldo» como acción rellena (K1) y «Descargar respaldo» como acción de marco (K3) | Jerarquía de `main` | visual |
-| SET-C6 | El desglose del banco por origen: exámenes, generadas y tuyas | D6: origen visible | dato |
+| SET-C6 | El desglose del banco por origen: exámenes, generadas y tuyas. Las generadas se dibujan solo si hay (`SET-P3`) | D6: origen visible | dato |
 | SET-C7 | Eliminar una pregunta propia desde su tarjeta, con confirmación | Función de `main` | uso |
 | SET-C8 | La versión sale de `app.json` | Dato de `main`; la ficha no escribe la cifra | dato |
 

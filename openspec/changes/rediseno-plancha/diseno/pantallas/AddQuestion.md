@@ -194,7 +194,7 @@ Origen de la pregunta, aciertos de rendimiento, banco reducido y estado vacío n
 | Validación del tema | Ninguna: siempre hay uno. `addUserQuestion` recibe el mismo `topic` |
 | Gestos | Un toque por opción marcada y por guardado, como en `main`. **El tema son dos toques, abrir y elegir** (`ADD-P3`, aprobada el 2026-10-11): el costo se paga una vez por tanda, porque «Agregar otra» conserva el tema |
 | Sin emoji, radio ni sombra | El emoji del botón, la celda circular (`rounded-full`), el borde discontinuo, `rounded-*` y la opacidad del botón al guardar salen de esta pantalla (`comun.md` §9, D9). Las piezas del selector no usan sombra, transparencia ni opacidad (CD-24) |
-| Origen | Las preguntas guardadas quedan con origen de usuario y se muestran como «Tuya» en el quiz (`Quiz.md` c.3) |
+| Origen | Las preguntas guardadas quedan con origen de usuario y se muestran como «Tuya» en el quiz (`Quiz.md` c.3). Con la primera de la materia, TopicSelect suma el grupo «Fuente» con «Solo mías» (`TopicSelect.md` f.1, `TOPIC-P6`) |
 
 ### d.3 Eventos `track(...)`
 

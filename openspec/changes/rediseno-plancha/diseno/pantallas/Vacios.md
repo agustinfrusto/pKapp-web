@@ -8,7 +8,7 @@
 | Lo usan | `Stats` (V1), `TopicSelect` (V2 y V4), `Settings` (V3) |
 | Variantes | Pantalla vacía (V1, V2), mensaje dentro de un plegable (V3), lista vacía (V4) |
 | Fuera de alcance | Avisos del sistema (V5): su aspecto no es del sistema visual. Estados ya cubiertos por la ficha de su pantalla (V6 a V14 de a.1) |
-| Propuestas | Sección f: `VAC-P1` a `VAC-P4`, aprobadas (usuario, 2026-10-10); `VAC-P2` con revisión del usuario al implementar. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Propuestas | Sección f: `VAC-P1` a `VAC-P4`, aprobadas (usuario, 2026-10-10); `VAC-P2` con revisión del usuario al implementar; `VAC-P5`, aprobada (usuario, 2026-10-11). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P12`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.5 |
 
 ---
@@ -24,7 +24,7 @@ Con tratamiento propio en esta ficha:
 | V1 | Sin estadísticas | `StatsScreen` | `totalAnswered === 0` | `StatsScreen.js:90` | Emoji de gráfico, título y texto, centrados en la pantalla; admite tirar para actualizar | Lámina vacía (a.2) |
 | V2 | Sin preguntas falladas | `TopicSelectScreen`, modo `failed` | `mode === 'failed' && failedIds.size === 0` | `TopicSelectScreen.js:177` | Emoji de diana, título y texto, centrados; sin filtros | Lámina vacía (a.2) |
 | V3 | Sin preguntas propias | `SettingsScreen`, «Mis preguntas» abierto | `showQuestions && userQuestions.length === 0` | `SettingsScreen.js:114` | Tarjeta con un texto centrado | Mensaje compacto (a.3) |
-| V4 | Sin temas con los filtros actuales | `TopicSelectScreen`, modos `practice` y `failed` con fallos | `filteredBase` vacía: ningún tema con `count > 0` | `TopicSelectScreen.js:213` a `215` | La tarjeta de mezcla dice «0 preguntas» y, bajo el rótulo de sección, la lista queda vacía | Mensaje bajo el rótulo (a.4) |
+| V4 | Sin temas con los filtros actuales | `TopicSelectScreen`, modos `practice` y `failed` con fallos | `filteredBase` vacía: ningún tema con `count > 0`; p. ej. «Solo mías» con un parcial distinto de «Examen», porque las preguntas propias no traen `parcial` (`TopicSelect.md` f.1, tabla 6) | `TopicSelectScreen.js:213` a `215` | La tarjeta de mezcla dice «0 preguntas» y, bajo el rótulo de sección, la lista queda vacía | Mensaje bajo el rótulo (a.4): el de `VAC-P3` o, con «Solo mías» y un parcial, el de `VAC-P5` |
 
 Aviso del sistema, sin diseño propio:
 
@@ -48,6 +48,7 @@ Elementos que se omiten sin dejar hueco, o pantalla sin render. Su fila de matri
 | V15 | Sin pedido de donación | `ResultsScreen` | `!showDonation` o descartado | `ResultsScreen.js:213`, `254` | El bloque no se renderiza | `DonationBox.md` c |
 | V16 | Sin nota del creador, sin banner | `MateriaSelectScreen`, `HomeScreen` | Nota vista hace menos de siete días; materia sin `bancoReducido` | `MateriaSelectScreen.js:81`, `HomeScreen.js:59` | El bloque no se renderiza | `Banners.md` c |
 | V17 | Materia sin temas | `AddQuestionScreen` | `Object.keys(TOPICS).length === 0` | `AddQuestionScreen.js:19` y `20` | El grupo «Tema» queda sin filtros y `topic` sin valor | No ocurre con las seis materias registradas; sin diseño propio |
+| V18 | Materia sin preguntas propias | `TopicSelectScreen`, panel de filtros | `userQuestions.length === 0` | Nuevo (`TOPIC-P6`): hoy el grupo se dibuja siempre, `TopicSelectScreen.js:321` | El grupo «Fuente» no se renderiza: ni rótulo, ni filtros, ni divisor ni hueco; el filtro vale «Todas». Es la regla de `VAC-C5` | `TopicSelect.md` a.3, c y f.1 |
 
 ### a.2 Lámina vacía (V1 y V2)
 
@@ -82,7 +83,14 @@ Dentro del cuerpo de «Mis preguntas» (`Settings.md` a.1, bloque 3), a `paso 2.
 | # | Parte | Medidas | Contenido |
 |---|---|---|---|
 | 1 | Rótulo de sección | El de `TopicSelect.md` a.1, bloque 4 | «O elegí un tema específico:» |
-| 2 | Mensaje (`VAC-P3`) | Margen superior `paso 2`; lateral `paso 5`; alineado a la izquierda; una o más líneas | Mensaje de V4 |
+| 2 | Mensaje (`VAC-P3` y `VAC-P5`) | Margen superior `paso 2`; lateral `paso 5`; alineado a la izquierda; una o más líneas | Un solo mensaje de V4, según los filtros (tabla siguiente) |
+
+| Filtros marcados cuando la lista queda vacía | Mensaje |
+|---|---|
+| Fuente «Solo mías» y parcial distinto de «Examen» (`practice` o `failed` con fallos) | «Tus preguntas no tienen parcial. Elegí "Examen" para verlas.» (`VAC-P5`) |
+| Cualquier otra combinación que deja cero temas (p. ej. `failed` con «Solo mías» y «Examen», sin ninguna propia fallada) | «No hay preguntas disponibles con los filtros actuales.» (`VAC-P3`) |
+
+Los dos mensajes tienen el mismo lugar, medidas y paso: solo cambia el texto. Figuras de la maqueta: 12d (`VAC-P5`, BCYT) y 12e (`VAC-P3`, CyR).
 
 La tarjeta de mezcla conserva su lugar y muestra «0 preguntas»; el toque sigue mostrando el aviso del sistema (V5).
 
@@ -108,7 +116,7 @@ La tarjeta de mezcla conserva su lugar y muestra «0 preguntas»; el toque sigue
 | Acción (K2, `VAC-P2`) | `tinta` | `superficie` | `linea`, `border` | `cuerpo-fuerte` | — | — | T2, N2, N6 |
 | Mensaje compacto (V3) | `tintaSec` | `superficie` | — | `detalle` | — | — | T4 |
 | Panel del mensaje compacto | — | `superficie` | `linea`, `border` | — | — | — | N1 |
-| Mensaje de lista vacía (V4, `VAC-P3`) | `tintaSec` | `fondo` | — | `cuerpo` | — | — | T3 |
+| Mensaje de lista vacía (V4, `VAC-P3` y `VAC-P5`) | `tintaSec` | `fondo` | — | `cuerpo` | — | — | T3 |
 
 Las marcas de esquina de la lámina vacía son decorativas (`aria-hidden`). El título es el nombre accesible del estado; el glifo del estado acompaña al título y es decorativo (`aria-hidden`, `accessibilityElementsHidden`). Toda acción mide al menos `paso 11` de alto y de ancho, con `paso 2` como mínimo entre controles adyacentes.
 
@@ -144,7 +152,7 @@ Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—)
 | V1 | `getAllStats(materiaId)`: suma de `times_answered` en `totalAnswered` | Se recarga al enfocar (`useFocusEffect`) y por tirar para actualizar. Tras «Resetear estadísticas» vuelve a V1 |
 | V2 | `getFailedQuestions(materiaId)`: `failedIds` | Solo en modo `failed`; el estado inicial de `failedIds` es un conjunto vacío hasta que resuelve la carga |
 | V3 | `getUserQuestions(materiaId)` | Se recarga al enfocar y tras eliminar o importar |
-| V4 | `filteredBase`: fuente, luego parcial, luego fallos, luego `dedupeQuestions` | Con filtros que dejan cero preguntas, `countByTopic` queda vacío |
+| V4 | `filteredBase`: fuente, luego parcial, luego fallos, luego `dedupeQuestions` | Con filtros que dejan cero preguntas, `countByTopic` queda vacío. El mensaje lo decide el filtro: `VAC-P5` con `filteredBase` vacía, fuente `user` y parcial distinto de `all`; `VAC-P3` en cualquier otro caso |
 
 ### d.2 Invariantes
 
@@ -154,7 +162,8 @@ Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—)
 | Destinos de la acción (`VAC-P2`) | V1 y V2: `TopicSelect` con `mode: 'practice'`. V3: `AddQuestion`. Cada una es un solo toque; no reemplaza ningún camino existente |
 | Los textos | Los de `main`, sin cambio de palabras (e) |
 | V2 y los filtros | V2 reemplaza a los filtros y a la mezcla; V4 deja los filtros y la mezcla visibles para poder cambiarlos |
-| V5 | El aviso del sistema se conserva tal cual: `avisar('Sin preguntas', 'No hay preguntas disponibles con los filtros actuales.')` |
+| V4, qué mensaje | Uno solo a la vez, por la combinación de filtros (a.4). No depende del modo (`practice` o `failed`) ni de cuántas propias haya |
+| V5 | El aviso del sistema se conserva tal cual, también con la combinación de `VAC-P5`: `avisar('Sin preguntas', 'No hay preguntas disponibles con los filtros actuales.')` |
 | Sin emoji, radio ni sombra | Los dos emojis de estado vacío, el centrado por `flex-1` y `rounded-*` salen de estas superficies (`comun.md` §9, D9) |
 
 ### d.3 Eventos `track(...)`
@@ -178,7 +187,8 @@ Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—)
 | V2, título | «Sin preguntas falladas» | Igual | — |
 | V2, texto | «Practicá un poco primero y volvé acá para repasar las que te cuesten.» | Igual | — |
 | V3, texto | «No agregaste preguntas todavía. Usá "Agregar pregunta" en el menú principal.» | Igual | — |
-| V4, mensaje | No existe | «No hay preguntas disponibles con los filtros actuales.» | `VAC-P3`; es la cadena del aviso V5 |
+| V4, mensaje general | No existe | «No hay preguntas disponibles con los filtros actuales.» | `VAC-P3`; es la cadena del aviso V5 |
+| V4, mensaje con «Solo mías» y un parcial | No existe | «Tus preguntas no tienen parcial. Elegí "Examen" para verlas.» | `VAC-P5`; «Tus» como «tuyas» de Ajustes y «Examen», el rótulo del filtro de parcial (`TopicSelect.md` d.1). Comillas rectas, como V3 |
 | Acción de V1 y V2 | No existe | «Practicar» | `VAC-P2` |
 | Acción de V3 | No existe | «Agregar pregunta» | `VAC-P2`; es el rótulo de la acción de Home |
 
@@ -186,7 +196,7 @@ Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—)
 
 ## f. Propuestas aprobadas (D10)
 
-Cambios respecto de `main` que el boceto no dibuja. El usuario los aprobó el 2026-10-10 (D10): rigen tal como están descritos acá y en el cuerpo de la ficha (a a e). No hay variantes alternativas.
+Cambios respecto de `main` que el boceto no dibuja. El usuario aprobó `VAC-P1` a `VAC-P4` el 2026-10-10 (D10) y `VAC-P5` el 2026-10-11: rigen tal como están descritos acá y en el cuerpo de la ficha (a a e). No hay variantes alternativas.
 
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
@@ -194,8 +204,26 @@ Cambios respecto de `main` que el boceto no dibuja. El usuario los aprobó el 20
 | VAC-P2 | Cada estado vacío con destino obvio suma un botón de marco: V1 y V2, «Practicar»; V3, «Agregar pregunta». No reemplaza ni quita ningún camino | Hoy el estado vacío es un callejón: el usuario debe volver a Home y buscar la acción. El destino es el mismo de siempre, con un toque | uso | aprobada (usuario, 2026-10-10), con dudas: revisión del usuario al implementar |
 | VAC-P3 | Cuando los filtros dejan cero temas (V4), bajo el rótulo de sección aparece «No hay preguntas disponibles con los filtros actuales.» | Hoy la pantalla queda con un rótulo sin lista y una mezcla con «0 preguntas»; el motivo solo aparece al tocar. La cadena ya existe en el aviso del sistema | uso | aprobada (usuario, 2026-10-10) |
 | VAC-P4 | Mientras la primera carga de V1 y V2 no resolvió, no se muestra la lámina vacía: solo la barra sobre `fondo`. Hoy los estados iniciales (`stats` y `failedIds` vacíos) pintan «Sin estadísticas todavía» y «Sin preguntas falladas» hasta que llegan los datos | Evita un parpadeo del estado vacío para quien sí tiene datos; no agrega pantalla ni cadena | uso | aprobada (usuario, 2026-10-10) |
+| VAC-P5 | Cuando la lista queda vacía (V4) porque «Solo mías» y un parcial distinto de «Examen» están marcados a la vez, el mensaje bajo el rótulo de sección es «Tus preguntas no tienen parcial. Elegí "Examen" para verlas.» en lugar del de `VAC-P3`. Cualquier otra combinación vacía conserva el de `VAC-P3`. El aviso del sistema de V5 no cambia | Las preguntas propias no traen `parcial`: esa combinación da siempre cero y el mensaje general no dice por qué ni cómo salir. Con «Solo generadas» pasaba lo mismo y nadie tenía preguntas ahí; con «Solo mías» (`TopicSelect.md` f.1, `TOPIC-P6`) la combinación es probable | uso | aprobada (usuario, 2026-10-11) |
 
 Revisión del usuario al implementar (`VAC-P2`): el usuario la aprobó con dudas y quiere verla implementada. Las tareas que la implementan, 3.7 (`StatsScreen`, V1), 3.4 (`TopicSelectScreen`, V2) y 3.8 (`SettingsScreen`, V3), se la muestran antes del commit de cada una.
+
+### f.1 Aceptación observable (`VAC-P5`)
+
+Para la tarea 3.x que implementa el cambio y para el e2e. Las propias se siembran como en `TopicSelect.md` f.2 (`localStorage['pkapp_user_questions:<materia>']`). Matriz: 390 y 1366 × 768, en claro y en oscuro.
+
+| # | Comprobación | Esperado |
+|---|---|---|
+| 1 | BCYT con propias, `practice`, «Solo mías» y «1er Parcial» | V4: la mezcla dice «0 preguntas»; bajo «O elegí un tema específico:» aparece «Tus preguntas no tienen parcial. Elegí "Examen" para verlas.»; ninguna fila de tema; el panel sigue visible con «Solo mías» y «1er Parcial» marcados |
+| 2 | Igual con «2do Parcial», y en Anatomía | El mismo mensaje |
+| 3 | Desde la fila 1, marcar «Examen» | El mensaje desaparece y vuelven las filas de los temas con propias; con «Todas» y «1er Parcial» queda la lista del parcial, sin mensaje |
+| 4 | BCYT, `failed` con fallos, «Solo mías» y «1er Parcial» | El mensaje de `VAC-P5` |
+| 5 | CyR con propias, `failed` con fallos del banco y ninguna propia fallada, «Solo mías» | V4 con «No hay preguntas disponibles con los filtros actuales.» (`VAC-P3`); no el de `VAC-P5` |
+| 6 | «Solo mías» en `practice` sin parcial, o un parcial sin «Solo mías» | Hay temas: ningún mensaje de V4 |
+| 7 | Tocar la mezcla durante la fila 1 | Aviso del sistema de V5, sin cambio: título «Sin preguntas» y texto «No hay preguntas disponibles con los filtros actuales.» |
+| 8 | Presentación | `cuerpo` en `tintaSec` sobre `fondo`; alineado a la izquierda; `paso 2` bajo el rótulo y `paso 5` lateral; sin región viva; a 320 el texto salta de línea y `scrollWidth <= clientWidth` |
+| 9 | Copy | La cadena exacta, con comillas rectas como V3, y solo en V4. Ningún texto nuevo en V1, V2, V3 ni V5 |
+| 10 | Sin transparencia | Sin `box-shadow`, `rgba`, `border-radius` ni `opacity` nuevos |
 
 ---
 

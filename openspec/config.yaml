@@ -53,8 +53,10 @@ context: |
     Cardiovascular y Respiratorio no tienen parciales) y ahí la UI oculta el filtro.
   - TOPIC: tema dentro de una materia. Mapa slug → nombre legible en `topics.js`.
   - SOURCE: origen de una pregunta. `exam` = extraída de un examen real; `generated`
-    = generada a partir de apuntes. El usuario puede filtrar por esto y la distinción
-    debe permanecer visible: nunca presentar una generada como si fuera real.
+    = generada a partir de apuntes (hoy ningún banco publicado tiene generadas); `user` =
+    agregada por el usuario. La distinción debe permanecer visible (chip de origen del quiz):
+    nunca presentar una generada como si fuera real. El filtro de fuente de TopicSelect es
+    «Todas / Solo mías» y solo aparece con preguntas propias (TOPIC-P6, 2026-10-11).
   - Pregunta: `{ id, source, exam, topic, materia, question, options, correctIndex, explanation }`.
   - Preguntas propias del usuario: se guardan solo en su dispositivo, nunca en el repo.
 

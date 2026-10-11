@@ -32,6 +32,13 @@
 | 14 | `ADD-P3` (aprobada, usuario, 2026-10-11): el selector de tema de AddQuestion pasa a ser el desplegable: disparador K3 y, abierto, lámina con filas K7, en lista plana (el parcial de cada tema todavía no es un dato). 07a y 07b lo muestran cerrado (en 07b, deshabilitado porque guarda); figura nueva 07c con el selector abierto. Es lo único que cambia en 07a y 07b (comparado con el generador anterior, mismo `src/`) | 07a, 07b y 07c |
 | 15 | Campo de filamentos V5 «Fusiforme» (elegida, usuario, 2026-10-11): el generador lo lee de `src/assets/filamentos.js`, donde ya está V5; sin cambios de código. V0 queda en `src/assets/filamentos-v0.js` | 01 y E01 |
 | 16 | Escritorio aprobado (2026-10-11): E09 deja las dos columnas de `ESC-P9`, rechazada, y pasa a una columna `lectura`; se parte en E09a (selector cerrado) y E09b (abierto). `verificar.mjs` cuenta una lista abierta (`listbox`) como una sola parada de Tab. La leyenda de 1280 px dice «columna única, antes del escritorio» | E09a, E09b y 1280 px |
+| 17 | `TOPIC-P6` dibujada (aprobada, usuario, 2026-10-11; tarea 3.13b): el grupo «Fuente» es «Todas» y «Solo mías» y solo existe con preguntas propias; el panel lleva de uno a tres grupos. 03a (BCYT, con parcial y con propias) dibuja los tres; 03b (CyR, modo examen, con propias), dos. Figuras nuevas: 03c, componente con los cuatro casos de `TopicSelect.md` f.1 (tabla 1), y E03c, el mismo panel en la hoja de escritorio, con el reparto del ancho de f.1 (tabla 4). Las figuras con propias suman las de muestra al conteo: CyR 115 (antes 113) y BCYT 387 (antes 385). 03a, 03b y E03a (a 1366) miden 52 px menos: una fila de filtros en lugar de dos | 03a, 03b, 03c, E03a, E03b y E03c |
+| 18 | `VAC-P5` dibujada (aprobada, usuario, 2026-10-11): 12d pasa de «Solo generadas» en CyR a «Solo mías» con «1er Parcial» en BCYT, con el mensaje «Tus preguntas no tienen parcial. Elegí "Examen" para verlas.». Figura nueva 12e para el mensaje general de `VAC-P3`: repasar fallos con «Solo mías» y ninguna propia fallada (CyR) | 12d y 12e |
+| 19 | `MATERIA-P4` dibujada (aprobada, usuario, 2026-10-11): el cajetín de la tarjeta de materia es una sola celda de ancho completo, en reposo, cargando y no disponible; «Banco real» (`MATERIA-P2`, reemplazada) ya no se dibuja. La tarjeta mide lo mismo (95 px a 390) | 01, 01b, 09 y E01 |
+| 20 | `HOME-P4` y `HOME-P5` dibujadas (aprobadas, usuario, 2026-10-11): el conteo de Home dice «113 preguntas reales» (antes «113 preguntas reales · 0 preguntas extra», que partía en dos líneas desde 390 px) y la descripción de «Ajustes» dice «Ocultar resultado, resetear estadísticas». 02 mide 18 px menos a 390 | 02 y E02 |
+| 21 | `SET-P3` dibujada (aprobada, usuario, 2026-10-11): el desglose de «Acerca de» omite «0 generadas»: «113 de exámenes · 2 tuyas». Solo cambia ese texto | 08a, 08b, 12c, E08a y E08b |
+| 22 | Los filtros del panel son `radiogroup` con `radio` y `aria-checked` (antes botones con `aria-pressed`): la semántica de `Segmento` y la que fija `TopicSelect.md` f.1 (tabla 2). No cambia el aspecto | 03a, 03b, 03c, 12d, 12e, E03a, E03b y E03c |
+| 23 | Con 50 figuras (antes 47: 33 de teléfono y tablet y 17 de escritorio) los tableros miden 14 389 y 14 405 px (390, claro y oscuro), 13 584 (768 y 1280), 9 604 (1366) y 9 657 (1920): el mínimo de margen al tope de 16 384 es de 1 979 px. `capturar.mjs` no cambia | `capturar.mjs` |
 
 Las cifras de §4, las decisiones de §6 y las propuestas de §7 reemplazan a las de la primera pasada.
 
@@ -43,14 +50,14 @@ Las cifras de §4, las decisiones de §6 y las propuestas de §7 reemplazan a la
 |---|---|
 | Abrir | `maqueta.html` en el navegador. Las fuentes Plex salen de Google Fonts; sin red cae a la del sistema (D4) |
 | Ancho y tema | Selector de la barra superior (390, 768, 1280, 1366, 1920 · Claro, Oscuro) o el control «Claro \| Oscuro» de Home y MateriaSelect. El estado va en el hash: `maqueta.html#768-oscuro`, `maqueta.html#1920-claro` |
-| Ir a una figura | Botones «Ir a» de la barra superior (01 a 14, con 07c; a 1366 y 1920 px, E01 a E10) |
+| Ir a una figura | Botones «Ir a» de la barra superior (01 a 14, con 03c, 07c y 12e; a 1366 y 1920 px, E01 a E10, con E03c) |
 | Estados de control | Hover (solo con puntero), presionado y foco de teclado responden como `comun.md` §5 (`COMUN-P2`): pasar el puntero, mantener presionado, Tab |
 | Regenerar | `node openspec/changes/rediseno-plancha/diseno/maqueta/generar.mjs` |
 | Recapturar los PNG | `node openspec/changes/rediseno-plancha/diseno/maqueta/capturar.mjs [ancho ...]` (Chrome y cliente CDP de `tools/e2e/`; sin dependencias nuevas). Sin argumentos deja los diez tableros (390, 768, 1280, 1366 y 1920, en claro y oscuro) y, aparte, el recorte de la figura 09 a 390, 768 y 1280. Con anchos, solo esos: `capturar.mjs 1366 1920` |
-| Verificar escritorio | `node openspec/changes/rediseno-plancha/diseno/maqueta/verificar.mjs`: 16 figuras en 1024, 1280, 1366 y 1920, en claro y oscuro (§8.3) |
+| Verificar escritorio | `node openspec/changes/rediseno-plancha/diseno/maqueta/verificar.mjs`: 17 figuras en 1024, 1280, 1366 y 1920, en claro y oscuro (§8.3) |
 | Origen de los colores | Bloque entre `>>> GENERADO` y `<<< FIN GENERADO` de `maqueta.html`, generado desde `plancha.claro` y `plancha.oscuro`. Ningún otro lugar del HTML ni de `generar.mjs` escribe un color |
 
-El tablero numera 31 figuras: 25 pantallas, o estados de pantalla, y 6 de componente (01b, 04e, 09, 11c, 13 y 14). En el navegador arma las columnas que caben en la ventana; las capturas usan 4 columnas en los tres anchos. La figura 09 ocupa dos columnas. A 1366 y 1920 px el tablero muestra solo las 16 figuras de escritorio (E01 a E10, con variantes a, b y c) y las capturas usan 2 columnas; a 1280 px muestra la columna única anterior al escritorio, para comparar.
+El tablero numera 33 figuras: 26 pantallas, o estados de pantalla, y 7 de componente (01b, 03c, 04e, 09, 11c, 13 y 14). En el navegador arma las columnas que caben en la ventana; las capturas usan 4 columnas en los tres anchos. La figura 09 ocupa dos columnas. A 1366 y 1920 px el tablero muestra solo las 17 figuras de escritorio (E01 a E10, con variantes a, b y c) y las capturas usan 2 columnas; a 1280 px muestra la columna única anterior al escritorio, para comparar.
 
 ---
 
@@ -58,10 +65,10 @@ El tablero numera 31 figuras: 25 pantallas, o estados de pantalla, y 6 de compon
 
 | Fig. | Pantalla | Estado o variante | Datos | Ficha |
 |---|---|---|---|---|
-| 01 | MateriaSelect | Reposo, seis materias, campo V5 «Fusiforme»; nota del creador visible y donación persistente con regla corta | Reales: `MATERIA_LIST`, `CONTEOS`, `svg/<id>.svg`, `filamentos.js`, `DONATION_AMOUNTS` | `MateriaSelect.md` a, b; `Banners.md`; `DonationBox.md` |
-| 02 | Home | CyR con banner de banco reducido, con contacto en botón (`BAN-P1`), y nota de privacidad (web) | Reales: 113 reales, 0 extra, examen de 50 | `Home.md`; `Banners.md` |
-| 03a | TopicSelect | `practice`, con grupo «Parcial» (marca de parcial, `PAR-P2`); 27 temas | Reales: BCYT, conteo por tema tras `dedupeQuestions` | `TopicSelect.md` A; `comun.md` §12.3 |
-| 03b | TopicSelect | `exam`, sin grupo «Parcial» | Reales: CyR, 113 disponibles, sorteo de 50 | `TopicSelect.md` B (`TOPIC-P5`) |
+| 01 | MateriaSelect | Reposo, seis materias, campo V5 «Fusiforme», cajetín de una celda (`MATERIA-P4`); nota del creador visible y donación persistente con regla corta | Reales: `MATERIA_LIST`, `CONTEOS`, `svg/<id>.svg`, `filamentos.js`, `DONATION_AMOUNTS` | `MateriaSelect.md` a, b, f; `Banners.md`; `DonationBox.md` |
+| 02 | Home | CyR con banner de banco reducido, con contacto en botón (`BAN-P1`), y nota de privacidad (web); conteo sin «preguntas extra» (`HOME-P4`) y «Ajustes» con su descripción nueva (`HOME-P5`) | Reales: 113 reales, sin extra, examen de 50 | `Home.md`; `Banners.md` |
+| 03a | TopicSelect | `practice`, con los tres grupos: «Fuente» («Todas» y «Solo mías»), «Parcial» (marca de parcial, `PAR-P2`) y «Temporizador»; 27 temas | Reales: BCYT, conteo por tema tras `dedupeQuestions`, más 2 propias de muestra | `TopicSelect.md` A; `comun.md` §12.3; `TOPIC-P6`, caso 4 |
+| 03b | TopicSelect | `exam`, con «Fuente» y «Temporizador» y sin grupo «Parcial» | Reales: CyR, 115 disponibles (113 del banco y 2 propias de muestra), sorteo de 50 | `TopicSelect.md` B (`TOPIC-P5`); `TOPIC-P6`, caso 2 |
 | 04a | Quiz | Sin responder, sin temporizador, progreso por casillas | Real: `CYR-PROTOTIPO-1-Q25`, 05 / 15 | `Quiz.md` c.2 |
 | 04b | Quiz | Respondida correcta, temporizador normal (14:32) | Igual | c.2, c.4 |
 | 04c | Quiz | Respondida incorrecta (A), correcta marcada (C), opción apagada (B), explicación, reportar y «Siguiente» | Igual | c.2 |
@@ -71,7 +78,8 @@ El tablero numera 31 figuras: 25 pantallas, o estados de pantalla, y 6 de compon
 | 05c | Results | Tramo bajo: 38 %, 9 de 24; sin pedido | Muestra | d.1 |
 | 06 | Stats | Las tres bandas, una fila «Sin practicar», «Más falladas» (8) | Reales: temas y disponibles de CyR; respuestas y aciertos de muestra | `Stats.md` |
 | 01b | MateriaSelect | Matriz de estados de la tarjeta: reposo, presionado, foco, cargando, no disponible | CyR | `MateriaSelect.md` c |
-| 04e | Quiz | Chips de origen: examen, generada, propia | Texto fijo | `Quiz.md` c.3 |
+| 04e | Quiz | Chips de origen: examen, generada, propia (la variante «Generada» se conserva por decisión del usuario, 2026-10-11) | Texto fijo | `Quiz.md` c.3 |
+| 03c | Componente | Panel de filtros en los cuatro casos de `TopicSelect.md` f.1 (tabla 1): CyR y BCYT, con y sin propias; de uno a tres grupos, con los divisores solo entre grupos presentes | Reales: `config.parciales` de BCYT; las propias son de muestra | `TopicSelect.md` f.1 (`TOPIC-P6`, tablas 1 y 2) |
 | 07a | AddQuestion | Formulario inicial: primer tema de CyR en el selector cerrado, cuatro opciones vacías, ninguna correcta | Reales: `TOPICS` de CyR | `AddQuestion.md` c.2 (`ADD-P3`) |
 | 07b | AddQuestion | BCYT (27 temas): completa, correcta marcada, «Guardando...», selector deshabilitado | Reales: temas de BCYT; texto de la pregunta de muestra tomado de `2025-T1-Q15` | `AddQuestion.md` c.1, c.2 (`ADD-P2`, `ADD-P3`) |
 | 07c | AddQuestion | BCYT (27 temas): selector de tema abierto, lista plana, primer tema elegido | Reales: temas de BCYT | `AddQuestion.md` a.2, c.1, c.2 (`ADD-P3`) |
@@ -86,7 +94,8 @@ El tablero numera 31 figuras: 25 pantallas, o estados de pantalla, y 6 de compon
 | 12a | Stats vacío | V1: lámina vacía, `glifo-estadisticas` de `paso 12`, «Practicar» | Copy de `Vacios.md` e | `Vacios.md` a.2 (`VAC-P1`, `VAC-P2`) |
 | 12b | TopicSelect vacío | V2: repasar fallos sin falladas, `glifo-repasar`, «Practicar» | Igual | `Vacios.md` a.2 |
 | 12c | Settings vacío | V3: «Mis preguntas» abierto sin preguntas propias, con «Agregar pregunta» | Igual | `Vacios.md` a.3 (`VAC-P2`) |
-| 12d | TopicSelect vacío | V4: CyR con «Solo generadas» (CyR no tiene generadas), mezcla en «0 preguntas» y mensaje bajo el rótulo | Real: 0 generadas en CyR | `Vacios.md` a.4 (`VAC-P3`) |
+| 12d | TopicSelect vacío | V4: BCYT con «Solo mías» y «1er Parcial» (las propias no traen `parcial`), mezcla en «0 preguntas» y el mensaje de `VAC-P5` bajo el rótulo | Real: BCYT y su parcial; 2 propias de muestra | `Vacios.md` a.4 (`VAC-P5`) |
+| 12e | TopicSelect vacío | V4: repasar fallos con «Solo mías» y ninguna propia fallada (CyR), mezcla en «0 preguntas» y el mensaje general | Muestra: qué preguntas fallaron | `Vacios.md` a.4 (`VAC-P3`) |
 | 13 | Componente | Banner de banco reducido, nota del creador, nota de privacidad | Copy de `Banners.md` e | `Banners.md` b, c (`BAN-P1`) |
 | 14 | Componente | Inventario de los 35 glifos, 11 grandes (`paso 6`) y 24 chicos (`paso 4`) | `svg/glifos/` | `comun.md` §9 |
 
@@ -96,10 +105,13 @@ El tablero numera 31 figuras: 25 pantallas, o estados de pantalla, y 6 de compon
 |---|---|
 | `COMUN-P1` ilustración en `filamento` | 01, 01b, 02 |
 | `COMUN-P2` presionado, hover y foco | 01b (estático) y todo control del HTML (interactivo) |
-| `MATERIA-P1` «ESFUNO»; `MATERIA-P2` «Banco real» | 01, 01b |
+| `MATERIA-P1` «ESFUNO» | 01, 01b |
+| `MATERIA-P4` cajetín de una celda, sin «Banco real» (aprobada, usuario, 2026-10-11; reemplaza a `MATERIA-P2`) | 01, 01b, 09 y E01 |
 | `HOME-P1` seis acciones; `HOME-P2` «Plano / Acciones»; `HOME-P3` nota de privacidad | 02, 13 |
-| `TOPIC-P1` a `TOPIC-P4` | 03a, 03b, 12d |
+| `HOME-P4` conteo sin «preguntas extra» con cero; `HOME-P5` descripción de «Ajustes» (aprobadas, usuario, 2026-10-11) | 02 y E02 |
+| `TOPIC-P1` a `TOPIC-P4` | 03a, 03b, 03c, 12d, 12e |
 | `TOPIC-P5` tarjeta «Modo Examen» | 03b |
+| `TOPIC-P6` grupo «Fuente» de «Todas» y «Solo mías», solo con propias; panel de uno a tres grupos (aprobada, usuario, 2026-10-11) | 03a, 03b, 03c, 12d, 12e, E03a, E03b y E03c |
 | `QUIZ-P1` barra propia sin header | 04a a 04d, 11a, 11b |
 | `QUIZ-P2` «Reportar pregunta» | 04b, 04c, 11b |
 | `QUIZ-P3` temporizador y alerta | 04b (normal), 04d (alerta), 11b |
@@ -114,12 +126,14 @@ El tablero numera 31 figuras: 25 pantallas, o estados de pantalla, y 6 de compon
 | `ADD-P2` rótulos sin dos puntos; `ADD-P3` selector de tema desplegable (aprobada, usuario, 2026-10-11; reemplaza a `ADD-P1`, rechazada) | 07a, 07b, 07c, E09a y E09b |
 | `V5` campo de filamentos «Fusiforme» (elegida, usuario, 2026-10-11) | 01 y E01 |
 | `SET-P1` «No \| Sí»; `SET-P2` «Resetear estadísticas» en `error` | 08a, 08b |
+| `SET-P3` desglose del banco sin «0 generadas» (aprobada, usuario, 2026-10-11) | 08a, 08b, 12c, E08a y E08b |
 | `DON-P1` montos en K3 con marco `acento` | Reemplazada por `DON-P5`: solo en la columna «Antes» de 09 |
 | `DON-P5` marco `acento` de `border-2`, banda `acentoBanda` en el encabezado, cuerpo en `acentoFondo` y montos K2 de acento con relleno `superficie` (aprobada, usuario, 2026-10-11) | 01, 05a, 05b y 09 (columna derecha) |
 | `REV-P1` filtro; `REV-P2` «Volver» arriba; `REV-P3` rótulo de la nota | 10a, 10b |
 | `EXA-P1` «Resultado oculto hasta el final» | 11b |
 | `PAR-P1` insignia de dos casillas; `PAR-P2` marca en el filtro | 03a, 11a, 11b, 11c |
-| `VAC-P1` lámina vacía; `VAC-P2` acción «Practicar» y «Agregar pregunta»; `VAC-P3` mensaje de V4 | 12a a 12d |
+| `VAC-P1` lámina vacía; `VAC-P2` acción «Practicar» y «Agregar pregunta»; `VAC-P3` mensaje de V4 | 12a a 12c, 12e (`VAC-P3`) |
+| `VAC-P5` mensaje de V4 con «Solo mías» y un parcial (aprobada, usuario, 2026-10-11) | 12d |
 | `BAN-P1` contacto en botón | 02, 13 |
 
 ### Descartadas y retiradas
@@ -131,6 +145,7 @@ El tablero numera 31 figuras: 25 pantallas, o estados de pantalla, y 6 de compon
 | `DON-P3` glifo propio | Retirada de la ficha (`DonationBox.md` f.2); nunca se dibujó |
 | `ADD-P1` temas con salto de línea (filtros K4) | Rechazada (usuario, 2026-10-11): «el usuario debería scrollear demasiado»; ya no se dibuja |
 | `ESC-P9` tema a la izquierda del enunciado en AddQuestion | Rechazada (usuario, 2026-10-11); ya no se dibuja: E09a y E09b usan una columna `lectura` |
+| `MATERIA-P2` «Banco real» en una segunda celda del cajetín (con C8 y E5 de `CONVENCIONES.md`) | Reemplazada por `MATERIA-P4` (usuario, 2026-10-11); ya no se dibuja |
 
 ---
 
@@ -148,24 +163,25 @@ El tablero numera 31 figuras: 25 pantallas, o estados de pantalla, y 6 de compon
 | Resultados (20, 15 y 9 de 24), respuestas y aciertos por tema, aciertos de «Más falladas», tiempos del temporizador, posición en el quiz | `generar.mjs` (`STATS_MUESTRA`, `FALLADAS_MUESTRA`, `FIGURAS`) | Muestra |
 | Montos de donación | `DONATION_AMOUNTS` de `src/utils/mercadopago.js` | Real |
 | Versión de «Acerca de» | `expo.version` de `app.json` | Real |
-| Conteo por origen de «Acerca de» | `source` de `questions.js` y las preguntas propias de muestra | Real más muestra |
+| Conteo por origen de «Acerca de» | `source` de `questions.js` y las preguntas propias de muestra; el término «generadas» se dibuja solo si es mayor que cero (`SET-P3`) | Real más muestra |
+| Preguntas propias de TopicSelect (03a, 03b, 03c, 12d, 12e, E03a, E03b y E03c) | `PROPIAS` (CyR, las de 08a) y `PROPIAS_BCYT` (los dos primeros temas de BCYT con banco), de `generar.mjs`. Se suman al banco ya deduplicado y no traen `parcial` | Real el texto; que sean propias es de muestra |
 | Campo de filamentos | `src/assets/filamentos.js` | Real |
 | Ilustraciones de materia | `diseno/svg/<id>.svg`, familia B (se descarta su bloque `<style>`; el color sale de `filamento`) | Real |
 | Glifos | `diseno/svg/glifos/*.svg` | Real |
 
-Con las seis materias publicadas sin preguntas generadas, todo `source` es `exam`: los chips «Práctica» y «Tuya» no aparecen en datos reales y se muestran en 04e. Por la misma razón V4 (12d) se provoca con el filtro «Solo generadas».
+Con las seis materias publicadas sin preguntas generadas, todo `source` es `exam`: los chips «Práctica» y «Tuya» no aparecen en datos reales y se muestran en 04e. Por la misma razón, con datos reales ni el término «preguntas extra» de Home ni el de «generadas» de Ajustes se dibujan (`HOME-P4`, `SET-P3`), y V4 se provoca con «Solo mías» y un parcial (12d, `VAC-P5`) o con «Solo mías» en repasar fallos sin ninguna propia fallada (12e, `VAC-P3`). El filtro «Solo generadas» ya no existe (`TOPIC-P6`).
 
 ---
 
 ## 4. Verificación
 
-Medido en Chrome headless sobre `maqueta.html`, en 390 claro, 390 oscuro, 768 claro y 1280 oscuro. Las filas marcadas «(09)» se midieron en la pasada de `DON-P5` (2026-10-11), en 390 claro y oscuro, 768 claro, 1280 claro y oscuro, y con el ancho de `.pantalla` forzado a 360 y 320 px. Las demás son de la pasada anterior y no se repitieron: salvo la figura 09, el pedido de donación de 01, 05a y 05b y la cadena de versión (§0, #10, #11 y #13), ninguna figura cambió.
+Medido en Chrome headless sobre `maqueta.html`, en 390 claro, 390 oscuro, 768 claro y 1280 oscuro. Las filas marcadas «(09)» se midieron en la pasada de `DON-P5` (2026-10-11), en 390 claro y oscuro, 768 claro, 1280 claro y oscuro, y con el ancho de `.pantalla` forzado a 360 y 320 px. Las demás son de la pasada anterior y no se repitieron: salvo la figura 09, el pedido de donación de 01, 05a y 05b y la cadena de versión (§0, #10, #11 y #13), ninguna figura cambió. Las filas «(3.13b)» se midieron el 2026-10-11, tras la tarea 3.13b, en Chrome headless: 390, 360 y 320 px (claro) y, en escritorio, 1024, 1280, 1366 y 1920 px. Con esa pasada cambiaron las figuras de §0, #17 a #22; las otras 31 de las 47 anteriores quedaron byte a byte iguales.
 
 | Chequeo | Método | Resultado |
 |---|---|---|
 | Hexadecimales fuera del bloque generado | `generar.mjs` falla si hay alguno | Ninguno |
 | Errores de consola y excepciones | `capturar.mjs`, seis combinaciones | Ninguno |
-| PNG | `capturar.mjs` | 6 tableros regenerados: 1688 × 14342 (390 claro) y 1688 × 14360 (390 oscuro), 3200 × 13509 (768 claro) y 3200 × 13527 (768 oscuro), 5248 × 13509 (1280 claro) y 5248 × 13527 (1280 oscuro); 30 figuras en cada uno. 6 recortes de la figura 09, de sus dos columnas: 808 × 1395 y 808 × 1413 (390), 1564 × 1373 y 1564 × 1391 (768), 2588 × 1373 y 2588 × 1391 (1280), claro y oscuro |
+| PNG (3.13b) | `capturar.mjs` | 6 tableros regenerados: 1688 × 14389 (390 claro) y 1688 × 14405 (390 oscuro), 3200 × 13584 (768, claro y oscuro) y 5248 × 13584 (1280, claro y oscuro); 50 figuras en el documento, de las que a estos anchos se ven las 33 de teléfono y tablet. 6 recortes de la figura 09, de sus dos columnas, sin cambio de tamaño: 808 × 1395 y 808 × 1413 (390), 1564 × 1373 y 1564 × 1391 (768), 2588 × 1373 y 2588 × 1391 (1280), claro y oscuro |
 | (09) Objetivo táctil (D10) | Todo `button` de las seis secciones de pedido de la figura, tres por columna | 14 por columna; ninguno bajo 44 × 44 px, en las dos. 8 px entre montos. Celdas de monto de `DON-P5`: 73,5 px (390), 88 px (768 y 1280), 66 px (360) y 56 px (320) |
 | (09) Desborde | Rectángulo de cada elemento del panel contra el del panel, y de cada pantalla contra el suyo | Ninguno desborda en ninguna de las dos columnas, a 390, 768, 1280, 360 y 320 px: sin scroll horizontal |
 | (09) Descartar frente al título | Rectángulo del texto del título contra el del objetivo de descartar | Sin solape: libre desde 37,6 px (390 px, título en una línea) hasta 201,8 px. El objetivo queda a 2 px del borde superior y del derecho del panel en `DON-P5` (marco de 2 px) y a 1 px en `DON-P1`: a ras del marco |
@@ -186,6 +202,16 @@ Medido en Chrome headless sobre `maqueta.html`, en 390 claro, 390 oscuro, 768 cl
 | Selector, hash y control de tema | Clics por CDP, repetidos en esta pasada | El control de tema cambia el tema y `aria-checked`, el selector cambia el ancho, el hash se actualiza (`#768-oscuro`) y «Ir a 13» lleva la figura al borde superior |
 | Glifos | Cuadrados `g-falta` y figura 14 | 35 de 35 dibujados; huella `cf64b601`, impresa por `generar.mjs` y escrita en `<meta name="generator">` |
 | Glifo faltante | `MAQUETA_GLIFOS=<carpeta vacía> MAQUETA_SALIDA=<archivo> node generar.mjs`, repetido en esta pasada | 0 de 35 dibujados; los 35 salen como cuadrado de `filete` numerado y el panel al pie los lista; el tablero no se rompe |
+| (3.13b) Panel de filtros, casos 1 a 4 de `TopicSelect.md` f.1 | Chrome headless sobre 03c, a 390, 360 y 320 px, en claro | Alto del panel: 98, 195, 247 y 344 px, los mismos en los tres anchos. «Fuente»: «Todas» de 67 px marcado y «Solo mías» de 91 px, a 8 px entre sí, en una sola fila en los tres anchos (166 px de 320, 290 y 250 útiles). Con 03a, la mezcla queda a 12 px (`paso 3`) bajo el panel. Sin desborde horizontal |
+| (3.13b) Panel en escritorio | E03a, E03b y E03c a 1024, 1280, 1366 y 1920 px, en claro | Una sola fila (mismo borde superior) y 98 px de alto en los cuatro casos; «Parcial» en una línea desde 1024. «Fuente» 166 px, «Temporizador» 200 y «Parcial» el sobrante (498 a 1366; ancho natural 358); divisores verticales de 1 px con 14 px (`paso 3.5`) a cada lado; «Temporizador» a 14 px del borde derecho. Sin «Parcial», el sobrante queda a la derecha (527 px a 1366, 1015 a 1920); con «Temporizador» solo, a la izquierda y sin divisor |
+| (3.13b) Alto de las figuras | Chrome headless, `.pantalla`, contra el HTML anterior | 03a y 03b: 52 px menos (2479 → 2427 y 604 → 552 a 390; 2427 → 2375 y 604 → 552 a 768 y 1280). E03a: 1366 → 1314 a 1366 y sin cambio a 1920 (979); E03b sin cambio (437). 02: 1150 → 1132 a 390, sin cambio a 768, 1280 y 1366, y 466 → 452 en E02 a 1920 |
+| (3.13b) Cajetín de la tarjeta de materia | 01 y 01b a 390, 360 y 320 px | Una celda de ancho completo (348, 318 y 278 px) y 35 px de alto, igual en reposo, presionado, foco, cargando y no disponible; tarjeta de 95 px (117 a 320 en las de nombre de tres líneas, como antes). «Banco real» no está en el documento |
+| (3.13b) Home | 02 a 390, 360 y 320 px | Conteo «113 preguntas reales» en una línea en los tres anchos (antes dos: «113 preguntas reales · 0 preguntas extra»). Descripción de «Ajustes»: una línea a 390 y dos a 360 y 320 (antes una a 390 y 360) |
+| (3.13b) V4 | 12d y 12e a 390, 360 y 320 px | El mensaje de `VAC-P5` (60 caracteres) y el de `VAC-P3` (54) saltan a dos líneas en los tres anchos; `paso 2` bajo el rótulo y `paso 5` lateral; sin desborde |
+| (3.13b) Ajustes | 08a, 08b y 12c | «113 de exámenes · 2 tuyas» con total 115; sin propias, «113 de exámenes · 0 tuyas» |
+| (3.13b) Qué cambió | HTML nuevo contra el anterior, figura por figura | 31 de 47 figuras idénticas; 16 modificadas (01, 01b, 02, 03a, 03b, 08a, 08b, 09, 12c, 12d, E01, E02, E03a, E03b, E08a y E08b) y 3 nuevas (03c, 12e y E03c). Fuera de las figuras, solo el CSS del panel y de la celda y los tres botones de navegación nuevos |
+| (3.13b) Verificador de escritorio | `verificar.mjs`, 17 figuras × 4 anchos × 2 temas | 136 combinaciones: sin desborde, sin objetivos bajo 44 × 44, sin propiedades prohibidas ni emojis, foco sin saltos hacia atrás |
+| (3.13b) Capturas | `capturar.mjs` | 10 tableros y 6 recortes regenerados; sin errores de consola ni excepciones |
 
 ### Lo que se ve a 1280 px
 
@@ -239,6 +265,7 @@ Estas decisiones las tomó la maqueta porque la ficha no las fijaba. La correcci
 | 21 | Figuras 09, 11c, 13 y 14 | Varias variantes en una figura, con rótulo de estado, como 01b y 04e | Son componentes, no pantallas | Del tablero |
 | 22 | Tablero, columnas | 4 columnas en la captura, en los tres anchos (antes 3 a 768 y 1280 px) | Con 2 el PNG pasaba el tope de alto (§0, #8); con 3 y una figura 09 de varias columnas también (§0, #10) | Del tablero |
 | 23 | Figura 09, comparación | Dos columnas de pantalla: «Antes» (`DON-P1`) y `DON-P5`. Cada una con la celebratoria sola, la persistente bajo una tarjeta de CyR con su regla corta, y la descartable entre un trío de 15 de 24 y los tres botones de Results. Una anotación en la columna de `DON-P5`, sobre el contexto de Results, dice cómo pesa la banda frente a «Volver a practicar» en el tema activo | Para decidir si el pedido «se nota» y si compite con la acción primaria hay que verlo junto a lo que lo rodea; ninguna ficha fija esos vecinos en una figura | Del tablero: muestra |
+| 24 | Figuras 03c y E03c | Los cuatro casos del panel de filtros, uno bajo otro, con un rótulo de caso: CyR sin propias, CyR con propias, BCYT sin propias y BCYT con propias. En escritorio, cada panel a ancho de hoja | La ficha define los casos (`TopicSelect.md` f.1, tabla 1) y no una figura; para ver el panel con de uno a tres grupos hay que mostrarlos juntos | Del tablero: muestra |
 
 ---
 
@@ -256,6 +283,11 @@ Surgieron al maquetar. No se aplicaron en la maqueta: se dibuja lo aprobado. El 
 | `DON-P5` | Aprobada (usuario, 2026-10-11) con un ajuste de oscuro: la banda baja a `acentoBanda`; reemplaza a `DON-P1`. `DonationBox.md` f.1 | Aplicada en 01, 05a, 05b y 09 (§0, #10 y #13) |
 | `DON-P2`, `DON-P4` | Descartadas | Ya no se dibujan |
 | `DON-P3` | Retirada de la ficha (`DonationBox.md` f.2) | Nunca se dibujó |
+| `TOPIC-P6` | Aprobada (usuario, 2026-10-11); `TopicSelect.md` f.1, con las cinco reglas derivadas confirmadas por el Ingeniero. El grupo «Fuente» pasa a «Todas» y «Solo mías», solo con preguntas propias, y el panel lleva de uno a tres grupos | Aplicada en 03a, 03b, 03c, 12d, 12e, E03a, E03b y E03c (§0, #17 y #22); medida con y sin propias (§4, filas 3.13b) |
+| `HOME-P4`, `HOME-P5` | Aprobadas (usuario, 2026-10-11); `Home.md` f y f.1 | Aplicadas en 02 y E02 (§0, #20) |
+| `SET-P3` | Aprobada (usuario, 2026-10-11); `Settings.md` f y f.1 | Aplicada en 08a, 08b, 12c, E08a y E08b (§0, #21) |
+| `MATERIA-P4` | Aprobada (usuario, 2026-10-11); `MateriaSelect.md` f y f.2. Reemplaza a `MATERIA-P2`; retira C8 y E5 | Aplicada en 01, 01b, 09 y E01 (§0, #19) |
+| `VAC-P5` | Aprobada (usuario, 2026-10-11); `Vacios.md` f y f.1 | Aplicada en 12d, con 12e para el mensaje general (§0, #18) |
 
 ### Nuevas
 
@@ -290,14 +322,15 @@ Pedido del usuario (2026-10-11): «La UI debería adaptarse también a un monito
 
 ### 8.1 Qué muestra
 
-Las 16 figuras solo se ven a 1366 px (corte `escritorio`, desde 1024) y a 1920 px (corte `amplio`, desde 1440). Mismos datos que su figura de teléfono y tablet.
+Las 17 figuras solo se ven a 1366 px (corte `escritorio`, desde 1024) y a 1920 px (corte `amplio`, desde 1440). Mismos datos que su figura de teléfono y tablet.
 
 | Fig. | Superficie | Variante | Columna | Ficha · propuesta |
 |---|---|---|---|---|
 | E01 | MateriaSelect | Lámina y nota del creador a la izquierda; rejilla de 2 columnas (3 a 1920) y pedido de donación al pie | 01 | `MateriaSelect.md` · `ESC-P1` |
 | E02 | Home | Tarjeta de materia y banner a la izquierda; seis acciones en 1 columna (2 a 1920) y nota de privacidad | 02 | `Home.md` · `ESC-P2` |
-| E03a | TopicSelect | Practicar, BCYT con parcial y 27 temas: panel de filtros en una fila, mezcla y temas en 2 columnas (3 a 1920) | 03a | `TopicSelect.md` · `ESC-P3` |
-| E03b | TopicSelect | Modo examen, CyR: panel de dos grupos y tarjeta centrada con tope `lectura` | 03b | `TopicSelect.md` · `ESC-P3` |
+| E03a | TopicSelect | Practicar, BCYT con parcial, con propias y 27 temas: panel de tres grupos en una fila, mezcla y temas en 2 columnas (3 a 1920) | 03a | `TopicSelect.md` · `ESC-P3`, `TOPIC-P6` |
+| E03b | TopicSelect | Modo examen, CyR con propias: panel de dos grupos, «Fuente» y «Temporizador», y tarjeta centrada con tope `lectura` | 03b | `TopicSelect.md` · `ESC-P3`, `TOPIC-P6` |
+| E03c | TopicSelect | Componente: el panel en los cuatro casos de `TopicSelect.md` f.1 (tabla 1), cada uno a ancho de hoja | 03c | `TopicSelect.md` · `ESC-P3`, `TOPIC-P6` (tabla 4) |
 | E04a | Quiz | Sin responder, en columna `lectura` | 04a | `Quiz.md` · `ESC-P4` |
 | E04b | Quiz | Respondida incorrecta con explicación | 04c | `Quiz.md` · `ESC-P4` |
 | E04c | Examen en curso | BCYT, 1.er parcial, respondida, sin retroalimentación | 11b | `ExamenEnCurso.md` · `ESC-P4` |
@@ -324,22 +357,22 @@ El pedido de donación (`ESC-P10`) y los avisos (`ESC-P11`) se ven dentro de E01
 
 ### 8.3 Verificación
 
-Medido con `verificar.mjs` en Chrome headless: 16 figuras en 1024, 1280, 1366 y 1920 px, en claro y oscuro (128 combinaciones). El alto útil de la ventana es el de la pantalla menos la barra de tareas y el cromo del navegador: ≈ 640 px a 1366 × 768 y ≈ 955 px a 1920 × 1080.
+Medido con `verificar.mjs` en Chrome headless: 17 figuras en 1024, 1280, 1366 y 1920 px, en claro y oscuro (136 combinaciones; 128 antes de E03c). El alto útil de la ventana es el de la pantalla menos la barra de tareas y el cromo del navegador: ≈ 640 px a 1366 × 768 y ≈ 955 px a 1920 × 1080.
 
 | Chequeo | Método | Resultado |
 |---|---|---|
 | Hexadecimales fuera del bloque generado | `generar.mjs` falla si hay alguno | Ninguno |
 | Errores de consola y excepciones | `capturar.mjs` y `verificar.mjs` | Ninguno |
-| Desborde horizontal | Rectángulo de cada elemento contra el de su pantalla | Ninguno en las 128 combinaciones: sin scroll horizontal desde el corte |
-| Objetivo táctil (D10) | Todo `button` habilitado de las 16 figuras | Ninguno bajo 44 × 44 px |
+| Desborde horizontal | Rectángulo de cada elemento contra el de su pantalla | Ninguno en las 136 combinaciones: sin scroll horizontal desde el corte |
+| Objetivo táctil (D10) | Todo `button` habilitado de las 17 figuras | Ninguno bajo 44 × 44 px |
 | Propiedades prohibidas | Estilo calculado: radio, sombra, degradado, opacidad distinta de 1, cursiva, subrayado | 0 |
 | Emojis | `\p{Extended_Pictographic}` sobre el texto de cada figura | 0 |
-| Foco frente al orden visual | Cada par de paradas consecutivas en el DOM: no sube sin moverse a la derecha ni retrocede en la misma fila. Una lista abierta (`listbox`) cuenta como una parada: la fila elegida | 0 saltos hacia atrás en las 128 combinaciones |
+| Foco frente al orden visual | Cada par de paradas consecutivas en el DOM: no sube sin moverse a la derecha ni retrocede en la misma fila. Una lista abierta (`listbox`) cuenta como una parada: la fila elegida | 0 saltos hacia atrás en las 136 combinaciones |
 | Regiones (`tokens.md` c.4) | Ancho medido | `hoja`: lateral 320 y principal 600 (también a 1024: la hoja de 952 entra con margen `paso 8`); `hoja-amplia`: lateral 320 y principal 1088; AddQuestion, una columna `lectura` de 600; Ajustes, principal 600 y lateral 320 |
 | Medida de línea | Texto de prueba de 1467 caracteres en cada paso, en el ancho real | Enunciado (`titulo`) 64 caracteres por línea; opción (`cuerpo`) 73; nota y revisión (`cuerpo`) 77; descripción de acción (`detalle`) 77. Con `lectura` de 640 daban 70, 77, 86, 86 y 86 |
 | Campo de filamentos | 320 de ancho sobre 348 del dibujo | 0,92×; `encuadre: 'none'` sin cambio (límite de `design.md` D2: ~1,4×) |
 | Las figuras de teléfono y tablet | HTML de cada figura, sin espacios, entre el generador anterior y el de esta pasada, con el mismo `src/` | Idéntico salvo 07a y 07b (selector `ADD-P3`) y la figura nueva 07c; las E son las mismas, con E09 partida en E09a y E09b |
-| PNG | Alto de la página con el HTML de esta pasada, en el viewport de `capturar.mjs` | Los PNG no se regeneraron (quedan fuera de git). Tableros: 390, 1688 × 14340; 768, 3200 × 13583; 1280, 5248 × 13583; 1366, 2808 × 9875; 1920, 3916 × 9430; 31 figuras de teléfono y tablet y 16 de escritorio. Todos bajo el tope de 16 384 px: el margen mínimo es de 2 044 px, a 390 |
+| PNG | Alto de la página con el HTML de esta pasada, en el viewport de `capturar.mjs` | Los PNG no se regeneraron (quedan fuera de git). Tableros: 390, 1688 × 14340; 768, 3200 × 13583; 1280, 5248 × 13583; 1366, 2808 × 9875; 1920, 3916 × 9430; 31 figuras de teléfono y tablet y 16 de escritorio. Todos bajo el tope de 16 384 px: el margen mínimo es de 2 044 px, a 390. Los regeneró la tarea 3.13b (§4): 390, 1688 × 14389 (claro) y 14405 (oscuro); 768 y 1280, 13584; 1366, 9604; 1920, 9657, con 33 figuras de teléfono y tablet y 17 de escritorio; margen mínimo de 1 979 px a 390 |
 
 Alto del contenido, en ventanas útiles (claro). El alto de una figura de quiz no es comparable: la maqueta le fija el alto de una ventana. En E09a, «Vigente» es la figura 07b a 1280 px, con `ADD-P3` y la columna `columna` (el 2,7 y el 1,8 de `ADD-P1` ya no rigen).
 
@@ -347,8 +380,9 @@ Alto del contenido, en ventanas útiles (claro). El alto de una figura de quiz n
 |---|---|---|---|---|
 | E01 MateriaSelect | 1,1 | 2,1 | 0,6 | 1,4 |
 | E02 Home | 1,1 | 1,6 | 0,5 | 1,1 |
-| E03a TopicSelect, 27 temas | 2,1 | 3,8 | 1,0 | 2,5 |
-| E03b Modo examen | 0,7 | 0,9 | 0,5 | 0,6 |
+| E03a TopicSelect, 27 temas, con propias | 2,1 | 3,7 | 1,0 | 2,5 |
+| E03b Modo examen, con propias | 0,7 | 0,9 | 0,5 | 0,6 |
+| E03c Panel de filtros, cuatro casos | 0,9 | 1,6 | 0,6 | 1,1 |
 | E05a Results, tramo alto | 1,0 | 1,4 | 0,6 | 1,0 |
 | E05b Results, tramo bajo | 0,7 | 1,1 | 0,4 | 0,7 |
 | E06 Revisión, 4 respuestas | 3,4 | 4,2 | 2,3 | 2,8 |
@@ -369,7 +403,7 @@ Decisiones del tablero, no propuestas. Las fija la ficha de su superficie en su 
 | 2 | Quiz, alto | La figura fija el alto de una ventana (640 a 1366, 960 a 1920) para pegar la barra inferior abajo | Del tablero |
 | 3 | Rejilla de MateriaSelect | Las tarjetas de una fila igualan su alto y su cajetín queda abajo | Fijada: `MateriaSelect.md` · Escritorio |
 | 4 | Flujo por columnas | CSS `columns` con `break-inside: avoid`: el orden de DOM baja por la primera columna y sigue por la siguiente | Fijada: `comun.md` §7.2 |
-| 5 | Panel de filtros en fila | El divisor entre grupos pasa a filete vertical `filete`; Temporizador toma el ancho de su contenido | Fijada: `TopicSelect.md` · Escritorio |
+| 5 | Panel de filtros en fila | El divisor entre grupos pasa a filete vertical `filete`; «Fuente» y «Temporizador» toman el ancho de su contenido y «Parcial», el sobrante (`TOPIC-P6`, regla R2 confirmada por el Ingeniero) | Fijada: `TopicSelect.md` · Escritorio y f.1 (tabla 4) |
 | 6 | Estados vacíos | La barra usa la hoja de su pantalla y la lámina, `lectura` centrada | Fijada: `Vacios.md` · Escritorio |
 | 7 | AddQuestion | En una columna `lectura` la lámina abierta del selector abre hacia abajo y empuja el formulario, como a 390 px; no hay región lateral | Fijada: `AddQuestion.md` · Escritorio |
 

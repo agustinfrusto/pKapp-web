@@ -18,6 +18,11 @@
 // El selector de tema de AddQuestion es el desplegable de ADD-P3 (aprobada el 2026-10-11; lista plana
 // mientras el parcial de cada tema no sea dato) y el campo de filamentos es V5 «Fusiforme» (elegida
 // el 2026-10-11), que se lee de `src/assets/filamentos.js`.
+// Decisiones del usuario del 2026-10-11 sobre «generada» (tarea 3.13b): TOPIC-P6 (grupo «Fuente» con
+// «Todas» y «Solo mías», solo con preguntas propias; el panel lleva de uno a tres grupos), HOME-P4
+// (sin «preguntas extra» cuando valen cero), HOME-P5 (descripción de «Ajustes»), SET-P3 (sin
+// «generadas» cuando valen cero), MATERIA-P4 (cajetín de una celda, sin «Banco real») y VAC-P5
+// (mensaje de V4 con «Solo mías» y un parcial).
 // Los valores de color no se escriben en ninguna parte de este archivo: todo color sale de
 // `plancha` y se referencia por variable CSS (`var(--tinta)`, ...). Los dos tokens que `plancha`
 // todavía no tiene, `acentoFondo` y `acentoBanda` (nuevos, pendientes, solo DON-P5), se derivan
@@ -161,8 +166,15 @@ const PREGUNTAS = {
   cyr: await cargarPreguntas('cyr'),
   bcyt: await cargarPreguntas('bcyt'),
 };
-function conteoPorTema(id) {
-  const base = dedupe(PREGUNTAS[id]);
+// Conteo de TopicSelect: fuente, luego parcial, luego `dedupe` (`filteredBase`). `propias`: preguntas
+// propias de muestra, que la pantalla suma al banco (TopicSelect.md d.1); aquí se suman al banco ya
+// deduplicado, porque las de muestra son textos del banco. `soloMias` deja solo las propias
+// (TOPIC-P6, `source === 'user'`). Las propias no traen `parcial` (`getUserQuestions`): con un
+// parcial distinto de «Examen» no pasa ninguna (V4, VAC-P5).
+function conteoPorTema(id, { propias = [], soloMias = false, parcial = null } = {}) {
+  const delBanco = soloMias ? [] : PREGUNTAS[id].filter((q) => !parcial || q.parcial === parcial);
+  const delUsuario = parcial ? [] : propias;
+  const base = [...dedupe(delBanco), ...delUsuario];
   const porTema = new Map();
   for (const q of base) porTema.set(q.topic, (porTema.get(q.topic) || 0) + 1);
   return { total: base.length, porTema };
@@ -428,6 +440,8 @@ function insigniaParcial(materia, parcial) {
 // 01 · MateriaSelect
 // ---------------------------------------------------------------------------
 
+// MATERIA-P4 (aprobada, usuario, 2026-10-11): el cajetín es una sola celda de ancho completo con el
+// conteo, en los tres estados. «Banco real» (MATERIA-P2) ya no existe.
 function tarjetaMateria(m, estado = 'reposo') {
   const clases = { reposo: '', presionada: ' es-pres', foco: ' es-foco', cargando: '', nodisp: ' es-nodisp' }[estado];
   const conteo = estado === 'nodisp'
@@ -442,7 +456,7 @@ function tarjetaMateria(m, estado = 'reposo') {
     <span class="tarj-ilu">${ilustracion(m.id, 48)}</span>
     <span class="tarj-txt"><span class="t-rotulo c-acento">${esc(m.idVisible)}</span><span class="t-item c-tinta">${esc(m.name)}</span></span>
   </span>
-  <span class="tarj-caj"><span class="celda">${conteo}</span><span class="celda t-rotulo c-sec">Banco real</span></span>
+  <span class="tarj-caj"><span class="celda">${conteo}</span></span>
 </button>`;
 }
 
@@ -512,7 +526,8 @@ function homePartes(m) {
     { g: 'glifo-repasar', t: 'Repasar fallos', d: 'Preguntas que te costaron antes' },
     { g: 'glifo-estadisticas', t: 'Mis estadísticas', d: '% de aciertos por tema, preguntas falladas' },
     { g: 'glifo-agregar', t: 'Agregar pregunta', d: 'Agregá tus propias preguntas al banco' },
-    { g: 'glifo-ajustes', t: 'Ajustes', d: 'Filtrar fuente, resetear estadísticas' },
+    // HOME-P5 (aprobada, usuario, 2026-10-11): los dos ajustes que existen; el filtro de fuente vive en TopicSelect.
+    { g: 'glifo-ajustes', t: 'Ajustes', d: 'Ocultar resultado, resetear estadísticas' },
   ];
   const accion = (a) => `
 <button type="button" class="k3 accion${a.primaria ? ' prim' : ''}">
@@ -530,7 +545,7 @@ function homePartes(m) {
   <div class="mat-card-txt">
     <span class="t-rotulo c-acento">${esc(m.idVisible)}</span>
     <span class="t-titulo c-tinta">${esc(m.name)}</span>
-    <span class="t-detalle c-sec">${reales} preguntas reales · ${extra} preguntas extra</span>
+    <span class="t-detalle c-sec">${reales} preguntas reales${extra > 0 ? ` · ${extra} preguntas extra` : ''}</span>
   </div>
 </section>`,
     banner: m.bancoReducido ? bancoReducido() : '',
@@ -557,39 +572,68 @@ function pantallaHome(m) {
 // 03 · TopicSelect
 // ---------------------------------------------------------------------------
 
-// `fuente`: índice del filtro de fuente seleccionado (0 «Todas», 1 «Solo preguntas reales»,
-// 2 «Solo generadas»). PAR-P2: los filtros de parcial llevan la marca delante del texto.
-function panelFiltros(m, { timer = 0, fuente = 0 } = {}) {
+// TopicSelect.md a.3 y f.1 (TOPIC-P6, aprobada, usuario, 2026-10-11): el panel lleva de uno a tres
+// grupos. «Fuente» solo con preguntas propias (`propias`), «Parcial» solo con parciales y
+// «Temporizador» siempre, el último. El divisor pertenece al grupo que lo precede: un grupo ausente
+// no deja divisor ni hueco. `fuente`: 'all' (marcado al entrar) o 'user' («Solo mías»). `parcial`:
+// 'all' («Examen») o el id del parcial marcado. Cada grupo de filtros es un `radiogroup`, como
+// `Segmento`. PAR-P2: los filtros de parcial llevan la marca delante del texto.
+function panelFiltros(m, { timer = 0, propias = false, fuente = 'all', parcial = 'all' } = {}) {
   const filtro = (txt, sel, marca = '') =>
-    `<button type="button" class="k4 filtro ${sel ? 't-cuerpo-fuerte sel' : 't-cuerpo c-tinta'}" aria-pressed="${sel}">${marca}${marca ? `<span>${esc(txt)}</span>` : esc(txt)}</button>`;
+    `<button type="button" class="k4 filtro ${sel ? 't-cuerpo-fuerte sel' : 't-cuerpo c-tinta'}" role="radio" aria-checked="${sel}">${marca}${marca ? `<span>${esc(txt)}</span>` : esc(txt)}</button>`;
+  const grupoFiltros = (nombre, clase, filtros) => `
+  <div class="grupo ${clase}"><div class="t-rotulo c-sec grupo-rot">${nombre}</div>
+    <div class="filtros" role="radiogroup" aria-label="${nombre}">${filtros}</div></div>`;
   const parciales = m.config?.parciales;
-  const grupoParcial = parciales ? `
-    <div class="divisor"></div>
-    <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Parcial</div>
-      <div class="filtros">${filtro('Examen', true)}${parciales.map((p, i) => filtro(p.label, false, marcaParcial(i))).join('')}</div></div>` : '';
   const sinLimite = timer === 0;
-  const fuentes = ['Todas', 'Solo preguntas reales', 'Solo generadas'];
-  return `
-<section class="panel">
-  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
-    <div class="filtros">${fuentes.map((t, i) => filtro(t, i === fuente)).join('')}</div></div>
-  ${grupoParcial}
-  <div class="divisor"></div>
-  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+  const grupos = [];
+  if (propias) {
+    grupos.push(grupoFiltros('Fuente', 'grupo-fuente',
+      `${filtro('Todas', fuente === 'all')}${filtro('Solo mías', fuente === 'user')}`));
+  }
+  if (parciales) {
+    grupos.push(grupoFiltros('Parcial', 'grupo-parcial',
+      `${filtro('Examen', parcial === 'all')}${parciales.map((p, i) => filtro(p.label, parcial === p.id, marcaParcial(i))).join('')}`));
+  }
+  grupos.push(`
+  <div class="grupo grupo-timer"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
     <div class="timer">
       <button type="button" class="k5 cuadrado" aria-label="Menos tiempo"${sinLimite ? ' disabled' : ''}>${glifo('glifo-menos')}</button>
       <span class="t-cuerpo-fuerte c-tinta timer-valor">${sinLimite ? 'Sin límite' : timer + ' min'}</span>
       <button type="button" class="k5 cuadrado" aria-label="Más tiempo">${glifo('glifo-mas')}</button>
-    </div></div>
+    </div></div>`);
+  return `
+<section class="panel">${grupos.join('\n  <div class="divisor"></div>')}
 </section>`;
 }
 
-// `modo`: 'practice', 'exam' o 'vacio' (V4 de Vacios.md: «Solo generadas» deja cero temas).
-// `escritorio`: disposición de escritorio (ESC-P3): los tres grupos del panel de filtros en una
+// 03c y E03c · componente: el panel de filtros en los cuatro casos de TopicSelect.md f.1 (tabla 1).
+// Con los datos de hoy, las materias sin parciales son `cyr`, `neuro`, `dre` y `ryd`; con parciales,
+// `bcyt` y `anatomia`. Se dibujan CyR y BCYT, con y sin preguntas propias.
+function pantallaPanelCasos() {
+  const caso = (n, rotulo, panel) => `
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Caso ${n} · ${esc(rotulo)}</div>${panel}</div>`;
+  return `
+<div class="pantalla" data-pantalla="PanelFiltros">
+  <div class="col estados">
+    ${caso(1, `${cyr.shortName}: sin parciales y sin propias · solo «Temporizador»`, panelFiltros(cyr))}
+    ${caso(2, `${cyr.shortName}: sin parciales y con propias · «Fuente» y «Temporizador»`, panelFiltros(cyr, { propias: true }))}
+    ${caso(3, `${bcyt.shortName}: con parciales y sin propias · «Parcial» y «Temporizador»`, panelFiltros(bcyt))}
+    ${caso(4, `${bcyt.shortName}: con parciales y con propias · «Fuente», «Parcial» y «Temporizador»`, panelFiltros(bcyt, { propias: true }))}
+  </div>
+</div>`;
+}
+
+// `modo`: 'practice', 'exam' o 'vacio' (V4 de Vacios.md: los filtros dejan cero temas).
+// `escritorio`: disposición de escritorio (ESC-P3): los grupos presentes del panel de filtros en una
 // fila, la mezcla a ancho de hoja y la lista de temas en columnas (o la tarjeta «Modo Examen»).
 // Mismo orden de DOM y mismo orden vertical que en el teléfono.
-function pantallaTopicSelect(m, modo, escritorio = false) {
-  const conteo = conteoPorTema(m.id);
+// `propias`: preguntas propias de muestra; con ellas el panel lleva el grupo «Fuente» (TOPIC-P6) y
+// el banco las suma. `soloMias` y `parcial` ('all' o el id del parcial) fijan los filtros marcados.
+// Mensaje de V4: con «Solo mías» y un parcial, el de VAC-P5; con cualquier otra combinación vacía,
+// el de VAC-P3 (Vacios.md a.4).
+function pantallaTopicSelect(m, modo, escritorio = false, { propias = [], soloMias = false, parcial = 'all' } = {}) {
+  const conteo = conteoPorTema(m.id, { propias, soloMias, parcial: parcial === 'all' ? null : parcial });
   const vacio = modo === 'vacio';
   const total = vacio ? 0 : conteo.total;
   const porTema = vacio ? new Map() : conteo.porTema;
@@ -606,7 +650,9 @@ function pantallaTopicSelect(m, modo, escritorio = false) {
   ${glifo('glifo-aleatorio', 'c-acento')}
   <span class="mezcla-txt"><span class="t-rotulo c-acento">Mezcla</span><span class="t-item c-tinta">Todos los temas mezclados</span><span class="t-detalle c-sec">${total} preguntas</span></span>
 </button>`;
-  const sinTemas = '<p class="t-cuerpo c-sec">No hay preguntas disponibles con los filtros actuales.</p>';
+  const sinTemas = `<p class="t-cuerpo c-sec">${soloMias && parcial !== 'all'
+    ? 'Tus preguntas no tienen parcial. Elegí "Examen" para verlas.'
+    : 'No hay preguntas disponibles con los filtros actuales.'}</p>`;
   const tam = Math.min(m.config?.examSize || 75, total);
   const examen = `
 <section class="lam examen">
@@ -616,7 +662,7 @@ function pantallaTopicSelect(m, modo, escritorio = false) {
   <p class="t-cuerpo-fuerte c-acento examen-disp">Disponibles: ${total} preguntas</p>
   <button type="button" class="k1 btn-examen t-cuerpo-fuerte">Comenzar examen</button>
 </section>`;
-  const filtros = panelFiltros(m, { fuente: vacio ? 2 : 0 });
+  const filtros = panelFiltros(m, { propias: propias.length > 0, fuente: soloMias ? 'user' : 'all', parcial });
 
   if (escritorio) {
     const cuerpo = modo === 'exam'
@@ -1054,7 +1100,7 @@ function settingsPartes(m, { propias = [], abiertos = {}, ocultar = false } = {}
   <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v${esc(VERSION)}</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
   <div class="acerca-franja">
     <div class="acerca-fila"><span class="t-rotulo c-sec">Banco de ${esc(m.name)}</span><span class="t-dato c-tinta">${examenes + generadas + tuyas}</span></div>
-    <div class="t-detalle c-sec acerca-des">${examenes} de exámenes · ${generadas} generadas · ${tuyas} tuyas</div>
+    <div class="t-detalle c-sec acerca-des">${examenes} de exámenes${generadas > 0 ? ` · ${generadas} generadas` : ''} · ${tuyas} tuyas</div>
   </div>
   <div class="acerca-franja acerca-enlaces">
     <button type="button" class="k2 k2-acento btn-enlace t-cuerpo-fuerte">${glifo('glifo-correo')}<span>Reportar un error</span></button>
@@ -1438,6 +1484,11 @@ const qParcial1 = porIdBcyt('P1-LC-004');   // parcial 'primero'
 const qParcial2 = porIdBcyt('2025-T1-Q14'); // parcial 'segundo'
 // «Mis preguntas»: dos preguntas propias de muestra de CyR.
 const PROPIAS = ['hemodinamia', 'intercambio-gaseoso'].map((tema) => preguntasCyr.find((q) => q.topic === tema));
+// TopicSelect de BCYT con preguntas propias (TOPIC-P6): dos de muestra, de los dos primeros temas con banco.
+const PROPIAS_BCYT = Object.keys(bcyt.TOPICS)
+  .map((tema) => preguntasBcyt.find((q) => q.topic === tema))
+  .filter(Boolean)
+  .slice(0, 2);
 // Revisión: cuatro respuestas de muestra, una por tema, con enunciado corto; fallan la 2.ª y la 4.ª.
 const REV_MUESTRA = (() => {
   const vistos = new Set();
@@ -1462,8 +1513,8 @@ const bajo = [...Array(24)].map((_, i) => [0, 3, 6, 9, 12, 15, 18, 21, 22].inclu
 const FIGURAS = [
   { id: '01', titulo: 'Selección de materias', ficha: 'MateriaSelect.md', html: pantallaMateriaSelect() },
   { id: '02', titulo: `Inicio de materia · ${cyr.shortName}`, ficha: 'Home.md', html: pantallaHome(cyr) },
-  { id: '03a', titulo: `Elegir tema · practicar · ${bcyt.shortName}, con parcial`, ficha: 'TopicSelect.md · variante A', html: pantallaTopicSelect(bcyt, 'practice') },
-  { id: '03b', titulo: `Elegir tema · modo examen · ${cyr.shortName}, sin parcial`, ficha: 'TopicSelect.md · variante B (TOPIC-P5)', html: pantallaTopicSelect(cyr, 'exam') },
+  { id: '03a', titulo: `Elegir tema · practicar · ${bcyt.shortName}, con parcial y con propias`, ficha: 'TopicSelect.md · variante A (TOPIC-P6, caso 4)', html: pantallaTopicSelect(bcyt, 'practice', false, { propias: PROPIAS_BCYT }) },
+  { id: '03b', titulo: `Elegir tema · modo examen · ${cyr.shortName}, sin parcial y con propias`, ficha: 'TopicSelect.md · variante B (TOPIC-P5, TOPIC-P6, caso 2)', html: pantallaTopicSelect(cyr, 'exam', false, { propias: PROPIAS }) },
   { id: '04a', titulo: 'Quiz · sin responder', ficha: 'Quiz.md · c.2 reposo', html: pantallaQuiz({ ...base }) },
   { id: '04b', titulo: 'Quiz · respondida correcta · temporizador normal', ficha: 'Quiz.md · c.2 correcta, c.4', html: pantallaQuiz({ ...base, respuesta: qHistologia.correctIndex, tiempo: '14:32' }) },
   { id: '04c', titulo: 'Quiz · respondida incorrecta con explicación', ficha: 'Quiz.md · c.2 incorrecta y apagada', html: pantallaQuiz({ ...base, respuesta: 0 }) },
@@ -1474,6 +1525,7 @@ const FIGURAS = [
   { id: '06', titulo: `Estadísticas · ${cyr.shortName}`, ficha: 'Stats.md', html: pantallaStats(cyr) },
   { id: '01b', titulo: 'Tarjeta de materia · estados', ficha: 'MateriaSelect.md · c', html: pantallaEstadosTarjeta() },
   { id: '04e', titulo: 'Chip de origen de la pregunta', ficha: 'Quiz.md · c.3', html: pantallaOrigen() },
+  { id: '03c', titulo: 'Panel de filtros · de uno a tres grupos', ficha: 'TopicSelect.md · f.1 (TOPIC-P6, tabla 1)', html: pantallaPanelCasos() },
   // --- 1.3 -----------------------------------------------------------------
   { id: '07a', titulo: `Agregar pregunta · formulario inicial · ${cyr.shortName}`, ficha: 'AddQuestion.md · c.2 inicial (ADD-P3)', html: pantallaAddQuestion(cyr) },
   { id: '07b', titulo: `Agregar pregunta · completa, correcta marcada, guardando · ${bcyt.shortName}`, ficha: 'AddQuestion.md · c.1, c.2 (ADD-P2, ADD-P3)', html: pantallaAddQuestion(bcyt, {
@@ -1496,7 +1548,8 @@ const FIGURAS = [
     barra: 'pKapp · Elegir tema', glifoId: 'glifo-repasar', titulo: 'Sin preguntas falladas',
     texto: 'Practicá un poco primero y volvé acá para repasar las que te cuesten.' }) },
   { id: '12c', titulo: 'Vacío · «Mis preguntas» sin preguntas propias (V3)', ficha: 'Vacios.md · a.3 (VAC-P2)', html: pantallaSettings(cyr, { abiertos: { preguntas: true } }) },
-  { id: '12d', titulo: `Vacío · ningún tema con los filtros actuales (V4) · ${cyr.shortName}`, ficha: 'Vacios.md · a.4 (VAC-P3)', html: pantallaTopicSelect(cyr, 'vacio') },
+  { id: '12d', titulo: `Vacío · «Solo mías» con un parcial (V4) · ${bcyt.shortName}`, ficha: 'Vacios.md · a.4 (VAC-P5)', html: pantallaTopicSelect(bcyt, 'vacio', false, { propias: PROPIAS_BCYT, soloMias: true, parcial: 'primero' }) },
+  { id: '12e', titulo: `Vacío · repasar fallos con «Solo mías» y ninguna propia fallada (V4) · ${cyr.shortName}`, ficha: 'Vacios.md · a.4 (VAC-P3)', html: pantallaTopicSelect(cyr, 'vacio', false, { propias: PROPIAS, soloMias: true }) },
   { id: '13', titulo: 'Avisos · banco reducido, nota del creador, privacidad', ficha: 'Banners.md · b, c (BAN-P1)', html: pantallaAvisos() },
   { id: '14', titulo: `Inventario de glifos · ${GLIFOS.length}`, ficha: 'comun.md · §9', html: pantallaGlifos() },
   // --- 3.10 · Escritorio: ESC-P0 a ESC-P8 y ESC-P10 a ESC-P12, aprobadas (usuario, 2026-10-11) ------
@@ -1504,8 +1557,9 @@ const FIGURAS = [
   // sigue mostrando la columna única anterior al escritorio, para comparar.
   { id: 'E01', esc: true, titulo: 'Selección de materias', ficha: 'MateriaSelect.md · Escritorio (ESC-P1)', html: escMateriaSelect() },
   { id: 'E02', esc: true, titulo: `Inicio de materia · ${cyr.shortName}`, ficha: 'Home.md · Escritorio (ESC-P2)', html: escHome(cyr) },
-  { id: 'E03a', esc: true, titulo: `Elegir tema · practicar · ${bcyt.shortName}, con parcial, 27 temas`, ficha: 'TopicSelect.md · Escritorio (ESC-P3)', html: pantallaTopicSelect(bcyt, 'practice', true) },
-  { id: 'E03b', esc: true, titulo: `Elegir tema · modo examen · ${cyr.shortName}`, ficha: 'TopicSelect.md · Escritorio (ESC-P3)', html: pantallaTopicSelect(cyr, 'exam', true) },
+  { id: 'E03a', esc: true, titulo: `Elegir tema · practicar · ${bcyt.shortName}, con parcial y con propias, 27 temas`, ficha: 'TopicSelect.md · Escritorio (ESC-P3, TOPIC-P6)', html: pantallaTopicSelect(bcyt, 'practice', true, { propias: PROPIAS_BCYT }) },
+  { id: 'E03b', esc: true, titulo: `Elegir tema · modo examen · ${cyr.shortName}, con propias`, ficha: 'TopicSelect.md · Escritorio (ESC-P3, TOPIC-P6)', html: pantallaTopicSelect(cyr, 'exam', true, { propias: PROPIAS }) },
+  { id: 'E03c', esc: true, titulo: 'Panel de filtros · de uno a tres grupos', ficha: 'TopicSelect.md · Escritorio (ESC-P3, TOPIC-P6, tabla 4)', html: escritorio(pantallaPanelCasos(), 'rej') },
   { id: 'E04a', esc: true, titulo: 'Quiz · sin responder', ficha: 'Quiz.md · Escritorio (ESC-P4)', html: escritorio(pantallaQuiz({ ...base }), 'lec') },
   { id: 'E04b', esc: true, titulo: 'Quiz · respondida incorrecta con explicación', ficha: 'Quiz.md · Escritorio (ESC-P4)', html: escritorio(pantallaQuiz({ ...base, respuesta: 0 }), 'lec') },
   { id: 'E04c', esc: true, titulo: `Examen en curso · respondida · ${bcyt.shortName}, 1.er parcial`, ficha: 'ExamenEnCurso.md · Escritorio (ESC-P4)', html: escritorio(pantallaQuiz({ materia: bcyt, pregunta: qParcial1, indice: 30, total: 75, respuesta: qParcial1.correctIndex === 0 ? 1 : 0, tiempo: '58:20', sinFeedback: true }), 'lec') },
@@ -1629,7 +1683,7 @@ html[data-tema="oscuro"] .txt-tema::before{content:"Oscuro"}
 .divisor{height:1px;background:var(--filete);margin-block:14px}
 .estados{display:flex;flex-direction:column;gap:16px;padding-block:16px}
 .estado{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
-.estado>.k6,.estado>.lam,.estado>.nota,.estado>.parc-caja{width:100%}
+.estado>.k6,.estado>.lam,.estado>.nota,.estado>.parc-caja,.estado>.panel{width:100%}
 
 /* ===== glifos e ilustraciones ===== */
 .g{flex:none}.g-grande{width:24px;height:24px}.g-chico{width:16px;height:16px}
@@ -1709,8 +1763,7 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 .tarj-ilu{width:64px;flex:none;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--filete);color:var(--filamento)}
 .tarj-txt{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:8px 12px}
 .tarj-caj{display:flex;border-top:1px solid var(--filete)}
-.celda{padding:6px 12px}
-.celda+.celda{border-left:1px solid var(--filete)}
+.celda{flex:1;padding:6px 12px}
 
 /* ===== 02 Home ===== */
 .mat-card{display:grid;grid-template-columns:96px 1fr}
@@ -2023,10 +2076,12 @@ html[data-ancho="1920"] .esc.quiz{min-height:960px}
 .reg-pri{flex:1;min-width:0}
 .reg-pri .mezcla,.reg-pri .examen{margin-top:0}
 
-/* panel de filtros de TopicSelect: los grupos en una fila, separados por un filete vertical */
+/* panel de filtros de TopicSelect: los grupos presentes en una fila, separados por un filete
+   vertical. TOPIC-P6 (R2): «Fuente» y «Temporizador» toman el ancho de su contenido y «Parcial», el
+   sobrante; sin «Parcial», el sobrante queda a la derecha del último grupo */
 .esc .panel{display:flex;align-items:flex-start;gap:0}
-.esc .panel .grupo{flex:1 1 0;min-width:0}
-.esc .panel .grupo:last-child{flex:none}
+.esc .panel .grupo{flex:none}
+.esc .panel .grupo-parcial{flex:1 1 0;min-width:0}
 .esc .panel .divisor{width:1px;height:auto;align-self:stretch;margin:0 14px}
 .esc .examen{max-width:var(--lectura);margin-inline:auto}
 .esc .col.col-lec{max-width:var(--lectura)}

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Verificación de las figuras de escritorio (E01 a E10, incluidas E09a y E09b; tarea 3.10) sobre maqueta.html, en Chrome
+// Verificación de las figuras de escritorio (E01 a E10 con sus variantes a, b y c, incluidas E09a, E09b y
+// E03c; tareas 3.10 y 3.13b) sobre maqueta.html, en Chrome
 // headless: desborde horizontal, objetivos táctiles, propiedades prohibidas, emojis, orden de foco
 // contra el orden visual, ancho de las regiones y alto del contenido frente a la ventana útil.
 //

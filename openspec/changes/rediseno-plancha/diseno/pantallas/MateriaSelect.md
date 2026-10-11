@@ -9,7 +9,7 @@
 | Exclusivo | Campo de filamentos: solo en esta pantalla (D3) |
 | Variantes | Nota del creador visible o no (reaparece cada siete días); tarjeta en reposo, cargando o no disponible |
 | Fuera de alcance | Nota del creador y bloque de donación: su lugar está fijado; sus fichas son `Banners.md` y `DonationBox.md` |
-| Propuestas | Sección f: `MATERIA-P1` y `MATERIA-P2`, y la marca `V5` «Fusiforme», elegida entre V0 y V1 a V6 (usuario, 2026-10-11). Sección h: conservado de main (D10). Comunes: `COMUN-P1`, `COMUN-P2` |
+| Propuestas | Sección f: `MATERIA-P1` y `MATERIA-P4` (el cajetín de una celda, usuario, 2026-10-11), y la marca `V5` «Fusiforme», elegida entre V0 y V1 a V6 (usuario, 2026-10-11). `MATERIA-P2` («Banco real») quedó reemplazada por `MATERIA-P4` (f.1). Sección h: conservado de main (D10). Comunes: `COMUN-P1`, `COMUN-P2` |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P1`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.4 |
 
 ---
@@ -58,7 +58,7 @@ La regla graduada es el dibujo `regla` de `src/assets/filamentos.js`, con `encua
 |---|---|---|---|---|
 | 1 | Celda de ilustración | Ancho `paso 16`; ilustración de lado `paso 12`, centrada | Filete derecho `filete` | Ilustración de la materia |
 | 2 | Texto | Relleno vertical `paso 2`, horizontal `paso 3`; separación `paso 1` | — | Id y nombre |
-| 3 | Cajetín | Dos celdas separadas por un filete vertical `filete`; relleno vertical `paso 1.5` y horizontal `paso 3` por celda | Filete superior `filete` | Izquierda: conteo de preguntas. Derecha: «Banco real» |
+| 3 | Cajetín | Una sola celda de ancho completo; relleno vertical `paso 1.5` y horizontal `paso 3` | Filete superior `filete` | Conteo de preguntas, alineado al inicio (`MATERIA-P4`) |
 
 ### a.4 Tablet (D10); desde 1024 px, sección «Escritorio»
 
@@ -66,7 +66,7 @@ La regla graduada es el dibujo `regla` de `src/assets/filamentos.js`, con `encua
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | Lámina y tarjetas llenan la columna. El campo conserva su alto (`paso 28`) y se estira en horizontal |
 | 1280 px (desde 1024 px) | Sección «Escritorio» de esta ficha (`ESC-P1`, aprobada): `hoja`; `hoja-amplia` desde `amplio` | Igual | Lámina y nota del creador en la región lateral; rejilla de 2 columnas (3 desde `amplio`). El fondo `fondo` ocupa todo el ancho |
-| 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. HeaderMarca: «ESFUNO» y el control de tema entran en la fila con su alto de siempre (`comun.md` §1.1). El campo conserva su alto (`paso 28`) y se estira al ancho de la lámina. En el cajetín de la lámina, «pKapp» queda a la izquierda y la meta a la derecha, y la meta salta de línea si no entra. En la tarjeta, el nombre salta de línea y el cajetín conserva sus dos celdas, con el texto de cada una saltando de línea; la celda de ilustración conserva `paso 16` |
+| 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. HeaderMarca: «ESFUNO» y el control de tema entran en la fila con su alto de siempre (`comun.md` §1.1). El campo conserva su alto (`paso 28`) y se estira al ancho de la lámina. En el cajetín de la lámina, «pKapp» queda a la izquierda y la meta a la derecha, y la meta salta de línea si no entra. En la tarjeta, el nombre salta de línea y el cajetín conserva su celda, con el texto saltando de línea si no entra; la celda de ilustración conserva `paso 16` |
 
 ---
 
@@ -87,7 +87,6 @@ La regla graduada es el dibujo `regla` de `src/assets/filamentos.js`, con `encua
 | Nombre de materia | `tinta` | `superficie` | — | `item` | — | — | T2 |
 | Conteo, cifra | `tinta` | `superficie` | — | `rotulo-medio` | Superior `filete` | — | T2 |
 | Conteo, palabra | `tintaSec` | `superficie` | — | `rotulo` | — | — | T4 |
-| Etiqueta «Banco real» | `tintaSec` | `superficie` | — | `rotulo` | Izquierdo `filete` (separa las dos celdas) | — | T4 |
 | Estado «Cargando…» | `tintaSec` | `superficie` | — | `rotulo` | — | — | T4 |
 | Estado «Próximamente» | `inactivo` | `superficie` | `filete` (marco de la tarjeta) | `rotulo` | — | — | X5 |
 | Nota del creador | `Banners.md` b | | | | | | |
@@ -101,13 +100,13 @@ La ilustración y el campo son decorativos (`aria-hidden`). El nombre de la mate
 
 | Elemento | Reposo | Hover (web) | Presionado | Foco | Seleccionado | Deshabilitado | Cargando | Banco reducido, origen, acierto, error, intermedia |
 |---|---|---|---|---|---|---|---|---|
-| Tarjeta de materia (K6) | Borde `linea`; fondo `superficie`; texto `tinta`; ilustración `filamento` | Contorno web `linea`, `border` | Inversión total: fondo `tinta`; texto, id, cajetín e ilustración `fondo` | Contorno `foco`, `border-2`, separado `paso 0.5` | — | `materia.available` en falso: borde `filete`; texto, id e ilustración `inactivo`; celda del conteo «Próximamente» a todo el ancho del cajetín, sin «Banco real» y con el mismo alto; sin toque | Celda del conteo «Cargando…» en `tintaSec`; «Banco real» se conserva y el cajetín mantiene sus dos celdas; marco y fondo como en reposo; la tarjeta no recibe toque | — |
+| Tarjeta de materia (K6) | Borde `linea`; fondo `superficie`; texto `tinta`; ilustración `filamento` | Contorno web `linea`, `border` | Inversión total: fondo `tinta`; texto, id, cajetín e ilustración `fondo` | Contorno `foco`, `border-2`, separado `paso 0.5` | — | `materia.available` en falso: borde `filete`; texto, id e ilustración `inactivo`; la celda del cajetín dice «Próximamente»; sin toque | La celda del cajetín dice «Cargando…» en `tintaSec`; marco y fondo como en reposo; la tarjeta no recibe toque | — |
 | Otras tarjetas durante una carga | Sin cambio visual; el toque se ignora (`cargandoId`) | Igual que reposo | — | — | — | — | — | — |
 | Control de tema | `comun.md` §2 | `comun.md` §2 | `comun.md` §2 | `comun.md` §2 | `comun.md` §2 | — | — | — |
 | Nota del creador | `Banners.md` c | `Banners.md` c | `Banners.md` c | `Banners.md` c | — | — | — | — |
 | Bloque de donación | `DonationBox.md` c | `DonationBox.md` c | `DonationBox.md` c | `DonationBox.md` c | — | — | — | — |
 
-Hoy las seis materias tienen `available` en verdadero; el estado «Próximamente» es la rama del código y se conserva. El cajetín mantiene sus dos celdas en «Cargando…»: el toque no lo hace saltar. En «Próximamente» no hay banco que rotular, así que la celda del conteo ocupa todo el cajetín con el mismo alto.
+Hoy las seis materias tienen `available` en verdadero; el estado «Próximamente» es la rama del código y se conserva. El cajetín es una sola celda en los tres estados (reposo, «Cargando…» y «Próximamente»): cambia el texto y no la estructura ni el alto, así que el toque no hace saltar la tarjeta (`MATERIA-P4`).
 
 ---
 
@@ -126,7 +125,6 @@ Hoy las seis materias tienen `available` en verdadero; el estado «Próximamente
 | Disponibilidad | `materia.available` | — |
 | Textos del cajetín de la lámina | Cadenas fijas de la pantalla | Copy actual del header |
 | Texto del slot `izquierda` | Cadena fija «ESFUNO» | Texto definido por el usuario para el boceto aprobado |
-| Etiqueta «Banco real» | Cadena fija; aparece si la materia está disponible y no tiene preguntas generadas (el conteo de generadas lo emite `scripts/gen-conteos.mjs`, tarea 2.6) | Hoy en las seis tarjetas, también en las de banco reducido (`cyr` y `neuro`). Se conserva en «Cargando…» y no aparece en «Próximamente» |
 | Tema | `useTema()` | `comun.md` §2 |
 
 ### d.2 Invariantes
@@ -159,7 +157,6 @@ Hoy las seis materias tienen `available` en verdadero; el estado «Próximamente
 | Texto del header | «Tus materias de ESFUNO» y «Elegí una para empezar» | Iguales; pasan al cajetín de la lámina | Ubicación |
 | Slot `izquierda` del header | No existe | «ESFUNO» | Texto del boceto aprobado por el usuario |
 | Conteo | «{N} preguntas» | La misma frase: cifra en `rotulo-medio`, palabra en `rotulo`. El paso las muestra en mayúsculas | Sin cambio de palabras |
-| Etiqueta del cajetín | No existe | «Banco real», segunda celda del cajetín | Texto del boceto aprobado por el usuario |
 | Id de materia | No existe | `{shortName} · {NN}` | Elemento del boceto, derivado de datos |
 | Carga | «Cargando…» | Igual | — |
 | No disponible | «Próximamente» | Igual, sin cursiva | `tokens.md` b.3 |
@@ -169,15 +166,38 @@ Hoy las seis materias tienen `available` en verdadero; el estado «Próximamente
 
 ## f. Propuestas aprobadas (D10)
 
-Cambios del boceto respecto de `main`, o de `main` respecto del boceto. El usuario los aprobó el 2026-10-10 (D10), salvo la fila `V5`, que eligió el 2026-10-11: rigen tal como están descritos acá y en el cuerpo de la ficha (a a e). No hay variantes alternativas.
+Cambios del boceto respecto de `main`, o de `main` respecto del boceto. El usuario aprobó `MATERIA-P1` el 2026-10-10 (D10) y resolvió `MATERIA-P4` y la fila `V5` el 2026-10-11: rigen tal como están descritos acá y en el cuerpo de la ficha (a a e). No hay variantes alternativas.
 
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
 | MATERIA-P1 | El slot `izquierda` de HeaderMarca muestra el texto «ESFUNO» en `rotulo` y `tintaSec` (T3), una línea, alineado a la izquierda y centrado en vertical dentro de la fila de `comun.md` §1. El alto del header no cambia (`comun.md` §1) | Texto del boceto aprobado por el usuario, con la cadena «ESFUNO»; `main` deja el slot vacío | visual | aprobada (usuario, 2026-10-10) |
-| MATERIA-P2 | El cajetín de cada tarjeta tiene dos celdas separadas por un filete vertical `filete`: el conteo («{N} preguntas») a la izquierda y «Banco real» a la derecha, con relleno vertical `paso 1.5` y horizontal `paso 3` por celda y el filete superior `filete` de hoy. «Banco real» aparece en la tarjeta de una materia disponible sin preguntas generadas: hoy las seis, también las de banco reducido (`cyr` y `neuro`). Se conserva en «Cargando…» y no aparece en «Próximamente», donde el conteo ocupa todo el cajetín (condición acordada por Ingeniero y Diseñador el 2026-10-10: `CONVENCIONES.md`, C8) | Texto del boceto aprobado por el usuario; `main` solo muestra el conteo | visual | aprobada (usuario, 2026-10-10) |
+| MATERIA-P4 | El cajetín de cada tarjeta tiene una sola celda, de ancho completo, con el conteo («{N} preguntas»): sin segunda celda ni filete vertical. Relleno vertical `paso 1.5`, horizontal `paso 3` y filete superior `filete`, como hoy; el conteo conserva su lugar a la izquierda. El texto «Banco real» deja de existir. La misma celda dice «Cargando…» y «Próximamente» en esos estados, sin cambiar de estructura ni de alto | Con las seis materias disponibles y sin preguntas generadas, «Banco real» aparecía en todas las tarjetas: no distinguía una de otra, y en `cyr` y `neuro` (banco reducido, que Home avisa con «Banco más reducido») afirmaba «real». «Real» solo informaba frente a «generada»; ningún banco publicado la tiene | visual | aprobada (usuario, 2026-10-11) |
 | V5 | El campo de filamentos de la lámina deja de ser el del boceto (V0) y pasa a ser V5 «Fusiforme»: fibras que ondulan suave entre dos tendones, en fascículos, con una fibra en `acento` (a.2). V0 se conserva como respaldo | Pedido del usuario (2026-10-11): una marca memorable, del mismo estilo, que forme una figura con los vectores. V5 la dibuja como un músculo abstracto con el mismo lenguaje de trazo fino y una sola fibra en `acento` (`marca-prototipos.md` a) | visual | elegida (usuario, 2026-10-11) |
 
 Propuestas comunes que alcanzan esta pantalla: `COMUN-P1` (ilustración de materia en `filamento`) y `COMUN-P2` (estados de control).
+
+### f.1 Reemplazada
+
+| Id | Qué proponía | Estado |
+|---|---|---|
+| MATERIA-P2 | Cajetín de dos celdas separadas por un filete vertical `filete`: el conteo a la izquierda y «Banco real» a la derecha, con la condición «materia disponible sin preguntas generadas» (derivada de `GENERADAS`; convención C8 y decisión estética E5 de `CONVENCIONES.md`). «Banco real» era texto del boceto aprobado el 2026-10-10 | reemplazada por `MATERIA-P4` (usuario, 2026-10-11, relevamiento de «generada», variante A). C8 y E5 retiradas |
+
+### f.2 Aceptación observable (`MATERIA-P4`)
+
+Para la tarea 3.x que lo implementa y para el e2e (`materias.js`). En la pantalla, el cajetín ya es `flex-1`: quitar la segunda celda lo lleva a ancho completo. Matriz: las seis materias, 390, 360 y 320, en claro y en oscuro; 1366 × 768 para la rejilla.
+
+| # | Comprobación | Esperado |
+|---|---|---|
+| 1 | Las seis tarjetas en reposo | El cajetín tiene una sola celda: el texto «Banco real» no está en el DOM de la pantalla y no hay filete vertical dentro del cajetín |
+| 2 | La celda | Mide el ancho del cajetín, de borde a borde dentro del marco; el conteo es «{N} preguntas», con N igual a `CONTEOS[materia.id]`, a `paso 3` del borde izquierdo; cifra en `rotulo-medio` y `tinta`, palabra en `rotulo` y `tintaSec` |
+| 3 | Alto | El cajetín y la tarjeta miden lo mismo que con dos celdas: cajetín de 35 px con su filete superior y tarjeta de 95 px a 390, con el nombre en una línea |
+| 4 | «Cargando…», al tocar una tarjeta con el banco frenado | La misma celda dice «Cargando…» en `tintaSec`; la tarjeta no cambia de alto, conserva marco y fondo y no recibe toque. Una sola celda |
+| 5 | «Próximamente» (rama de código: sin camino con los datos de hoy, ninguna materia tiene `available` en falso) | La misma celda dice «Próximamente» en `inactivo`; borde `filete`; sin toque; mismo alto. Lo verifica la lectura del Analista |
+| 6 | Presionado, foco y hover | Sin cambio (K6): inversión total con la celda y su texto invertidos, contorno `foco`, borde `linea` |
+| 7 | 360 y 320; 1366 × 768 | Sin desborde; la celda conserva el ancho completo de la tarjeta, en el teléfono y en la rejilla de escritorio |
+| 8 | Código | `bancoReal` y su derivación (`materia.available && !materia.generadas`) dejan de existir en `MateriaSelectScreen.js`; `materia.generadas` no tiene otro lector en las pantallas |
+
+Puntos del arnés a reescribir en `tools/e2e/suites/materias.js`: `LEER_SELECTOR` (busca «Banco real» y su celda por el `borderLeft`: pasa a leer la celda que contiene la cifra); la aserción de «dos celdas, “Banco real” a la derecha y separada por un filete» (`C8 y MATERIA-P2`); «cada tarjeta conserva sus dos celdas» a 360 y 320 y en la rejilla de escritorio; «el cajetín queda abajo», que se mide con la celda del conteo y no con `bancoCelda`; y la comprobación de «Cargando…» que «conserva» «Banco real». Afirman en cambio las filas 1 a 4 y 7.
 
 ---
 
@@ -230,7 +250,7 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 |---|---|
 | Lámina | Ancho `lateral`. El campo de filamentos conserva su alto (`paso 28`) y `encuadre: 'none'`: se estira 0,92× (`tokens.md` c.4). En el cajetín, «pKapp» queda a la izquierda y la meta salta de línea, como a 360 px (a.4) |
 | Nota del creador | Ancho `lateral`: el texto salta de línea más veces. Descartar de `paso 11` sin cambio (`Banners.md` a.2) |
-| Tarjeta de materia | Llena su celda. El nombre salta de línea si no entra; la celda de ilustración conserva `paso 16` y el cajetín sus dos celdas (a.3). Las tarjetas de una fila igualan su alto y el cajetín queda abajo |
+| Tarjeta de materia | Llena su celda. El nombre salta de línea si no entra; la celda de ilustración conserva `paso 16` y el cajetín su celda (a.3). Las tarjetas de una fila igualan su alto y el cajetín queda abajo |
 | Marcas de esquina | Sin cambio (§6): `paso 4` entre celdas deja libres las de las tarjetas vecinas |
 | Pedido de donación | Llena la región principal; los cuatro montos, en una fila de celdas iguales (`DON-C1`) |
 
