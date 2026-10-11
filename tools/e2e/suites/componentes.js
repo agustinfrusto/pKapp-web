@@ -459,6 +459,7 @@ async function probarTema(navegador, base, t, tema) {
     await marcasK6(pagina, t, tema);
     await toques(pagina, t, tema);
     await flechas(pagina, t, tema);
+    await desplegables(pagina, t, tema, T);
   } finally {
     await pagina.cerrar();
   }
@@ -613,6 +614,188 @@ async function flechas(pagina, t, tema) {
   t.ok(`${tema} · filtro ←: vuelve a «Reales» saltando la deshabilitada`,
     `${await marcadas(GRUPO_K4, 3)} ${await foco(GRUPO_K4)}`, 'false|true|false 2');
   await pagina.evaluar('document.activeElement && document.activeElement.blur()');
+}
+
+// Desplegable (ADD-P3): lectura de una instancia de la página de prueba por su testID.
+const LEER_DESP = (id) => `(function () {
+  const raiz = document.querySelector(${JSON.stringify(sel(id))});
+  const disp = raiz.querySelector('[aria-haspopup="listbox"]');
+  const lista = raiz.querySelector('[role="listbox"]');
+  const ops = lista ? Array.from(lista.querySelectorAll('[role="option"]')) : [];
+  const a = document.activeElement;
+  const r = disp.getBoundingClientRect();
+  return {
+    nombre: disp.getAttribute('aria-label'),
+    expandido: disp.getAttribute('aria-expanded'),
+    abierta: !!lista,
+    opciones: ops.map((o) => o.textContent.trim()),
+    deshabilitadas: ops.map((o) => o.getAttribute('aria-disabled') === 'true'),
+    elegidas: ops.map((o) => o.getAttribute('aria-selected')),
+    tabindex: ops.map((o) => o.getAttribute('tabindex')),
+    foco: a === disp ? '<disparador>' : (ops.includes(a) ? a.textContent.trim() : null),
+    grupos: lista ? Array.from(lista.querySelectorAll('[role="group"]')).map((g) => {
+      const cab = g.children[0];
+      const marca = cab.children.length > 1 ? cab.children[0] : null;
+      return {
+        nombre: g.getAttribute('aria-label'),
+        rotulo: cab.textContent.trim(),
+        marca: marca ? Array.from(marca.children).map((c) => getComputedStyle(c).backgroundColor) : null,
+        oculta: marca ? marca.getAttribute('aria-hidden') : null,
+        opciones: g.querySelectorAll('[role="option"]').length,
+      };
+    }) : [],
+    centro: { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) },
+  };
+})()`;
+
+// Re Pág, Av Pág, Inicio y Fin con salto de deshabilitadas; Escape y Enter; la ruta con
+// `grupos` (rótulo, marca de parcial, texto de ayuda, índice acumulado).
+async function desplegables(pagina, t, tema, T) {
+  const c = (s) => `${tema} · Desplegable · ${s}`;
+  const leerD = (id) => pagina.evaluar(LEER_DESP(id));
+  const tecla = async (key) => {
+    await pagina.evaluar(`(function () {
+      const a = document.activeElement;
+      if (a) a.dispatchEvent(new KeyboardEvent('keydown', { key: ${JSON.stringify(key)}, bubbles: true, cancelable: true }));
+      return true;
+    })()`);
+    await new Promise((r) => setTimeout(r, 80));
+  };
+  const abrir = async (id) => {
+    const l = await leerD(id);
+    await pagina.clicEn(l.centro.x, l.centro.y);
+    await new Promise((r) => setTimeout(r, 150));
+    return leerD(id);
+  };
+  const conteo = async () => JSON.parse(await pagina.evaluar(
+    `document.querySelector(${JSON.stringify(sel('toques'))}).textContent`));
+  const foco = async (id) => (await leerD(id)).foco;
+
+  // --- Plano: 12 filas, la 5.ª y la 10.ª deshabilitadas ---
+  const P = 'desp-plano';
+  const filas = Array.from({ length: 12 }, (_, i) => `Fila ${i + 1}`);
+  let l = await leerD(P);
+  t.ok(c('plano cerrado: nombre «Plano: Fila 1», aria-expanded false, sin lista'),
+    `${l.nombre}|${l.expandido}|${l.abierta}`, 'Plano: Fila 1|false|false');
+  l = await abrir(P);
+  t.ok(c('plano abierto: aria-expanded true y una option por opción, en orden'),
+    `${l.expandido}|${JSON.stringify(l.opciones)}`, `true|${JSON.stringify(filas)}`);
+  t.ok(c('plano: aria-disabled en la 5.ª y la 10.ª'),
+    l.deshabilitadas.map((d, i) => (d ? i : -1)).filter((i) => i >= 0).join(','), '4,9');
+  t.ok(c('plano: aria-selected solo en la elegida (Fila 1)'),
+    l.elegidas.map((e, i) => (e === 'true' ? i : -1)).filter((i) => i >= 0).join(','), '0');
+  t.ok(c('plano: una sola parada de Tab, la elegida'),
+    `${l.tabindex.filter((x) => x === '0').length}|${l.tabindex[0]}`, '1|0');
+  t.ok(c('plano: el foco pasa a la fila elegida'), l.foco, 'Fila 1');
+
+  await tecla('ArrowDown'); await tecla('ArrowDown');
+  t.ok(c('plano: Flecha abajo ×2 → Fila 3'), await foco(P), 'Fila 3');
+  await tecla('PageDown');
+  t.ok(c('plano: Av Pág con el destino (Fila 10) deshabilitado sigue hacia abajo → Fila 11'),
+    await foco(P), 'Fila 11');
+  await tecla('End');
+  t.ok(c('plano: Fin → Fila 12'), await foco(P), 'Fila 12');
+  await tecla('PageDown');
+  t.ok(c('plano: Av Pág en la última no se mueve'), await foco(P), 'Fila 12');
+  await tecla('PageUp');
+  t.ok(c('plano: Re Pág con el destino (Fila 5) deshabilitado sigue hacia arriba → Fila 4'),
+    await foco(P), 'Fila 4');
+  await tecla('ArrowDown');
+  t.ok(c('plano: Flecha abajo salta la deshabilitada (Fila 4 → Fila 6)'), await foco(P), 'Fila 6');
+  await tecla('Home');
+  await tecla('PageUp');
+  t.ok(c('plano: Re Pág en la primera no se mueve'), await foco(P), 'Fila 1');
+  await tecla('PageDown');
+  t.ok(c('plano: Av Pág desde la primera: siete filas → Fila 8'), await foco(P), 'Fila 8');
+  l = await leerD(P);
+  t.ok(c('plano: las flechas y los saltos no eligen (sigue Fila 1 y no hay toques)'),
+    `${l.elegidas.indexOf('true')}|${Object.keys(await conteo()).filter((k) => k.startsWith('desp-plano:')).length}`,
+    '0|0');
+
+  // Escape cierra sin cambiar; el foco vuelve al disparador.
+  await tecla('Escape');
+  l = await leerD(P);
+  t.ok(c('plano: Escape cierra sin cambiar y devuelve el foco al disparador'),
+    `${l.abierta}|${l.nombre}|${l.foco}`, 'false|Plano: Fila 1|<disparador>');
+
+  // Una fila deshabilitada no elige; Enter elige la fila con foco y llama alCambiar una vez.
+  l = await abrir(P);
+  const rect = await pagina.evaluar(`(function () {
+    const o = document.querySelector(${JSON.stringify(sel(P))}).querySelectorAll('[role="option"]')[4].getBoundingClientRect();
+    return { x: Math.round(o.left + o.width / 2), y: Math.round(o.top + o.height / 2) };
+  })()`);
+  await pagina.clicEn(rect.x, rect.y);
+  await new Promise((r) => setTimeout(r, 120));
+  l = await leerD(P);
+  t.ok(c('plano: tocar una fila deshabilitada no elige ni cierra'),
+    `${l.abierta}|${l.nombre}|${Object.keys(await conteo()).filter((k) => k.startsWith('desp-plano:')).length}`,
+    'true|Plano: Fila 1|0');
+  // H3: la fila deshabilitada no recibe foco por puntero; el foco y la fila activa siguen donde estaban.
+  t.ok(c('plano: tocar una fila deshabilitada no mueve el foco (sigue en Fila 1)'), await foco(P), 'Fila 1');
+  await tecla('End');
+  t.ok(c('plano: tras tocar una deshabilitada, Fin → Fila 12'), await foco(P), 'Fila 12');
+  const rect10 = await pagina.evaluar(`(function () {
+    const o = document.querySelector(${JSON.stringify(sel(P))}).querySelectorAll('[role="option"]')[9].getBoundingClientRect();
+    return { x: Math.round(o.left + o.width / 2), y: Math.round(o.top + o.height / 2) };
+  })()`);
+  await pagina.clicEn(rect10.x, rect10.y);
+  await new Promise((r) => setTimeout(r, 120));
+  t.ok(c('plano: tocar la Fila 10 deshabilitada no mueve el foco (sigue en Fila 12)'), await foco(P), 'Fila 12');
+  await tecla('Home');
+  t.ok(c('plano: Inicio → Fila 1'), await foco(P), 'Fila 1');
+  await tecla('ArrowDown'); await tecla('ArrowDown');
+  await pagina.tecla('Enter');
+  await new Promise((r) => setTimeout(r, 150));
+  l = await leerD(P);
+  t.ok(c('plano: Enter elige la fila con foco, cierra y el foco vuelve al disparador'),
+    `${l.abierta}|${l.nombre}|${l.foco}`, 'false|Plano: Fila 3|<disparador>');
+  t.ok(c('plano: alCambiar una vez por elección'), (await conteo())['desp-plano:f3'], 1);
+
+  // --- Borde: 10 filas, de la 8.ª a la 10.ª deshabilitadas (la vuelta de salto()) ---
+  const B = 'desp-borde';
+  await abrir(B);
+  await tecla('ArrowDown'); await tecla('ArrowDown');
+  t.ok(c('borde: Flecha abajo ×2 → Borde 3'), await foco(B), 'Borde 3');
+  await tecla('PageDown');
+  t.ok(c('borde: Av Pág sin destino hacia abajo (8.ª a 10.ª deshabilitadas) vuelve a la 7.ª'),
+    await foco(B), 'Borde 7');
+  await tecla('Escape');
+
+  // --- Agrupado: rótulos, marca de parcial y texto de ayuda ---
+  const G = 'desp-grupos';
+  l = await leerD(G);
+  t.ok(c('grupos cerrado sin valor: el nombre lleva el texto de ayuda'),
+    `${l.nombre}|${l.abierta}`, 'Agrupado: Elegí una opción|false');
+  l = await abrir(G);
+  t.ok(c('grupos abierto: una option por opción, en el orden de los grupos'),
+    JSON.stringify(l.opciones), JSON.stringify(['Alfa uno', 'Alfa dos', 'Beta uno', 'Beta dos']));
+  t.ok(c('grupos: dos role="group" con su nombre y su rótulo'),
+    JSON.stringify(l.grupos.map((g) => `${g.nombre}|${g.rotulo}|${g.opciones}`)),
+    JSON.stringify(['Grupo A|Grupo A|2', 'Grupo B|Grupo B|2']));
+  const llena = (g) => g.marca.map((x) => x === TRANSPARENTE ? '0' : '1').join('');
+  t.ok(c('grupos: marca de parcial de 3 casillas, la llena es la del índice'),
+    JSON.stringify(l.grupos.map((g) => `${g.marca.length}|${llena(g)}|${g.oculta}`)),
+    JSON.stringify(['3|100|true', '3|010|true']));
+  t.ok(c('grupos: la casilla llena es tintaSec'),
+    l.grupos.map((g) => g.marca.find((x) => x !== TRANSPARENTE)).join('|'),
+    `${rgb(T.tintaSec)}|${rgb(T.tintaSec)}`);
+  t.ok(c('grupos: la deshabilitada lleva aria-disabled; ninguna está elegida'),
+    `${l.deshabilitadas.join(',')}|${l.elegidas.join(',')}`, 'false,true,false,false|false,false,false,false');
+  t.ok(c('grupos sin valor: el foco abre en la primera habilitada, única parada de Tab'),
+    `${l.foco}|${l.tabindex.join(',')}`, 'Alfa uno|0,-1,-1,-1');
+  await tecla('ArrowDown');
+  t.ok(c('grupos: Flecha abajo salta la deshabilitada y cruza de grupo'), await foco(G), 'Beta uno');
+  await tecla('End');
+  t.ok(c('grupos: Fin → última fila'), await foco(G), 'Beta dos');
+  await pagina.tecla('Enter');
+  await new Promise((r) => setTimeout(r, 150));
+  l = await leerD(G);
+  t.ok(c('grupos: Enter elige, el disparador muestra el nombre y alCambiar se llama una vez'),
+    `${l.nombre}|${(await conteo())['desp-grupos:b2']}`, 'Agrupado: Beta dos|1');
+  l = await abrir(G);
+  t.ok(c('grupos reabierto: la elegida lleva aria-selected y el foco'),
+    `${l.elegidas.join(',')}|${l.foco}`, 'false,false,false,true|Beta dos');
+  await tecla('Escape');
 }
 
 // K6 con y sin marcas de esquina (B5)

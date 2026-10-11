@@ -5,6 +5,8 @@
 // Props: `etiqueta`, `glifo`, `glifoPosicion`, `tamano`, `relleno`, `className` (layout);
 //   `tono="acierto"`      con `seleccionado`: fondo y borde `acierto`, `border-2` (celda de letra)
 //   `abierto`             plegable expandido: borde `linea`, sin inversión, `aria-expanded`
+//   `popup`, `controla`   disparador de lista (`Desplegable`): `aria-haspopup` y `aria-controls`
+//   `onKeyDown`, `registrar`  teclado y foco (`Desplegable`)
 //   `enfasis="primaria"`  borde `linea` `border-2`; hover con contorno `linea` (Home)
 import React from 'react';
 import Control, { Contenido, CONTORNO, medidasDeBoton } from './Control';
@@ -42,11 +44,14 @@ const ENFASIS = { normal: 'normal', primaria: 'primaria' };
 export default function ControlMarco({
   etiqueta, glifo, glifoPosicion, children, tamano, relleno, tono, enfasis, abierto,
   onPress, deshabilitado, seleccionado, accessibilityLabel, testID, className,
+  popup, controla, onKeyDown, registrar,
 }) {
   if (!children) exigirNombre('ControlMarco', { etiqueta, accessibilityLabel });
   const estadoAccesible = {};
   if (seleccionado !== undefined) estadoAccesible.pressed = !!seleccionado;
   if (abierto !== undefined) estadoAccesible.expanded = !!abierto;
+  if (popup !== undefined) estadoAccesible.haspopup = popup;
+  if (controla !== undefined) estadoAccesible.controls = controla;
   return (
     <Control
       aspecto={aspectoDe(elegir(TONOS, tono, 'neutro', 'tono'), elegir(ENFASIS, enfasis, 'normal', 'enfasis'))}
@@ -56,6 +61,8 @@ export default function ControlMarco({
       abierto={!!abierto}
       estadoAccesible={estadoAccesible}
       onPress={onPress}
+      onKeyDown={onKeyDown}
+      registrar={registrar}
       accessibilityLabel={accessibilityLabel}
       testID={testID}
       className={className}

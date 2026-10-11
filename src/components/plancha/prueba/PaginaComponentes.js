@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import {
   BotonRelleno, BotonMarco, ControlMarco, Segmento, CuadroPaso, TarjetaNavegable,
-  FilaLista, Lamina, MarcaEstado, RotuloSeccion, Columna,
+  FilaLista, Lamina, Desplegable, MarcaEstado, RotuloSeccion, Columna,
 } from '..';
 import { useTokens } from '../Control';
 import Glifo from '../../Glifo';
@@ -24,6 +24,25 @@ const TEMA = [
   { valor: 'claro', etiqueta: 'Claro' },
   { valor: 'auto', etiqueta: 'Auto', deshabilitado: true },
   { valor: 'oscuro', etiqueta: 'Oscuro' },
+];
+
+// Desplegable plano: 12 filas con la 5.ª y la 10.ª deshabilitadas (saltos de Re Pág / Av Pág).
+const DESP_PLANO = Array.from({ length: 12 }, (_, i) => ({
+  valor: `f${i + 1}`, etiqueta: `Fila ${i + 1}`, deshabilitado: i === 4 || i === 9,
+}));
+
+// Desplegable con el bloque deshabilitado al final (la 8.ª a la 10.ª): Av Pág no tiene destino
+// hacia abajo y vuelve a la última habilitada.
+const DESP_BORDE = Array.from({ length: 10 }, (_, i) => ({
+  valor: `b${i + 1}`, etiqueta: `Borde ${i + 1}`, deshabilitado: i >= 7,
+}));
+
+// Desplegable agrupado: dos grupos con marca de parcial; sin valor, muestra el texto de ayuda.
+const DESP_GRUPOS = [
+  { id: 'a', etiqueta: 'Grupo A', marca: { indice: 0, de: 3 },
+    opciones: [{ valor: 'a1', etiqueta: 'Alfa uno' }, { valor: 'a2', etiqueta: 'Alfa dos', deshabilitado: true }] },
+  { id: 'b', etiqueta: 'Grupo B', marca: { indice: 1, de: 3 },
+    opciones: [{ valor: 'b1', etiqueta: 'Beta uno' }, { valor: 'b2', etiqueta: 'Beta dos' }] },
 ];
 
 function Grupo({ titulo, children }) {
@@ -54,6 +73,9 @@ export default function PaginaComponentes() {
   const [filtro, setFiltro] = useState('todas');
   const [tema, setTema] = useState('claro');
   const [toques, setToques] = useState({});
+  const [despPlano, setDespPlano] = useState('f1');
+  const [despGrupos, setDespGrupos] = useState(null);
+  const [despBorde, setDespBorde] = useState('b1');
   const tocar = (id) => () => setToques((t) => ({ ...t, [id]: (t[id] || 0) + 1 }));
 
   return (
@@ -147,6 +169,37 @@ export default function PaginaComponentes() {
           <FilaLista testID="k7-sec-texto" onPress={tocar('k7-sec-texto')} tono="sec">
             {({ texto }) => <Text className={`font-plex-sans text-cuerpo ${texto}`}>Quitar fila</Text>}
           </FilaLista>
+        </Grupo>
+
+        <Grupo titulo="Desplegable">
+          <View className="w-full">
+            <Desplegable
+              testID="desp-plano"
+              accessibilityLabel="Plano"
+              opciones={DESP_PLANO}
+              valor={despPlano}
+              alCambiar={(v) => { tocar(`desp-plano:${v}`)(); setDespPlano(v); }}
+            />
+          </View>
+          <View className="w-full">
+            <Desplegable
+              testID="desp-grupos"
+              accessibilityLabel="Agrupado"
+              grupos={DESP_GRUPOS}
+              valor={despGrupos}
+              textoDeAyuda="Elegí una opción"
+              alCambiar={(v) => { tocar(`desp-grupos:${v}`)(); setDespGrupos(v); }}
+            />
+          </View>
+          <View className="w-full">
+            <Desplegable
+              testID="desp-borde"
+              accessibilityLabel="Borde"
+              opciones={DESP_BORDE}
+              valor={despBorde}
+              alCambiar={(v) => { tocar(`desp-borde:${v}`)(); setDespBorde(v); }}
+            />
+          </View>
         </Grupo>
 
         <Grupo titulo="Pedido de donación (3.8)">

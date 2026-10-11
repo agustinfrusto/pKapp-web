@@ -1,4 +1,4 @@
-// Componentes compartidos de la Plancha (change rediseno-plancha, tareas 2.9 y 2.9b).
+// Componentes compartidos de la Plancha (change rediseno-plancha, tareas 2.9, 2.9b y 3.9c).
 // Las pantallas 3.x los usan en lugar de reimplementar las clases de control.
 //
 // API pública. Toda prop que no figura aquí es interna. `className` es solo de layout
@@ -11,11 +11,15 @@
 // | BotonRelleno      | K1    | etiqueta, glifo, glifoPosicion, tamano, relleno, onPress, deshabilitado, |
 // |                   |       | accessibilityLabel, testID, className                                 |
 // | BotonMarco        | K2    | las de K1 y tono, fondo, tamanoGlifo                                  |
-// | ControlMarco      | K3    | las de K1 y children, seleccionado, abierto, tono, enfasis            |
+// | ControlMarco      | K3    | las de K1 y children, seleccionado, abierto, tono, enfasis,           |
+// |                   |       | popup, controla, onKeyDown, registrar                                 |
 // | Segmento          | K4    | opciones, valor, alCambiar, forma, anchoIgual, accessibilityLabel, className |
 // | CuadroPaso        | K5    | glifo, fondo, onPress, deshabilitado, accessibilityLabel (obligatoria)|
 // | TarjetaNavegable  | K6    | children, variante, onPress, deshabilitado, accessibilityLabel        |
-// | FilaLista         | K7    | children, glifo, tono, filete, onPress, deshabilitado, accessibilityLabel |
+// | FilaLista         | K7    | children, glifo, tono, filete, onPress, deshabilitado, accessibilityLabel,|
+// |                   |       | seleccionado, rol, onKeyDown, registrar, tabIndex                     |
+// | Desplegable       | K3+K7 | accessibilityLabel, opciones | grupos, valor, alCambiar, textoDeAyuda, |
+// |                   |       | deshabilitado, className, testID                                      |
 // | Lamina            | —     | children; Lamina.Divisor                                              |
 // | MarcaEstado       | —     | estado, texto, paso, colorTexto                                       |
 // | RotuloSeccion     | —     | children, color                                                       |
@@ -34,11 +38,21 @@
 //   forma (K4)      filtro | segmentado (contenedor linea, opciones sin borde, rotulo)
 //   variante (K6)   normal | acento (border-2 acento, sin marcas de esquina)
 //   tono (K7)       normal | sec (glifo y texto tintaSec en reposo)
+//   seleccionado (K7)  fila elegida de un selector (fondo tinta, texto fondo, aria-selected)
 //   paso (MarcaEstado)       rotulo | rotulo-medio | detalle | dato | display (glifo paso 6 solo con display)
 //   colorTexto (MarcaEstado) estado | tintaSec
 //
 // Estado accesible (web): K3 con `seleccionado` emite `aria-pressed` (botón conmutable);
-// con `abierto`, `aria-expanded`; K4 emite `role="radio"` con `aria-checked`.
+// con `abierto`, `aria-expanded`; K4 emite `role="radio"` con `aria-checked`; K7 con
+// `seleccionado` emite `aria-selected` (con `rol="option"`); K3 con `popup` y `controla`
+// emite `aria-haspopup` y `aria-controls`.
+//
+// Desplegable: un valor y una lista corta (AddQuestion-ADD-P3.md). `opciones` es la lista
+// plana [{ valor, etiqueta, deshabilitado? }]; `grupos` [{ id, etiqueta, marca?: { indice,
+// de }, opciones }] agrupa con rótulos (hoy ninguna materia declara el parcial de cada
+// tema: AddQuestion pasa `opciones`). Abre en línea bajo el disparador con alto máximo
+// paso 80. Una sola parada de Tab; flechas, Inicio, Fin, Re Pág/Av Pág, letras, Enter,
+// Espacio y Escape; el foco vuelve al disparador al elegir o cancelar.
 //
 // `children` de K3, K6 y K7 puede ser una función que recibe
 // `{ estado, invertido, deshabilitado, texto, glifo, ilustracion }` (`texto` son clases;
@@ -52,6 +66,7 @@ export { default as CuadroPaso } from './CuadroPaso';
 export { default as TarjetaNavegable } from './TarjetaNavegable';
 export { default as FilaLista } from './FilaLista';
 export { default as Lamina } from './Lamina';
+export { default as Desplegable } from './Desplegable';
 export { default as MarcaEstado } from './MarcaEstado';
 export { default as RotuloSeccion } from './RotuloSeccion';
 export { default as Columna } from './Columna';

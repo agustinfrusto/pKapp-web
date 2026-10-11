@@ -51,8 +51,8 @@ function esperar(nombre, cond, detalle = '') {
 const distTemporal = fs.mkdtempSync(path.join(os.tmpdir(), 'pkapp-arnes-'));
 fs.writeFileSync(path.join(distTemporal, 'index.html'), '<!doctype html><title>t</title>');
 
-function correr(args, env = {}) {
-  const r = spawnSync('node', [CORRER, ...args], {
+function correr(args, env = {}, script = CORRER) {
+  const r = spawnSync('node', [script, ...args], {
     cwd: RAIZ,
     encoding: 'utf8',
     timeout: 60000,
@@ -123,19 +123,35 @@ async function main() {
     !ordenValido(intercalada) && intercalada.indexOf('suite nueva de prueba') < ORDEN_HEAD.length,
     intercalada.join(' | '));
 
-  // A5: superficie vacía, nombre inexistente, `--suite=x`.
-  const vacia = correr(['--suite', 'agregar']);
-  esperar('--suite <vacía>: sale 0 con «la superficie agregar no tiene suites»',
-    vacia.codigo === 0 && vacia.salida.includes('la superficie agregar no tiene suites'),
+  // A5: superficie vacía, nombre inexistente, `--suite=x`. Ninguna superficie real queda
+  // sin suites: el arnés se copia a un árbol temporal con un índice que suma `vacia`, una
+  // superficie declarada sin suites, y el resto de su código es el real.
+  const arbol = fs.mkdtempSync(path.join(os.tmpdir(), 'pkapp-arnes-vacia-'));
+  const carpetaE2e = path.join(arbol, 'tools', 'e2e');
+  fs.mkdirSync(path.join(carpetaE2e, 'suites'), { recursive: true });
+  for (const archivo of ['correr.js', 'cdp.js', 'entorno.js']) {
+    fs.copyFileSync(path.join(RAIZ, 'tools', 'e2e', archivo), path.join(carpetaE2e, archivo));
+  }
+  fs.writeFileSync(path.join(carpetaE2e, 'suites', 'index.js'), [
+    "const SUPERFICIES = ['materias', 'vacia'];",
+    "const porSuperficie = { materias: [{ nombre: 'suite de prueba', correr() {} }], vacia: [] };",
+    'module.exports = { SUPERFICIES, porSuperficie, todas: porSuperficie.materias };',
+    '',
+  ].join('\n'));
+  const CORRER_CON_VACIA = path.join(carpetaE2e, 'correr.js');
+  const vacia = correr(['--suite', 'vacia'], {}, CORRER_CON_VACIA);
+  esperar('--suite <vacía>: sale 0 con «la superficie vacia no tiene suites»',
+    vacia.codigo === 0 && vacia.salida.includes('la superficie vacia no tiene suites'),
     `exit ${vacia.codigo}: ${vacia.salida.trim()}`);
   const inexistente = correr(['--suite', 'nada']);
   esperar('--suite <inexistente>: sale ≠ 0 con la lista de superficies',
     inexistente.codigo !== 0 && inexistente.codigo !== null && inexistente.salida.includes('Hay: materias, home'),
     `exit ${inexistente.codigo}: ${inexistente.salida.trim()}`);
-  const conIgual = correr(['--suite=agregar']);
+  const conIgual = correr(['--suite=vacia'], {}, CORRER_CON_VACIA);
   esperar('--suite=x se acepta igual que --suite x',
-    conIgual.codigo === 0 && conIgual.salida.includes('la superficie agregar no tiene suites'),
+    conIgual.codigo === 0 && conIgual.salida.includes('la superficie vacia no tiene suites'),
     `exit ${conIgual.codigo}: ${conIgual.salida.trim()}`);
+  fs.rmSync(arbol, { recursive: true, force: true });
   const igualInexistente = correr(['--suite=nada']);
   esperar('--suite=<inexistente>: sale ≠ 0 con la lista de superficies',
     igualInexistente.codigo === 1 && igualInexistente.salida.includes('No existe la superficie "nada"'),

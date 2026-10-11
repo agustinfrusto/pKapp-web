@@ -79,6 +79,7 @@ export default function Control({
   onPress,
   onKeyDown,
   registrar,
+  tabIndex,
   accessibilityLabel,
   testID,
   className = '',
@@ -97,11 +98,15 @@ export default function Control({
   const exterior = `${baseExterior} ${a.contorno ?? ''} ${className}`;
   // En web el estado accesible sale por aria-*: RNW no traduce `accessibilityState`.
   // K3 conmutable es `aria-pressed` (un `button` no admite `aria-selected`); K4, `aria-checked`;
-  // K3 plegable, `aria-expanded`.
+  // K3 plegable, `aria-expanded`; el desplegable suma `aria-haspopup` y `aria-controls` en
+  // el disparador y `aria-selected` en la fila (`option`).
   const aria = {};
   if (estadoAccesible?.checked !== undefined) aria['aria-checked'] = estadoAccesible.checked;
   if (estadoAccesible?.pressed !== undefined) aria['aria-pressed'] = estadoAccesible.pressed;
   if (estadoAccesible?.expanded !== undefined) aria['aria-expanded'] = estadoAccesible.expanded;
+  if (estadoAccesible?.haspopup !== undefined) aria['aria-haspopup'] = estadoAccesible.haspopup;
+  if (estadoAccesible?.controls !== undefined) aria['aria-controls'] = estadoAccesible.controls;
+  if (estadoAccesible?.selected !== undefined) aria['aria-selected'] = estadoAccesible.selected;
 
   return (
     <Pressable
@@ -115,6 +120,7 @@ export default function Control({
       disabled={deshabilitado}
       onPress={deshabilitado ? undefined : onPress}
       onKeyDown={onKeyDown}
+      tabIndex={tabIndex}
       onHoverIn={() => setHovered(true)}
       onHoverOut={() => setHovered(false)}
       onPressIn={() => setPressed(true)}
