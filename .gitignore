@@ -86,3 +86,6 @@ openspec/changes/*/diseno/svg/glifos/*.png
 openspec/changes/*/evidencia/**/*.png
 !openspec/changes/*/evidencia/**/*-390-*.png
 openspec/changes/*/diseno/svg/variantes/*.png
+
+# Notas del arquitecto (tarea 6.3): material de lectura personal, fuera del repo
+NOTAS-ARQUITECTO/
