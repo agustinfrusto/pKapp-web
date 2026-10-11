@@ -10,7 +10,7 @@ import { plancha } from '../theme/colores';
 import Glifo from '../components/Glifo';
 import { GLIFO_CHICO } from '../components/plancha/Control';
 import {
-  BotonMarco, Columna, Lamina, MarcaEstado, RotuloSeccion,
+  BotonMarco, Columna, FlujoColumnas, Lamina, MarcaEstado, Regiones, RotuloSeccion,
 } from '../components/plancha';
 
 const FONDO = 'bg-fondo dark:bg-fondoD';
@@ -124,7 +124,7 @@ export default function StatsScreen({ navigation }) {
   if (totalAnswered === 0) {
     return (
       <ScrollView className={`flex-1 ${FONDO}`} contentContainerClassName="pb-8" refreshControl={refreshControl}>
-        <Columna>
+        <Columna ancho="lectura">
           <View className="mt-6">
             <Lamina testID="stats-vacio">
               <View className="items-center p-3.5">
@@ -157,139 +157,157 @@ export default function StatsScreen({ navigation }) {
 
   return (
     <ScrollView className={`flex-1 ${FONDO}`} contentContainerClassName="pb-8" refreshControl={refreshControl}>
-      <Columna>
-        {/* Estadística global */}
-        <View className="mb-3 mt-4">
-          <Lamina testID="stats-global">
-            <View className="items-center p-4">
-              {/* Rótulo con marca de banda: la ficha a.2 pide paso 2 entre marca y texto, y
-                  MarcaEstado separa con paso 1.5; por eso se arma acá. */}
-              <View testID="stats-global-rotulo" className="flex-row items-center gap-2">
-                <Glifo id={`glifo-${bandaGlobal}`} size={GLIFO_CHICO} color={tema[bandaGlobal]} />
-                <Text className={`font-plex-mono text-rotulo uppercase ${TINTA_SEC}`}>Aciertos globales</Text>
-              </View>
-              <View className="mt-3">
-                <MarcaEstado
-                  testID="stats-global-valor"
-                  estado={bandaGlobal}
-                  texto={`${globalAccuracy}%`}
-                  paso="display"
-                />
-              </View>
-              <Text testID="stats-global-detalle" className={`mt-2 text-center font-plex-sans text-cuerpo ${TINTA_SEC}`}>
-                {totalCorrect} aciertos de {totalAnswered} respuestas
-              </Text>
-            </View>
-          </Lamina>
-        </View>
-
-        {/* Por tema */}
-        <View className="mb-2 mt-4">
-          <RotuloSeccion testID="stats-rotulo-por-tema" color="acento">Por tema</RotuloSeccion>
-        </View>
-        <View testID="stats-leyenda" className="mb-2 flex-row flex-wrap gap-x-4 gap-y-1">
-          {LEYENDA.map(({ banda, texto }) => (
-            <MarcaEstado
-              key={banda}
-              testID={`stats-leyenda-${banda}`}
-              estado={banda}
-              texto={texto}
-              colorTexto="tintaSec"
-            />
-          ))}
-        </View>
-        {Object.entries(statsByTopic).map(([key, data]) => {
-          if (data.totalQuestions === 0) return null;
-          const banda = data.accuracy !== null ? acierto(data.accuracy) : null;
-          return (
-            <View
-              key={key}
-              testID={`stats-fila-${key}`}
-              className="border-t border-filete py-3 dark:border-fileteD"
-            >
-              <View className="flex-row items-baseline justify-between gap-3">
-                <Text testID={`stats-nombre-${key}`} className={`min-w-0 flex-1 font-plex-sans text-item ${TINTA}`}>
-                  {TOPICS[key]}
-                </Text>
-                <View className="shrink-0">
-                  {banda ? (
-                    <MarcaEstado
-                      testID={`stats-valor-${key}`}
-                      estado={banda}
-                      texto={`${data.accuracy}%`}
-                      paso="dato"
-                    />
-                  ) : (
-                    <Text testID={`stats-sin-practicar-${key}`} className={`font-plex-sans text-detalle ${TINTA_SEC}`}>
-                      Sin practicar
-                    </Text>
-                  )}
-                </View>
-              </View>
-
-              {banda ? (
-                <>
-                  <View
-                    testID={`stats-barra-${key}`}
-                    className="relative mb-1.5 mt-2 h-2 border border-filete bg-superficie dark:border-fileteD dark:bg-superficieD"
-                  >
-                    <View
-                      testID={`stats-relleno-${key}`}
-                      className={`h-full ${RELLENO[banda]}`}
-                      style={{ width: `${data.accuracy}%` }}
-                    />
-                    <Umbral pct={60} testID={`stats-umbral-60-${key}`} />
-                    <Umbral pct={80} testID={`stats-umbral-80-${key}`} />
+      <Columna ancho="hoja-amplia">
+        {/* Escritorio (ESC-P7): tarjeta, rótulo y leyenda a la izquierda; filas a la derecha.
+            Bajo el corte las regiones se apilan en este mismo orden. */}
+        <Regiones>
+          <Regiones.Lateral>
+            {/* Estadística global */}
+            <View className="mb-3 mt-4">
+              <Lamina testID="stats-global">
+                <View className="items-center p-4">
+                  {/* Rótulo con marca de banda: la ficha a.2 pide paso 2 entre marca y texto, y
+                      MarcaEstado separa con paso 1.5; por eso se arma acá. */}
+                  <View testID="stats-global-rotulo" className="flex-row items-center gap-2">
+                    <Glifo id={`glifo-${bandaGlobal}`} size={GLIFO_CHICO} color={tema[bandaGlobal]} />
+                    <Text className={`font-plex-mono text-rotulo uppercase ${TINTA_SEC}`}>Aciertos globales</Text>
                   </View>
-                  <Text testID={`stats-detalle-${key}`} className={`font-plex-sans text-detalle ${TINTA_SEC}`}>
-                    {data.correct} aciertos en {data.answered} respuestas · {data.totalQuestions} preguntas disponibles
+                  <View className="mt-3">
+                    <MarcaEstado
+                      testID="stats-global-valor"
+                      estado={bandaGlobal}
+                      texto={`${globalAccuracy}%`}
+                      paso="display"
+                    />
+                  </View>
+                  <Text testID="stats-global-detalle" className={`mt-2 text-center font-plex-sans text-cuerpo ${TINTA_SEC}`}>
+                    {totalCorrect} aciertos de {totalAnswered} respuestas
                   </Text>
-                </>
-              ) : (
-                <Text testID={`stats-detalle-${key}`} className={`mt-1.5 font-plex-sans text-detalle ${TINTA_SEC}`}>
-                  {data.totalQuestions} preguntas disponibles
-                </Text>
-              )}
+                </View>
+              </Lamina>
             </View>
-          );
-        })}
 
-        {/* Preguntas más falladas (V6: sin ellas, la sección no se renderiza) */}
+            {/* Por tema */}
+            <View className="mb-2 mt-4">
+              <RotuloSeccion testID="stats-rotulo-por-tema" color="acento">Por tema</RotuloSeccion>
+            </View>
+            <View testID="stats-leyenda" className="mb-2 flex-row flex-wrap gap-x-4 gap-y-1">
+              {LEYENDA.map(({ banda, texto }) => (
+                <MarcaEstado
+                  key={banda}
+                  testID={`stats-leyenda-${banda}`}
+                  estado={banda}
+                  texto={texto}
+                  colorTexto="tintaSec"
+                />
+              ))}
+            </View>
+          </Regiones.Lateral>
+
+          {/* Filas por tema: una columna en `escritorio`, dos con flujo por columnas desde
+              `amplio`. El margen superior iguala el de la tarjeta de la región lateral. */}
+          <Regiones.Principal>
+            <View className="escritorio:mt-4">
+              <FlujoColumnas escritorio={1} amplio={2}>
+                {Object.entries(statsByTopic).map(([key, data]) => {
+                  if (data.totalQuestions === 0) return null;
+                  const banda = data.accuracy !== null ? acierto(data.accuracy) : null;
+                  return (
+                    <View
+                      key={key}
+                      testID={`stats-fila-${key}`}
+                      className="border-t border-filete py-3 dark:border-fileteD"
+                    >
+                      <View className="flex-row items-baseline justify-between gap-3">
+                        <Text testID={`stats-nombre-${key}`} className={`min-w-0 flex-1 font-plex-sans text-item ${TINTA}`}>
+                          {TOPICS[key]}
+                        </Text>
+                        <View className="shrink-0">
+                          {banda ? (
+                            <MarcaEstado
+                              testID={`stats-valor-${key}`}
+                              estado={banda}
+                              texto={`${data.accuracy}%`}
+                              paso="dato"
+                            />
+                          ) : (
+                            <Text testID={`stats-sin-practicar-${key}`} className={`font-plex-sans text-detalle ${TINTA_SEC}`}>
+                              Sin practicar
+                            </Text>
+                          )}
+                        </View>
+                      </View>
+
+                      {banda ? (
+                        <>
+                          <View
+                            testID={`stats-barra-${key}`}
+                            className="relative mb-1.5 mt-2 h-2 border border-filete bg-superficie dark:border-fileteD dark:bg-superficieD"
+                          >
+                            <View
+                              testID={`stats-relleno-${key}`}
+                              className={`h-full ${RELLENO[banda]}`}
+                              style={{ width: `${data.accuracy}%` }}
+                            />
+                            <Umbral pct={60} testID={`stats-umbral-60-${key}`} />
+                            <Umbral pct={80} testID={`stats-umbral-80-${key}`} />
+                          </View>
+                          <Text testID={`stats-detalle-${key}`} className={`font-plex-sans text-detalle ${TINTA_SEC}`}>
+                            {data.correct} aciertos en {data.answered} respuestas · {data.totalQuestions} preguntas disponibles
+                          </Text>
+                        </>
+                      ) : (
+                        <Text testID={`stats-detalle-${key}`} className={`mt-1.5 font-plex-sans text-detalle ${TINTA_SEC}`}>
+                          {data.totalQuestions} preguntas disponibles
+                        </Text>
+                      )}
+                    </View>
+                  );
+                })}
+              </FlujoColumnas>
+            </View>
+          </Regiones.Principal>
+        </Regiones>
+
+        {/* Preguntas más falladas (V6: sin ellas, la sección no se renderiza). Debajo de las
+            regiones, a ancho de hoja: 2 columnas con flujo por columnas y 3 desde `amplio`. */}
         {failedStats.length > 0 && (
           <>
             <View className="mb-2 mt-6">
               <RotuloSeccion testID="stats-rotulo-falladas" color="acento">Más falladas</RotuloSeccion>
             </View>
-            {failedStats.map((item, idx) => {
-              const pct = Math.round(item.accuracy * 100);
-              return (
-                <View
-                  key={item.question_id}
-                  testID={`stats-fallada-${idx + 1}`}
-                  className="border-t border-filete py-3 dark:border-fileteD"
-                >
-                  <View className="flex-row items-center justify-between gap-3">
-                    <RotuloSeccion testID={`stats-fallada-indice-${idx + 1}`}>{`#${idx + 1}`}</RotuloSeccion>
-                    <MarcaEstado
-                      testID={`stats-fallada-valor-${idx + 1}`}
-                      estado={acierto(pct)}
-                      texto={`${pct}% (${item.times_correct}/${item.times_answered})`}
-                      paso="rotulo-medio"
-                    />
-                  </View>
-                  <Text
-                    testID={`stats-fallada-enunciado-${idx + 1}`}
-                    className={`mt-1.5 font-plex-sans text-cuerpo ${TINTA}`}
-                    numberOfLines={2}
+            <FlujoColumnas escritorio={2} amplio={3}>
+              {failedStats.map((item, idx) => {
+                const pct = Math.round(item.accuracy * 100);
+                return (
+                  <View
+                    key={item.question_id}
+                    testID={`stats-fallada-${idx + 1}`}
+                    className="border-t border-filete py-3 dark:border-fileteD"
                   >
-                    {item.question.question}
-                  </Text>
-                  <Text testID={`stats-fallada-tema-${idx + 1}`} className={`mt-1 font-plex-sans text-detalle ${TINTA_SEC}`}>
-                    {TOPICS[item.question.topic]}
-                  </Text>
-                </View>
-              );
-            })}
+                    <View className="flex-row items-center justify-between gap-3">
+                      <RotuloSeccion testID={`stats-fallada-indice-${idx + 1}`}>{`#${idx + 1}`}</RotuloSeccion>
+                      <MarcaEstado
+                        testID={`stats-fallada-valor-${idx + 1}`}
+                        estado={acierto(pct)}
+                        texto={`${pct}% (${item.times_correct}/${item.times_answered})`}
+                        paso="rotulo-medio"
+                      />
+                    </View>
+                    <Text
+                      testID={`stats-fallada-enunciado-${idx + 1}`}
+                      className={`mt-1.5 font-plex-sans text-cuerpo ${TINTA}`}
+                      numberOfLines={2}
+                    >
+                      {item.question.question}
+                    </Text>
+                    <Text testID={`stats-fallada-tema-${idx + 1}`} className={`mt-1 font-plex-sans text-detalle ${TINTA_SEC}`}>
+                      {TOPICS[item.question.topic]}
+                    </Text>
+                  </View>
+                );
+              })}
+            </FlujoColumnas>
           </>
         )}
       </Columna>

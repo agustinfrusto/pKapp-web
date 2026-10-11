@@ -9,6 +9,8 @@
 // Los cortes 80 y 60 son el contrato D6 (`acierto()`); se repiten acá a propósito, para
 // que un cambio de corte rompa la suite.
 
+const fs = require('fs');
+const path = require('path');
 const { plancha } = require('../../../src/theme/colores');
 const { GLIFOS } = require('../../../src/assets/glifos');
 const { QUESTIONS } = require('../../../src/materias/bcyt/questions');
@@ -17,9 +19,17 @@ const {
   EN_MARCO, LADO_TACTIL, PASO, abrirMarco, clicEnMarco, esperarEnMarco, irAHomeEnMarco,
 } = require('./comunes');
 
+const RAIZ = path.join(__dirname, '..', '..', '..');
 const CLAVE_STATS = 'pkapp_question_stats:bcyt';
 const COLUMNA = 448;                    // max-w-columna (tokens.md c.3)
 const MARGEN_LATERAL = 5 * PASO;        // paso 5
+const CORTE_ESCRITORIO = 1024;          // tokens.md c.4
+const CORTE_AMPLIO = 1440;
+const LATERAL = 320;                    // ancho `lateral`
+const LECTURA = 600;                    // ancho `lectura`
+const HOJA = 952;
+const HOJA_AMPLIA = 1440;
+const MARGEN_HOJA = 8 * PASO;           // paso 8
 const EMOJI = /\p{Extended_Pictographic}/u;
 
 const rgb = (hex) => {
@@ -204,6 +214,11 @@ const escribirClave = (pagina, valor) => pagina.evaluar(valor === null
 // Abre la app, elige la materia, siembra las estadísticas (`plan` null: vacías) y entra a
 // Estadísticas con «Mis estadísticas». Devuelve true si la pantalla quedó resuelta.
 async function abrirStats(pagina, base, { ancho = 390, alto = 900, oscuro = false, plan = PLAN, antes } = {}) {
+  // El puntero del arnés se mueve en la ventana de la página: tiene que abarcar el marco.
+  if (ancho > 900) {
+    await pagina.enviar('Emulation.setDeviceMetricsOverride',
+      { width: ancho, height: alto, deviceScaleFactor: 1, mobile: false });
+  }
   if (!await abrirMarco(pagina, base, ancho, alto)) return false;
   if (oscuro) {
     await clicEnMarco(pagina, 'oscuro');
@@ -680,10 +695,13 @@ async function sinDesbordeNiCortes(pagina, base, t) {
         const chicos = m.interactivos.filter((c) => c.ancho > 0 && (c.alto < LADO_TACTIL || c.ancho < LADO_TACTIL));
         t.ok(`${cuando}: ningún control baja de 44 × 44`, chicos.length, 0);
         const ref = (m.global || m.vacio).caja;
-        t.ok(`${cuando}: la lámina conserva el margen lateral paso 5 o la columna`,
-          ancho >= 768
-            ? ref.ancho <= COLUMNA + 1 && Math.abs((ref.izq + ref.der) / 2 - m.vista / 2) <= 1.5
-            : Math.abs(ref.izq - MARGEN_LATERAL) <= 1 && Math.abs(m.vista - ref.der - MARGEN_LATERAL) <= 1, true);
+        // Desde el corte `escritorio` rigen las regiones de ESC-P7 y ESC-P12: las mide la suite de escritorio.
+        if (ancho < CORTE_ESCRITORIO) {
+          t.ok(`${cuando}: la lámina conserva el margen lateral paso 5 o la columna`,
+            ancho >= 768
+              ? ref.ancho <= COLUMNA + 1 && Math.abs((ref.izq + ref.der) / 2 - m.vista / 2) <= 1.5
+              : Math.abs(ref.izq - MARGEN_LATERAL) <= 1 && Math.abs(m.vista - ref.der - MARGEN_LATERAL) <= 1, true);
+        }
         if (plan !== null) {
           const filas = m.filas.filter(Boolean);
           t.ok(`${cuando}: las filas llenan la columna y no se salen`,
@@ -717,6 +735,336 @@ async function pasoRotuloMedio(pagina, base, t) {
     f && f.valor && f.valor.color, rgb(T[banda(Math.round((PLAN['division-celular'][1] / PLAN['division-celular'][0]) * 100))]));
 }
 
+// ---------------------------------------------------------------------------
+// 8 · Escritorio (ESC-P7 y ESC-P12): regiones, anchos y columnas desde el corte `escritorio`.
+
+const DOM_STATS = EN_MARCO(`
+  return visibles('[data-testid^="stats-"]').map((n) => n.getAttribute('data-testid')).filter((id) =>
+    id === 'stats-global' || id === 'stats-rotulo-por-tema' || id === 'stats-leyenda'
+    || id.startsWith('stats-fila-') || id === 'stats-rotulo-falladas' || /^stats-fallada-[0-9]+$/.test(id));
+`);
+
+// Capturas de evidencia (solo con PKAPP_CAPTURAS): el viewport de la página ya es el del marco.
+async function capturar(pagina, nombre) {
+  if (!process.env.PKAPP_CAPTURAS) return;
+  const dir = path.join(RAIZ, 'openspec', 'changes', 'rediseno-plancha', 'evidencia', 'despues', '3.11g');
+  fs.mkdirSync(dir, { recursive: true });
+  await new Promise((r) => setTimeout(r, 400));
+  const r = await pagina.enviar('Page.captureScreenshot', { format: 'png' });
+  fs.writeFileSync(path.join(dir, nombre), Buffer.from(r.data, 'base64'));
+}
+
+const distintos = (xs) => [...new Set(xs.map((x) => Math.round(x)))].sort((a, b) => a - b);
+const TAMANOS = [[1023, 768], [1024, 768], [1366, 768], [1920, 1080]];
+
+async function escritorioConDatos(pagina, base, t) {
+  const E = esperado(PLAN);
+  const esperadoDom = ['stats-global', 'stats-rotulo-por-tema', 'stats-leyenda',
+    ...E.filas.map((f) => `stats-fila-${f.k}`), 'stats-rotulo-falladas',
+    ...E.falladas.map((_, i) => `stats-fallada-${i + 1}`)];
+  for (const oscuro of [false, true]) {
+    for (const [ancho, alto] of TAMANOS) {
+      const cuando = `${ancho} px ${oscuro ? 'oscuro' : 'claro'}`;
+      if (!await abrirStats(pagina, base, { ancho, alto, oscuro })) { t.ok(`${cuando}: abrió Estadísticas`, false, true); continue; }
+      const m = await leer(pagina);
+      if (ancho >= CORTE_ESCRITORIO) await capturar(pagina, `E07-${ancho}-${oscuro ? 'oscuro' : 'claro'}.png`);
+      const filas = m.filas.filter(Boolean);
+      const g = m.global;
+      const l = m.leyenda;
+      const rf = m.rotuloFalladas;
+      t.ok(`${cuando}: sin scroll horizontal`, m.desborda, false);
+      t.ok(`${cuando}: ningún control baja de 44 × 44`,
+        m.interactivos.filter((c) => c.ancho > 0 && (c.alto < LADO_TACTIL || c.ancho < LADO_TACTIL)).length, 0);
+      t.ok(`${cuando}: orden de DOM = orden de lectura (tarjeta, «Por tema», leyenda, filas, falladas)`,
+        (await pagina.evaluar(DOM_STATS)).join('|'), esperadoDom.join('|'));
+      if (!g || !l || !rf || filas.length === 0 || m.falladas.length === 0) { t.ok(`${cuando}: hay regiones`, false, true); continue; }
+
+      if (ancho < CORTE_ESCRITORIO) {
+        // Bajo el corte nada cambia: la columna única de siempre.
+        t.ok(`${cuando}: una columna, centrada y de ${COLUMNA} px como máximo`,
+          g.caja.ancho <= COLUMNA + 1 && Math.abs((g.caja.izq + g.caja.der) / 2 - m.vista / 2) <= 1.5, true);
+        t.ok(`${cuando}: tarjeta, leyenda y filas apiladas`,
+          g.caja.abajo <= l.caja.arriba && l.caja.abajo <= filas[0].caja.arriba, true);
+        t.ok(`${cuando}: filas y falladas en una sola columna`,
+          distintos(filas.map((f) => f.caja.izq)).length === 1 && distintos(m.falladas.map((f) => f.caja.izq)).length === 1, true);
+        continue;
+      }
+
+      const amplio = ancho >= CORTE_AMPLIO;
+      const hoja = amplio ? HOJA_AMPLIA : HOJA;
+      const izqHoja = (m.vista - hoja) / 2;
+      const derHoja = izqHoja + hoja;
+      t.ok(`${cuando}: la tarjeta global parte del borde izquierdo de la hoja (${hoja} px)`, Math.abs(g.caja.izq - izqHoja) <= 1.5, true);
+      t.ok(`${cuando}: región lateral de ancho ${LATERAL}`, Math.abs(g.caja.ancho - LATERAL) <= 1, true);
+      t.ok(`${cuando}: la leyenda cabe en el ancho lateral, en una línea`,
+        l.items.every((i) => Math.abs(i.caja.arriba - l.items[0].caja.arriba) < 2) && l.caja.der <= g.caja.der + 0.5, true);
+      t.ok(`${cuando}: rótulo «Por tema» y leyenda debajo de la tarjeta, en la región lateral`,
+        g.caja.abajo <= m.rotuloPorTema.caja.arriba && m.rotuloPorTema.caja.abajo <= l.caja.arriba
+          && Math.abs(m.rotuloPorTema.caja.izq - g.caja.izq) <= 1.5, true);
+
+      // Región principal: a la derecha de la lateral, separada paso 8, alineada arriba.
+      const izqFilas = Math.min(...filas.map((f) => f.caja.izq));
+      t.ok(`${cuando}: filas a la derecha de la lateral, separadas paso 8`,
+        Math.abs(izqFilas - (g.caja.der + MARGEN_HOJA)) <= 1.5, true);
+      t.ok(`${cuando}: lateral y principal alineadas arriba`,
+        Math.abs(g.caja.arriba - Math.min(...filas.map((f) => f.caja.arriba))) <= 1.5, true);
+      t.ok(`${cuando}: las filas no pasan del borde derecho de la hoja`,
+        Math.max(...filas.map((f) => f.caja.der)) <= derHoja + 0.5, true);
+
+      // Filas por tema: una columna en `escritorio`, dos con flujo por columnas desde `amplio`.
+      const colsFilas = distintos(filas.map((f) => f.caja.izq));
+      t.ok(`${cuando}: filas por tema en ${amplio ? 2 : 1} columna(s)`, colsFilas.length, amplio ? 2 : 1);
+      if (amplio) {
+        const enPrimera = filas.filter((f) => Math.round(f.caja.izq) === colsFilas[0]).length;
+        t.ok(`${cuando}: el flujo baja por la primera columna y sigue por la segunda (orden de TOPICS)`,
+          filas.every((f, i) => Math.round(f.caja.izq) === colsFilas[i < enPrimera ? 0 : 1]), true);
+        // CSS balancea por alto, no por cantidad: la diferencia no pasa de la fila más alta.
+        const altoDe = (i) => filas.filter((f) => Math.round(f.caja.izq) === colsFilas[i]).reduce((s, f) => s + f.caja.alto, 0);
+        t.ok(`${cuando}: las dos columnas quedan balanceadas por alto (a lo sumo una fila de diferencia)`,
+          Math.abs(altoDe(0) - altoDe(1)) <= Math.max(...filas.map((f) => f.caja.alto)) + 1, true);
+        t.ok(`${cuando}: marcas de umbral en el 60% y el 80% de la barra`, (() => {
+          const f = filas.find((x) => x.barra && x.u60 && x.u80);
+          const i = f ? f.barra.ancho - 2 : 0;
+          return !!f && Math.abs((f.u60.izq + f.u60.der) / 2 - (f.barra.izq + 1 + 0.6 * i)) <= 1.5
+            && Math.abs((f.u80.izq + f.u80.der) / 2 - (f.barra.izq + 1 + 0.8 * i)) <= 1.5;
+        })(), true);
+      } else {
+        t.ok(`${cuando}: filas en orden de TOPICS, de arriba hacia abajo`,
+          filas.every((f, i) => i === 0 || f.caja.arriba > filas[i - 1].caja.arriba), true);
+      }
+
+      // Hueco entre columnas de las listas de filas: paso 8 (aviso del Ingeniero; `FlujoColumnas`, 3.11a).
+      const hueco = (cajas, cols) => cols.slice(1).map((x, k) =>
+        x - Math.max(...cajas.filter((c) => Math.round(c.izq) === cols[k]).map((c) => c.der)));
+      if (amplio) {
+        t.ok(`${cuando}: filas por tema separadas paso 8 (32 px) entre columnas`,
+          hueco(filas.map((f) => f.caja), colsFilas).every((h) => Math.abs(h - MARGEN_HOJA) <= 1.5), true);
+      }
+
+      // «Más falladas»: debajo, a ancho de hoja, 2 columnas (3 desde `amplio`) con flujo por columnas.
+      t.ok(`${cuando}: «Más falladas» debajo de las filas y de la región lateral`,
+        rf.caja.arriba >= Math.max(...filas.map((f) => f.caja.abajo)) && rf.caja.arriba >= l.caja.abajo, true);
+      t.ok(`${cuando}: «Más falladas» parte del borde izquierdo de la hoja`, Math.abs(rf.caja.izq - izqHoja) <= 1.5, true);
+      const colsF = distintos(m.falladas.map((f) => f.caja.izq));
+      const nCols = amplio ? 3 : 2;
+      t.ok(`${cuando}: falladas en ${nCols} columnas`, colsF.length, nCols);
+      t.ok(`${cuando}: la primera columna de falladas parte del borde izquierdo de la hoja`, Math.abs(colsF[0] - izqHoja) <= 1.5, true);
+      t.ok(`${cuando}: las falladas no pasan del borde derecho de la hoja`,
+        Math.max(...m.falladas.map((f) => f.caja.der)) <= derHoja + 0.5, true);
+      t.ok(`${cuando}: falladas separadas paso 8 (32 px) entre columnas`,
+        hueco(m.falladas.map((f) => f.caja), colsF).every((h) => Math.abs(h - MARGEN_HOJA) <= 1.5), true);
+      const colDe = (f) => colsF.indexOf(Math.round(f.caja.izq));
+      t.ok(`${cuando}: flujo por columnas: el índice de columna no baja al recorrer #1 a #${m.falladas.length}`,
+        m.falladas.every((f, i) => i === 0 || colDe(f) >= colDe(m.falladas[i - 1])), true);
+      t.ok(`${cuando}: enunciado a dos líneas como máximo y filete de 1 px`,
+        m.falladas.every((f) => f.enunciado.caja.alto <= 2 * 22 + 0.5 && f.fileteAncho === '1px'), true);
+
+      // «Más falladas» a la vista: la pantalla se desplaza hasta el rótulo y se captura así
+      // (la captura de arriba es el viewport sin desplazar, donde las falladas quedan fuera).
+      const vista = await pagina.evaluar(PAGINA(`
+        const r = visibles('[data-testid="stats-rotulo-falladas"]')[0];
+        r.scrollIntoView({ block: 'start' });
+        const a = r.getBoundingClientRect();
+        const cols = visibles('[data-testid^="stats-fallada-"]').filter((n) => /^stats-fallada-[0-9]+$/.test(n.getAttribute('data-testid')))
+          .filter((n) => { const b = n.getBoundingClientRect(); return b.top >= 0 && b.bottom <= w.innerHeight; });
+        return { rotulo: a.top >= 0 && a.bottom <= w.innerHeight,
+          columnas: new Set(cols.map((n) => Math.round(n.getBoundingClientRect().left))).size };
+      `));
+      t.ok(`${cuando}: al desplazar, «Más falladas» queda a la vista en ${nCols} columnas`,
+        !!vista && vista.rotulo && vista.columnas === nCols, true);
+      await capturar(pagina, `E07-${ancho}-${oscuro ? 'oscuro' : 'claro'}-falladas.png`);
+      await pagina.evaluar(PAGINA('raiz.scrollTop = 0;'));
+    }
+  }
+}
+
+async function escritorioVacio(pagina, base, t) {
+  for (const oscuro of [false, true]) {
+    for (const [ancho, alto] of TAMANOS) {
+      const cuando = `vacío ${ancho} px ${oscuro ? 'oscuro' : 'claro'}`;
+      if (!await abrirStats(pagina, base, { ancho, alto, oscuro, plan: null })) { t.ok(`${cuando}: abrió Estadísticas`, false, true); continue; }
+      const m = await leer(pagina);
+      if (ancho >= CORTE_ESCRITORIO) await capturar(pagina, `E10-${ancho}-${oscuro ? 'oscuro' : 'claro'}.png`);
+      const v = m.vacio;
+      t.ok(`${cuando}: sin scroll horizontal`, m.desborda, false);
+      if (!v) { t.ok(`${cuando}: hay lámina vacía`, false, true); continue; }
+      t.ok(`${cuando}: V1 con sus cuatro marcas de esquina`, v.marcas, 4);
+      t.ok(`${cuando}: V1 centrada y anclada arriba`,
+        Math.abs((v.caja.izq + v.caja.der) / 2 - m.vista / 2) <= 1.5 && v.caja.arriba < 160, true);
+      if (ancho >= CORTE_ESCRITORIO) {
+        t.ok(`${cuando}: la lámina mide ${LECTURA} px (tope \`lectura\`), no se estira a la hoja`,
+          Math.abs(v.caja.ancho - LECTURA) <= 1, true);
+      } else {
+        t.ok(`${cuando}: la lámina conserva la columna (${COLUMNA} px como máximo)`, v.caja.ancho <= COLUMNA + 1, true);
+      }
+      t.ok(`${cuando}: «Practicar» de 44 × 44 como mínimo`,
+        !!m.practicar && m.practicar.caja.alto >= LADO_TACTIL && m.practicar.caja.ancho >= LADO_TACTIL, true);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 8 bis · Anclado, recorte de foco y orden de Tab contra el orden visual medido
+// (lecciones de los análisis 3.11: `comun.md` §7.2).
+
+// Todo en coordenadas de la PÁGINA (relativas al origen del contenido desplazable, no a la
+// ventana): `raiz` es el ancestro que desplaza la pantalla (el `ScrollView`).
+const PAGINA = (cuerpo) => EN_MARCO(`
+  const ancla = visibles('[data-testid="stats-global"], [data-testid="stats-vacio"]')[0];
+  let raiz = null;
+  for (let p = ancla && ancla.parentElement; p && !raiz; p = p.parentElement) {
+    const o = w.getComputedStyle(p).overflowY;
+    if (o === 'auto' || o === 'scroll') raiz = p;
+  }
+  if (!raiz) return null;
+  const rr = raiz.getBoundingClientRect();
+  const pag = (n) => {
+    const r = n.getBoundingClientRect();
+    const dentro = raiz.contains(n);
+    const ox = dentro ? rr.left - raiz.scrollLeft : 0, oy = dentro ? rr.top - raiz.scrollTop : -w.scrollY;
+    return { izq: r.left - ox, der: r.right - ox, arriba: r.top - oy, abajo: r.bottom - oy };
+  };
+  const ident = (n) => n.getAttribute('data-testid') || n.getAttribute('aria-label') || n.tagName.toLowerCase();
+  ${cuerpo}
+`);
+
+const IDS_ANCLADO = ['stats-global', 'stats-rotulo-por-tema', 'stats-leyenda', 'stats-rotulo-falladas',
+  'stats-fallada-1'];
+
+// Mide las regiones con la página en 0 y desplazada: ninguna debe moverse en la página.
+const MEDIR_ANCLADO = PAGINA(`
+  const ids = ${JSON.stringify(IDS_ANCLADO)}.concat(
+    visibles('[data-testid^="stats-fila-"]').slice(0, 1).map((n) => n.getAttribute('data-testid')));
+  const medir = () => ids.map((id) => {
+    const n = visibles('[data-testid="' + id + '"]')[0];
+    return { id, caja: n ? pag(n) : null };
+  });
+  raiz.scrollTop = 0;
+  const reposo = medir();
+  raiz.scrollTop = 400;
+  const desplazado = medir();
+  const aplicado = raiz.scrollTop;
+  raiz.scrollTop = 0;
+  return { reposo, desplazado, aplicado, maximo: raiz.scrollHeight - raiz.clientHeight };
+`);
+
+// Ancestros de cada pieza de la pantalla hasta la raíz de scroll (exclusive): ninguno puede
+// recortar con `overflow` ni anclarse con `sticky`/`fixed`.
+const MEDIR_ANCESTROS = PAGINA(`
+  const ids = visibles('[data-testid^="stats-"]').map((n) => n.getAttribute('data-testid'))
+    .filter((id) => !/^stats-(global-|fila-.+-|valor-|nombre-|barra-|relleno-|umbral-|detalle-|sin-practicar-|leyenda-.|fallada-(indice|valor|enunciado|tema)-)/.test(id));
+  const malos = [];
+  for (const id of ids) {
+    const inicio = visibles('[data-testid="' + id + '"]')[0];
+    for (let p = inicio; p && p !== raiz; p = p.parentElement) {
+      const e = w.getComputedStyle(p);
+      const clip = [e.overflowX, e.overflowY].some((v) => v !== 'visible');
+      const ancla = e.position === 'sticky' || e.position === 'fixed';
+      if (clip || ancla) malos.push(id + ' > ' + ident(p) + ': ' + (ancla ? e.position : e.overflowX + '/' + e.overflowY));
+    }
+  }
+  return { piezas: ids.length, malos: Array.from(new Set(malos)) };
+`);
+
+// Controles enfocables dentro de la raíz: el contorno de foco (2 px + paso 0.5) no sale por
+// ninguno de los cuatro bordes del área visible de la raíz (horizontal) ni de la página.
+const MEDIR_CONTORNO = PAGINA(`
+  const total = raiz.scrollHeight;
+  const ctl = visibles('[tabindex="0"], [data-testid="stats-practicar"]').filter((n) => raiz.contains(n));
+  return {
+    n: ctl.length, ancho: raiz.clientWidth, alto: total,
+    cajas: ctl.map((n) => ({ id: ident(n), caja: pag(n) })),
+  };
+`);
+
+// Paradas de Tab reales, en orden, con sus coordenadas de página.
+async function recorrerTab(pagina) {
+  await pagina.evaluar(EN_MARCO(`m.contentWindow.focus(); if (d.activeElement && d.activeElement.blur) d.activeElement.blur();`));
+  const paradas = [];
+  for (let i = 0; i < 12; i++) {
+    await pagina.tecla('Tab');
+    const p = await pagina.evaluar(PAGINA(`
+      const a = d.activeElement;
+      if (!a || a === d.body || a === d.documentElement) return { fin: true };
+      return { id: ident(a), enRaiz: raiz.contains(a), caja: pag(a) };
+    `));
+    if (!p || p.fin || paradas.some((x) => x.id === p.id)) break;
+    paradas.push(p);
+  }
+  return paradas;
+}
+
+// ¿«b» queda antes que «a» en lectura visual? Misma columna: más arriba. Columnas distintas
+// (sin solape horizontal): más a la izquierda. Es el orden por región, arriba-abajo e
+// izquierda-derecha, medido sobre la página.
+const hSolape = (a, b) => Math.min(a.der, b.der) - Math.max(a.izq, b.izq) > 1;
+const antesVisual = (b, a) => (hSolape(a, b) ? b.abajo <= a.arriba + 1 : b.der <= a.izq + 1);
+const retrocesos = (xs) => xs.slice(1)
+  .map((x, i) => (antesVisual(x.caja, xs[i].caja) ? `${xs[i].id} → ${x.id}` : null)).filter(Boolean);
+
+const LANDMARKS = PAGINA(`
+  return visibles('[data-testid^="stats-"]').map((n) => ({ id: n.getAttribute('data-testid'), caja: pag(n) })).filter((x) =>
+    x.id === 'stats-global' || x.id === 'stats-rotulo-por-tema' || x.id === 'stats-leyenda'
+    || x.id.startsWith('stats-fila-') || x.id === 'stats-rotulo-falladas' || /^stats-fallada-[0-9]+$/.test(x.id)
+    || x.id === 'stats-vacio' || x.id === 'stats-practicar');
+`);
+
+async function escritorioAnclaFocoYOrden(pagina, base, t) {
+  for (const oscuro of [false, true]) {
+    for (const [ancho, alto] of TAMANOS) {
+      const cuando = `${ancho} px ${oscuro ? 'oscuro' : 'claro'}`;
+      if (!await abrirStats(pagina, base, { ancho, alto, oscuro })) { t.ok(`${cuando}: abrió Estadísticas`, false, true); continue; }
+
+      // Anclado: con la página desplazada ninguna región queda fija.
+      const a = await pagina.evaluar(MEDIR_ANCLADO);
+      t.ok(`${cuando}: la pantalla se desplaza (hay con qué medir el anclado)`, !!a && a.aplicado > 100, true);
+      if (a) {
+        const movidas = a.reposo.filter((r, i) => !r.caja || !a.desplazado[i].caja
+          || Math.abs(r.caja.arriba - a.desplazado[i].caja.arriba) > 1
+          || Math.abs(r.caja.izq - a.desplazado[i].caja.izq) > 1).map((r) => r.id);
+        t.ok(`${cuando}: anclado: con la página desplazada ninguna región queda fija (sin sticky)`, movidas.join(','), '');
+      }
+      const anc = await pagina.evaluar(MEDIR_ANCESTROS);
+      t.ok(`${cuando}: se revisaron las piezas de la pantalla`, !!anc && anc.piezas >= 20, true);
+      t.ok(`${cuando}: ningún ancestro recorta con overflow ni se ancla (sticky/fixed)`, anc ? anc.malos.join(' ; ') : null, '');
+
+      // Orden visual medido: el DOM de las piezas no retrocede en la página.
+      const lm = await pagina.evaluar(LANDMARKS);
+      t.ok(`${cuando}: orden de DOM = orden visual medido en la página, sin retrocesos`, lm ? retrocesos(lm).join(' ; ') : null, '');
+
+      // Tab real: las paradas dentro de la pantalla no saltan hacia atrás en la página.
+      const paradas = await recorrerTab(pagina);
+      const enRaiz = paradas.filter((p) => p.enRaiz);
+      t.ok(`${cuando}: Tab alcanza «volver» de la barra interna`, paradas.some((p) => p.id === 'barra-volver'), true);
+      t.ok(`${cuando}: Tab dentro de la pantalla sigue el orden visual medido`, retrocesos(enRaiz).join(' ; '), '');
+    }
+  }
+}
+
+async function escritorioVacioFocoYOrden(pagina, base, t) {
+  for (const oscuro of [false, true]) {
+    for (const [ancho, alto] of TAMANOS) {
+      const cuando = `vacío ${ancho} px ${oscuro ? 'oscuro' : 'claro'}`;
+      if (!await abrirStats(pagina, base, { ancho, alto, oscuro, plan: null })) { t.ok(`${cuando}: abrió Estadísticas`, false, true); continue; }
+      const anc = await pagina.evaluar(MEDIR_ANCESTROS);
+      t.ok(`${cuando}: ningún ancestro de la lámina recorta con overflow ni se ancla`, anc ? anc.malos.join(' ; ') : null, '');
+      const c = await pagina.evaluar(MEDIR_CONTORNO);
+      t.ok(`${cuando}: «Practicar» está dentro de la pantalla desplazable`, !!c && c.n >= 1, true);
+      if (c && c.n >= 1) {
+        // Contorno: 2 px de trazo y paso 0.5 de separación; los cuatro bordes con margen libre.
+        const borde = 2 + 0.5 * PASO;
+        t.ok(`${cuando}: el contorno de foco no sale por los bordes de la pantalla`,
+          c.cajas.every((x) => x.caja.izq - borde >= 0 && x.caja.der + borde <= c.ancho + 0.5
+            && x.caja.arriba - borde >= 0 && x.caja.abajo + borde <= c.alto + 0.5), true);
+      }
+      const paradas = await recorrerTab(pagina);
+      t.ok(`${cuando}: Tab alcanza «Practicar»`, paradas.some((p) => p.id === 'stats-practicar'), true);
+      t.ok(`${cuando}: Tab dentro de la pantalla sigue el orden visual medido`,
+        retrocesos(paradas.filter((p) => p.enRaiz)).join(' ; '), '');
+    }
+  }
+}
+
 async function restaurarPerfil(pagina, base, t) {
   await abrirMarco(pagina, base, 390);
   await escribirClave(pagina, previo === undefined ? null : previo);
@@ -734,5 +1082,9 @@ module.exports = [
   { nombre: 'Estadísticas: estados K2 de «Practicar»', correr: estadosDeControl },
   { nombre: 'Estadísticas: sin desborde y 44 × 44 en claro y oscuro', correr: sinDesbordeNiCortes },
   { nombre: 'MarcaEstado: paso rotulo-medio', correr: pasoRotuloMedio },
+  { nombre: 'Estadísticas: escritorio, regiones y columnas (ESC-P7)', correr: escritorioConDatos },
+  { nombre: 'Estadísticas: escritorio, estado vacío en `lectura` (ESC-P12)', correr: escritorioVacio },
+  { nombre: 'Estadísticas: escritorio, anclado, recorte de foco y orden de Tab con datos', correr: escritorioAnclaFocoYOrden },
+  { nombre: 'Estadísticas: escritorio, foco y orden de Tab en el estado vacío', correr: escritorioVacioFocoYOrden },
   { nombre: 'Estadísticas: restaura el perfil', correr: restaurarPerfil },
 ];
