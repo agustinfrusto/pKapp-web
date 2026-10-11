@@ -231,19 +231,33 @@ Regla: ningún estado se comunica solo por color (spec `design-system`; `tokens.
 
 | Clase | Qué es | Reposo | Hover (web) | Presionado | Foco | Seleccionado | Deshabilitado |
 |---|---|---|---|---|---|---|---|
-| K1 | Botón relleno | Fondo `tinta`; texto `fondo` (T7); borde `tinta`, `border` | Contorno web `linea`, `border-2`, sin separación | Inversión: fondo del contenedor; texto `tinta`; borde `linea` | Contorno `foco`, `border-2`, separado `paso 0.5` | — | Fondo del contenedor; texto `inactivo`; borde `filete` |
-| K2 | Botón de marco | Fondo del contenedor; texto `tinta`; borde `linea`, `border`. Variante de acento: texto y borde `acento` (T6) | Contorno web del color del borde, `border` | Inversión: fondo `tinta`; texto `fondo`; borde `tinta` | Igual que K1 | — | Borde `filete`; texto `inactivo` |
-| K3 | Control de marco `borde` (acción, opción, filtro) | Fondo `superficie`; texto `tinta` (T2); borde `borde`, `border` (N3, N4) | Borde pasa a `linea`, mismo grosor | Inversión: fondo `tinta`; texto y glifo `fondo`; borde `tinta` | Igual que K1 | Según ficha | Borde `filete`; texto `inactivo` |
+| K1 | Botón relleno | Fondo `tinta`; texto `fondo` (T7); borde `tinta`, `border` | Contorno web `linea`, `border-2`, sin separación | Inversión: fondo `superficie` (lo fijan las matrices c de las fichas); texto `tinta`; borde `linea` | Contorno `foco`, `border-2`, separado `paso 0.5` | — | Fondo del contenedor, el de la página o el del panel donde está; texto `inactivo`; borde `filete` |
+| K2 | Botón de marco | Fondo `superficie` (`fondo` en «Cambiar materia» de Home y en «Volver» de Revisión, por ficha); texto `tinta`; borde `linea`, `border`. Variante de acento: texto y borde `acento` (T6). Variante de peligro: texto y borde `error` (`SET-P2`) | Contorno web del color del borde, `border` | Inversión: fondo `tinta`; texto `fondo`; borde `tinta` (de peligro: fondo `error`, texto `fondo`, T9) | Igual que K1 | — | Borde `filete`; texto `inactivo`; el fondo no cambia |
+| K3 | Control de marco `borde` (acción, opción, filtro) | Fondo `superficie`; texto `tinta` (T2); borde `borde`, `border` (N3, N4) | Borde pasa a `linea`, mismo grosor | Inversión: fondo `tinta`; texto y glifo `fondo`; borde `tinta` | Igual que K1 | Fondo `tinta`; texto `fondo`; borde `tinta` (§5.1), salvo lo que fije la ficha (regla 2.9-2) | Borde `filete`; texto `inactivo` |
 | K4 | Filtro o segmento de un grupo | Igual que K3 | Igual que K3 | Igual que K3 (anticipa el seleccionado) | Igual que K1 | Fondo `tinta`; texto `fondo` en `cuerpo-fuerte`; borde `tinta` (T7, N5) | Igual que K3 |
-| K5 | Cuadrado de paso (menos, más) | Igual que K2, lado `paso 11`, glifo `tinta` | Igual que K2 | Igual que K2 | Igual que K1 | — | Borde `filete`; glifo `inactivo` |
-| K6 | Tarjeta navegable | Borde `linea`, `border`; fondo `superficie`; marcas de esquina (§6) | Contorno web `linea`, `border` | Inversión total: fondo `tinta`; texto, glifo e ilustración `fondo` | Igual que K1 | — | Borde `filete`; texto e ilustración `inactivo` |
-| K7 | Fila de lista o botón de glifo | Sin marco; filete inferior `filete` en listas; texto `tinta` | Contorno web `linea`, `border` | Inversión total | Igual que K1 | — | Texto y glifo `inactivo` |
+| K5 | Cuadrado de paso (menos, más) | Igual que K2 (fondo `superficie`), lado `paso 11`, glifo `tinta` | Igual que K2 | Igual que K2 | Igual que K1 | — | Borde `filete`; glifo `inactivo` |
+| K6 | Tarjeta navegable | Borde `linea`, `border`; fondo `superficie`; marcas de esquina (§6). Variante de acento (tarjeta de mezcla de `TopicSelect.md`): borde `acento`, `border-2`; glifo `acento`; sin marcas | Contorno web `linea`, `border` (de acento: `acento`, `border`) | Inversión total: fondo `tinta`; texto, glifo e ilustración `fondo` | Igual que K1 | — | Borde `filete`; texto e ilustración `inactivo`; las marcas de esquina no cambian (`linea`, §6) |
+| K7 | Fila de lista o botón de glifo | Sin marco; filete inferior `filete` en listas; texto `tinta`. Botón de glifo: `tinta` (cerrar del quiz) o `tintaSec` (descartar, eliminar y quitar, N19 y N20) | Contorno web `linea`, `border` | Inversión total | Igual que K1 | — | Texto y glifo `inactivo` |
 
 | Combinación | Resultado |
 |---|---|
 | Hover y foco a la vez | Gana el foco (un solo contorno) |
 | Seleccionado y hover | Sin cambio: el relleno ya es el máximo |
 | Presionado en un seleccionado | Sin cambio |
+
+Reglas que fija la tarea 2.9 (componentes compartidos de `src/components/plancha/`) para lo que las matrices de arriba dejaban abierto. Las 3.x las aplican y no las vuelven a decidir.
+
+| Regla | Qué fija | Fuente |
+|---|---|---|
+| 2.9-1 Fondo | K1 presionado: `superficie`. K1 deshabilitado: el del contenedor. K2 y K5 en todo estado menos presionado: `superficie` por defecto y `fondo` donde la ficha lo pide (Home, «Cambiar materia»; Revisión, «Volver»). K3, K4 y K6: `superficie`. Un control declara su fondo; no lo hereda de un contenedor que no lo fija | Matrices c de Results, Quiz, TopicSelect, Settings, Revisión, ExamenEnCurso y AddQuestion (K1); Results, Vacíos, Banners y Settings (K2 en `superficie`); Home y Revisión (K2 en `fondo`) |
+| 2.9-2 Seleccionado de K3 | Por defecto: fondo `tinta`, texto `fondo`, borde `tinta` y estado accesible seleccionado. Excepciones de la ficha: celda de letra marcada (fondo y borde `acierto`, `border-2`, `glifo-acierto` en `fondo`: `AddQuestion.md` c) y plegable abierto, que está expandido y no seleccionado (borde `linea`, sin relleno, estado accesible expandido: `Settings.md` c) | §5.1; CD-5; `ExamenEnCurso.md` b (opción elegida) |
+| 2.9-3 K4 deshabilitada | Cada opción de un grupo puede deshabilitarse, con el aspecto de K3 deshabilitado, sin toque, hover ni foco. Si la opción marcada se deshabilita, gana el aspecto deshabilitado y conserva su estado accesible marcado | §5.2 K4; CD-5 |
+| 2.9-4 Paso tipográfico | K1, K2 y K3 con texto de acción: `cuerpo-fuerte`. K3 como opción, letra o plegable: el paso de la ficha (`cuerpo`, `dato`, `item`) con el color de estado de la clase. K4 como filtro: `cuerpo` y, seleccionado, `cuerpo-fuerte`. K4 como segmentado dentro de un contenedor (`SET-P1`): `rotulo` en reposo y seleccionado. Marca de estado (§4): `rotulo` en la línea de estado, el rótulo del trío y la leyenda (texto del estado o `tintaSec`, según la ficha); `detalle` en la correcta de «Mis preguntas»; `dato` en las filas de Estadísticas; `display` en el porcentaje, con el glifo a `paso 6` | `tokens.md` b.2; tablas b de Results, Quiz, TopicSelect, Settings, Revisión, AddQuestion y Stats |
+| 2.9-5 Relleno y alto | En §8 | §8 |
+| 2.9-6 K6 deshabilitada | Las marcas de esquina no cambian: siguen en `linea` (§6). Cambian el borde (`filete`) y el texto, el id y la ilustración (`inactivo`) | §6; `MateriaSelect.md` c |
+| 2.9-7 Teclado de K4 | El del control de tema (§2.3): flechas izquierda y arriba (anterior) y derecha y abajo (siguiente) mueven el foco y la selección, con vuelta y saltando las opciones deshabilitadas; Espacio y Enter seleccionan la opción con foco; con Alt, Ctrl o Meta no se actúa; todas las opciones siguen siendo paradas de Tab. Rol `radiogroup` y `radio` | `SET-P1` (el segmentado de Ajustes es «de la misma clase K4 que el control Claro \| Oscuro»); §2.3; `HeaderMarca.js` |
+| 2.9-8 Controles que repintan a sus hijos | K3, K6 y K7 entregan a su contenido el estado (`estado`, `invertido`, `deshabilitado`) y las claves de color del texto, del glifo y de la ilustración, porque un descendiente libre no hereda el color. Ilustración de K6: `filamento` en reposo y hover, `fondo` presionada, `inactivo` deshabilitada | §5.2 K6 y K7; `COMUN-P1`; CD-15; `MateriaSelect.md` c |
+| 2.9-9 Hover y foco | El contorno de hover y el de foco van en el mismo elemento y el foco prevalece: un solo contorno. K3 y K4 como filtro cambian el color del borde y no suman contorno; K4 como segmentado, K1, K2, K5, K6 y K7 suman el contorno de la tabla. Ninguno mueve el layout | §5.1; CD-3; CD-4; `Settings.md` c (segmentado) |
 
 ---
 
@@ -310,6 +324,13 @@ Pasos que fijan tamaños de componente. Todos figuran en `tokens.md` c.3: los pa
 | Celda de letra de una opción | Ancho | `paso 11` |
 | Valor del temporizador | Ancho mínimo | `paso 20` |
 | Relleno inferior del scroll del quiz | Alto, más área segura inferior | `paso 24` |
+| Botón de acción grande, K1 o K2 (Results, Quiz «Siguiente», TopicSelect «Comenzar examen», AddQuestion «Guardar») | Relleno vertical; el alto resultante supera `paso 11` | `paso 3.5` |
+| Botón estándar, K1, K2 o K3 de acción (Banners, Vacíos, Revisión, Settings, Home, AddQuestion «Agregar opción») | Alto mínimo | `paso 11` |
+| Botón, relleno horizontal | Por defecto | `paso 4` |
+| Botón, relleno horizontal ampliado («Comenzar examen» de TopicSelect y acción de Vacíos) | Relleno horizontal | `paso 8` |
+| Filtro K4 (TopicSelect, Revisión, AddQuestion) y opción del segmentado (Settings) | Relleno horizontal; alto mínimo `paso 11`; en AddQuestion, relleno vertical `paso 2` | `paso 3` |
+| Tarjeta navegable K6 | Sin relleno propio: el contenido fija el suyo (tarjeta de materia, `MateriaSelect.md` a.3; tarjeta de mezcla, vertical `paso 3` y horizontal `paso 3.5`) | — |
+| Glifo de una marca de estado con paso `display` (porcentaje de Results y de Estadísticas) | Lado | `paso 6` |
 
 Todos los glifos comparten un viewBox (spec de 1.4). El componente mantiene el grosor de c.2 a cualquier lado: `stroke-width` = 1,5 × lado del viewBox / lado en px (`CONVENCIONES.md`, CD-9).
 
