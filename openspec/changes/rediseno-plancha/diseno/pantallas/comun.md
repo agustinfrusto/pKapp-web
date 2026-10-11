@@ -253,7 +253,7 @@ Pasos que fijan tamaños de componente. Todos figuran en `tokens.md` c.3: los pa
 | Fila de control y objetivo táctil mínimo | Alto (y ancho de cuadrados) | `paso 11` |
 | Cuadro del glifo de acción (Home) | Lado | `paso 10` |
 | Glifo grande (volver, cerrar, siguiente, acción) | Lado | `paso 6` |
-| Glifo chico (marcas inline, chevron, reloj, origen) | Lado; grilla propia | `paso 4` |
+| Glifo chico (marcas inline, chevron, reloj, origen) | Lado; mismo viewBox que el grande | `paso 4` |
 | Glifo de estado vacío (ver 1.3) | Lado; el trazo se compensa para quedar en el grosor de c.2 | `paso 12` |
 | Celda de ilustración en tarjeta de selector | Ancho | `paso 16` |
 | Ilustración en tarjeta de selector | Lado | `paso 12` |
@@ -270,7 +270,7 @@ Pasos que fijan tamaños de componente. Todos figuran en `tokens.md` c.3: los pa
 | Valor del temporizador | Ancho mínimo | `paso 20` |
 | Relleno inferior del scroll del quiz | Alto, más área segura inferior | `paso 24` |
 
-El glifo chico no se obtiene reduciendo el grande: se dibuja sobre su propia grilla para conservar el trazo de c.2.
+Todos los glifos comparten un viewBox (spec de 1.4). El componente mantiene el grosor de c.2 a cualquier lado: `stroke-width` = 1,5 × lado del viewBox / lado en px (`CONVENCIONES.md`, CD-9).
 
 Los valores del boceto se trasladan al paso más cercano de la escala (`tokens.md` c.3, «Valor del boceto» y «Paso final»): es traslado de medida, no propuesta. Lo que sí cambia el aspecto o el uso va a §11 y a la sección f de cada ficha.
 
@@ -302,7 +302,7 @@ Un id por glifo; se dibujan en 1.4, trazo de c.2, sin relleno, en `currentColor`
 | `glifo-oscuro` | 🌙 (`HeaderMarca.js:41`) | Control «Claro \| Oscuro» (HeaderMarca), opción «Oscuro» | chico | Estado y acción: modo oscuro activo y elegirlo | Igual que `glifo-claro` | Igual que `glifo-claro` |
 | `glifo-explicacion` | 💡 (`QuizScreen.js:295`, `ResultsScreen.js:148`) | Quiz (rótulo «Nota / Explicación»); Results, revisión (ver 1.3) | chico | Aviso: dato adicional sobre la pregunta | `acento` sobre `superficie` (N18) | La bombilla marcaba «dato extra». En Plancha ese rol es de la nota, cuyo rótulo y borde izquierdo ya son `acento` (a.1): el glifo comparte color con su rótulo y la nota se lee como una pieza |
 | `glifo-reloj` | ⏱ (`QuizScreen.js:191`) | Quiz (cuenta regresiva) | chico | Aviso: tiempo restante, alerta con menos de 120 s | `tinta` sobre `fondo` (N5); con menos de 120 s, `error` sobre `fondo` (N12) y marco `error`, `border-2` | En `main` el tiempo pasa a rojo claro bajo 120 s: `error` conserva ese aviso y el marco suma la señal sin color. Con tiempo de sobra el reloj es neutro para no competir con el enunciado |
-| `glifo-reportar` | 🚩 (`QuizScreen.js:306`, `ResultsScreen.js:158`) | Quiz («Reportar pregunta»); Results, revisión (ver 1.3) | chico | Aviso: señalar un problema en la pregunta | `tinta` sobre `superficie` (N6) | La bandera roja avisaba de un problema. Acá es una utilidad secundaria que aparece junto a «Correcta» o «Incorrecta»: un glifo rojo se leería como otro estado de error de la respuesta. La forma y el texto llevan el aviso; si el usuario prefiere el rojo, `error` sobre `superficie` (N13) sin otro cambio |
+| `glifo-reportar` | 🚩 (`QuizScreen.js:306`, `ResultsScreen.js:158`) | Quiz («Reportar pregunta»); Results, revisión (ver 1.3) | chico | Aviso: señalar un problema en la pregunta | `tinta` sobre `superficie` (N6) | La bandera roja avisaba de un problema. Acá es una utilidad secundaria que aparece junto a «Correcta» o «Incorrecta»: un glifo rojo se leería como otro estado de error de la respuesta. La forma y el texto llevan el aviso. Sin alternativa roja (`CONVENCIONES.md`, CD-14) |
 | `glifo-origen-examen` | 📄 (`QuizScreen.js:219`) | Quiz (chip de origen `exam`) | chico | Origen: pregunta de examen real | `acento` sobre `superficie` (N18), en chip de marco `acento` | El examen real es la procedencia que más importa y toma el único color de marca. Marco y glifo del mismo color forman una pieza, y el fondo vacío lo separa de la generada |
 | `glifo-origen-generada` | ✨ (`QuizScreen.js:222`) | Quiz (chip de origen `generated`) | chico | Origen: pregunta generada | `fondo` sobre `tinta` (T7, el par de N5), en chip relleno | D6 pide que una generada nunca se presente como de examen real: el chip va relleno en `tinta`, silueta opuesta al marco del examen, y no comparte color con él: la diferencia no depende del matiz |
 | `glifo-origen-propia` | 👤 (`QuizScreen.js:225`) | Quiz (chip de origen `user`) | chico | Origen: pregunta del propio usuario | `tinta` sobre `superficie` (N6), en chip de marco `linea` | Es contenido del usuario: no certifica ni advierte, así que va neutro. Se distingue de las otras dos por silueta y texto, sin color |
@@ -323,10 +323,11 @@ Un id por glifo; se dibujan en 1.4, trazo de c.2, sin relleno, en `currentColor`
 | `glifo-importar` | 📂 (`SettingsScreen.js:184`) | Settings («Importar respaldo») (ver 1.3) | chico | Acción: cargar un archivo | Igual que `glifo-guardar` | Igual que `glifo-guardar` |
 | `glifo-correo` | ✉️ (`SettingsScreen.js:223`) | Settings («Reportar un error») (ver 1.3) | chico | Acción: abrir un correo | `acento` sobre `fondo` (N17) o `superficie` (N18) | El enlace era de acento en `main`: el glifo conserva esa función de enlace de contacto con el mismo token que su texto |
 | `glifo-externo` | `↗` (`SettingsScreen.js:230`) | Settings («Código fuente») (ver 1.3) | chico | Aviso: el enlace sale de la app | `acento` sobre `fondo` (N17) o `superficie` (N18) | Marca que el enlace abre otro sitio: va del color del enlace para leerse como parte de él |
+| `glifo-eliminar` | `×` (`SettingsScreen.js:131`) | Settings, «Mis preguntas»: eliminar una pregunta propia (ver 1.3) | grande, objetivo `paso 11` | Acción: eliminar un dato guardado, con confirmación del sistema | `tintaSec` sobre `superficie` (N20); presionado, `fondo` sobre `tinta` (T7) | Es la única acción que borra un dato del usuario desde una tarjeta. Va en el mismo tono que descartar o quitar (`glifo-cerrar`) para no competir con el enunciado de la tarjeta, y se separa de él por silueta: borrar un dato guardado y descartar una nota no pueden leerse como la misma acción. No usa `error`, reservado a respuesta incorrecta, banda baja y validación (a.1); la confirmación del sistema ya advierte que no se puede deshacer |
 
 ### Indicaciones de forma para 1.4
 
-El dibujo lo decide 1.4 dentro de estas reglas: cuadrícula de 24 para el glifo grande y propia para el chico, terminación cuadrada, ángulos rectos donde el motivo lo permita, un solo grosor (c.2).
+El dibujo lo decide 1.4 dentro de estas reglas: un viewBox común para todos los glifos (el componente mantiene 1,5 px visibles a cualquier lado, `CONVENCIONES.md` CD-9), terminación cuadrada, ángulos rectos donde el motivo lo permita, un solo grosor (c.2).
 
 | Glifo | Indicación |
 |---|---|
@@ -356,6 +357,7 @@ El dibujo lo decide 1.4 dentro de estas reglas: cuadrícula de 24 para el glifo 
 | `glifo-importar` | Carpeta de trazo recto: rectángulo con pestaña superior izquierda |
 | `glifo-correo` | Sobre rectangular con solapa en V |
 | `glifo-externo` | Cuadrado abierto en su esquina superior derecha y flecha diagonal que sale por ella |
+| `glifo-eliminar` | Papelera de trazo recto: cuerpo trapezoidal con dos trazos verticales interiores, tapa horizontal más ancha que el cuerpo y asa corta sobre la tapa; sin aspa, para no confundirse con `glifo-cerrar` |
 
 ### Excepciones: sin glifo propio
 
@@ -388,3 +390,56 @@ El usuario las aprobó el 2026-10-10 y rigen tal como están descritas. No hay v
 | COMUN-P2 | Presionado: inversión `tinta`/`fondo` en toda clase de control (K1 a K7). Hover (solo web con puntero): contorno o borde `linea`. Foco de teclado: contorno `foco`, `border-2`, separado `paso 0.5`. El boceto es estático y no muestra estos estados | El presionado actual usa opacidad (`activeOpacity`) y el hover un halo con `rgba` (`webStyles.js`): ambos son transparencia, que el sistema excluye (`tokens.md` a.2). El foco cumple 3:1 (N7 y N8) | visual | aprobada (usuario, 2026-10-10) |
 
 No son propuestas: el control «Claro \| Oscuro» (D7, aprobado en el change), el traslado de medidas a la escala (§8) y los glifos que reemplazan a los emojis (pedido del usuario, 2026-10-10).
+
+---
+
+## 12. Distinción de 1.er y 2.do parcial (tarea 1.3)
+
+`main` distingue el parcial de una pregunta con un par de pasteles (`parcial.1` y `parcial.2` de `src/theme/colores.js`). El par codifica información, no decora, y la paleta Plancha no tiene pasteles (`tokens.md` a.1; `REFERENCIAS.md`: nada colorido). El boceto lo deja solo en texto y `NOTAS.md` pregunta si necesita algo más. Esta sección responde para toda la app. Ningún dato ni corte cambia: el parcial sale de `question.parcial` (`primero` o `segundo`) y su rótulo de `materia.config.parciales`; hoy solo `anatomia` y `bcyt` tienen parciales.
+
+### 12.1 Dónde aparece hoy
+
+| Dónde | Archivo | Qué muestra | Cómo se distingue hoy |
+|---|---|---|---|
+| Quiz y examen en curso | `QuizScreen.js:200` a `212` | Insignia «1er Parcial» o «2do Parcial» sobre el tema, solo si la pregunta tiene `parcial` | Par de pasteles |
+| Selector de tema, filtro | `TopicSelectScreen.js:263` a `291` | Filtro «Examen», «1er Parcial», «2do Parcial» (solo con `materia.config.parciales`) | Solo el texto |
+| Selector de tema, modo examen | `TopicSelectScreen.js:156` a `159` | Texto del sorteo «…de {rótulo del parcial}» | Solo el texto |
+
+No aparece en `Results`, la revisión, `Stats`, `Settings` ni `Home`.
+
+### 12.2 Marca de parcial (`PAR-P1`)
+
+| Pieza | Regla |
+|---|---|
+| Marca | Una fila de dos casillas, una por parcial de la materia. Si una materia sumara un tercer parcial, la regla se extiende a tres casillas con la tercera llena |
+| Casilla llena | La del parcial de la pregunta: la primera con `primero`, la segunda con `segundo` |
+| Casilla vacía | La otra |
+| Lectura | Por posición: la casilla llena a la izquierda es el 1.er parcial y la de la derecha, el 2.do. Los dos llevan la misma cantidad de tinta: ninguno se lee como «más» que el otro, porque es una categoría y no un orden de mérito |
+| Medidas | Casilla de lado `paso 2.5`, separadas por `paso 0.5`; la vacía con marco `border` y la llena con relleno; la fila se centra en vertical con el texto. Es el lenguaje de las casillas de progreso del quiz (`Quiz.md` b) |
+| Color | El del texto de su contenedor: `tinta` sobre `fondo` o `superficie`, y `fondo` sobre `tinta` en un contenedor seleccionado. Nunca `acierto`, `error` ni `intermedia`: son estados de rendimiento |
+| Texto | El de la materia, «1er Parcial» o «2do Parcial» (`materia.config.parciales[].label`), en `rotulo`; el paso lo muestra en mayúsculas. La marca acompaña al texto, no lo reemplaza |
+| Sin parcial | Pregunta sin `parcial`, o materia con `parciales: null`: ni marca ni texto, y la fila de contexto no deja hueco |
+| Accesibilidad | La marca es decorativa (`aria-hidden`, `accessibilityElementsHidden`); el nombre accesible es el texto |
+| Pares | Marca `tinta` sobre `fondo` (N5) y sobre `superficie` (N6); `fondo` sobre `tinta` (T7); texto `tinta` sobre `fondo` (T1) |
+
+### 12.3 Aplicación
+
+| Dónde | Cómo se aplica | Tokens y pasos |
+|---|---|---|
+| Quiz y examen en curso: insignia (`Quiz.md` a.1, bloque 2; `ExamenEnCurso.md`) | A la izquierda de la fila de contexto, encima del chip de origen; marca y texto en una línea, separados por `paso 1.5`; margen inferior `paso 1` hasta el chip. Sin marco ni relleno | Texto `rotulo`, `tinta` sobre `fondo` (T1); marca `tinta` (N5) |
+| Selector de tema: filtro de parcial (`TopicSelect.md` a.3, bloque 3; `PAR-P2`) | Marca delante del texto de cada filtro de parcial, separada por `paso 2`; «Examen» no lleva marca | K4 de `TopicSelect.md` b y c: en reposo, marca `tinta` sobre `superficie` (N6); seleccionado, marca `fondo` sobre `tinta` (T7). Alto `paso 11` y estados sin cambio |
+| Selector de tema: sorteo del modo examen | Sin marca: es una oración («…de 1er Parcial») | `TopicSelect.md` e, sin cambio |
+
+La insignia no es un control: no tiene hover, presionado, foco ni deshabilitado. El filtro conserva la matriz de `TopicSelect.md` c.
+
+### 12.4 Propuestas pendientes (D10)
+
+| Id | Qué cambia | Motivo | Tipo | Estado |
+|---|---|---|---|---|
+| PAR-P1 | La insignia de parcial del quiz y del examen en curso pasa del par de pasteles a una marca de dos casillas más el texto de siempre, sin color propio | `parcial.1` y `parcial.2` no existen en Plancha y la paleta excluye lo colorido. El par comunica una categoría que el texto solo no hace evidente de un vistazo; la posición de la casilla llena sí, sin color y con la misma tinta en los dos | visual | pendiente |
+| PAR-P2 | El filtro de parcial del selector lleva la misma marca delante del texto | La marca que el usuario elige en el selector es la que ve en la pregunta. Hoy el filtro no lleva pastel y se distingue solo por texto | visual | pendiente |
+
+| Id | Si no se aprueba | Detalle |
+|---|---|---|
+| PAR-P1 | Insignia solo de texto | Sin marca ni color propio: el texto «1er Parcial» o «2do Parcial» en `rotulo` y `tinta` (T1) sobre `fondo`, en una línea, encima del chip de origen, con margen inferior `paso 1`. Sin marco ni relleno. La distinción es solo el texto, como en el boceto |
+| PAR-P2 | Filtro solo de texto | El filtro de parcial queda como en `TopicSelect.md` b y c: K4 con el texto del parcial y sin marca. «Examen», «1er Parcial» y «2do Parcial» se distinguen por texto, como hoy |
