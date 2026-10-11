@@ -1,6 +1,8 @@
 // Pantalla inicial: el usuario elige con qué materia quiere estudiar.
 // Se presenta SIEMPRE al abrir la app (no se persiste la última).
-// Ficha: openspec/changes/rediseno-plancha/diseno/pantallas/MateriaSelect.md.
+// Ficha: openspec/changes/rediseno-plancha/diseno/pantallas/MateriaSelect.md (a, y «Escritorio»
+// `ESC-P1` desde el corte `escritorio`: lámina y nota en la región lateral, rejilla de 2
+// columnas, 3 desde `amplio`, y el pedido de donación al pie de la principal).
 import React, { useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { MATERIA_LIST } from '../materias';
@@ -13,7 +15,7 @@ import HeaderMarca from '../components/HeaderMarca';
 import Glifo from '../components/Glifo';
 import Ilustracion from '../components/Ilustracion';
 import {
-  Columna, FilaLista, Lamina, RotuloSeccion, TarjetaNavegable,
+  FilaLista, Hoja, Lamina, Regiones, RotuloSeccion, TarjetaNavegable,
 } from '../components/plancha';
 import { track } from '../utils/track';
 import { avisar } from '../utils/confirm';
@@ -58,31 +60,39 @@ export default function MateriaSelectScreen({ navigation }) {
 
   return (
     <ScrollView className="flex-1 bg-fondo dark:bg-fondoD" contentContainerClassName="pb-10">
-      <HeaderMarca izquierda={<RotuloSeccion color="tintaSec">ESFUNO</RotuloSeccion>} />
+      <HeaderMarca ancho="hoja-amplia" izquierda={<RotuloSeccion color="tintaSec">ESFUNO</RotuloSeccion>} />
 
-      <Columna>
-        <View className="mb-3 mt-1.5">
-          <LaminaDeFilamentos tema={tema} />
-        </View>
+      <Hoja ancho="hoja-amplia">
+        <Regiones>
+          <Regiones.Lateral>
+            <View className="mb-3 mt-1.5">
+              <LaminaDeFilamentos tema={tema} />
+            </View>
 
-        <AboutBanner tema={tema} />
+            <AboutBanner tema={tema} />
+          </Regiones.Lateral>
 
-        <View className="mt-1.5 gap-2.5">
-          {MATERIA_LIST.map((m, i) => (
-            <MateriaCard
-              key={m.id}
-              materia={m}
-              numero={i + 1}
-              tema={tema}
-              cargando={cargandoId === m.id}
-              bloqueada={cargandoId !== null}
-              onPress={() => handlePick(m)}
-            />
-          ))}
-        </View>
+          <Regiones.Principal>
+            {/* Rejilla fila a fila (`ESC-P1`): paso 4 entre celdas, 2 columnas desde
+                `escritorio` y 3 desde `amplio`. Bajo el corte, la lista de siempre. */}
+            <View className="mt-1.5 gap-2.5 escritorio:grid escritorio:grid-cols-2 escritorio:gap-4 amplio:grid-cols-3">
+              {MATERIA_LIST.map((m, i) => (
+                <MateriaCard
+                  key={m.id}
+                  materia={m}
+                  numero={i + 1}
+                  tema={tema}
+                  cargando={cargandoId === m.id}
+                  bloqueada={cargandoId !== null}
+                  onPress={() => handlePick(m)}
+                />
+              ))}
+            </View>
 
-        <DonationCard />
-      </Columna>
+            <DonationCard />
+          </Regiones.Principal>
+        </Regiones>
+      </Hoja>
     </ScrollView>
   );
 }
@@ -175,8 +185,13 @@ function MateriaCard({ materia, numero, tema, onPress, cargando, bloqueada }) {
   // El cargando no deshabilita la tarjeta (apagaría marco y fondo): `handlePick` ignora
   // el toque por `cargandoId` y `bloqueada` lo saca del puntero para que no se invierta
   // al tocarla, ya que no hay acción que sugerir.
+  // En la rejilla, la celda iguala el alto de su fila: la tarjeta y su caja crecen hasta
+  // llenarla (`grow`, no `flex-1`: bajo el corte la lista conserva el alto del contenido).
   return (
-    <View pointerEvents={bloqueada ? 'none' : 'auto'}>
+    <View
+      className="escritorio:[&>*]:grow escritorio:[&>*>*]:grow"
+      pointerEvents={bloqueada ? 'none' : 'auto'}
+    >
       <TarjetaNavegable
         onPress={onPress}
         deshabilitado={!materia.available}
@@ -190,7 +205,7 @@ function MateriaCard({ materia, numero, tema, onPress, cargando, bloqueada }) {
           const colorLeyenda = propio ? texto : TINTA_SEC;
           return (
             <>
-              <View className="flex-row">
+              <View className="grow flex-row">
                 <View className={`w-16 items-center justify-center border-r ${FILETE}`}>
                   <Ilustracion
                     datos={materia.ilustracion}

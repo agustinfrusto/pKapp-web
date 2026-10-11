@@ -452,8 +452,8 @@ async function conLaNotaVisible(pagina, base, t) {
   }
 }
 
-async function columnaEnTabletYEscritorio(pagina, base, t) {
-  for (const ancho of [768, 1280]) {
+async function columnaEnTablet(pagina, base, t) {
+  for (const ancho of [768]) {
     t.ok(`${ancho} px: abrió la app en el marco`, await abrirMarco(pagina, base, ancho), true);
     const s = await pagina.evaluar(LEER_SELECTOR(MATERIAS));
     t.ok(`${ancho} px: una sola columna de seis tarjetas`,
@@ -464,6 +464,322 @@ async function columnaEnTabletYEscritorio(pagina, base, t) {
     t.ok(`${ancho} px: columna centrada`, !!x && !x.falta && Math.abs((x.caja.izq + x.caja.der) / 2 - ancho / 2) < 1, true);
     t.ok(`${ancho} px: el campo conserva su alto de paso 28`, !!s.campo && Math.round(s.campo.caja.alto), 28 * PASO);
     t.ok(`${ancho} px: sin scroll horizontal`, s.desborda, false);
+  }
+}
+
+// Escritorio (MateriaSelect.md «Escritorio» `ESC-P1`, DonationBox.md `ESC-P10`, Banners.md
+// `ESC-P11`; tokens.md c.4): bajo 1024 la columna `columna` de siempre; desde 1024, región
+// lateral de ancho `lateral` (lámina y nota), principal con la rejilla de 2 columnas (3 desde
+// 1440) y el pedido de donación al pie.
+const CORTE_ESCRITORIO = 1024;
+const CORTE_AMPLIO = 1440;
+const LATERAL = 80 * PASO;                // tokens.md c.4: 320
+const ENTRE_REGIONES = 8 * PASO;          // paso 8
+const ENTRE_CELDAS = 4 * PASO;            // paso 4
+const DE_LA_REJILLA_A_DONACION = 6 * PASO; // paso 6
+const HOJA = 952;
+const HOJA_AMPLIA = 1440;
+const ALTOS = { 1023: 768, 1024: 768, 1366: 768, 1920: 1080 };
+
+const LEER_ESCRITORIO = EN_MARCO(`
+  const caja = (n) => {
+    const r = n.getBoundingClientRect();
+    return { izq: r.left, der: r.right, arriba: r.top, abajo: r.bottom, ancho: r.width, alto: r.height };
+  };
+  const uno = (sel) => { const n = visibles(sel)[0]; return n ? caja(n) : null; };
+  const foco = visibles('[tabindex], button, a[href], input, select, textarea')
+    .filter((n) => n.getAttribute('tabindex') !== '-1')
+    .map((n) => ({
+      nombre: n.getAttribute('aria-label') || n.innerText.replace(/\\s+/g, ' ').trim().slice(0, 40),
+      tabindex: n.getAttribute('tabindex'),
+      ...caja(n),
+    }));
+  const montos = visibles('[data-testid^="donacion-monto-"]').map(caja);
+  // Paradas cuyo contorno de foco (2 px) lo recorta un ancestro con overflow hidden/clip.
+  const recortadas = visibles('[tabindex], button, a[href], input, select, textarea')
+    .filter((n) => n.getAttribute('tabindex') !== '-1')
+    .filter((n) => {
+      const r = n.getBoundingClientRect();
+      for (let a = n.parentElement; a && a !== d.documentElement; a = a.parentElement) {
+        const o = w.getComputedStyle(a);
+        const b = a.getBoundingClientRect();
+        const cortaX = o.overflowX === 'hidden' || o.overflowX === 'clip';
+        const cortaY = o.overflowY === 'hidden' || o.overflowY === 'clip';
+        // Cada eje por separado: los cuatro bordes del contorno (2 px) tienen que caber.
+        if (cortaX && (r.left - 2 < b.left - 0.5 || r.right + 2 > b.right + 0.5)) return true;
+        if (cortaY && (r.top - 2 < b.top - 0.5 || r.bottom + 2 > b.bottom + 0.5)) return true;
+      }
+      return false;
+    })
+    .map((n) => n.getAttribute('aria-label') || n.innerText.slice(0, 30));
+  // Contenido del header: el rótulo «ESFUNO» (slot izquierdo) y el control de tema.
+  const cab = visibles('[data-testid="header-marca"]')[0];
+  const rotulo = cab ? Array.from(cab.querySelectorAll('*')).find((n) =>
+    n.children.length === 0 && n.textContent.trim().toLowerCase() === 'esfuno') : null;
+  const control = cab ? cab.querySelector('[role="radiogroup"]') : null;
+  // La regla corta es el hermano anterior del pedido.
+  const pedido = visibles('[data-testid="donacion"]')[0];
+  const regla = pedido && pedido.previousElementSibling ? caja(pedido.previousElementSibling) : null;
+  return {
+    vista: w.innerWidth,
+    recortadas,
+    cabecera: cab ? caja(cab) : null,
+    rotulo: rotulo ? caja(rotulo) : null,
+    control: control ? caja(control) : null,
+    regla,
+    lamina: uno('[data-testid="lamina-materias"]'),
+    nota: uno('[data-testid="nota-del-creador"]'),
+    cerrar: uno('[aria-label="Cerrar nota"]'),
+    donacion: uno('[data-testid="donacion"]'),
+    montos,
+    foco,
+  };
+`);
+
+// Abre el marco al ancho dado, en el tema pedido y con la nota visible o descartada.
+async function abrirEscritorio(pagina, base, ancho, tema, conNota) {
+  const alto = ALTOS[ancho] || 768;
+  const abrio = conNota
+    ? await abrirMarcoConNota(pagina, base, ancho, alto)
+    : await abrirMarco(pagina, base, ancho, alto);
+  if (abrio && tema === 'oscuro') {
+    await elegirTema(pagina, 'oscuro');
+    // Sin el tema oscuro aplicado la comprobación mediría el claro: que lo diga el «abrió».
+    const oscuro = await pagina.esperarA(() => pagina.evaluar(EN_MARCO(`return d.documentElement.classList.contains('dark');`)));
+    await esperarEnMarco(pagina, 'Tus materias');
+    return oscuro;
+  }
+  return abrio;
+}
+
+// Cambia el tema con el teclado (foco + Espacio) en vez de un click por coordenadas: la ventana
+// del arnés mide 900 px y, desde `escritorio`, el control de tema queda más a la derecha, fuera
+// de ella; un click ahí no llega y el tema no cambiaría sin avisar.
+async function elegirTema(pagina, nombre) {
+  const enfocado = await pagina.evaluar(EN_MARCO(`
+    const n = visibles('[role="radio"]').find((x) => x.textContent.trim().toLowerCase() === ${JSON.stringify(nombre)});
+    if (!n) return false;
+    m.contentWindow.focus();
+    n.focus();
+    return d.activeElement === n;
+  `));
+  if (!enfocado) return false;
+  await pagina.tecla(' ');
+  return true;
+}
+
+// Con PKAPP_CAPTURAS deja la captura de la ficha en evidencia/despues/3.11b (1024, 1366, 1920).
+async function capturar(pagina, ancho, tema) {
+  if (!process.env.PKAPP_CAPTURAS || ![1024, 1366, 1920].includes(ancho)) return;
+  const dir = path.join(__dirname, '..', '..', '..', 'openspec', 'changes', 'rediseno-plancha',
+    'evidencia', 'despues', '3.11b');
+  fs.mkdirSync(dir, { recursive: true });
+  await pagina.enviar('Emulation.setDeviceMetricsOverride',
+    { width: ancho, height: ALTOS[ancho], deviceScaleFactor: 1, mobile: false });
+  await new Promise((r) => setTimeout(r, 400));
+  const r = await pagina.enviar('Page.captureScreenshot', { format: 'png' });
+  fs.writeFileSync(path.join(dir, `materia-select-${ancho}-${tema}.png`), Buffer.from(r.data, 'base64'));
+}
+
+const cerca = (a, b, tol = 0.75) => Math.abs(a - b) <= tol;
+
+// Orden de lectura medido: región lateral antes que principal, arriba-abajo y, en una misma
+// fila, izquierda-derecha. Se compara con el orden de DOM (el que recorre Tab).
+function ordenVisual(paradas, izqPrincipal) {
+  const region = (f) => (f.izq < izqPrincipal - 1 ? 0 : 1);
+  return [...paradas].sort((a, b) => region(a) - region(b) ||
+    (Math.abs(a.arriba - b.arriba) > 1 ? a.arriba - b.arriba : a.izq - b.izq));
+}
+
+async function escritorioDeMateriaSelect(pagina, base, t) {
+  for (const tema of ['claro', 'oscuro']) {
+    // 1439 y 1440 miden el corte `amplio`: 1439 sigue en `hoja` (2 columnas), 1440 pasa a
+    // `hoja-amplia` (3 columnas). Solo en claro: el tema no cambia el corte.
+    const anchos = tema === 'claro' ? [1023, 1024, 1366, 1920, 1439, 1440] : [1023, 1024, 1366, 1920];
+    for (const ancho of anchos) {
+      const cuando = `${tema} ${ancho} px`;
+      t.ok(`${cuando}: abrió la app en el marco`, await abrirEscritorio(pagina, base, ancho, tema, false), true);
+      const s = await pagina.evaluar(LEER_SELECTOR(MATERIAS));
+      const e = await pagina.evaluar(LEER_ESCRITORIO);
+      const completas = s.tarjetas.every((x) => !x.falta);
+      t.ok(`${cuando}: las seis tarjetas y la lámina están`, completas && !!e.lamina && !!e.donacion, true);
+      if (!completas || !e.lamina || !e.donacion) { if (tema === 'oscuro') await elegirTema(pagina, 'claro'); continue; }
+      const c = s.tarjetas.map((x) => x.caja);
+      t.ok(`${cuando}: sin scroll horizontal ni recorte`, s.desborda, false);
+      t.ok(`${cuando}: seis tarjetas de 44 × 44 como mínimo`,
+        c.every((x) => x.ancho >= LADO_TACTIL && x.alto >= LADO_TACTIL), true);
+      t.ok(`${cuando}: la lámina conserva el campo de paso 28`, !!s.campo && Math.round(s.campo.caja.alto), 28 * PASO);
+      t.ok(`${cuando}: «ESFUNO» y el control de tema entran en el header`,
+        !!s.header && s.header.texto.includes('esfuno') && s.header.caja.der <= e.vista + 0.5, true);
+
+      if (ancho < CORTE_ESCRITORIO) {
+        // Bajo el corte nada cambia: una columna `columna` y el pedido a su ancho.
+        t.ok(`${cuando}: una sola columna de seis tarjetas`, c.every((x) => cerca(x.izq, c[0].izq, 0.5)), true);
+        t.ok(`${cuando}: columna de 448 px menos el margen lateral`,
+          c.every((x) => Math.round(x.ancho) === 448 - 2 * 5 * PASO), true);
+        t.ok(`${cuando}: la lámina llena la columna`, Math.round(e.lamina.ancho), 448 - 2 * 5 * PASO);
+        t.ok(`${cuando}: la lámina queda encima de la lista`, e.lamina.abajo <= c[0].arriba + 0.5, true);
+        t.ok(`${cuando}: el pedido de donación llena la columna`,
+          cerca(e.donacion.izq, c[0].izq) && cerca(e.donacion.ancho, c[0].ancho), true);
+        t.ok(`${cuando}: el header sigue en la columna de 448 px con margen paso 5`,
+          !!e.rotulo && cerca(e.rotulo.izq, (e.vista - 448) / 2 + 5 * PASO), true);
+        if (tema === 'oscuro') await elegirTema(pagina, 'claro');
+        continue;
+      }
+
+      const columnas = ancho >= CORTE_AMPLIO ? 3 : 2;
+      // Región lateral: lámina de ancho `lateral`, a la izquierda y anclada arriba.
+      t.ok(`${cuando}: lámina de ancho lateral (320 px)`, Math.round(e.lamina.ancho), LATERAL);
+      t.ok(`${cuando}: la lámina queda a la izquierda de la lista`,
+        e.lamina.der + ENTRE_REGIONES <= c[0].izq + 0.5, true);
+      t.ok(`${cuando}: paso 8 entre la región lateral y la principal`,
+        cerca(c[0].izq - e.lamina.der, ENTRE_REGIONES), true);
+      t.ok(`${cuando}: lateral y principal alineadas arriba`, cerca(e.lamina.arriba, c[0].arriba, 1), true);
+      // Hoja centrada: `hoja` (952) y, desde 1440, `hoja-amplia` (1440); margen lateral paso 8.
+      const derecha = Math.max(...c.map((x) => x.der));
+      // La hoja llega a su tope salvo que el margen paso 8 de cada lado lo impida (1440 → 1376).
+      const hoja = Math.min(ancho >= CORTE_AMPLIO ? HOJA_AMPLIA : HOJA, e.vista - 2 * ENTRE_REGIONES);
+      const tol = ancho === CORTE_ESCRITORIO ? 12 : 1;
+      t.ok(`${cuando}: hoja centrada de ${hoja} px como tope`,
+        cerca((e.lamina.izq + derecha) / 2, e.vista / 2, tol) && derecha - e.lamina.izq <= hoja + 0.5, true);
+      t.ok(`${cuando}: margen lateral de paso 8 como mínimo`,
+        e.lamina.izq >= 8 * PASO - 0.5 && e.vista - derecha >= 8 * PASO - 12, true);
+      if (ancho > CORTE_ESCRITORIO) {
+        t.ok(`${cuando}: la hoja mide ${hoja} px`, Math.round(derecha - e.lamina.izq), hoja);
+      }
+
+      // HeaderMarca dentro de la hoja (MateriaSelect.md «Disposición», comun.md §1 y §7.2): el
+      // fondo llega de borde a borde y su contenido arranca y termina donde la hoja.
+      t.ok(`${cuando}: el header ocupa todo el ancho de la ventana`,
+        !!e.cabecera && cerca(e.cabecera.izq, 0, 0.5) && cerca(e.cabecera.der, e.vista, 0.5), true);
+      t.ok(`${cuando}: «ESFUNO» arranca en el borde izquierdo de la hoja`,
+        !!e.rotulo && cerca(e.rotulo.izq, e.lamina.izq, 0.5), true);
+      t.ok(`${cuando}: el control de tema termina en el borde derecho de la hoja`,
+        !!e.control && cerca(e.control.der, derecha, 0.5), true);
+      t.ok(`${cuando}: el contenido del header deja margen paso 8 a cada lado`,
+        !!e.rotulo && !!e.control && e.rotulo.izq >= 8 * PASO - 0.5 && e.vista - e.control.der >= 8 * PASO - 0.5, true);
+
+      // Rejilla: 2 columnas (3 desde amplio), orden fila a fila, paso 4 entre celdas.
+      const izqs = [...new Set(c.map((x) => Math.round(x.izq)))].sort((a, b) => a - b);
+      t.ok(`${cuando}: rejilla de ${columnas} columnas`, izqs.length, columnas);
+      t.ok(`${cuando}: orden fila a fila`,
+        c.every((x, i) => cerca(x.izq, c[i % columnas].izq, 0.5) && cerca(x.arriba, c[i - (i % columnas)].arriba, 0.5)), true);
+      t.ok(`${cuando}: celdas de igual ancho`, c.every((x) => cerca(x.ancho, c[0].ancho)), true);
+      t.ok(`${cuando}: paso 4 entre celdas de una fila`,
+        c.every((x, i) => i % columnas === 0 || cerca(x.izq - c[i - 1].der, ENTRE_CELDAS)), true);
+      t.ok(`${cuando}: paso 4 entre filas`,
+        c.every((x, i) => i < columnas || cerca(x.arriba - Math.max(...c.filter((y, j) =>
+          Math.floor(j / columnas) === Math.floor(i / columnas) - 1).map((y) => y.abajo)), ENTRE_CELDAS)), true);
+      t.ok(`${cuando}: las tarjetas de una fila igualan su alto`,
+        c.every((x, i) => cerca(x.alto, c[i - (i % columnas)].alto, 0.5)), true);
+      if (ancho === 1439) t.ok(`${cuando}: sigue la hoja de 952 px y 2 columnas`, Math.round(derecha - e.lamina.izq), HOJA);
+      if (ancho === 1366) t.ok(`${cuando}: celda de 292 px`, Math.round(c[0].ancho), 292);
+      if (ancho === 1920) t.ok(`${cuando}: celda de 352 px (tokens.md c.4)`, Math.round(c[0].ancho), 352);
+      if (ancho === CORTE_ESCRITORIO) {
+        t.ok(`${cuando}: celdas no menores que las de un teléfono de 320 (280 px)`, c[0].ancho >= 280 - 0.5, true);
+      }
+      t.ok(`${cuando}: cada tarjeta conserva sus dos celdas y la ilustración de paso 16`,
+        s.tarjetas.every((x) => x.banco && !!x.bancoCelda && x.bancoCelda.caja.der <= x.caja.der + 0.5 &&
+          x.celdaIlustracion && Math.round(x.celdaIlustracion.ancho) === 16 * PASO), true);
+      t.ok(`${cuando}: el cajetín queda abajo en cada tarjeta`,
+        s.tarjetas.every((x) => x.bancoCelda && cerca(x.bancoCelda.caja.abajo, x.caja.abajo, 2)), true);
+
+      // Pedido de donación al pie de la región principal.
+      t.ok(`${cuando}: el pedido llena la región principal`,
+        cerca(e.donacion.izq, c[0].izq) && cerca(e.donacion.der, derecha), true);
+      // Exacto, no un piso: la regla corta abre el pedido a paso 6 de la rejilla (ficha, región 3).
+      t.ok(`${cuando}: la regla del pedido queda a paso 6 de la rejilla (24 px exactos)`,
+        !!e.regla && cerca(e.regla.arriba - Math.max(...c.map((x) => x.abajo)), DE_LA_REJILLA_A_DONACION, 0.5), true);
+      t.ok(`${cuando}: cuatro montos en una fila de celdas iguales de 44 × 44`,
+        e.montos.length === 4 && e.montos.every((m) => cerca(m.arriba, e.montos[0].arriba, 1) &&
+          cerca(m.ancho, e.montos[0].ancho, 1) && m.ancho >= LADO_TACTIL && m.alto >= LADO_TACTIL), true);
+
+      // Orden de foco = orden de DOM = orden visual, medido por coordenadas.
+      const tope = Math.min(e.lamina.arriba, c[0].arriba) - 0.5;
+      const cuerpo = e.foco.filter((f) => f.arriba >= tope);
+      t.ok(`${cuando}: ningún tabindex positivo`, e.foco.every((f) => !(Number(f.tabindex) > 0)), true);
+      t.ok(`${cuando}: el control de tema va antes que el cuerpo en el orden de foco`,
+        e.foco.slice(0, e.foco.length - cuerpo.length).every((f) => f.arriba < tope), true);
+      t.ok(`${cuando}: orden de Tab = orden visual (región, arriba-abajo, izquierda-derecha)`,
+        cuerpo.map((f) => f.nombre).join('|'), ordenVisual(cuerpo, c[0].izq).map((f) => f.nombre).join('|'));
+      const nombres = cuerpo.map((f) => f.nombre.toLowerCase());
+      const idx = MATERIAS.map((m) => nombres.findIndex((n) => n.includes(m.nombre.toLowerCase())));
+      t.ok(`${cuando}: las seis tarjetas y los montos son paradas de foco`,
+        idx.every((v) => v >= 0) && cuerpo.filter((f) => f.arriba >= e.donacion.arriba - 0.5).length >= 4, true);
+      t.ok(`${cuando}: ninguna región, columna ni celda recorta el contorno de foco`,
+        e.recortadas.join(','), '');
+      await capturar(pagina, ancho, tema);
+      if (tema === 'oscuro') await elegirTema(pagina, 'claro');
+    }
+  }
+}
+
+// Anclado (comun.md §7.2): con la página desplazada ninguna región queda fija. Alto de 400 px
+// para que haya scroll; se desplaza el contenedor y la lámina (lateral) y la primera tarjeta
+// (principal) tienen que subir lo mismo que se desplazó, sin `sticky` ni `fixed` en la cadena.
+const DESPLAZAR = (px) => EN_MARCO(`
+  const sc = Array.from(d.querySelectorAll('*')).find((n) =>
+    n.scrollHeight > n.clientHeight + 1 && /auto|scroll/.test(w.getComputedStyle(n).overflowY));
+  if (!sc) return { hay: false };
+  sc.scrollTop = ${px};
+  const arriba = (sel) => { const n = visibles(sel)[0]; return n ? n.getBoundingClientRect().top : null; };
+  const tarjeta = visibles('[role="button"]').find((n) => n.getAttribute('aria-label') === ${JSON.stringify(MATERIAS[0].nombre)});
+  // Solo lo que vive dentro del contenedor que se desplaza (el resto, como el aviso emergente,
+  // es de la app y no de una región de la pantalla).
+  const fijas = Array.from(sc.querySelectorAll('*')).filter((n) => {
+    const p = w.getComputedStyle(n).position;
+    return p === 'sticky' || p === 'fixed';
+  }).map((n) => n.tagName.toLowerCase() + '[' + (n.getAttribute('data-testid') || n.getAttribute('role') || n.className).toString().slice(0, 40) + ']');
+  return {
+    hay: true, desplazado: sc.scrollTop, fijas,
+    lamina: arriba('[data-testid="lamina-materias"]'),
+    tarjeta: tarjeta ? tarjeta.getBoundingClientRect().top : null,
+  };
+`);
+
+async function escritorioAnclado(pagina, base, t) {
+  for (const ancho of [1024, 1366, 1920]) {
+    const cuando = `${ancho} px, desplazada`;
+    t.ok(`${cuando}: abrió la app en el marco`, await abrirMarco(pagina, base, ancho, 400), true);
+    const antes = await pagina.evaluar(DESPLAZAR(0));
+    const despues = await pagina.evaluar(DESPLAZAR(150));
+    t.ok(`${cuando}: la página tiene scroll (precondición)`, !!despues.hay && despues.desplazado > 0, true);
+    if (!despues.hay || !(despues.desplazado > 0) || antes.lamina === null || antes.tarjeta === null) continue;
+    t.ok(`${cuando}: la región lateral sube lo que se desplazó (no queda fija)`,
+      cerca(antes.lamina - despues.lamina, despues.desplazado, 0.75), true);
+    t.ok(`${cuando}: la región principal sube lo que se desplazó`,
+      cerca(antes.tarjeta - despues.tarjeta, despues.desplazado, 0.75), true);
+    t.ok(`${cuando}: ningún elemento con position sticky o fixed`, despues.fijas.join(','), '');
+  }
+}
+
+// ESC-P11: la nota del creador va en la región lateral, debajo de la lámina a paso 3, y no
+// empuja la lista; descartar de 44 × 44 a ras del marco; en el DOM va antes que las tarjetas.
+async function escritorioConNota(pagina, base, t) {
+  for (const ancho of [1024, 1366, 1920]) {
+    const cuando = `${ancho} px, con nota`;
+    t.ok(`${cuando}: abrió la app en el marco`, await abrirEscritorio(pagina, base, ancho, 'claro', true), true);
+    const s = await pagina.evaluar(LEER_SELECTOR(MATERIAS));
+    const e = await pagina.evaluar(LEER_ESCRITORIO);
+    t.ok(`${cuando}: la nota, su botón y la lámina están`, !!e.nota && !!e.cerrar && !!e.lamina, true);
+    if (!e.nota || !e.cerrar || !e.lamina || s.tarjetas.some((x) => x.falta)) continue;
+    const c = s.tarjetas.map((x) => x.caja);
+    t.ok(`${cuando}: sin scroll horizontal ni recorte`, s.desborda, false);
+    t.ok(`${cuando}: la nota mide el ancho lateral (320 px)`, Math.round(e.nota.ancho), LATERAL);
+    t.ok(`${cuando}: la nota queda bajo la lámina, en su misma columna`, cerca(e.nota.izq, e.lamina.izq, 0.5), true);
+    t.ok(`${cuando}: paso 3 entre la lámina y la nota`, cerca(e.nota.arriba - e.lamina.abajo, 3 * PASO), true);
+    t.ok(`${cuando}: la nota no desplaza la lista (alineada con la lámina)`, cerca(c[0].arriba, e.lamina.arriba, 1), true);
+    t.ok(`${cuando}: la nota queda a la izquierda de la lista`, e.nota.der + ENTRE_REGIONES <= c[0].izq + 0.5, true);
+    t.ok(`${cuando}: cerrar de 44 × 44 como mínimo`, e.cerrar.ancho >= LADO_TACTIL && e.cerrar.alto >= LADO_TACTIL, true);
+    t.ok(`${cuando}: cerrar a ras del marco de la nota`,
+      e.nota.der - e.cerrar.der <= 2 && e.cerrar.arriba - e.nota.arriba <= 2, true);
+    const tope = Math.min(e.lamina.arriba, c[0].arriba) - 0.5;
+    const cuerpo = e.foco.filter((f) => f.arriba >= tope);
+    t.ok(`${cuando}: descartar la nota es la primera parada del cuerpo`,
+      cuerpo.length > 0 && cuerpo[0].nombre === 'Cerrar nota', true);
+    t.ok(`${cuando}: orden de Tab = orden visual (lateral y luego principal)`,
+      cuerpo.map((f) => f.nombre).join('|'), ordenVisual(cuerpo, c[0].izq).map((f) => f.nombre).join('|'));
+    t.ok(`${cuando}: ninguna región ni celda recorta el contorno de foco`, e.recortadas.join(','), '');
   }
 }
 
@@ -625,7 +941,7 @@ async function estadosDeLaTarjeta(pagina, base, t) {
 
 async function selectorEnOscuro(pagina, base, t) {
   t.ok('abrió la app en el marco', await abrirMarco(pagina, base, 390), true);
-  await clicEnMarco(pagina, 'oscuro');
+  await elegirTema(pagina, 'oscuro');
   await pagina.esperarA(() => pagina.evaluar(EN_MARCO(`return d.documentElement.classList.contains('dark');`)));
   await esperarEnMarco(pagina, 'Tus materias');
   const O = plancha.oscuro;
@@ -638,7 +954,7 @@ async function selectorEnOscuro(pagina, base, t) {
   t.ok('oscuro: ilustraciones en filamento del tema oscuro',
     s.tarjetas.every((x) => x.ilustracion && x.ilustracion.stroke === hex(O.filamento)), true);
   // Perfil como estaba para las otras suites.
-  await clicEnMarco(pagina, 'claro');
+  await elegirTema(pagina, 'claro');
 }
 
 // Marca V5 «Fusiforme»: el campo conserva firma y contrato en los tres anchos de diseño,
@@ -650,7 +966,7 @@ async function marcaV5EnAnchos(pagina, base, t) {
       const cuando = `${tema} ${ancho} px`;
       t.ok(`${cuando}: abrió la app en el marco`, await abrirMarco(pagina, base, ancho), true);
       if (tema === 'oscuro') {
-        await clicEnMarco(pagina, 'oscuro');
+        await elegirTema(pagina, 'oscuro');
         await pagina.esperarA(() => pagina.evaluar(EN_MARCO(`return d.documentElement.classList.contains('dark');`)));
         await esperarEnMarco(pagina, 'Tus materias');
       }
@@ -661,7 +977,7 @@ async function marcaV5EnAnchos(pagina, base, t) {
         `${hex(P.filamento)}|${hex(P.acento)}`);
       t.ok(`${cuando}: campo de alto paso 28`, !!c && Math.round(c.caja.alto), 28 * PASO);
       t.ok(`${cuando}: sin scroll horizontal ni recorte`, s.desborda, false);
-      if (tema === 'oscuro') await clicEnMarco(pagina, 'claro');
+      if (tema === 'oscuro') await elegirTema(pagina, 'claro');
     }
   }
 }
@@ -676,7 +992,10 @@ module.exports = [
   { nombre: 'MateriaSelect: marca V5 «Fusiforme» en 320, 390 y 1280, claro y oscuro', correr: marcaV5EnAnchos },
   { nombre: 'MateriaSelect: sin scroll horizontal y 44 × 44 a 320 y 360 px', correr: sinScrollHorizontal },
   { nombre: 'MateriaSelect: la nota visible a 320 y 390 px', correr: conLaNotaVisible },
-  { nombre: 'MateriaSelect: una columna en tablet y escritorio', correr: columnaEnTabletYEscritorio },
+  { nombre: 'MateriaSelect: una columna en tablet', correr: columnaEnTablet },
+  { nombre: 'MateriaSelect: escritorio, regiones, rejilla y orden de foco (ESC-P1, P10, P11)', correr: escritorioDeMateriaSelect },
+  { nombre: 'MateriaSelect: escritorio con la nota del creador en la región lateral', correr: escritorioConNota },
+  { nombre: 'MateriaSelect: escritorio, ninguna región queda anclada al desplazar', correr: escritorioAnclado },
   { nombre: 'MateriaSelect: la nota del creador no desplaza la lista', correr: notaSinSaltoDeLayout },
   { nombre: 'MateriaSelect: estados de la tarjeta (reposo, hover, cargando)', correr: estadosDeLaTarjeta },
   { nombre: 'MateriaSelect: tema oscuro', correr: selectorEnOscuro },
