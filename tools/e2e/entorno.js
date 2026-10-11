@@ -2,6 +2,7 @@
 // que imita el hosting de producción y un Chrome headless con debugging abierto.
 
 const http = require('http');
+const net = require('net');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -18,7 +19,13 @@ const TIPOS = {
 // public/_redirects en producción, y sin eso recargar /estadisticas da 404.
 // Si se prueba sin fallback, las rutas profundas fallan por el servidor y no
 // por la app.
-function servirEstatico(raiz, puerto) {
+async function servirEstatico(raiz, puerto) {
+  // `listen(puerto)` bindea `::`, y un ocupante solo IPv4 (127.0.0.1 o 0.0.0.0) no da
+  // EADDRINUSE: el arnés arrancaría y `localhost` podría resolver al servidor ajeno.
+  // Cada host se sonda aparte: con SO_REUSEADDR, atarse a uno específico no choca
+  // con un ocupante en el comodín, ni al revés.
+  await puertoLibre(puerto, 'PKAPP_PUERTO', '127.0.0.1');
+  await puertoLibre(puerto, 'PKAPP_PUERTO', '0.0.0.0');
   const servidor = http.createServer((req, res) => {
     let archivo;
     try {
@@ -36,10 +43,28 @@ function servirEstatico(raiz, puerto) {
     res.end(fs.readFileSync(archivo));
   });
 
-  return new Promise((listo) => {
+  return new Promise((listo, falla) => {
+    servidor.once('error', (err) => falla(errorDePuerto(err, puerto, 'PKAPP_PUERTO')));
     servidor.listen(puerto, () => listo({
       cerrar: () => new Promise((r) => servidor.close(r)),
     }));
+  });
+}
+
+// Un puerto ocupado tiene que cortar con un mensaje, no colgar ni hablarle a
+// otro proceso: con dos compuertas en paralelo es el choque más probable.
+function errorDePuerto(err, puerto, variable) {
+  if (err.code === 'EADDRINUSE') {
+    return new Error(`El puerto ${puerto} está ocupado. Elegí otro con ${variable}.`);
+  }
+  return err;
+}
+
+function puertoLibre(puerto, variable, host = '127.0.0.1') {
+  return new Promise((listo, falla) => {
+    const sonda = net.createServer();
+    sonda.once('error', (err) => falla(errorDePuerto(err, puerto, variable)));
+    sonda.listen(puerto, host, () => sonda.close(() => listo()));
   });
 }
 
@@ -61,6 +86,7 @@ function rutaChrome() {
 }
 
 async function lanzarChrome(puerto) {
+  await puertoLibre(puerto, 'PKAPP_PUERTO_CDP');
   const perfil = fs.mkdtempSync(path.join(os.tmpdir(), 'pkapp-e2e-'));
   const proceso = spawn(rutaChrome(), [
     '--headless=new',

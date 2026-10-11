@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const distDir = path.join(__dirname, '..', 'dist');
+const distDir = path.resolve(__dirname, '..', process.env.PKAPP_DIST || 'dist');
 const assetsDir = path.join(distDir, 'assets', 'src', 'assets');
 const indexHtmlPath = path.join(distDir, 'index.html');
 

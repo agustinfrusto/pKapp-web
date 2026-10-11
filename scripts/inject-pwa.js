@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const DIST = path.resolve(__dirname, '..', 'dist');
+const DIST = path.resolve(__dirname, '..', process.env.PKAPP_DIST || 'dist');
 const PUBLIC = path.resolve(__dirname, '..', 'public');
 const indexHtml = path.join(DIST, 'index.html');
 

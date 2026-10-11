@@ -36,14 +36,20 @@ const bloque = (obj) =>
     .map(([id, n]) => `  ${id}: ${n},`)
     .join('\n');
 
-fs.writeFileSync(
-  salida,
+const contenido =
   `// GENERADO por scripts/gen-conteos.mjs — no editar a mano.\n` +
-    `// Cantidad de preguntas por materia, para poder mostrarla sin cargar el banco.\n` +
-    `export const CONTEOS = {\n${bloque(conteos)}\n};\n\n` +
-    `// Cuántas de esas preguntas son source: 'generated' (hoy ninguna en los bancos publicados).\n` +
-    `export const GENERADAS = {\n${bloque(generadas)}\n};\n`,
-  'utf-8'
-);
+  `// Cantidad de preguntas por materia, para poder mostrarla sin cargar el banco.\n` +
+  `export const CONTEOS = {\n${bloque(conteos)}\n};\n\n` +
+  `// Cuántas de esas preguntas son source: 'generated' (hoy ninguna en los bancos publicados).\n` +
+  `export const GENERADAS = {\n${bloque(generadas)}\n};\n`;
+
+// Con builds en paralelo, otro Metro puede estar leyendo este archivo: solo se
+// reescribe si cambia y, cuando cambia, con temporal + rename (atómico).
+const actual = fs.existsSync(salida) ? fs.readFileSync(salida, 'utf-8') : null;
+if (actual !== contenido) {
+  const temporal = `${salida}.${process.pid}.tmp`;
+  fs.writeFileSync(temporal, contenido, 'utf-8');
+  fs.renameSync(temporal, salida);
+}
 
 console.log(`conteos.js actualizado: ${JSON.stringify(conteos)} generadas: ${JSON.stringify(generadas)}`);

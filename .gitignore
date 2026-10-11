@@ -3,6 +3,7 @@ node_modules/
 
 # Build / salida
 dist/
+dist-*/
 web-build/
 
 # Expo / EAS

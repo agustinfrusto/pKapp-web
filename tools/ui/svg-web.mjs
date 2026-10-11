@@ -19,7 +19,7 @@ import Module from 'module';
 import { fileURLToPath, pathToFileURL } from 'url';
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const DIST = path.join(RAIZ, 'dist');
+const DIST = path.resolve(RAIZ, process.env.PKAPP_DIST || 'dist');
 const requerir = createRequire(path.join(RAIZ, 'package.json'));
 
 // Textos que el JS de `react-native-svg` lleva y que ningún otro módulo del bundle usa:
@@ -58,7 +58,7 @@ function shell() {
 function chequearShell() {
   console.log('\nshell del bundle web');
   if (!fs.existsSync(path.join(DIST, 'index.html'))) {
-    console.error('No hay build en dist/. Corré antes:  npm run build:web');
+    console.error(`No hay build en ${path.relative(RAIZ, DIST)}/. Corré antes:  npm run build:web`);
     process.exit(1);
   }
   const { js, css } = shell();

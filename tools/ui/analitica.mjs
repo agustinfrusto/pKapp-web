@@ -19,6 +19,8 @@ function correr(rama, conToken) {
     const env = { ...process.env };
     delete env.CF_PAGES_BRANCH;
     delete env.CF_ANALYTICS_TOKEN;
+    // El árbol temporal tiene su propio dist/: una PKAPP_DIST exportada no aplica acá.
+    delete env.PKAPP_DIST;
     if (rama !== undefined) env.CF_PAGES_BRANCH = rama;
     if (conToken) env.CF_ANALYTICS_TOKEN = 'token-de-prueba';
     const salida = execFileSync('node', [join(raiz, 'scripts', 'inject-pwa.js')], { env, encoding: 'utf8' });

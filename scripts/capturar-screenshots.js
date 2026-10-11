@@ -13,9 +13,9 @@ const { servirEstatico, lanzarChrome } = require('../tools/e2e/entorno');
 const { conectarNavegador, abrirPagina, esperar } = require('../tools/e2e/cdp');
 
 const RAIZ = path.resolve(__dirname, '..');
-const DIST = path.join(RAIZ, 'dist');
-const PUERTO_WEB = 8199;
-const PUERTO_CDP = 9322;
+const DIST = path.resolve(RAIZ, process.env.PKAPP_DIST || 'dist');
+const PUERTO_WEB = Number(process.env.PKAPP_PUERTO || 8199);
+const PUERTO_CDP = Number(process.env.PKAPP_PUERTO_CDP || 9322);
 const ALTO = 691;
 const LIMITE_PASO_MS = 90000;
 const USO = 'Uso: npm run screenshots -- [--tema claro|oscuro] [--ancho 390[,768,...]] [--salida <dir>]';
