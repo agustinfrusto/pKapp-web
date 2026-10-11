@@ -103,6 +103,15 @@ usa su `$TMPDIR` propio, así que no toca nada de otras sesiones. Usa
 lanzar Chrome (`1`: conexión caída; `suelto`: error sin dueño, que atiende `caer()`); no es
 para uso normal. Los puertos salen de `PKAPP_PUERTO` / `PKAPP_PUERTO_CDP` o los pide al SO.
 
+## Sin barras de desplazamiento del sistema
+
+`lanzarChrome` arranca Chrome con `--hide-scrollbars`. Con un mouse conectado, macOS
+(«Mostrar barras de desplazamiento: automático») pasa a barras clásicas de 15 px y Chrome
+headless las respeta: los marcos quedaban 15 px más angostos y las suites fallaban por ancho
+(«dio 335, esperaba 350») según el periférico de la máquina. Los chequeos de «sin scroll
+horizontal» miden `scrollWidth`/`clientWidth` y siguen valiendo. Las capturas salen sin
+barras. `pruebas/arnes.js` lo verifica (`innerWidth - clientWidth === 0`).
+
 ## Qué hay adentro
 
 | Archivo | Qué hace |

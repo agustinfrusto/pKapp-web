@@ -294,6 +294,9 @@ async function lanzarChrome(puerto) {
     '--no-first-run',
     '--no-default-browser-check',
     '--disable-gpu',
+    // Sin barras del sistema: con un mouse conectado macOS usa barras clásicas de 15 px y
+    // los marcos quedan más angostos. El resultado no depende del periférico.
+    '--hide-scrollbars',
     'about:blank',
   ], { stdio: 'ignore' });
 

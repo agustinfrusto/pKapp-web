@@ -284,6 +284,26 @@ async function main() {
     huerfano.status === 2 && /El arnés se cayó: rechazo suelto de prueba/.test(huerfano.stderr),
     `exit ${huerfano.status}: ${huerfano.stderr.trim()}`);
 
+  // El resultado no puede depender del periférico de la máquina: con un mouse USB macOS
+  // pasa a barras clásicas de 15 px y los marcos quedan más angostos. `lanzarChrome` las
+  // oculta; una página más alta que la ventana no debe restarle ancho al viewport.
+  const { lanzarChrome } = require('../entorno');
+  const { conectarNavegador } = require('../cdp');
+  const chromeBarras = await lanzarChrome(Number(PUERTO_CDP));
+  let anchoPerdido = 'sin medir';
+  try {
+    const navegador = await conectarNavegador(Number(PUERTO_CDP));
+    const pagina = await abrirPagina(navegador, { ancho: 800, alto: 400 });
+    await pagina.evaluar(
+      "document.body.innerHTML = '<div style=\"height:3000px\"></div>'; document.body.offsetHeight");
+    anchoPerdido = await pagina.evaluar('innerWidth - document.documentElement.clientWidth');
+    navegador.cerrar();
+  } finally {
+    await chromeBarras.cerrar();
+  }
+  esperar('lanzarChrome: sin barras de desplazamiento del sistema (ancho perdido 0)',
+    anchoPerdido === 0, `innerWidth - clientWidth = ${anchoPerdido}`);
+
   // A6: gen-conteos no reescribe si no cambia, sin temporales.
   const conteos = path.join(RAIZ, 'src', 'materias', 'conteos.js');
   const gen = () => spawnSync('node', [path.join(RAIZ, 'scripts', 'gen-conteos.mjs')], { cwd: RAIZ, encoding: 'utf8' });
