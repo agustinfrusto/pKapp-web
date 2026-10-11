@@ -1,0 +1,1274 @@
+<!doctype html>
+<html lang="es" data-ancho="390" data-tema="claro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="generar.mjs · glifos 27/27 · huella d5282608">
+<title>pKapp · Rediseño Plancha · Maqueta de pantallas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* >>> GENERADO por generar.mjs desde src/theme/colores.js (export plancha). No editar a mano. */
+:root,
+html[data-tema="claro"] {
+  --fondo: #f4f5f6;
+  --superficie: #ffffff;
+  --tinta: #14181d;
+  --tintaSec: #4a525c;
+  --linea: #14181d;
+  --borde: #7c848d;
+  --filete: #b9bfc6;
+  --inactivo: #7c848d;
+  --acento: #0b6e80;
+  --foco: #095c6b;
+  --acierto: #1f6b3a;
+  --aciertoFondo: #e6f1ea;
+  --error: #a32424;
+  --errorFondo: #f8e9e9;
+  --intermedia: #3f5f7a;
+  --filamento: #14181d;
+  --manifestTema: #0b0d10;
+  --manifestFondo: #0b0d10;
+  --iconoFondo: #0b0d10;
+}
+html[data-tema="oscuro"] {
+  --fondo: #0b0d10;
+  --superficie: #12161b;
+  --tinta: #e6e9ed;
+  --tintaSec: #98a2ae;
+  --linea: #c9d0d8;
+  --borde: #6b7684;
+  --filete: #2b323a;
+  --inactivo: #6b7684;
+  --acento: #5cc3d6;
+  --foco: #7fd6e3;
+  --acierto: #7bcb92;
+  --aciertoFondo: #10231a;
+  --error: #f08c8c;
+  --errorFondo: #2a1414;
+  --intermedia: #8fb4c9;
+  --filamento: #8fb4c9;
+  --manifestTema: #0b0d10;
+  --manifestFondo: #0b0d10;
+  --iconoFondo: #0b0d10;
+}
+/* <<< FIN GENERADO */
+
+/* ===== reinicio y base ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;border-radius:0;font-style:normal;text-decoration:none}
+:root{--sans:'IBM Plex Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;--w:390px;--columna:448px}
+html[data-ancho="768"]{--w:768px}
+html[data-ancho="1280"]{--w:1280px}
+html[data-tema="oscuro"]{color-scheme:dark}
+html{background:var(--superficie)}
+body{font:400 15px/22px var(--sans);color:var(--tinta);background:var(--superficie);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;text-align:inherit;cursor:pointer;display:block}
+button:disabled{cursor:default}
+svg{display:block;flex:none}
+code{font:400 12px/16px var(--mono)}
+.sprite{position:absolute;width:0;height:0;overflow:hidden}
+
+/* ===== tipografía (tokens.md b.2) ===== */
+.t-marca{font:600 28px/28px var(--sans);letter-spacing:-.28px}
+.t-titulo{font:600 18px/24px var(--sans)}
+.t-item{font:600 16px/22px var(--sans)}
+.t-cuerpo{font:400 15px/22px var(--sans)}
+.t-cuerpo-fuerte{font:600 15px/22px var(--sans)}
+.t-detalle{font:400 13px/18px var(--sans)}
+.t-rotulo{font:400 11px/16px var(--mono);letter-spacing:.66px;text-transform:uppercase}
+.t-rotulo-medio{font:500 11px/16px var(--mono);letter-spacing:.66px;text-transform:uppercase}
+.t-dato{font:500 16px/20px var(--mono)}
+.t-cifra{font:500 26px/28px var(--mono)}
+.t-display{font:500 72px/72px var(--mono);letter-spacing:-2.16px}
+.c-tinta{color:var(--tinta)}.c-sec{color:var(--tintaSec)}.c-acento{color:var(--acento)}.c-fondo{color:var(--fondo)}
+.c-acierto{color:var(--acierto)}.c-error{color:var(--error)}.c-inter{color:var(--intermedia)}.c-inact{color:var(--inactivo)}
+
+/* ===== herramientas del tablero (no son parte de la app) ===== */
+.herr{position:sticky;top:0;z-index:5;background:var(--fondo);border-bottom:1px solid var(--linea)}
+.herr-fila{display:flex;flex-wrap:wrap;align-items:center;gap:10px 28px;padding:12px 24px}
+.herr-grupo{display:flex;align-items:center;gap:10px}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--linea)}
+.seg-op{display:inline-flex;align-items:center;min-height:32px;padding:0 10px;color:var(--tinta);background:var(--fondo)}
+html[data-ancho="390"] [data-set="ancho:390"],html[data-ancho="768"] [data-set="ancho:768"],html[data-ancho="1280"] [data-set="ancho:1280"],
+html[data-tema="claro"] .herr [data-set="tema:claro"],html[data-tema="oscuro"] .herr [data-set="tema:oscuro"]{background:var(--tinta);color:var(--fondo)}
+.herr-nota{padding:0 24px 12px}
+
+/* ===== tablero ===== */
+.tablero{display:grid;grid-template-columns:repeat(auto-fill,calc(var(--w) + 2px));justify-content:start;align-items:start;gap:36px 24px;padding:24px}
+.fig{display:flex;flex-direction:column;gap:8px;min-width:0;scroll-margin-top:72px}
+.fig figcaption{display:flex;flex-direction:column;gap:2px}
+.fig-ficha{font:400 11px/16px var(--mono);letter-spacing:.2px}
+.txt-ancho::before{content:"390 px"}
+html[data-ancho="768"] .txt-ancho::before{content:"768 px"}
+html[data-ancho="1280"] .txt-ancho::before{content:"1280 px"}
+.txt-tema::before{content:"Claro"}
+html[data-tema="oscuro"] .txt-tema::before{content:"Oscuro"}
+.pantalla{box-sizing:content-box;width:var(--w);background:var(--fondo);color:var(--tinta);border:1px solid var(--borde);position:relative}
+.quiz{min-height:844px}
+.faltantes{margin:0 24px 36px;padding:16px;border:1px solid var(--filete);background:var(--superficie);display:flex;flex-direction:column;gap:10px}
+.faltantes-lista{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px}
+.faltantes-lista li{display:flex;align-items:center;gap:8px}
+
+/* ===== columna (comun.md §7) y espaciado (tokens.md c.3) ===== */
+.col{width:100%;max-width:var(--columna);margin-inline:auto;padding-inline:20px}
+.mt-1_5{margin-top:6px}.mt-3{margin-top:12px}.mt-4{margin-top:16px}.mt-6{margin-top:24px}.mb-3{margin-bottom:12px}
+.relleno-8{height:32px}.relleno-10{height:40px}
+.lista{display:flex;flex-direction:column;gap:10px}
+.reservado{border:1px solid var(--filete);padding:12px 14px;text-align:center}
+.sec-rotulo{padding-bottom:8px}.sec-4{padding-top:16px}.sec-6{padding-top:24px}
+.divisor{height:1px;background:var(--filete);margin-block:14px}
+.estados{display:flex;flex-direction:column;gap:16px;padding-block:16px}
+.estado{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.estado>.k6{width:100%}
+
+/* ===== glifos e ilustraciones ===== */
+.g{flex:none}.g-grande{width:24px;height:24px}.g-chico{width:16px;height:16px}
+.g-falta{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--filete);color:inherit;font:400 11px/1 var(--mono);letter-spacing:0}
+.ilu{color:var(--filamento);fill:none;stroke:currentColor}
+
+/* ===== marcas de esquina y lámina (comun.md §6) ===== */
+.lam{position:relative;background:var(--superficie);border:1px solid var(--linea)}
+.mk{position:absolute;width:8px;height:8px;border:0 solid var(--linea);pointer-events:none}
+.mk-a{top:-5px;left:-5px;border-top-width:2px;border-left-width:2px}
+.mk-b{top:-5px;right:-5px;border-top-width:2px;border-right-width:2px}
+.mk-c{bottom:-5px;left:-5px;border-bottom-width:2px;border-left-width:2px}
+.mk-d{bottom:-5px;right:-5px;border-bottom-width:2px;border-right-width:2px}
+
+/* ===== clases de control (comun.md §5) ===== */
+button:focus-visible{outline:2px solid var(--foco);outline-offset:2px}
+.es-foco{outline:2px solid var(--foco);outline-offset:2px}
+.k1{background:var(--tinta);color:var(--fondo);border:1px solid var(--tinta)}
+.k2{background:var(--superficie);color:var(--tinta);border:1px solid var(--linea)}
+.k2-acento{color:var(--acento);border-color:var(--acento)}
+.k3,.k4{background:var(--superficie);color:var(--tinta);border:1px solid var(--borde)}
+.k4.sel{background:var(--tinta);color:var(--fondo);border-color:var(--tinta)}
+.k5{background:var(--superficie);color:var(--tinta);border:1px solid var(--linea)}
+.k5:disabled{border-color:var(--filete);color:var(--inactivo)}
+.k7{background:none;color:var(--tinta)}
+@media (hover:hover){
+  .k1:hover{outline:2px solid var(--linea);outline-offset:0}
+  .k2:hover,.k5:not(:disabled):hover{outline:1px solid var(--linea);outline-offset:0}
+  .k2-acento:hover{outline-color:var(--acento)}
+  .k3:not(:disabled):hover,.k4:not(.sel):hover{border-color:var(--linea)}
+  .k6:not(:disabled):hover,.k7:hover{outline:1px solid var(--linea);outline-offset:0}
+}
+.k1:active{background:var(--superficie);color:var(--tinta);border-color:var(--linea)}
+.k2:active,.k5:not(:disabled):active,.k3:not(:disabled):active,.k4:active{background:var(--tinta);color:var(--fondo);border-color:var(--tinta)}
+.k2:active *,.k3:not(:disabled):active *,.k4:active *,.k6:not(:disabled):active *,.k7:active *,.es-pres *{color:var(--fondo)}
+.k6:not(:disabled):active,.k7:active,.es-pres{background:var(--tinta)}
+.k6.es-nodisp{border-color:var(--filete)}
+.k6.es-nodisp *{color:var(--inactivo)}
+
+/* ===== HeaderMarca y control de tema (comun.md §1 y §2) ===== */
+.cab-fila{display:flex;align-items:center;justify-content:space-between;padding-block:14px}
+.cab-izq{display:flex;align-items:center;min-height:44px}
+.tema{display:inline-flex;height:44px;border:1px solid var(--linea);background:var(--fondo)}
+.tema-op{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:44px;padding-inline:8px;background:var(--fondo);color:var(--tinta)}
+html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema-op[data-op="oscuro"]{background:var(--tinta);color:var(--fondo)}
+@media (hover:hover){.tema-op:hover{outline:1px solid var(--linea);outline-offset:-1px}}
+.tema-op:active{background:var(--tinta);color:var(--fondo)}
+.btn-cambiar{display:inline-flex;align-items:center;gap:8px;height:44px;padding-inline:12px;background:var(--fondo)}
+
+/* ===== barra interna (comun.md §3) ===== */
+.barra-int{background:var(--fondo);border-bottom:1px solid var(--linea)}
+.barra-int-fila{display:flex;align-items:center;gap:14px;padding-block:16px}
+.btn-volver{width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex:none}
+.barra-int h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ===== 01 MateriaSelect ===== */
+.campo{height:112px;border-bottom:1px solid var(--filete);color:var(--filamento);overflow:hidden}
+.campo svg{width:100%;height:100%}
+.campo .cont{stroke:var(--acento)}
+.regla{height:10px;border-bottom:1px solid var(--filete);color:var(--tintaSec)}
+.regla svg{height:9px}
+.cajetin{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px}
+.cajetin-der{text-align:right}
+.tarj{display:block;width:100%;text-align:left}
+.tarj-fila{display:flex}
+.tarj-ilu{width:64px;flex:none;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--filete);color:var(--filamento)}
+.tarj-txt{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:8px 12px}
+.tarj-caj{display:flex;border-top:1px solid var(--filete)}
+.celda{padding:6px 12px}
+.celda+.celda{border-left:1px solid var(--filete)}
+
+/* ===== 02 Home ===== */
+.mat-card{display:grid;grid-template-columns:96px 1fr}
+.mat-card-ilu{display:flex;align-items:center;justify-content:center;border-right:1px solid var(--filete);color:var(--filamento)}
+.mat-card-txt{display:flex;flex-direction:column;gap:6px;padding:8px 12px}
+.accion{display:flex;align-items:center;gap:14px;width:100%;padding:14px;text-align:left}
+.accion.prim{border:2px solid var(--linea);padding:13px}
+.accion-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.ico{width:40px;height:40px;flex:none;display:flex;align-items:center;justify-content:center;border:1px solid var(--filete);color:var(--tinta)}
+.accion:active .ico{border-color:var(--fondo)}
+.nota-web{text-align:center;padding-inline:4px}
+
+/* ===== 03 TopicSelect ===== */
+.panel{background:var(--superficie);border:1px solid var(--linea);padding:14px}
+.grupo-rot{padding-bottom:8px}
+.filtros{display:flex;flex-wrap:wrap;gap:8px}
+.filtro{height:44px;padding-inline:12px;display:flex;align-items:center}
+.timer{display:flex;align-items:center;gap:16px}
+.cuadrado{width:44px;height:44px;display:flex;align-items:center;justify-content:center}
+.timer-valor{min-width:80px;text-align:center}
+.mezcla{display:flex;align-items:center;gap:12px;width:100%;margin-top:12px;padding:12px 14px;background:var(--superficie);border:2px solid var(--acento);text-align:left}
+.mezcla-txt{display:flex;flex-direction:column;min-width:0}
+.mezcla-txt>:first-child{margin-bottom:6px}
+.mezcla-txt>:last-child{margin-top:4px}
+.lista-temas{border-top:1px solid var(--linea)}
+.fila-tema{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding-block:12px;border-bottom:1px solid var(--filete);text-align:left}
+.fila-idx{width:22px;flex:none}
+.fila-nom{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.examen{margin-top:12px;padding:16px;text-align:center;display:flex;flex-direction:column;align-items:center}
+.examen-sorteo{margin-top:8px}
+.examen-disp{margin-top:14px}
+.btn-examen{margin-top:20px;padding:14px 32px}
+
+/* ===== 04 Quiz ===== */
+.q-barra{background:var(--fondo);border-bottom:1px solid var(--linea)}
+.q-barra-fila{display:flex;align-items:center;gap:14px;padding-block:8px}
+.q-cerrar{width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex:none}
+.progreso{flex:1;min-width:0;display:flex;gap:2px;height:10px}
+.progreso i{flex:1;display:block;border:1px solid var(--filete)}
+.progreso i.on{background:var(--tinta);border-color:var(--tinta)}
+.progreso-barra{flex:1;min-width:0;height:10px;border:1px solid var(--filete)}
+.progreso-barra i{display:block;height:100%;background:var(--tinta)}
+.q-cont{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none}
+.tiempo{display:inline-flex;align-items:center;gap:6px;padding:2px;color:var(--tinta)}
+.tiempo.alerta{padding:0;border:2px solid var(--error);color:var(--error)}
+.tiempo.alerta .g{padding:0}
+.q-scroll{padding-bottom:96px}
+.q-ctx{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding-top:16px;padding-bottom:12px}
+.q-meta{text-align:right;min-width:0}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border:1px solid var(--linea);background:var(--superficie);color:var(--tinta);flex:none}
+.chip-examen{border-color:var(--acento);color:var(--acento)}
+.chip-generada{background:var(--tinta);border-color:var(--tinta);color:var(--fondo)}
+.chip-tema{border-color:var(--acento);color:var(--acento)}
+.q-enunciado{background:var(--superficie);border:1px solid var(--linea);padding:14px;display:flex;flex-direction:column;gap:6px}
+.q-opciones{display:flex;flex-direction:column;gap:10px;padding-top:16px}
+.opcion{display:flex;width:100%;text-align:left}
+.op-letra{width:44px;flex:none;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--filete);color:var(--tinta)}
+.op-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;padding:12px}
+.op-estado{display:flex;align-items:flex-start;gap:6px}
+.opcion.ok{border:2px solid var(--acierto);background:var(--aciertoFondo)}
+.opcion.ok .op-letra{background:var(--acierto);color:var(--fondo);border-right:2px solid var(--acierto)}
+.opcion.mal{border:2px solid var(--error);background:var(--errorFondo)}
+.opcion.mal .op-letra{background:var(--error);color:var(--fondo);border-right:2px solid var(--error)}
+.opcion.apagada{border:1px solid var(--filete)}
+.opcion.apagada .op-letra{color:var(--tintaSec)}
+.opcion.apagada .op-texto{color:var(--tintaSec)}
+.q-nota{margin-top:16px;background:var(--superficie);border:1px solid var(--filete);border-left:3px solid var(--acento);padding:14px;display:flex;flex-direction:column;gap:6px}
+.q-nota-rot{display:flex;align-items:center;gap:6px}
+.q-reportar{display:flex;justify-content:center;padding-top:14px}
+.btn-reportar{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding-inline:16px}
+.q-inf{position:absolute;left:0;right:0;bottom:0;background:var(--fondo);border-top:1px solid var(--linea);padding-top:12px;padding-bottom:16px}
+.q-sig{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 16px}
+
+/* ===== 05 Results ===== */
+.res{padding:16px}
+.res-rot{padding-bottom:12px}
+.res-pct{display:flex;align-items:center;gap:8px}
+.res-pct .g{width:24px;height:24px}
+.res-sub{margin-top:10px}
+.res-msg{margin-top:6px}
+.tira{display:flex;align-items:flex-end;gap:2px;margin-top:16px;margin-bottom:8px}
+.tira i{flex:1;display:block}
+.tira i.c{height:24px;background:var(--acierto)}
+.tira i.i{height:12px;background:var(--error)}
+.leyenda{display:flex;gap:16px;padding-bottom:14px}
+.leyenda span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:8px}
+.sw-c{height:8px;background:var(--acierto)}
+.sw-i{height:4px;background:var(--error)}
+.res .chip{margin-top:0}
+.trio{display:flex}
+.trio-celda{flex:1;display:flex;flex-direction:column;align-items:center;padding-block:12px}
+.trio-celda+.trio-celda{border-left:1px solid var(--filete)}
+.trio-rot{display:inline-flex;align-items:center;gap:4px;margin-top:6px}
+.botones{display:flex;flex-direction:column;gap:10px}
+.btn-res{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 16px}
+
+/* ===== 06 Stats ===== */
+.glob{padding:16px;text-align:center;display:flex;flex-direction:column;align-items:center}
+.glob-rot{display:flex;align-items:center;gap:8px}
+.glob-pct{margin-top:12px}
+.glob-det{margin-top:8px}
+.leyenda-bandas{display:flex;flex-wrap:wrap;gap:8px 16px;padding-bottom:8px}
+.ley-item{display:inline-flex;align-items:center;gap:6px}
+.s-fila{border-top:1px solid var(--filete);padding-block:12px}
+.s-enc{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.s-valor{display:inline-flex;align-items:center;gap:6px;flex:none}
+.pista{position:relative;height:8px;margin-block:8px 6px;background:var(--superficie);border:1px solid var(--filete)}
+.relleno{position:absolute;left:0;top:0;bottom:0;display:block}
+.marca-u{position:absolute;top:-4px;height:14px;width:0;border-left:1px solid var(--linea)}
+.s-sin{flex:none;white-space:nowrap}
+.s-fila .s-enc+.s-det{margin-top:4px}
+.f-fila{border-top:1px solid var(--filete);padding-block:12px}
+.f-enc{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.f-enun{margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.f-tema{margin-top:4px}
+
+</style>
+</head>
+<body>
+
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <defs>
+    <pattern id="regla-menor" width="10" height="9" patternUnits="userSpaceOnUse"><path d="M0.5 8.5 V5" fill="none" stroke="currentColor" stroke-width="1"/></pattern>
+    <pattern id="regla-mayor" width="50" height="9" patternUnits="userSpaceOnUse"><path d="M0.5 8.5 V2" fill="none" stroke="currentColor" stroke-width="1"/></pattern>
+  </defs>
+  <symbol id="ilu-bcyt" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><path d="M9 33 C7 19 19 8 33 9 C48 9 57 21 55 34 C54 48 43 57 31 55 C18 55 10 46 9 33Z"/>
+<circle cx="31" cy="30" r="9.5"/><circle cx="33.5" cy="27.5" r="3"/>
+<ellipse cx="16.5" cy="38" rx="5.5" ry="2.6" transform="rotate(-40 16.5 38)"/><path d="M13 41 L20 35"/>
+<ellipse cx="47.5" cy="21" rx="5.5" ry="2.6" transform="rotate(32 47.5 21)"/><path d="M43.5 18.5 L51.5 23.5"/>
+<path d="M38 46 C41 44 44 44 47 46 M37 49.5 C40 47.5 44 47.5 48 49.5 M36.5 53 C40 51 44 51 47 53"/>
+<path d="M22 20 C25 17 28 18 30 16"/><circle cx="21" cy="46" r=".9"/><circle cx="50" cy="35" r=".9"/><circle cx="18" cy="26" r=".9"/>
+<path d="M2 62 H62 M2 59 V62 M62 59 V62" stroke-width=".6"/></g></symbol>
+  <symbol id="ilu-anatomia" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><rect x="28.5" y="5" width="7" height="5"/><rect x="28.5" y="12" width="7" height="5"/>
+<rect x="28.5" y="19" width="7" height="5"/><rect x="28.5" y="26" width="7" height="5"/>
+<rect x="28.5" y="33" width="7" height="5"/><rect x="28.5" y="40" width="7" height="5"/>
+<rect x="28.5" y="47" width="7" height="5"/><rect x="28.5" y="54" width="7" height="5"/>
+<path d="M28.5 14 C18 13 12 21 13 29 M35.5 14 C46 13 52 21 51 29"/>
+<path d="M28.5 21 C16 20 9 30 11 40 M35.5 21 C48 20 55 30 53 40"/>
+<path d="M28.5 28 C17 28 11 37 13 46 M35.5 28 C47 28 53 37 51 46"/>
+<path d="M28.5 35 C20 36 15 42 17 50 M35.5 35 C44 36 49 42 47 50"/>
+<path d="M4 5 H9 M4 59 H9 M6.5 5 V59" stroke-width=".6"/></g></symbol>
+  <symbol id="ilu-neuro" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><polygon points="25,29 31,23 39,25 41,33 34,39 26,36"/><circle cx="33" cy="31" r="2.2"/>
+<path d="M25 29 L15 22 L9 14 M15 22 L6 24 M31 23 L28 12 L22 6 M28 12 L33 5 M39 25 L47 17 L55 14 M47 17 L52 8 M26 36 L15 41 L8 49 M15 41 L6 40"/>
+<path d="M41 33 L56 52"/>
+<rect x="43.5" y="35" width="5" height="3" transform="rotate(50 46 36.5)"/>
+<rect x="48.5" y="41" width="5" height="3" transform="rotate(50 51 42.5)"/>
+<circle cx="9" cy="14" r="1"/><circle cx="6" cy="24" r="1"/><circle cx="22" cy="6" r="1"/><circle cx="33" cy="5" r="1"/>
+<circle cx="55" cy="14" r="1"/><circle cx="52" cy="8" r="1"/><circle cx="8" cy="49" r="1"/><circle cx="6" cy="40" r="1"/></g></symbol>
+  <symbol id="ilu-cyr" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><circle cx="32" cy="32" r="26"/><circle cx="32" cy="32" r="21" stroke-dasharray="1.5 2"/>
+<circle cx="32" cy="32" r="15"/><circle cx="32" cy="32" r="11.5" stroke-width=".6"/>
+<path d="M32 4 V10 M32 54 V60 M4 32 H10 M54 32 H60" stroke-width=".7"/>
+<path d="M32 28 V36 M28 32 H36" stroke-width=".6"/><path d="M50 14 L58 6" stroke-width=".6"/></g></symbol>
+  <symbol id="ilu-dre" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><path d="M44 7 C27 4 11 16 11 32 C11 48 27 60 44 56 C48 55 48 50 44 47 C38 43 38 37 44 33 C50 29 49 24 44 20 C40 16 41 8 44 7Z"/>
+<path d="M18 21 L36 30 M16 33 L35 34 M20 46 L37 40" stroke-width=".7"/>
+<path d="M44 33 L58 27 M44 40 L55 52 L55 60" stroke-width=".9"/>
+<circle cx="30" cy="32" r="1"/><path d="M4 7 H9 M4 56 H9 M6.5 7 V56" stroke-width=".6"/></g></symbol>
+  <symbol id="ilu-ryd" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square"><circle cx="32" cy="27" r="22"/><circle cx="32" cy="27" r="18" stroke-width=".6"/>
+<circle cx="24" cy="20" r="3.4"/><circle cx="30" cy="16.5" r="3.4"/><circle cx="21" cy="27" r="3.4"/>
+<circle cx="36" cy="21" r="3.4"/><circle cx="27" cy="26" r="3.4"/>
+<path d="M44 24 L56 12" stroke-width=".7"/><circle cx="57" cy="11" r="1"/>
+<circle cx="8" cy="57" r="3.5"/><circle cx="23" cy="57" r="3.5"/><path d="M23 53.5 V60.5" stroke-width=".7"/>
+<circle cx="40" cy="55.5" r="2.5"/><circle cx="45" cy="55.5" r="2.5"/><circle cx="42.5" cy="59.5" r="2.5"/><circle cx="55" cy="57" r="3.5"/>
+<circle cx="54" cy="56" r=".8"/><circle cx="56.5" cy="58.5" r=".8"/><circle cx="54.5" cy="58.5" r=".8"/></g></symbol>
+</svg>
+<header class="herr">
+  <div class="herr-fila">
+    <span class="t-rotulo-medio c-tinta">pKapp · Rediseño Plancha · Maqueta de pantallas</span>
+    <div class="herr-grupo"><span class="t-rotulo c-sec">Ancho</span>
+      <span class="seg"><button type="button" class="seg-op t-rotulo" data-set="ancho:390">390</button><button type="button" class="seg-op t-rotulo" data-set="ancho:768">768</button><button type="button" class="seg-op t-rotulo" data-set="ancho:1280">1280</button></span></div>
+    <div class="herr-grupo"><span class="t-rotulo c-sec">Tema</span>
+      <span class="seg"><button type="button" class="seg-op t-rotulo" data-set="tema:claro">Claro</button><button type="button" class="seg-op t-rotulo" data-set="tema:oscuro">Oscuro</button></span></div>
+    <div class="herr-grupo"><span class="t-rotulo c-sec">Ir a</span><span class="seg"><button type="button" class="seg-op t-rotulo" data-ir="fig-01">01</button><button type="button" class="seg-op t-rotulo" data-ir="fig-02">02</button><button type="button" class="seg-op t-rotulo" data-ir="fig-03a">03a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-03b">03b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04a">04a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04b">04b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04c">04c</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04d">04d</button><button type="button" class="seg-op t-rotulo" data-ir="fig-05a">05a</button><button type="button" class="seg-op t-rotulo" data-ir="fig-05b">05b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-05c">05c</button><button type="button" class="seg-op t-rotulo" data-ir="fig-06">06</button><button type="button" class="seg-op t-rotulo" data-ir="fig-01b">01b</button><button type="button" class="seg-op t-rotulo" data-ir="fig-04e">04e</button></span></div>
+  </div>
+  <div class="herr-nota t-rotulo c-sec">Fieles a las fichas aprobadas el 2026-10-10 · colores generados desde src/theme/colores.js · conteos, temas y preguntas reales; resultados y estadísticas son datos de muestra</div>
+</header>
+<main class="tablero">
+
+<figure class="fig" id="fig-01">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">01 · Selección de materias</span>
+    <span class="fig-ficha c-sec">MateriaSelect.md · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="MateriaSelect">
+  
+<header class="cab"><div class="col cab-fila"><div class="cab-izq"><span class="t-rotulo c-sec">ESFUNO</span></div>
+<div class="tema" role="radiogroup" aria-label="Modo oscuro">
+  <button type="button" class="tema-op" role="radio" data-op="claro" data-set="tema:claro"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="2.5"/>
+<path d="M8 1.5V3M8 13V14.5M1.5 8H3M13 8H14.5"/>
+<path d="M4.46 4.46L3.4 3.4M11.54 4.46L12.6 3.4M11.54 11.54L12.6 12.6M4.46 11.54L3.4 12.6"/></svg><span class="t-rotulo">Claro</span></button>
+  <button type="button" class="tema-op" role="radio" data-op="oscuro" data-set="tema:oscuro"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5A5.5 5.5 0 1 1 7.5 2.5A4.25 4.25 0 0 0 13.5 8.5Z"/></svg><span class="t-rotulo">Oscuro</span></button>
+</div></div></header>
+  <div class="col mt-1_5 mb-3">
+    <section class="lam lamina">
+      <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+      <div class="campo"><svg viewBox="0 0 348 118" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="butt" aria-hidden="true" focusable="false"><path d="M -10 -14.0 C 104 -22.4, 216 -24.5, 358 -4.8" stroke-opacity="0.82" stroke-width="0.98"/><path d="M -10 -12.9 C 104 -21.6, 216 -18.9, 358 -2.2" stroke-opacity="0.79" stroke-width="0.94"/><path d="M -10 -14.1 C 104 -21.1, 216 -17.5, 358 3.3" stroke-opacity="0.68" stroke-width="0.88"/><path d="M -10 -15.1 C 104 -19.1, 216 -15.7, 358 8.5" stroke-opacity="0.52" stroke-width="0.81"/><path d="M -10 -11.6 C 104 -17.0, 216 -10.9, 358 9.6" stroke-opacity="0.31" stroke-width="0.72"/><path d="M -10 -11.3 C 104 -14.7, 216 -10.7, 358 16.2" stroke-opacity="0.35" stroke-width="0.62"/><path d="M -10 -11.7 C 104 -11.9, 216 -4.0, 358 20.2" stroke-opacity="0.56" stroke-width="0.51"/><path d="M -10 -10.3 C 104 -6.5, 216 -2.3, 358 23.4" stroke-opacity="0.71" stroke-width="0.59"/><path d="M -10 -9.3 C 104 -3.8, 216 1.6, 358 28.4" stroke-opacity="0.8" stroke-width="0.69"/><path d="M -10 -5.4 C 104 -3.1, 216 3.9, 358 29.4" stroke-opacity="0.81" stroke-width="0.78"/><path d="M -10 -6.5 C 104 -0.9, 216 7.2, 358 34.8" stroke-opacity="0.75" stroke-width="0.86"/><path d="M -10 -5.3 C 104 4.5, 216 11.0, 358 37.6" stroke-opacity="0.6" stroke-width="0.93"/><path d="M -10 -0.5 C 104 7.0, 216 14.6, 358 42.0" stroke-opacity="0.41" stroke-width="0.97"/><path d="M -10 1.1 C 104 8.9, 216 20.8, 358 44.0" stroke-opacity="0.25" stroke-width="1"/><path d="M -10 3.4 C 104 15.2, 216 21.2, 358 50.4" stroke-opacity="0.46" stroke-width="1"/><path d="M -10 4.3 C 104 17.9, 216 25.0, 358 51.3" stroke-opacity="0.64" stroke-width="0.98"/><path d="M -10 6.1 C 104 22.9, 216 29.6, 358 57.2" stroke-opacity="0.77" stroke-width="0.94"/><path d="M -10 11.4 C 104 26.6, 216 34.1, 358 59.1" stroke-opacity="0.82" stroke-width="0.88"/><path d="M -10 12.7 C 104 29.8, 216 37.2, 358 63.8" stroke-opacity="0.79" stroke-width="0.8"/><path d="M -10 16.5 C 104 33.9, 216 40.9, 358 67.6" stroke-opacity="0.68" stroke-width="0.71"/><path d="M -10 17.0 C 104 35.9, 216 46.9, 358 70.5" stroke-opacity="0.51" stroke-width="0.61"/><path d="M -10 21.0 C 104 42.0, 216 50.6, 358 71.2" stroke-opacity="0.3" stroke-width="0.51"/><path d="M -10 24.1 C 104 43.2, 216 52.8, 358 73.3" stroke-opacity="0.36" stroke-width="0.59"/><path d="M -10 28.8 C 104 50.1, 216 57.0, 358 75.6" stroke-opacity="0.56" stroke-width="0.69"/><path d="M -10 33.3 C 104 52.4, 216 61.7, 358 78.7" stroke-opacity="0.72" stroke-width="0.79"/><path d="M -10 35.4 C 104 57.4, 216 65.7, 358 81.7" stroke-opacity="0.8" stroke-width="0.87"/><path d="M -10 37.0 C 104 61.7, 216 67.9, 358 84.1" stroke-opacity="0.81" stroke-width="0.93"/><path d="M -10 43.5 C 104 62.7, 216 74.0, 358 87.8" stroke-opacity="0.74" stroke-width="0.97"/><path d="M -10 46.5 C 104 69.0, 216 75.3, 358 87.8" stroke-opacity="0.6" stroke-width="1"/><path d="M -10 48.6 C 104 73.0, 216 79.4, 358 89.6" stroke-opacity="0.41" stroke-width="1"/><path d="M -10 55.5 C 104 76.8, 216 85.2, 358 91.2" stroke-opacity="0.25" stroke-width="0.98"/><path d="M -10 57.6 C 104 80.0, 216 86.7, 358 92.1" stroke-opacity="0.46" stroke-width="0.94"/><path d="M -10 61.2 C 104 81.6, 216 89.5, 358 95.9" stroke-opacity="0.65" stroke-width="0.88"/><path d="M -10 67.2 C 104 86.8, 216 92.9, 358 94.7" stroke-opacity="0.77" stroke-width="0.8"/><path d="M -10 68.0 C 104 89.0, 216 96.9, 358 97.6" stroke-opacity="0.82" stroke-width="0.71"/><path d="M -10 72.9 C 104 94.2, 216 99.6, 358 97.9" stroke-opacity="0.79" stroke-width="0.61"/><path d="M -10 78.0 C 104 97.3, 216 100.7, 358 98.7" stroke-opacity="0.68" stroke-width="0.51"/><path d="M -10 80.5 C 104 99.4, 216 104.7, 358 99.3" stroke-opacity="0.51" stroke-width="0.6"/><path d="M -10 84.5 C 104 104.1, 216 106.6, 358 99.4" stroke-opacity="0.3" stroke-width="0.7"/><path d="M -10 87.3 C 104 105.5, 216 107.4, 358 100.2" stroke-opacity="0.36" stroke-width="0.79"/><path d="M -10 92.7 C 104 109.2, 216 110.9, 358 100.9" stroke-opacity="0.56" stroke-width="0.87"/><path d="M -10 96.0 C 104 111.2, 216 113.1, 358 101.3" stroke-opacity="0.72" stroke-width="0.93"/><path d="M -10 99.7 C 104 114.4, 216 115.3, 358 100.9" stroke-opacity="0.81" stroke-width="0.97"/><path d="M -10 105.6 C 104 117.1, 216 115.7, 358 100.4" stroke-opacity="0.81" stroke-width="1"/><path d="M -10 106.1 C 104 118.8, 216 118.7, 358 100.1" stroke-opacity="0.74" stroke-width="1"/><path d="M -10 111.4 C 104 120.4, 216 119.3, 358 99.0" stroke-opacity="0.6" stroke-width="0.98"/><path d="M -10 115.1 C 104 121.8, 216 120.2, 358 99.7" stroke-opacity="0.4" stroke-width="0.93"/><path d="M -10 117.7 C 104 124.3, 216 121.2, 358 100.6" stroke-opacity="0.25" stroke-width="0.87"/><path d="M -10 118.6 C 104 123.6, 216 121.4, 358 100.2" stroke-opacity="0.47" stroke-width="0.8"/><path d="M -10 122.3 C 104 127.0, 216 122.9, 358 97.8" stroke-opacity="0.65" stroke-width="0.71"/><path d="M -10 126.0 C 104 126.6, 216 121.4, 358 97.8" stroke-opacity="0.77" stroke-width="0.61"/><path d="M -10 128.1 C 104 127.6, 216 122.5, 358 97.3" stroke-opacity="0.82" stroke-width="0.5"/><path d="M -10 131.2 C 104 129.4, 216 124.4, 358 99.0" stroke-opacity="0.79" stroke-width="0.6"/><path d="M -10 132.8 C 104 132.1, 216 122.6, 358 98.1" stroke-opacity="0.68" stroke-width="0.7"/><path d="M -10 135.2 C 104 131.1, 216 123.2, 358 99.5" stroke-opacity="0.5" stroke-width="0.79"/><path d="M -10 137.7 C 104 130.4, 216 125.2, 358 96.7" stroke-opacity="0.29" stroke-width="0.87"/><path d="M -10 140.3 C 104 132.0, 216 125.1, 358 99.7" stroke-opacity="0.37" stroke-width="0.93"/><path d="M -10 143.1 C 104 132.7, 216 125.9, 358 98.6" stroke-opacity="0.57" stroke-width="0.98"/><path class="cont" d="M -10 59 C 104 29, 209 89, 358 47" stroke-width="1.6" stroke-opacity="1"/></svg></div>
+      <div class="regla"><svg aria-hidden="true" focusable="false" width="100%" height="9">
+    <rect width="100%" height="9" fill="url(#regla-menor)"/><rect width="100%" height="9" fill="url(#regla-mayor)"/></svg></div>
+      <div class="cajetin">
+        <span class="t-marca c-tinta">pKapp</span>
+        <span class="cajetin-der t-rotulo c-sec">Tus materias de ESFUNO<br>Elegí una para empezar</span>
+      </div>
+    </section>
+  </div>
+  <div class="col mb-3"><div class="reservado t-rotulo c-sec">Nota del creador (condicional, reaparece cada siete días) · ver 1.3</div></div>
+  <div class="col mt-1_5"><div class="lista">
+<button type="button" class="lam k6 tarj" aria-label="Biología Celular y Tisular">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <span class="tarj-fila">
+    <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-bcyt"/></svg></span>
+    <span class="tarj-txt"><span class="t-rotulo c-acento">BCYT · 01</span><span class="t-item c-tinta">Biología Celular y Tisular</span></span>
+  </span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">385</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+</button>
+<button type="button" class="lam k6 tarj" aria-label="Anatomía">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <span class="tarj-fila">
+    <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-anatomia"/></svg></span>
+    <span class="tarj-txt"><span class="t-rotulo c-acento">Anatomía · 02</span><span class="t-item c-tinta">Anatomía</span></span>
+  </span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">471</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+</button>
+<button type="button" class="lam k6 tarj" aria-label="Neurobiología">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <span class="tarj-fila">
+    <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-neuro"/></svg></span>
+    <span class="tarj-txt"><span class="t-rotulo c-acento">Neuro · 03</span><span class="t-item c-tinta">Neurobiología</span></span>
+  </span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">193</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+</button>
+<button type="button" class="lam k6 tarj" aria-label="Cardiovascular y Respiratorio">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <span class="tarj-fila">
+    <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></span>
+    <span class="tarj-txt"><span class="t-rotulo c-acento">CyR · 04</span><span class="t-item c-tinta">Cardiovascular y Respiratorio</span></span>
+  </span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+</button>
+<button type="button" class="lam k6 tarj" aria-label="Digestivo, Renal y Endócrino">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <span class="tarj-fila">
+    <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-dre"/></svg></span>
+    <span class="tarj-txt"><span class="t-rotulo c-acento">DRE · 05</span><span class="t-item c-tinta">Digestivo, Renal y Endócrino</span></span>
+  </span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">451</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+</button>
+<button type="button" class="lam k6 tarj" aria-label="Reproductor y Desarrollo">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <span class="tarj-fila">
+    <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-ryd"/></svg></span>
+    <span class="tarj-txt"><span class="t-rotulo c-acento">RyD · 06</span><span class="t-item c-tinta">Reproductor y Desarrollo</span></span>
+  </span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">172</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+</button></div></div>
+  <div class="col mt-6"><div class="reservado t-rotulo c-sec">Bloque de donación (origen materias) · ver 1.3</div></div>
+  <div class="relleno-10"></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-02">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">02 · Inicio de materia · CyR</span>
+    <span class="fig-ficha c-sec">Home.md · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="Home">
+  
+<header class="cab"><div class="col cab-fila"><div class="cab-izq"><button type="button" class="k2 btn-cambiar t-cuerpo-fuerte c-tinta"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg><span>Cambiar materia</span></button></div>
+<div class="tema" role="radiogroup" aria-label="Modo oscuro">
+  <button type="button" class="tema-op" role="radio" data-op="claro" data-set="tema:claro"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="2.5"/>
+<path d="M8 1.5V3M8 13V14.5M1.5 8H3M13 8H14.5"/>
+<path d="M4.46 4.46L3.4 3.4M11.54 4.46L12.6 3.4M11.54 11.54L12.6 12.6M4.46 11.54L3.4 12.6"/></svg><span class="t-rotulo">Claro</span></button>
+  <button type="button" class="tema-op" role="radio" data-op="oscuro" data-set="tema:oscuro"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5A5.5 5.5 0 1 1 7.5 2.5A4.25 4.25 0 0 0 13.5 8.5Z"/></svg><span class="t-rotulo">Oscuro</span></button>
+</div></div></header>
+  <div class="col mt-1_5">
+    <section class="lam mat-card">
+      <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+      <div class="mat-card-ilu"><svg class="ilu" width="64" height="64" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></div>
+      <div class="mat-card-txt">
+        <span class="t-rotulo c-acento">CyR · 04</span>
+        <span class="t-titulo c-tinta">Cardiovascular y Respiratorio</span>
+        <span class="t-detalle c-sec">113 preguntas reales · 0 preguntas extra</span>
+      </div>
+    </section>
+  </div>
+  <div class="col mt-3"><div class="reservado t-rotulo c-sec">Banner de banco reducido · ver 1.3</div></div>
+  <div class="col"><div class="t-rotulo c-acento sec-rotulo sec-4">Plano / Acciones</div></div>
+  <div class="col"><div class="lista">
+<button type="button" class="k3 accion prim">
+  <span class="ico"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="2.5" y="2.5" width="2" height="2"/>
+<rect x="2.5" y="7.5" width="2" height="2"/>
+<rect x="2.5" y="12.5" width="2" height="2"/>
+<path d="M7.5 3.5H13.5M7.5 8.5H13.5M7.5 13.5H11.5"/></svg></span>
+  <span class="accion-txt"><span class="t-item c-tinta">Entrena Temas/Parciales</span><span class="t-detalle c-sec">Crea tu propio test eligiendo temas o practica para los parciales</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k3 accion">
+  <span class="ico"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<path d="M6 8.5H10M6 11.5H9"/></svg></span>
+  <span class="accion-txt"><span class="t-item c-tinta">Modo examen</span><span class="t-detalle c-sec">50 preguntas al azar como en el parcial real</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k3 accion">
+  <span class="ico"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><circle cx="8.5" cy="8.5" r="4"/>
+<circle cx="8.5" cy="8.5" r="1"/>
+<path d="M8.5 2.5V5.5M8.5 11.5V14.5M2.5 8.5H5.5M11.5 8.5H14.5"/></svg></span>
+  <span class="accion-txt"><span class="t-item c-tinta">Repasar fallos</span><span class="t-detalle c-sec">Preguntas que te costaron antes</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k3 accion">
+  <span class="ico"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5V13.5H13.5"/>
+<path d="M5.5 13.5V10M8.5 13.5V7M11.5 13.5V4"/></svg></span>
+  <span class="accion-txt"><span class="t-item c-tinta">Mis estadísticas</span><span class="t-detalle c-sec">% de aciertos por tema, preguntas falladas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k3 accion">
+  <span class="ico"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="2.5" y="2.5" width="11" height="11"/>
+<path d="M8 5.5V10.5M5.5 8H10.5"/></svg></span>
+  <span class="accion-txt"><span class="t-item c-tinta">Agregar pregunta</span><span class="t-detalle c-sec">Agregá tus propias preguntas al banco</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k3 accion">
+  <span class="ico"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M1.5 4.5H8.5M12.5 4.5H14.5M1.5 11.5H3.5M7.5 11.5H14.5"/>
+<rect x="8.5" y="2.5" width="4" height="4"/>
+<rect x="3.5" y="9.5" width="4" height="4"/></svg></span>
+  <span class="accion-txt"><span class="t-item c-tinta">Ajustes</span><span class="t-detalle c-sec">Filtrar fuente, resetear estadísticas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button></div></div>
+  <div class="col mt-6"><p class="t-detalle c-sec nota-web">Tus estadísticas y preguntas se guardan localmente en tu navegador.<br>Se usan analíticas anónimas (sin cookies ni datos personales).</p></div>
+  <div class="relleno-8"></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-03a">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">03a · Elegir tema · practicar · BCYT, con parcial</span>
+    <span class="fig-ficha c-sec">TopicSelect.md · variante A · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="TopicSelect-practice">
+  
+<header class="barra-int"><div class="col barra-int-fila"><button type="button" class="k7 btn-volver" aria-label="Volver"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></button><h1 class="t-titulo c-tinta">pKapp · Elegir tema</h1></div></header>
+  <div class="col mt-4">
+<section class="panel">
+  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
+    <div class="filtros"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" aria-pressed="true">Todas</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">Solo preguntas reales</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">Solo generadas</button></div></div>
+  
+    <div class="divisor"></div>
+    <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Parcial</div>
+      <div class="filtros"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" aria-pressed="true">Examen</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">1er Parcial</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">2do Parcial</button></div></div>
+  <div class="divisor"></div>
+  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+    <div class="timer">
+      <button type="button" class="k5 cuadrado" aria-label="Menos tiempo" disabled><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></button>
+      <span class="t-cuerpo-fuerte c-tinta timer-valor">Sin límite</span>
+      <button type="button" class="k5 cuadrado" aria-label="Más tiempo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5M8.5 3.5V13.5"/></svg></button>
+    </div></div>
+</section></div>
+  
+<div class="col"><button type="button" class="k6 mezcla">
+  <svg class="g g-grande c-acento" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="1.5" y="1.5" width="13" height="13"/>
+<circle cx="5" cy="5" r="0.75"/>
+<circle cx="11" cy="5" r="0.75"/>
+<circle cx="8" cy="8" r="0.75"/>
+<circle cx="5" cy="11" r="0.75"/>
+<circle cx="11" cy="11" r="0.75"/></svg>
+  <span class="mezcla-txt"><span class="t-rotulo c-acento">Mezcla</span><span class="t-item c-tinta">Todos los temas mezclados</span><span class="t-detalle c-sec">385 preguntas</span></span>
+</button></div>
+<div class="col"><div class="t-rotulo c-acento sec-rotulo sec-4">O elegí un tema específico:</div></div>
+<div class="col"><div class="lista-temas">
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">01</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Química del agua, pH y tampones</span><span class="t-detalle c-sec">24 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">02</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Aminoácidos y proteínas</span><span class="t-detalle c-sec">12 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">03</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Lípidos e hidratos de carbono</span><span class="t-detalle c-sec">10 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">04</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Enzimas y cinética enzimática</span><span class="t-detalle c-sec">11 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">05</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Metabolismo celular</span><span class="t-detalle c-sec">39 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">06</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Membrana biológica</span><span class="t-detalle c-sec">7 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">07</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Organelos celulares</span><span class="t-detalle c-sec">31 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">08</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Microscopía</span><span class="t-detalle c-sec">9 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">09</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Transporte a través de membranas</span><span class="t-detalle c-sec">15 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">10</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Potencial de acción</span><span class="t-detalle c-sec">13 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">11</span>
+  <span class="fila-nom"><span class="t-item c-tinta">División celular y cromosomas</span><span class="t-detalle c-sec">18 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">12</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Reparación del ADN y radiobiología</span><span class="t-detalle c-sec">7 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">13</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Genética y herencia</span><span class="t-detalle c-sec">29 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">14</span>
+  <span class="fila-nom"><span class="t-item c-tinta">ADN, ARN y síntesis proteica</span><span class="t-detalle c-sec">25 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">15</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Tejido epitelial</span><span class="t-detalle c-sec">18 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">16</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Tejido conjuntivo</span><span class="t-detalle c-sec">10 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">17</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Tejido cartilaginoso</span><span class="t-detalle c-sec">7 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">18</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Tejido óseo</span><span class="t-detalle c-sec">9 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">19</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Tejido muscular (histología)</span><span class="t-detalle c-sec">4 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">20</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Sangre y hemopoyesis</span><span class="t-detalle c-sec">8 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">21</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Tejido linfoideo</span><span class="t-detalle c-sec">6 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">22</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Ciclo celular y reparación ADN</span><span class="t-detalle c-sec">8 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">23</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Contracción muscular</span><span class="t-detalle c-sec">11 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">24</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Palancas y biomecánica</span><span class="t-detalle c-sec">2 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">25</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Radioprotección</span><span class="t-detalle c-sec">12 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">26</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Hemostasis y coagulación</span><span class="t-detalle c-sec">10 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button>
+<button type="button" class="k7 fila-tema">
+  <span class="t-rotulo c-sec fila-idx">27</span>
+  <span class="fila-nom"><span class="t-item c-tinta">Sistema inmune</span><span class="t-detalle c-sec">30 preguntas</span></span>
+  <svg class="g g-chico c-sec" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M5.5 3L10.5 8L5.5 13"/></svg>
+</button></div></div>
+  <div class="relleno-8"></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-03b">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">03b · Elegir tema · modo examen · CyR, sin parcial</span>
+    <span class="fig-ficha c-sec">TopicSelect.md · variante B (TOPIC-P5) · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="TopicSelect-exam">
+  
+<header class="barra-int"><div class="col barra-int-fila"><button type="button" class="k7 btn-volver" aria-label="Volver"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></button><h1 class="t-titulo c-tinta">pKapp · Elegir tema</h1></div></header>
+  <div class="col mt-4">
+<section class="panel">
+  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Fuente</div>
+    <div class="filtros"><button type="button" class="k4 filtro t-cuerpo-fuerte sel" aria-pressed="true">Todas</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">Solo preguntas reales</button><button type="button" class="k4 filtro t-cuerpo c-tinta" aria-pressed="false">Solo generadas</button></div></div>
+  
+  <div class="divisor"></div>
+  <div class="grupo"><div class="t-rotulo c-sec grupo-rot">Temporizador</div>
+    <div class="timer">
+      <button type="button" class="k5 cuadrado" aria-label="Menos tiempo" disabled><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5"/></svg></button>
+      <span class="t-cuerpo-fuerte c-tinta timer-valor">Sin límite</span>
+      <button type="button" class="k5 cuadrado" aria-label="Más tiempo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 8.5H13.5M8.5 3.5V13.5"/></svg></button>
+    </div></div>
+</section></div>
+  
+<div class="col"><section class="lam examen">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <h2 class="t-titulo c-tinta">Modo Examen</h2>
+  <p class="t-cuerpo c-sec examen-sorteo">Se sortean 50 preguntas al azar de todos los temas, como en el examen real.</p>
+  <p class="t-cuerpo-fuerte c-acento examen-disp">Disponibles: 113 preguntas</p>
+  <button type="button" class="k1 btn-examen t-cuerpo-fuerte">Comenzar examen</button>
+</section></div>
+  <div class="relleno-8"></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-04a">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">04a · Quiz · sin responder</span>
+    <span class="fig-ficha c-sec">Quiz.md · c.2 reposo · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla quiz" data-pantalla="Quiz">
+  <header class="q-barra"><div class="col q-barra-fila">
+    <button type="button" class="k7 q-cerrar" aria-label="Salir"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+    <div class="progreso" role="progressbar" aria-valuemin="1" aria-valuemax="15" aria-valuenow="5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="q-cont"><span class="t-rotulo c-tinta">05 / 15</span></div>
+  </div></header>
+  <div class="q-scroll">
+    <div class="col q-ctx"><span class="chip chip-examen t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<circle cx="8" cy="10" r="2"/></svg><span>PROTOTIPO 1</span></span><span class="t-rotulo c-sec q-meta">CyR · Histología cardiovascular y respiratoria</span></div>
+    <div class="col"><section class="q-enunciado"><div class="t-rotulo c-sec">Enunciado</div><p class="t-titulo c-tinta">Las arterias musculares se caracterizan por poseer:</p></section></div>
+    <div class="col"><div class="q-opciones">
+<button type="button" class="k3 opcion">
+  <span class="op-letra t-dato">A</span>
+  <span class="op-txt"><span class="t-cuerpo op-texto">Un endotelio más alto que las arterias elásticas</span></span>
+</button>
+<button type="button" class="k3 opcion">
+  <span class="op-letra t-dato">B</span>
+  <span class="op-txt"><span class="t-cuerpo op-texto">Un diámetro mayor que las de las arterias elásticas.</span></span>
+</button>
+<button type="button" class="k3 opcion">
+  <span class="op-letra t-dato">C</span>
+  <span class="op-txt"><span class="t-cuerpo op-texto">Una limitante elástica interna más evidente que la de las arterias elásticas</span></span>
+</button></div></div>
+    
+  </div>
+  
+</div>
+</figure>
+
+<figure class="fig" id="fig-04b">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">04b · Quiz · respondida correcta · temporizador normal</span>
+    <span class="fig-ficha c-sec">Quiz.md · c.2 correcta, c.4 · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla quiz" data-pantalla="Quiz">
+  <header class="q-barra"><div class="col q-barra-fila">
+    <button type="button" class="k7 q-cerrar" aria-label="Salir"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+    <div class="progreso" role="progressbar" aria-valuemin="1" aria-valuemax="15" aria-valuenow="5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="q-cont"><span class="t-rotulo c-tinta">05 / 15</span><span class="tiempo t-rotulo-medio"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><circle cx="8.5" cy="9.5" r="5"/>
+<path d="M6.5 1.5H10.5M8.5 1.5V4.5"/>
+<path d="M8.5 6.5V9.5H11.5"/></svg><span>14:32</span></span></div>
+  </div></header>
+  <div class="q-scroll">
+    <div class="col q-ctx"><span class="chip chip-examen t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<circle cx="8" cy="10" r="2"/></svg><span>PROTOTIPO 1</span></span><span class="t-rotulo c-sec q-meta">CyR · Histología cardiovascular y respiratoria</span></div>
+    <div class="col"><section class="q-enunciado"><div class="t-rotulo c-sec">Enunciado</div><p class="t-titulo c-tinta">Las arterias musculares se caracterizan por poseer:</p></section></div>
+    <div class="col"><div class="q-opciones">
+<button type="button" class="k3 opcion apagada" disabled>
+  <span class="op-letra t-dato">A</span>
+  <span class="op-txt"><span class="t-cuerpo op-texto">Un endotelio más alto que las arterias elásticas</span></span>
+</button>
+<button type="button" class="k3 opcion apagada" disabled>
+  <span class="op-letra t-dato">B</span>
+  <span class="op-txt"><span class="t-cuerpo op-texto">Un diámetro mayor que las de las arterias elásticas.</span></span>
+</button>
+<button type="button" class="k3 opcion ok" disabled>
+  <span class="op-letra t-dato">C</span>
+  <span class="op-txt"><span class="t-cuerpo-fuerte op-texto">Una limitante elástica interna más evidente que la de las arterias elásticas</span><span class="op-estado t-rotulo c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span>Correcta</span></span></span>
+</button></div></div>
+    
+    <div class="col"><aside class="q-nota"><div class="q-nota-rot t-rotulo c-acento"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M6.5 11.5V10.24A4.5 4.5 0 1 1 9.5 10.24V11.5Z"/>
+<path d="M7 14.5H9"/></svg><span>Nota / Explicación</span></div><p class="t-cuerpo c-tinta">La limitante elástica interna es una lámina gruesa y bien definida en la arteria muscular, mientras que en la elástica queda disimulada entre las numerosas láminas de la túnica media. El endotelio es plano en ambas y el calibre de las elásticas es mayor, no menor.</p></aside></div>
+    <div class="col q-reportar"><button type="button" class="k3 btn-reportar t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 14.5V2.5H13.5V9.5H3.5"/></svg><span>Reportar pregunta</span></button></div>
+  </div>
+  
+  <footer class="q-inf"><div class="col"><button type="button" class="k1 q-sig t-cuerpo-fuerte"><span>Siguiente</span><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 8.5H12.75M8.5 3.5L13.5 8.5L8.5 13.5"/></svg></button></div></footer>
+</div>
+</figure>
+
+<figure class="fig" id="fig-04c">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">04c · Quiz · respondida incorrecta con explicación</span>
+    <span class="fig-ficha c-sec">Quiz.md · c.2 incorrecta y apagada · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla quiz" data-pantalla="Quiz">
+  <header class="q-barra"><div class="col q-barra-fila">
+    <button type="button" class="k7 q-cerrar" aria-label="Salir"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+    <div class="progreso" role="progressbar" aria-valuemin="1" aria-valuemax="15" aria-valuenow="5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="q-cont"><span class="t-rotulo c-tinta">05 / 15</span></div>
+  </div></header>
+  <div class="q-scroll">
+    <div class="col q-ctx"><span class="chip chip-examen t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<circle cx="8" cy="10" r="2"/></svg><span>PROTOTIPO 1</span></span><span class="t-rotulo c-sec q-meta">CyR · Histología cardiovascular y respiratoria</span></div>
+    <div class="col"><section class="q-enunciado"><div class="t-rotulo c-sec">Enunciado</div><p class="t-titulo c-tinta">Las arterias musculares se caracterizan por poseer:</p></section></div>
+    <div class="col"><div class="q-opciones">
+<button type="button" class="k3 opcion mal" disabled>
+  <span class="op-letra t-dato">A</span>
+  <span class="op-txt"><span class="t-cuerpo op-texto">Un endotelio más alto que las arterias elásticas</span><span class="op-estado t-rotulo c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span>Incorrecta · tu respuesta</span></span></span>
+</button>
+<button type="button" class="k3 opcion apagada" disabled>
+  <span class="op-letra t-dato">B</span>
+  <span class="op-txt"><span class="t-cuerpo op-texto">Un diámetro mayor que las de las arterias elásticas.</span></span>
+</button>
+<button type="button" class="k3 opcion ok" disabled>
+  <span class="op-letra t-dato">C</span>
+  <span class="op-txt"><span class="t-cuerpo-fuerte op-texto">Una limitante elástica interna más evidente que la de las arterias elásticas</span><span class="op-estado t-rotulo c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span>Correcta</span></span></span>
+</button></div></div>
+    
+    <div class="col"><aside class="q-nota"><div class="q-nota-rot t-rotulo c-acento"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M6.5 11.5V10.24A4.5 4.5 0 1 1 9.5 10.24V11.5Z"/>
+<path d="M7 14.5H9"/></svg><span>Nota / Explicación</span></div><p class="t-cuerpo c-tinta">La limitante elástica interna es una lámina gruesa y bien definida en la arteria muscular, mientras que en la elástica queda disimulada entre las numerosas láminas de la túnica media. El endotelio es plano en ambas y el calibre de las elásticas es mayor, no menor.</p></aside></div>
+    <div class="col q-reportar"><button type="button" class="k3 btn-reportar t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 14.5V2.5H13.5V9.5H3.5"/></svg><span>Reportar pregunta</span></button></div>
+  </div>
+  
+  <footer class="q-inf"><div class="col"><button type="button" class="k1 q-sig t-cuerpo-fuerte"><span>Siguiente</span><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 8.5H12.75M8.5 3.5L13.5 8.5L8.5 13.5"/></svg></button></div></footer>
+</div>
+</figure>
+
+<figure class="fig" id="fig-04d">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">04d · Quiz · temporizador en alerta · barra continua</span>
+    <span class="fig-ficha c-sec">Quiz.md · c.4, QUIZ-P3, QUIZ-P4 · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla quiz" data-pantalla="Quiz">
+  <header class="q-barra"><div class="col q-barra-fila">
+    <button type="button" class="k7 q-cerrar" aria-label="Salir"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/></svg></button>
+    <div class="progreso-barra" role="progressbar" aria-valuemin="1" aria-valuemax="113" aria-valuenow="18"><i style="width:15.93%"></i></div>
+    <div class="q-cont"><span class="t-rotulo c-tinta">18 / 113</span><span class="tiempo t-rotulo-medio alerta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><circle cx="8.5" cy="9.5" r="5"/>
+<path d="M6.5 1.5H10.5M8.5 1.5V4.5"/>
+<path d="M8.5 6.5V9.5H11.5"/></svg><span>01:42</span></span></div>
+  </div></header>
+  <div class="q-scroll">
+    <div class="col q-ctx"><span class="chip chip-examen t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<circle cx="8" cy="10" r="2"/></svg><span>PROTOTIPO 1</span></span><span class="t-rotulo c-sec q-meta">CyR · Fisiología cardíaca, ciclo y gasto cardíaco</span></div>
+    <div class="col"><section class="q-enunciado"><div class="t-rotulo c-sec">Enunciado</div><p class="t-titulo c-tinta">El miocardio específico se diferencia del miocardio inespecífico porque: (indique lo correcto)</p></section></div>
+    <div class="col"><div class="q-opciones">
+<button type="button" class="k3 opcion">
+  <span class="op-letra t-dato">A</span>
+  <span class="op-txt"><span class="t-cuerpo op-texto">Está constituido por células que se originan en el endodermo.</span></span>
+</button>
+<button type="button" class="k3 opcion">
+  <span class="op-letra t-dato">B</span>
+  <span class="op-txt"><span class="t-cuerpo op-texto">Posee mayor cantidad de uniones comunicantes (gap).</span></span>
+</button>
+<button type="button" class="k3 opcion">
+  <span class="op-letra t-dato">C</span>
+  <span class="op-txt"><span class="t-cuerpo op-texto">No posee miofilamentos.</span></span>
+</button></div></div>
+    
+  </div>
+  
+</div>
+</figure>
+
+<figure class="fig" id="fig-05a">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">05a · Resultados · tramo alto</span>
+    <span class="fig-ficha c-sec">Results.md · d.1 · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="Results">
+  
+<header class="barra-int"><div class="col barra-int-fila"><h1 class="t-titulo c-tinta">pKapp · Resultados</h1></div></header>
+  <div class="col mt-4 mb-3">
+    <section class="lam res">
+      <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+      <div class="t-rotulo c-sec res-rot">Resultado</div>
+      <div class="res-pct c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span class="t-display">83%</span></div>
+      <div class="t-titulo c-tinta res-sub">20 de 24 correctas</div>
+      <div class="t-cuerpo c-sec res-msg">Muy bien. Vas por buen camino.</div>
+      
+    <div class="tira" role="img" aria-label="Detalle por pregunta"><i class="c"></i><i class="c"></i><i class="c"></i><i class="i"></i><i class="c"></i><i class="c"></i><i class="c"></i><i class="c"></i><i class="c"></i><i class="i"></i><i class="c"></i><i class="c"></i><i class="c"></i><i class="c"></i><i class="c"></i><i class="i"></i><i class="c"></i><i class="c"></i><i class="c"></i><i class="c"></i><i class="i"></i><i class="c"></i><i class="c"></i><i class="c"></i></div>
+    <div class="leyenda t-rotulo c-sec"><span><i class="sw sw-c"></i>Correcta</span><span><i class="sw sw-i"></i>Incorrecta</span></div>
+      <span class="chip chip-tema t-rotulo">Todos los temas</span>
+    </section>
+  </div>
+  <div class="col mb-3">
+    <section class="lam trio">
+      <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+      <div class="trio-celda"><span class="t-cifra c-acierto">20</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg>Correctas</span></div>
+      <div class="trio-celda"><span class="t-cifra c-error">4</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg>Incorrectas</span></div>
+      <div class="trio-celda"><span class="t-cifra c-tinta">24</span><span class="t-rotulo c-sec trio-rot">Total</span></div>
+    </section>
+  </div>
+  <div class="col mb-3"><div class="reservado t-rotulo c-sec">Pedido de donación (condicional, solo web) · ver 1.3</div></div>
+  <div class="col mt-1_5"><div class="botones">
+    <button type="button" class="k2 k2-acento btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="3.5" y="2.5" width="9" height="12"/>
+<path d="M6.5 1.5H9.5"/>
+<path d="M6 5.5H10M6 8.5H10M6 11.5H10"/></svg><span>Revisar todas las respuestas</span></button>
+    <button type="button" class="k1 btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 8.5V4.5H11.75M10 2L12.5 4.5L10 7"/>
+<path d="M13.5 7.5V11.5H4.25M6 9L3.5 11.5L6 14"/></svg><span>Volver a practicar</span></button>
+    <button type="button" class="k2 btn-res t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L8 2L13.5 7.5"/>
+<path d="M3.5 7.25V14.5H12.5V7.25"/>
+<path d="M6.5 14.5V9.5H9.5V14.5"/></svg><span>Inicio</span></button>
+  </div></div>
+  <div class="relleno-8"></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-05b">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">05b · Resultados · tramo medio</span>
+    <span class="fig-ficha c-sec">Results.md · d.1 · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="Results">
+  
+<header class="barra-int"><div class="col barra-int-fila"><h1 class="t-titulo c-tinta">pKapp · Resultados</h1></div></header>
+  <div class="col mt-4 mb-3">
+    <section class="lam res">
+      <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+      <div class="t-rotulo c-sec res-rot">Resultado</div>
+      <div class="res-pct c-inter"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 6.5H12.5M3.5 9.5H12.5"/></svg><span class="t-display">63%</span></div>
+      <div class="t-titulo c-tinta res-sub">15 de 24 correctas</div>
+      <div class="t-cuerpo c-sec res-msg">A repasar solo un poco más.</div>
+      
+    <div class="tira" role="img" aria-label="Detalle por pregunta"><i class="c"></i><i class="i"></i><i class="c"></i><i class="c"></i><i class="i"></i><i class="c"></i><i class="c"></i><i class="i"></i><i class="c"></i><i class="c"></i><i class="i"></i><i class="c"></i><i class="i"></i><i class="c"></i><i class="c"></i><i class="i"></i><i class="c"></i><i class="c"></i><i class="c"></i><i class="i"></i><i class="c"></i><i class="c"></i><i class="i"></i><i class="i"></i></div>
+    <div class="leyenda t-rotulo c-sec"><span><i class="sw sw-c"></i>Correcta</span><span><i class="sw sw-i"></i>Incorrecta</span></div>
+      <span class="chip chip-tema t-rotulo">histologia-cyr</span>
+    </section>
+  </div>
+  <div class="col mb-3">
+    <section class="lam trio">
+      <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+      <div class="trio-celda"><span class="t-cifra c-acierto">15</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg>Correctas</span></div>
+      <div class="trio-celda"><span class="t-cifra c-error">9</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg>Incorrectas</span></div>
+      <div class="trio-celda"><span class="t-cifra c-tinta">24</span><span class="t-rotulo c-sec trio-rot">Total</span></div>
+    </section>
+  </div>
+  <div class="col mb-3"><div class="reservado t-rotulo c-sec">Pedido de donación (condicional, solo web) · ver 1.3</div></div>
+  <div class="col mt-1_5"><div class="botones">
+    <button type="button" class="k2 k2-acento btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="3.5" y="2.5" width="9" height="12"/>
+<path d="M6.5 1.5H9.5"/>
+<path d="M6 5.5H10M6 8.5H10M6 11.5H10"/></svg><span>Revisar todas las respuestas</span></button>
+    <button type="button" class="k1 btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 8.5V4.5H11.75M10 2L12.5 4.5L10 7"/>
+<path d="M13.5 7.5V11.5H4.25M6 9L3.5 11.5L6 14"/></svg><span>Volver a practicar</span></button>
+    <button type="button" class="k2 btn-res t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L8 2L13.5 7.5"/>
+<path d="M3.5 7.25V14.5H12.5V7.25"/>
+<path d="M6.5 14.5V9.5H9.5V14.5"/></svg><span>Inicio</span></button>
+  </div></div>
+  <div class="relleno-8"></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-05c">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">05c · Resultados · tramo bajo</span>
+    <span class="fig-ficha c-sec">Results.md · d.1 · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="Results">
+  
+<header class="barra-int"><div class="col barra-int-fila"><h1 class="t-titulo c-tinta">pKapp · Resultados</h1></div></header>
+  <div class="col mt-4 mb-3">
+    <section class="lam res">
+      <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+      <div class="t-rotulo c-sec res-rot">Resultado</div>
+      <div class="res-pct c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span class="t-display">38%</span></div>
+      <div class="t-titulo c-tinta res-sub">9 de 24 correctas</div>
+      <div class="t-cuerpo c-sec res-msg">A estudiar fuerte. Vos podés.</div>
+      
+    <div class="tira" role="img" aria-label="Detalle por pregunta"><i class="c"></i><i class="i"></i><i class="i"></i><i class="c"></i><i class="i"></i><i class="i"></i><i class="c"></i><i class="i"></i><i class="i"></i><i class="c"></i><i class="i"></i><i class="i"></i><i class="c"></i><i class="i"></i><i class="i"></i><i class="c"></i><i class="i"></i><i class="i"></i><i class="c"></i><i class="i"></i><i class="i"></i><i class="c"></i><i class="c"></i><i class="i"></i></div>
+    <div class="leyenda t-rotulo c-sec"><span><i class="sw sw-c"></i>Correcta</span><span><i class="sw sw-i"></i>Incorrecta</span></div>
+      <span class="chip chip-tema t-rotulo">Todos los temas</span>
+    </section>
+  </div>
+  <div class="col mb-3">
+    <section class="lam trio">
+      <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+      <div class="trio-celda"><span class="t-cifra c-acierto">9</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg>Correctas</span></div>
+      <div class="trio-celda"><span class="t-cifra c-error">15</span><span class="t-rotulo c-sec trio-rot"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg>Incorrectas</span></div>
+      <div class="trio-celda"><span class="t-cifra c-tinta">24</span><span class="t-rotulo c-sec trio-rot">Total</span></div>
+    </section>
+  </div>
+  <div class="col mb-3"><div class="reservado t-rotulo c-sec">Pedido de donación (condicional, solo web) · ver 1.3</div></div>
+  <div class="col mt-1_5"><div class="botones">
+    <button type="button" class="k2 k2-acento btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><rect x="3.5" y="2.5" width="9" height="12"/>
+<path d="M6.5 1.5H9.5"/>
+<path d="M6 5.5H10M6 8.5H10M6 11.5H10"/></svg><span>Revisar todas las respuestas</span></button>
+    <button type="button" class="k1 btn-res t-cuerpo-fuerte"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 8.5V4.5H11.75M10 2L12.5 4.5L10 7"/>
+<path d="M13.5 7.5V11.5H4.25M6 9L3.5 11.5L6 14"/></svg><span>Volver a practicar</span></button>
+    <button type="button" class="k2 btn-res t-cuerpo-fuerte c-tinta"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L8 2L13.5 7.5"/>
+<path d="M3.5 7.25V14.5H12.5V7.25"/>
+<path d="M6.5 14.5V9.5H9.5V14.5"/></svg><span>Inicio</span></button>
+  </div></div>
+  <div class="relleno-8"></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-06">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">06 · Estadísticas · CyR</span>
+    <span class="fig-ficha c-sec">Stats.md · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="Stats">
+  
+<header class="barra-int"><div class="col barra-int-fila"><button type="button" class="k7 btn-volver" aria-label="Volver"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg></button><h1 class="t-titulo c-tinta">pKapp · Estadísticas</h1></div></header>
+  <div class="col mt-4 mb-3">
+    <section class="lam glob">
+      <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+      <div class="glob-rot c-inter"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 6.5H12.5M3.5 9.5H12.5"/></svg><span class="t-rotulo c-sec">Aciertos globales</span></div>
+      <div class="t-display glob-pct c-inter">70%</div>
+      <div class="t-cuerpo c-sec glob-det">58 aciertos de 83 respuestas</div>
+    </section>
+  </div>
+  <div class="col"><div class="t-rotulo c-acento sec-rotulo sec-4">Por tema</div></div>
+  <div class="col"><div class="leyenda-bandas"><span class="ley-item c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span class="t-rotulo c-sec">≥ 80 %</span></span><span class="ley-item c-inter"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 6.5H12.5M3.5 9.5H12.5"/></svg><span class="t-rotulo c-sec">60–79 %</span></span><span class="ley-item c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span class="t-rotulo c-sec">&lt; 60 %</span></span></div></div>
+  <div class="col"><div class="s-filas">
+<div class="s-fila">
+  <div class="s-enc"><span class="t-item c-tinta">Fisiología cardíaca, ciclo y gasto cardíaco</span>
+    <span class="s-valor c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span class="t-dato">88%</span></span></div>
+  <div class="pista"><i class="relleno" style="width:88%;background:var(--acierto)"></i><u class="marca-u" style="left:60%"></u><u class="marca-u" style="left:80%"></u></div>
+  <div class="t-detalle c-sec s-det">15 aciertos en 17 respuestas · 17 preguntas disponibles</div>
+</div>
+<div class="s-fila">
+  <div class="s-enc"><span class="t-item c-tinta">Bases del electrocardiograma y dipolo</span><span class="t-detalle c-sec s-sin">Sin practicar</span></div>
+  <div class="t-detalle c-sec s-det">9 preguntas disponibles</div>
+</div>
+<div class="s-fila">
+  <div class="s-enc"><span class="t-item c-tinta">Hemodinamia, presión arterial y resistencias</span>
+    <span class="s-valor c-inter"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 6.5H12.5M3.5 9.5H12.5"/></svg><span class="t-dato">75%</span></span></div>
+  <div class="pista"><i class="relleno" style="width:75%;background:var(--intermedia)"></i><u class="marca-u" style="left:60%"></u><u class="marca-u" style="left:80%"></u></div>
+  <div class="t-detalle c-sec s-det">9 aciertos en 12 respuestas · 19 preguntas disponibles</div>
+</div>
+<div class="s-fila">
+  <div class="s-enc"><span class="t-item c-tinta">Circulaciones regionales y microcirculación</span>
+    <span class="s-valor c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span class="t-dato">82%</span></span></div>
+  <div class="pista"><i class="relleno" style="width:82%;background:var(--acierto)"></i><u class="marca-u" style="left:60%"></u><u class="marca-u" style="left:80%"></u></div>
+  <div class="t-detalle c-sec s-det">9 aciertos en 11 respuestas · 15 preguntas disponibles</div>
+</div>
+<div class="s-fila">
+  <div class="s-enc"><span class="t-item c-tinta">Mecánica ventilatoria, presiones y compliance</span>
+    <span class="s-valor c-inter"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 6.5H12.5M3.5 9.5H12.5"/></svg><span class="t-dato">71%</span></span></div>
+  <div class="pista"><i class="relleno" style="width:71%;background:var(--intermedia)"></i><u class="marca-u" style="left:60%"></u><u class="marca-u" style="left:80%"></u></div>
+  <div class="t-detalle c-sec s-det">10 aciertos en 14 respuestas · 17 preguntas disponibles</div>
+</div>
+<div class="s-fila">
+  <div class="s-enc"><span class="t-item c-tinta">Difusión de gases, transporte O2/CO2 y V/Q</span>
+    <span class="s-valor c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span class="t-dato">50%</span></span></div>
+  <div class="pista"><i class="relleno" style="width:50%;background:var(--error)"></i><u class="marca-u" style="left:60%"></u><u class="marca-u" style="left:80%"></u></div>
+  <div class="t-detalle c-sec s-det">5 aciertos en 10 respuestas · 12 preguntas disponibles</div>
+</div>
+<div class="s-fila">
+  <div class="s-enc"><span class="t-item c-tinta">Control de la respiración y quimiorreceptores</span>
+    <span class="s-valor c-inter"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 6.5H12.5M3.5 9.5H12.5"/></svg><span class="t-dato">67%</span></span></div>
+  <div class="pista"><i class="relleno" style="width:67%;background:var(--intermedia)"></i><u class="marca-u" style="left:60%"></u><u class="marca-u" style="left:80%"></u></div>
+  <div class="t-detalle c-sec s-det">4 aciertos en 6 respuestas · 9 preguntas disponibles</div>
+</div>
+<div class="s-fila">
+  <div class="s-enc"><span class="t-item c-tinta">Histología cardiovascular y respiratoria</span>
+    <span class="s-valor c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span class="t-dato">46%</span></span></div>
+  <div class="pista"><i class="relleno" style="width:46%;background:var(--error)"></i><u class="marca-u" style="left:60%"></u><u class="marca-u" style="left:80%"></u></div>
+  <div class="t-detalle c-sec s-det">6 aciertos en 13 respuestas · 15 preguntas disponibles</div>
+</div></div></div>
+  <div class="col"><div class="t-rotulo c-acento sec-rotulo sec-6">Más falladas</div></div>
+  <div class="col"><div class="f-filas">
+<div class="f-fila">
+  <div class="f-enc"><span class="t-rotulo c-sec">#1</span>
+    <span class="s-valor c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span class="t-rotulo-medio">0% (0/3)</span></span></div>
+  <p class="t-cuerpo c-tinta f-enun">Las arterias musculares se caracterizan por poseer:</p>
+  <p class="t-detalle c-sec f-tema">Histología cardiovascular y respiratoria</p>
+</div>
+<div class="f-fila">
+  <div class="f-enc"><span class="t-rotulo c-sec">#2</span>
+    <span class="s-valor c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span class="t-rotulo-medio">25% (1/4)</span></span></div>
+  <p class="t-cuerpo c-tinta f-enun">¿En el epitelio de cuál sector del aparato respiratorio se encuentran las células de Clara?</p>
+  <p class="t-detalle c-sec f-tema">Histología cardiovascular y respiratoria</p>
+</div>
+<div class="f-fila">
+  <div class="f-enc"><span class="t-rotulo c-sec">#3</span>
+    <span class="s-valor c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span class="t-rotulo-medio">33% (1/3)</span></span></div>
+  <p class="t-cuerpo c-tinta f-enun">Con respecto al intercambio gaseoso:</p>
+  <p class="t-detalle c-sec f-tema">Difusión de gases, transporte O2/CO2 y V/Q</p>
+</div>
+<div class="f-fila">
+  <div class="f-enc"><span class="t-rotulo c-sec">#4</span>
+    <span class="s-valor c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span class="t-rotulo-medio">40% (2/5)</span></span></div>
+  <p class="t-cuerpo c-tinta f-enun">En relación con los mecanismos involucrados en el control de la ventilación:</p>
+  <p class="t-detalle c-sec f-tema">Control de la respiración y quimiorreceptores</p>
+</div>
+<div class="f-fila">
+  <div class="f-enc"><span class="t-rotulo c-sec">#5</span>
+    <span class="s-valor c-error"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/></svg><span class="t-rotulo-medio">50% (3/6)</span></span></div>
+  <p class="t-cuerpo c-tinta f-enun">Con respecto al transporte de gases en sangre:</p>
+  <p class="t-detalle c-sec f-tema">Difusión de gases, transporte O2/CO2 y V/Q</p>
+</div>
+<div class="f-fila">
+  <div class="f-enc"><span class="t-rotulo c-sec">#6</span>
+    <span class="s-valor c-inter"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 6.5H12.5M3.5 9.5H12.5"/></svg><span class="t-rotulo-medio">67% (2/3)</span></span></div>
+  <p class="t-cuerpo c-tinta f-enun">¿Qué sucede en el sistema respiratorio, cuando no existe ni entrada ni salida de aire?</p>
+  <p class="t-detalle c-sec f-tema">Mecánica ventilatoria, presiones y compliance</p>
+</div>
+<div class="f-fila">
+  <div class="f-enc"><span class="t-rotulo c-sec">#7</span>
+    <span class="s-valor c-inter"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 6.5H12.5M3.5 9.5H12.5"/></svg><span class="t-rotulo-medio">75% (3/4)</span></span></div>
+  <p class="t-cuerpo c-tinta f-enun">En individuos ancianos la presión arterial se ve incrementada principalmente por una disminución en:</p>
+  <p class="t-detalle c-sec f-tema">Hemodinamia, presión arterial y resistencias</p>
+</div>
+<div class="f-fila">
+  <div class="f-enc"><span class="t-rotulo c-sec">#8</span>
+    <span class="s-valor c-acierto"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M2.5 7.5L6.5 11.5L13.5 4.5"/></svg><span class="t-rotulo-medio">80% (4/5)</span></span></div>
+  <p class="t-cuerpo c-tinta f-enun">El miocardio específico se diferencia del miocardio inespecífico porque: (indique lo correcto)</p>
+  <p class="t-detalle c-sec f-tema">Fisiología cardíaca, ciclo y gasto cardíaco</p>
+</div></div></div>
+  <div class="relleno-8"></div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-01b">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">01b · Tarjeta de materia · estados</span>
+    <span class="fig-ficha c-sec">MateriaSelect.md · c · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="EstadosTarjeta">
+  <div class="col estados">
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Reposo</div>
+<button type="button" class="lam k6 tarj" aria-label="Cardiovascular y Respiratorio">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <span class="tarj-fila">
+    <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></span>
+    <span class="tarj-txt"><span class="t-rotulo c-acento">CyR · 04</span><span class="t-item c-tinta">Cardiovascular y Respiratorio</span></span>
+  </span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+</button></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Presionado · inversión total</div>
+<button type="button" class="lam k6 tarj es-pres" aria-label="Cardiovascular y Respiratorio">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <span class="tarj-fila">
+    <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></span>
+    <span class="tarj-txt"><span class="t-rotulo c-acento">CyR · 04</span><span class="t-item c-tinta">Cardiovascular y Respiratorio</span></span>
+  </span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+</button></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Foco de teclado</div>
+<button type="button" class="lam k6 tarj es-foco" aria-label="Cardiovascular y Respiratorio">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <span class="tarj-fila">
+    <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></span>
+    <span class="tarj-txt"><span class="t-rotulo c-acento">CyR · 04</span><span class="t-item c-tinta">Cardiovascular y Respiratorio</span></span>
+  </span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo-medio c-tinta">113</span> <span class="t-rotulo c-sec">preguntas</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+</button></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Cargando</div>
+<button type="button" class="lam k6 tarj" aria-label="Cardiovascular y Respiratorio">
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <span class="tarj-fila">
+    <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></span>
+    <span class="tarj-txt"><span class="t-rotulo c-acento">CyR · 04</span><span class="t-item c-tinta">Cardiovascular y Respiratorio</span></span>
+  </span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo c-sec">Cargando…</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+</button></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">No disponible · available en falso</div>
+<button type="button" class="lam k6 tarj es-nodisp" aria-label="Cardiovascular y Respiratorio" disabled>
+  <i class="mk mk-a"></i><i class="mk mk-b"></i><i class="mk mk-c"></i><i class="mk mk-d"></i>
+  <span class="tarj-fila">
+    <span class="tarj-ilu"><svg class="ilu" width="48" height="48" aria-hidden="true" focusable="false"><use href="#ilu-cyr"/></svg></span>
+    <span class="tarj-txt"><span class="t-rotulo c-acento">CyR · 04</span><span class="t-item c-tinta">Cardiovascular y Respiratorio</span></span>
+  </span>
+  <span class="tarj-caj"><span class="celda"><span class="t-rotulo">Próximamente</span></span><span class="celda t-rotulo c-sec">Banco real</span></span>
+</button></div>
+  </div>
+</div>
+</figure>
+
+<figure class="fig" id="fig-04e">
+  <figcaption>
+    <span class="t-rotulo-medio c-tinta">04e · Chip de origen de la pregunta</span>
+    <span class="fig-ficha c-sec">Quiz.md · c.3 · <span class="txt-ancho"></span> · <span class="txt-tema"></span></span>
+  </figcaption>
+  
+<div class="pantalla" data-pantalla="Origen">
+  <div class="col estados">
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Examen real · source 'exam'</div><span class="chip chip-examen t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<circle cx="8" cy="10" r="2"/></svg><span>PROTOTIPO 1</span></span></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Generada · source 'generated'</div><span class="chip chip-generada t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M8 1.5L10 6L14.5 8L10 10L8 14.5L6 10L1.5 8L6 6Z"/></svg><span>Práctica</span></span></div>
+    
+<div class="estado"><div class="t-rotulo c-sec estado-rot">Propia · source 'user'</div><span class="chip chip-propia t-rotulo"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><circle cx="8" cy="4.5" r="2.5"/>
+<path d="M3 14.5A5 5 0 0 1 13 14.5"/></svg><span>Tuya</span></span></div>
+  </div>
+</div>
+</figure>
+</main>
+
+<script>
+(function () {
+  var raiz = document.documentElement;
+  var estado = { ancho: '390', tema: 'claro' };
+  function desdeHash() {
+    var m = /^#(390|768|1280)-(claro|oscuro)$/.exec(location.hash);
+    if (m) { estado.ancho = m[1]; estado.tema = m[2]; }
+  }
+  function aplicar() {
+    raiz.setAttribute('data-ancho', estado.ancho);
+    raiz.setAttribute('data-tema', estado.tema);
+    document.querySelectorAll('.tema-op').forEach(function (b) {
+      b.setAttribute('aria-checked', String(b.getAttribute('data-op') === estado.tema));
+    });
+    document.querySelectorAll('.herr [data-set]').forEach(function (b) {
+      var par = b.getAttribute('data-set').split(':');
+      b.setAttribute('aria-pressed', String(estado[par[0]] === par[1]));
+    });
+  }
+  document.addEventListener('click', function (ev) {
+    var set = ev.target.closest('[data-set]');
+    if (set) {
+      var par = set.getAttribute('data-set').split(':');
+      estado[par[0]] = par[1];
+      location.hash = estado.ancho + '-' + estado.tema;
+      aplicar();
+      return;
+    }
+    var ir = ev.target.closest('[data-ir]');
+    if (ir) {
+      var el = document.getElementById(ir.getAttribute('data-ir'));
+      if (el) el.scrollIntoView({ block: 'start' });
+    }
+  });
+  window.addEventListener('hashchange', function () { desdeHash(); aplicar(); });
+  desdeHash();
+  aplicar();
+})();
+</script>
+</body>
+</html>
