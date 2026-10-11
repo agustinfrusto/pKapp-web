@@ -61,7 +61,7 @@ export default function MateriaSelectScreen({ navigation }) {
   );
 }
 
-const ABOUT_KEY = 'pkapp_about_seen_at';
+const ABOUT_KEY = 'pkapp_about_seen_at_v2';
 const ABOUT_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000; // reaparece una vez por semana
 
 function AboutBanner() {
@@ -93,7 +93,7 @@ function AboutBanner() {
         </TouchableOpacity>
       </View>
       <Text className="text-sm leading-5 text-slate-600 dark:text-brandD-ink">
-        ¡Hola! Estoy sumando las materias que faltan (Digestivo, Renal y Endócrino, y Reproductor y Desarrollo) y dándole una lavada de cara a la página. Van llegando de a poco, ¡gracias por la paciencia!
+        ¡Hola! Ya están las seis materias. Ahora estoy trabajando en la estética de la página, así que en las próximas semanas vas a ir viendo cambios en el diseño. ¡Gracias por la paciencia!
       </Text>
     </View>
   );
