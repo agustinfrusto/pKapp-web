@@ -161,6 +161,11 @@ const MATERIAS = IDS.map((id, i) => {
 const FILAMENTOS = leer('src', 'assets', 'filamentos.js');
 const ELEMENTOS_DEL_CAMPO = (FILAMENTOS.split('export const regla')[0].match(/tipo: 'path'/g) || []).length;
 
+// Firma de la marca V5 «Fusiforme» (src/assets/filamentos.js): 27 trazos y el FNV-1a de sus `d`
+// unidos con «|». La imprime `node tools/ui/generar-filamentos.mjs`; si el dibujo cambia a
+// propósito, se actualiza junto con él.
+const FIRMA_V5 = { trazos: 27, fnv: '30117187' };
+
 const T = plancha.claro;
 const hex = (c) => c.toLowerCase();
 const rgb = (c) => {
@@ -183,7 +188,14 @@ const LEER_SELECTOR = (materias) => EN_MARCO(`
       mayusculas: c.textTransform };
   };
   const hoja = (raiz, texto) => hojas(raiz).find((n) => n.textContent.trim() === texto);
+  const fnv = (txt) => {
+    let h = 0x811c9dc5;
+    for (const ch of txt) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
+    return h.toString(16);
+  };
   const svgDe = (n) => n && {
+    firma: Array.from(n.children).length + '|' +
+      fnv(Array.from(n.children).map((h) => h.getAttribute('d')).join('|')),
     width: n.getAttribute('width'), height: n.getAttribute('height'), viewBox: n.getAttribute('viewBox'),
     par: n.getAttribute('preserveAspectRatio'), stroke: n.getAttribute('stroke'),
     trazo: n.getAttribute('stroke-width'), union: n.getAttribute('stroke-linejoin'),
@@ -272,6 +284,8 @@ async function laminaYTarjetas(pagina, base, t) {
     t.ok('campo: el contorno va en acento', c.ultimo, hex(T.acento));
     t.ok('campo: stroke-width, union y extremo', `${c.trazo}|${c.union}|${c.extremo}`, '1|miter|butt');
     t.ok('campo: aria-hidden="true"', c.oculto, 'true');
+    t.ok('campo: es la marca V5 «Fusiforme» (27 trazos y firma de la geometría)',
+      c.firma, `${FIRMA_V5.trazos}|${FIRMA_V5.fnv}`);
     t.ok('campo: un trazo por filamento y el contorno',
       c.hijos.length === ELEMENTOS_DEL_CAMPO && c.hijos.every((h) => h === 'path'), true);
   }
@@ -627,6 +641,31 @@ async function selectorEnOscuro(pagina, base, t) {
   await clicEnMarco(pagina, 'claro');
 }
 
+// Marca V5 «Fusiforme»: el campo conserva firma y contrato en los tres anchos de diseño,
+// en claro y en oscuro, sin scroll horizontal.
+async function marcaV5EnAnchos(pagina, base, t) {
+  for (const tema of ['claro', 'oscuro']) {
+    const P = plancha[tema];
+    for (const ancho of [320, 390, 1280]) {
+      const cuando = `${tema} ${ancho} px`;
+      t.ok(`${cuando}: abrió la app en el marco`, await abrirMarco(pagina, base, ancho), true);
+      if (tema === 'oscuro') {
+        await clicEnMarco(pagina, 'oscuro');
+        await pagina.esperarA(() => pagina.evaluar(EN_MARCO(`return d.documentElement.classList.contains('dark');`)));
+        await esperarEnMarco(pagina, 'Tus materias');
+      }
+      const s = await pagina.evaluar(LEER_SELECTOR(MATERIAS));
+      const c = s.campo;
+      t.ok(`${cuando}: el campo es V5 (27 trazos y firma)`, !!c && c.firma, `${FIRMA_V5.trazos}|${FIRMA_V5.fnv}`);
+      t.ok(`${cuando}: campo en filamento y contorno en acento`, !!c && `${c.stroke}|${c.ultimo}`,
+        `${hex(P.filamento)}|${hex(P.acento)}`);
+      t.ok(`${cuando}: campo de alto paso 28`, !!c && Math.round(c.caja.alto), 28 * PASO);
+      t.ok(`${cuando}: sin scroll horizontal ni recorte`, s.desborda, false);
+      if (tema === 'oscuro') await clicEnMarco(pagina, 'claro');
+    }
+  }
+}
+
 module.exports = [
   { nombre: 'elegir materia sin rebotar al selector', correr: elegirMateria },
   { nombre: 'el selector muestra seis materias', correr: seisMaterias },
@@ -634,6 +673,7 @@ module.exports = [
   { nombre: 'Ilustracion: svg del DOM conserva atributos y estructura', correr: svgDelDom },
   { nombre: 'URLs con query string abiertas en frío', correr: urlsConQueryString },
   { nombre: 'MateriaSelect: lámina, seis tarjetas, cajetín y svg', correr: laminaYTarjetas },
+  { nombre: 'MateriaSelect: marca V5 «Fusiforme» en 320, 390 y 1280, claro y oscuro', correr: marcaV5EnAnchos },
   { nombre: 'MateriaSelect: sin scroll horizontal y 44 × 44 a 320 y 360 px', correr: sinScrollHorizontal },
   { nombre: 'MateriaSelect: la nota visible a 320 y 390 px', correr: conLaNotaVisible },
   { nombre: 'MateriaSelect: una columna en tablet y escritorio', correr: columnaEnTabletYEscritorio },
