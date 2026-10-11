@@ -24,6 +24,10 @@ import { injectWebStyles } from './src/utils/webStyles';
 import { TemaProvider } from './src/theme/TemaContext';
 import { colores, oscuro } from './src/theme/colores';
 import { trackPageview } from './src/utils/track';
+import { cargarFuentes } from './src/theme/fuentes';
+
+// Sin await: el render no espera a las fuentes (design.md D4).
+cargarFuentes();
 
 const Stack = createNativeStackNavigator();
 

@@ -10,6 +10,9 @@ const config = withNativeWind(getDefaultConfig(__dirname), {
   input: './global.css',
 });
 
+// Fuentes web de D4: Metro no trae woff2 entre sus assetExts.
+config.resolver.assetExts.push('woff2');
+
 // Stub vacío al que redirigir expo-sqlite y sus internals en web
 const emptyShim = path.resolve(__dirname, 'src/db/sqlite-stub.js');
 

@@ -18,6 +18,12 @@ module.exports = {
                  dangerD: oscuro.danger, warningD: oscuro.warning,
                  parcialD: oscuro.parcial };
       })(),
+      fontFamily: {
+        'plex-sans':          ['PlexSans-Regular', 'system-ui', 'sans-serif'],
+        'plex-sans-semibold': ['PlexSans-SemiBold', 'system-ui', 'sans-serif'],
+        'plex-mono':          ['PlexMono-Regular', 'ui-monospace', 'monospace'],
+        'plex-mono-medium':   ['PlexMono-Medium', 'ui-monospace', 'monospace'],
+      },
       fontSize: {
         xxs: '11px',
         xs: '12px',

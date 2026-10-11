@@ -10,7 +10,7 @@
     "conteos": "node scripts/gen-conteos.mjs",
     "build:web": "node scripts/gen-conteos.mjs && expo export -p web && node scripts/inject-pwa.js && node scripts/inject-preload.js",
     "screenshots": "node scripts/capturar-screenshots.js",
-    "pree2e": "node tools/ui/ilustraciones.mjs",
+    "pree2e": "node tools/ui/ilustraciones.mjs && node tools/ui/fuentes.mjs",
     "e2e": "node tools/e2e/correr.js"
   },
   "dependencies": {
@@ -19,6 +19,7 @@
     "babel-preset-expo": "^55.0.21",
     "expo": "~54.0.0",
     "expo-constants": "~18.0.13",
+    "expo-font": "~14.0.12",
     "expo-sqlite": "~16.0.10",
     "expo-status-bar": "~3.0.9",
     "nativewind": "^4.2.6",
