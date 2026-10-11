@@ -126,7 +126,7 @@ Cada paso es un `text-*` (tamaño, interlineado, espaciado) más un `font-plex-*
 
 | Clave | Valor | Justificación |
 |---|---|---|
-| `none`, `xs`, `sm`, `DEFAULT`, `md`, `lg`, `full` | 0 px | REFERENCIAS excluye «interfaces redondeadas»; el boceto fija `border-radius: 0` global. Ninguna clave distinta de 0, tampoco `full`: la UI no tiene elementos circulares (el aro del ícono es imagen) |
+| `none`, `xs`, `sm`, `DEFAULT`, `md`, `lg`, `xl`, `2xl`, `3xl`, `full` | 0 px | REFERENCIAS excluye «interfaces redondeadas»; el boceto fija `border-radius: 0` global. Ninguna clave distinta de 0, tampoco `full`: la UI no tiene elementos circulares (el aro del ícono es imagen) |
 
 ### c.2 Grosores
 
@@ -210,7 +210,7 @@ fontSize: {
   display: ['72px', { lineHeight: '72px', letterSpacing: '-2.16px' }],
 },
 borderRadius: {
-  none: '0px', xs: '0px', sm: '0px', DEFAULT: '0px', md: '0px', lg: '0px', full: '0px',
+  none: '0px', xs: '0px', sm: '0px', DEFAULT: '0px', md: '0px', lg: '0px', xl: '0px', '2xl': '0px', '3xl': '0px', full: '0px',
 },
 borderWidth: {
   DEFAULT: '1px', 0: '0px', 1: '1px', 2: '2px', 3: '3px',

@@ -37,7 +37,7 @@ La acción «Revisar todas las respuestas» cambia la vista a la revisión en el
 | 4 | Mensaje | Margen superior `paso 1.5` | Mensaje del tramo de `getResultFeedback` |
 | 5 | Tira | Margen superior `paso 4`, inferior `paso 2`; casillas separadas por `paso 0.5`, alineadas por la base | Una casilla por respuesta, en orden; solo con 40 respuestas o menos |
 | 6 | Leyenda | Separación `paso 4` entre ítems; margen inferior `paso 3.5` | Solo si hay tira |
-| 7 | Chip de tema | Relleno vertical `paso 0.5`, horizontal `paso 2`; ancho por contenido | El valor de `topic` |
+| 7 | Chip de tema | Relleno vertical `paso 0.5`, horizontal `paso 2`; ancho por contenido | `TOPICS[topic]` cuando `topic` es una clave de `TOPICS`; «Todos los temas» cuando no (`MAQUETA-P2`: bug de `main`, se corrige en 3.6) |
 
 ### a.3 Interior del trío
 
@@ -148,7 +148,7 @@ Los cortes 90, 75, 60 y 50 no cambian. La ficha solo traduce el tono de aviso qu
 | Total | `answers.length` | — |
 | Porcentaje | `Math.round(correctCount / total * 100)`; 0 si el total es 0 | — |
 | Incorrectas | `total - correctCount` | — |
-| Tema | `route.params.topic`, tal cual llega | Puede ser una clave de tema o «Todos los temas» |
+| Tema | `route.params.topic`; el chip muestra `TOPICS[topic]` si es una clave y «Todos los temas» si no | Hoy `main` muestra la clave cruda: bug que corrige la tarea 3.6 (`MAQUETA-P2`) |
 | Modo | `route.params.mode` | Solo viaja en los eventos |
 | Pedido de donación | `shouldShowDonation(percentage)`: solo web, con `percentage >= DONATION_MIN_SCORE`, contando en `localStorage` (`pkapp_donation_count`) | `DonationBox.md` d.1 |
 

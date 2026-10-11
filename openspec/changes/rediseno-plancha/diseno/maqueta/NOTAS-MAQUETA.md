@@ -219,13 +219,13 @@ Surgieron al maquetar. No se aplicaron en la maqueta: se dibuja lo aprobado.
 |---|---|---|
 | `MAQUETA-P1` | Aprobada (usuario, 2026-10-10); `comun.md` §3.5 | Aplicada en la maqueta (§0, #3) |
 | `MAQUETA-P3` | Aprobada: la recogen `comun.md` §1, §2.1 y §8 y `tokens.md` c.3, sin llevar el id | Aplicada en la maqueta (§0, #4) |
-| `MAQUETA-P2` | No figura aprobada en las fichas: `Results.md` d.2 sigue diciendo «tal cual llega» y `tasks.md` 3.6 la recoge como corrección de un bug de `main` | La figura 05b sigue dibujando la clave cruda, como la ficha |
+| `MAQUETA-P2` | Bug, se corrige en 3.6: es un bug de `main`, no una propuesta. `Results.md` (a.1 #7, d.2): el chip muestra `TOPICS[topic]` si `topic` es una clave y «Todos los temas» si no | La figura 05b sigue dibujando la clave cruda hasta que la maqueta se regenere |
 
 ### Nuevas
 
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
-| `MAQUETA-P4` | En la nota del creador, el texto arranca debajo del objetivo de descartar: el encabezado reserva el alto del objetivo (`paso 11` menos el relleno superior `paso 3.5`) | El objetivo de `paso 11` pegado al marco baja hasta 44 px y el texto arranca a 38 px (`paso 3.5` + rótulo de 16 + `paso 2`): 6 px del objetivo se superponen con la primera línea. En el pedido de donación no ocurre: el título de 22 px lleva el texto a 44. Figuras 01 y 13 | visual | pendiente |
+| `MAQUETA-P4` | En la nota del creador, el texto arranca debajo del objetivo de descartar: el encabezado reserva el alto del objetivo (`paso 11` menos el relleno superior `paso 3.5`) | El objetivo de `paso 11` pegado al marco baja hasta 44 px y el texto arranca a 38 px (`paso 3.5` + rótulo de 16 + `paso 2`): 6 px del objetivo se superponen con la primera línea. En el pedido de donación no ocurre: el título de 22 px lleva el texto a 44. Figuras 01 y 13 | defecto (D10, CD-10) | Resuelta como defecto en `Banners.md` a.2 #1: decisión del Ingeniero, no propuesta |
 
 ### Observaciones sin acción propuesta
 
