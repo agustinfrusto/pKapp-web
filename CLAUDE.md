@@ -61,6 +61,7 @@ Ingeniero ──spec──▶ Programador ──compuerta en verde──▶ revi
    compuerta del área. Sin compuerta en verde, la entrega no es elegible para revisión.
    - `tools/ingesta/**` → `python3 tools/ingesta/pruebas/correr_pruebas.py`
    - `src/**`, `App.js`, `scripts/**` → `npm run build:web && npm run e2e`
+   - `tools/e2e/**` salvo `suites/` (el arnés) → `node tools/e2e/pruebas/huerfanos.js && node tools/e2e/pruebas/arnes.js && node tools/e2e/pruebas/paralelo.js && npm run build:web && npm run e2e -- --suite home`
 3. **Revisión de lógica:** un diff de código de hasta 50 líneas lo revisa el Ingeniero; uno
    de más de 50 lo revisa el Analista. Uno de más de ~600 se parte en tandas. Un
    RECHAZADO vuelve al Programador; las advertencias las decide el Ingeniero.

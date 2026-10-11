@@ -5,12 +5,13 @@
 //   npm run e2e -- "en frío"             # suites cuyo nombre contiene el texto
 //
 // Sirve dist/ (o $PKAPP_DIST) como lo haría el hosting, abre un Chrome headless y corre las
-// suites contra el bundle real. Sale con código 1 si algo falla.
+// suites contra el bundle real. Sale con código 1 si algo falla, 2 si el arnés se cae y
+// 128 + señal (130, 143, 129) si lo cortan: en todos los casos cierra Chrome y borra su perfil.
 
 const fs = require('fs');
 const path = require('path');
 const { conectarNavegador, abrirPagina } = require('./cdp');
-const { servirEstatico, lanzarChrome } = require('./entorno');
+const { servirEstatico, lanzarChrome, cerrarTodo } = require('./entorno');
 const { SUPERFICIES, porSuperficie, todas } = require('./suites');
 
 const RAIZ = path.resolve(__dirname, '..', '..');
@@ -107,14 +108,27 @@ async function main() {
   }
 
   const servidor = await servirEstatico(DIST, PUERTO_WEB);
-  const chrome = await lanzarChrome(PUERTO_CDP);
-  const navegador = await conectarNavegador(PUERTO_CDP);
   const base = `http://localhost:${PUERTO_WEB}`;
 
   const t = verificador();
   let erroresConsola = [];
+  let chrome;
+  let navegador;
 
+  // Todo lo que sigue a lanzar Chrome va dentro del `try`: si la conexión o el
+  // centinela fallan, el `finally` lo cierra igual que en una corrida normal.
   try {
+    chrome = await lanzarChrome(PUERTO_CDP);
+    // Gancho de prueba (pruebas/huerfanos.js), con Chrome ya arriba: «suelto» deja un error sin
+    // dueño (lo recibe `caer`, sin pasar por el `finally`); cualquier otro valor simula la
+    // conexión caída.
+    const gancho = process.env.PKAPP_E2E_FALLA_CONEXION;
+    if (gancho === 'suelto') {
+      setTimeout(() => { throw new Error('Error suelto a propósito (PKAPP_E2E_FALLA_CONEXION=suelto).'); }, 50);
+      await new Promise(() => {});
+    }
+    if (gancho) throw new Error('Conexión fallida a propósito (PKAPP_E2E_FALLA_CONEXION).');
+    navegador = await conectarNavegador(PUERTO_CDP);
     await verificarCentinela(base);
     for (const suite of aCorrer) {
       console.log(`\n${suite.nombre}`);
@@ -128,8 +142,8 @@ async function main() {
       }
     }
   } finally {
-    navegador.cerrar();
-    await chrome.cerrar();
+    if (navegador) navegador.cerrar();
+    if (chrome) await chrome.cerrar();
     await servidor.cerrar();
   }
 
@@ -148,10 +162,16 @@ async function main() {
 
 // Nada queda sin dueño: un rechazo o una excepción fuera de `main` cortan con
 // exit 2 y la pila (qué y dónde), no con un «Uncaught» pelado.
+// Antes de salir cierra Chrome y borra su perfil: un `process.exit` pelado lo dejaría vivo.
+// `caer` no usa nada fuera de sí misma salvo `cerrarTodo`: pruebas/arnes.js la extrae
+// y la evalúa suelta, por eso el `typeof`.
 function caer(err) {
   console.error('El arnés se cayó:', err && err.message ? err.message : err);
   if (err && err.stack) console.error(err.stack.split('\n').slice(1, 6).join('\n'));
-  process.exit(2);
+  if (caer.cayendo) return;
+  caer.cayendo = true;
+  const cierre = typeof cerrarTodo === 'function' ? cerrarTodo() : Promise.resolve();
+  cierre.finally(() => process.exit(2));
 }
 process.on('unhandledRejection', caer);
 process.on('uncaughtException', caer);

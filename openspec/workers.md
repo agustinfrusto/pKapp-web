@@ -197,6 +197,7 @@ con la revisión cerrada, y con orden del operador, el Ingeniero commitea.
 |---|---|
 | `tools/ingesta/**` | `python3 tools/ingesta/pruebas/correr_pruebas.py` |
 | `src/**`, `App.js`, `scripts/**` | `npm run build:web && npm run e2e` |
+| `tools/e2e/**` salvo `suites/` (el arnés) | `node tools/e2e/pruebas/huerfanos.js && node tools/e2e/pruebas/arnes.js && node tools/e2e/pruebas/paralelo.js && npm run build:web && npm run e2e -- --suite home` |
 | solo docs y specs | revisión estructural del Ingeniero |
 
 El repo no tiene tests unitarios de la app. En `src/`, el "test que falla primero" del

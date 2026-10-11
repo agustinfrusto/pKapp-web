@@ -22,6 +22,18 @@ const JUEGOS = [
 const ESCRIBIR_CENTINELA =
   `node -e "require('fs').writeFileSync(process.env.PKAPP_DIST + '/centinela-pkapp.txt', process.env.PKAPP_CENTINELA)"`;
 
+// Cada compuerta va en su propio grupo de procesos (detached): al cortar esta prueba, la
+// señal se reenvía al grupo entero (shell → npm → correr.js) y correr.js cierra su Chrome.
+const hijos = new Set();
+// Número de la señal que cortó esta prueba (0 si nadie la cortó).
+let cortadaPor = 0;
+
+function reenviar(senal) {
+  for (const h of hijos) {
+    try { process.kill(-h.pid, senal); } catch { /* el grupo ya terminó */ }
+  }
+}
+
 function correrCompuerta(juego) {
   return new Promise((listo) => {
     const proceso = spawn(
@@ -29,6 +41,7 @@ function correrCompuerta(juego) {
       {
         cwd: RAIZ,
         shell: true,
+        detached: true,
         env: {
           ...process.env,
           PKAPP_DIST: juego.PKAPP_DIST,
@@ -38,10 +51,14 @@ function correrCompuerta(juego) {
         },
       },
     );
+    hijos.add(proceso);
     let salida = '';
     proceso.stdout.on('data', (d) => { salida += d; });
     proceso.stderr.on('data', (d) => { salida += d; });
-    proceso.on('close', (codigo) => listo({ juego, codigo, salida }));
+    proceso.on('close', (codigo) => {
+      hijos.delete(proceso);
+      listo({ juego, codigo, salida });
+    });
   });
 }
 
@@ -52,6 +69,8 @@ function limpiar() {
 async function main() {
   limpiar();
   const resultados = await Promise.all(JUEGOS.map(correrCompuerta));
+  // Cortada: el manejador de señales cierra y sale con 128 + señal; acá no se sale con 1.
+  if (cortadaPor) return;
   let fallo = false;
 
   for (const { juego, codigo, salida } of resultados) {
@@ -70,6 +89,23 @@ async function main() {
   limpiar();
   console.log(fallo ? '\nLas compuertas se pisaron o fallaron.' : '\nAmbas compuertas en verde sin pisarse.');
   process.exit(fallo ? 1 : 0);
+}
+
+// Ante una señal: se la pasa a los hijos, se espera (con tope) a que cierren su Chrome y
+// se sale con 128 + señal.
+for (const [nombre, numero] of Object.entries({ SIGHUP: 1, SIGINT: 2, SIGTERM: 15 })) {
+  process.on(nombre, () => {
+    cortadaPor = numero;
+    reenviar(nombre);
+    const salir = () => { limpiar(); process.exit(128 + numero); };
+    const tope = setTimeout(() => { reenviar('SIGKILL'); salir(); }, 15000);
+    const esperar = setInterval(() => {
+      if (hijos.size) return;
+      clearTimeout(tope);
+      clearInterval(esperar);
+      salir();
+    }, 100);
+  });
 }
 
 main();
