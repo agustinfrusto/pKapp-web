@@ -96,6 +96,9 @@ los assets y pierde nitidez; un SVG estático en `<Image>` no se renderiza en na
   se muestra una pantalla en blanco esperando fuentes. Si la carga falla, la app sigue con
   la del sistema y sin error visible.
 - Los archivos de fuente van con su licencia OFL en `src/assets/fuentes/`.
+- Límite conocido en nativo: no hay swap; un `Text` montado antes de que `loadAsync`
+  resuelva conserva la fuente del sistema hasta su próximo render. Lo mitiga el splash
+  (el navegador monta después) y que los ttf son locales.
 
 ### D5. Presupuesto de peso del bundle
 
