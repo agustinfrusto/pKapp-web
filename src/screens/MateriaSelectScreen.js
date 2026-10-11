@@ -38,10 +38,12 @@ export default function MateriaSelectScreen({ navigation }) {
 
   return (
     <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900" contentContainerClassName="pb-10">
-      <HeaderMarca>
+      <HeaderMarca />
+      {/* Pendiente de 3.2: el texto pasa a la lámina de filamentos. */}
+      <View className="items-center bg-brand px-6 pb-5 pt-3 dark:bg-brandD-deep">
         <Text numberOfLines={1} className="text-center text-md text-brand-tint">Tus materias de ESFUNO</Text>
         <Text numberOfLines={1} className="mt-2 text-center text-sm text-brand-pale">Elegí una para empezar</Text>
-      </HeaderMarca>
+      </View>
 
       <AboutBanner />
 

@@ -146,6 +146,37 @@ async function abrirPagina(navegador, { ancho = 900, alto = 1400, escala = 1, mo
     }
   };
 
+  // Teclado real (Input.dispatchKeyEvent): dispara la acción por defecto del
+  // navegador, a diferencia de un KeyboardEvent sintético. `key` es el nombre DOM.
+  const TECLAS = {
+    Tab: { code: 'Tab', vk: 9 },
+    Enter: { code: 'Enter', vk: 13, text: '\r' },
+    ' ': { code: 'Space', vk: 32, text: ' ' },
+    ArrowLeft: { code: 'ArrowLeft', vk: 37 },
+    ArrowUp: { code: 'ArrowUp', vk: 38 },
+    ArrowRight: { code: 'ArrowRight', vk: 39 },
+    ArrowDown: { code: 'ArrowDown', vk: 40 },
+  };
+
+  pagina.tecla = async (key, { shift = false } = {}) => {
+    const def = TECLAS[key];
+    if (!def) throw new Error(`tecla sin definir: ${JSON.stringify(key)}`);
+    const base = { key, code: def.code, windowsVirtualKeyCode: def.vk,
+      nativeVirtualKeyCode: def.vk, modifiers: shift ? 8 : 0 };
+    await navegador.enviar('Input.dispatchKeyEvent',
+      { ...base, type: def.text ? 'keyDown' : 'rawKeyDown', ...(def.text ? { text: def.text } : null) },
+      sessionId);
+    await navegador.enviar('Input.dispatchKeyEvent', { ...base, type: 'keyUp' }, sessionId);
+    await esperar(50);
+  };
+
+  // Mueve el puntero sin presionar: dispara hover real.
+  pagina.moverA = async (x, y) => {
+    await navegador.enviar('Input.dispatchMouseEvent',
+      { type: 'mouseMoved', x, y, button: 'none', buttons: 0 }, sessionId);
+    await esperar(50);
+  };
+
   // Dos pasadas a propósito: la primera acomoda el scroll, la segunda mide.
   // Midiendo de una salen las coordenadas de antes de scrollear.
   pagina.clic = async (texto) => {

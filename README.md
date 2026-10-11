@@ -196,7 +196,7 @@ pKapp/
     │   └── sqlite-stub.js          # Stub vacío de expo-sqlite para web
     ├── components/
     │   ├── DonationBox.js          # Bloque de donación (Mercado Pago)
-    │   └── HeaderMarca.js          # Header compartido (logo, título y control de tema)
+    │   └── HeaderMarca.js          # Header compartido (control de tema y acción izquierda opcional)
     ├── theme/
     │   ├── colores.js              # Tokens de color del sistema visual
     │   ├── sombras.js              # Elevación y sombras

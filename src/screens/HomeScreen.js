@@ -1,8 +1,11 @@
 // Pantalla principal: muestra los modos de uso disponibles.
 import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, Platform, Linking } from 'react-native';
+import { View, Text, TouchableOpacity, Pressable, ScrollView, Image, Platform, Linking, useWindowDimensions } from 'react-native';
 import { useMateria } from '../materia/MateriaContext';
 import HeaderMarca from '../components/HeaderMarca';
+import Glifo from '../components/Glifo';
+import { useTema } from '../theme/TemaContext';
+import { plancha } from '../theme/colores';
 import { sombras } from '../theme/sombras';
 
 const icons = {
@@ -14,6 +17,48 @@ const icons = {
   ajustes:     require('../assets/ajustes.png'),
 };
 
+
+// Botón del slot `izquierda` (K2, comun.md §1.1): con texto desde 360 px; bajo
+// 360 solo el glifo, en un cuadrado de paso 11, con el texto como nombre accesible.
+const ANCHO_CORTE = 360;
+
+// Glifo del botón: paso 6 de la escala de 4 px (tokens.md c.3, comun.md §8).
+const PX_POR_PASO = 4;
+const GLIFO_VOLVER = 6 * PX_POR_PASO;
+
+function BotonCambiarMateria({ navigation }) {
+  const { width } = useWindowDimensions();
+  const { oscuro } = useTema();
+  const tema = oscuro ? plancha.oscuro : plancha.claro;
+  const soloGlifo = width < ANCHO_CORTE;
+
+  return (
+    <Pressable
+      className="h-11 min-w-11"
+      accessibilityRole="button"
+      accessibilityLabel="Cambiar materia"
+      onPress={() => requestAnimationFrame(() => navigation.navigate('MateriaSelect'))}
+    >
+      {({ pressed }) => (
+        <View
+          className={`h-full flex-row items-center justify-center gap-2 border px-2 ${
+            pressed
+              ? 'border-tinta bg-tinta dark:border-tintaD dark:bg-tintaD'
+              : 'border-linea bg-fondo dark:border-lineaD dark:bg-fondoD'
+          }`}
+        >
+          <Glifo id="glifo-volver" size={GLIFO_VOLVER} color={pressed ? tema.fondo : tema.tinta} />
+          {soloGlifo ? null : (
+            <Text className={`font-plex-sans-semibold text-cuerpo ${
+              pressed ? 'text-fondo dark:text-fondoD' : 'text-tinta dark:text-tintaD'}`}>
+              Cambiar materia
+            </Text>
+          )}
+        </View>
+      )}
+    </Pressable>
+  );
+}
 
 export default function HomeScreen({ navigation }) {
   const { materia } = useMateria();
@@ -37,24 +82,14 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900" contentContainerClassName="pb-[30px]">
-      <HeaderMarca
-        izquierda={
-          <TouchableOpacity
-            className="flex-row items-center rounded-full border border-white/25 bg-white/[0.18] px-3.5 py-[7px]"
-            onPress={() => requestAnimationFrame(() => navigation.navigate('MateriaSelect'))}
-            activeOpacity={0.7}
-          >
-            <Text className="text-sm font-semibold tracking-[0.2px] text-white">← Cambiar materia</Text>
-          </TouchableOpacity>
-        }
-      >
-        {/* numberOfLines: el bloque de texto del header tiene alto fijo, así que
-            envolver desbordaría en vez de estirarlo. */}
+      <HeaderMarca izquierda={<BotonCambiarMateria navigation={navigation} />} />
+      {/* Pendiente de 3.3: el nombre y los conteos pasan a la tarjeta de materia. */}
+      <View className="items-center bg-brand px-6 pb-5 pt-3 dark:bg-brandD-deep">
         <Text numberOfLines={1} className="text-center text-md text-brand-tint">{materia.name}</Text>
         <Text numberOfLines={1} className="mt-2 text-center text-sm text-brand-pale">
           {examCount} preguntas reales · {generatedCount} preguntas extra
         </Text>
-      </HeaderMarca>
+      </View>
 
       {materia.bancoReducido ? <BancoReducidoBanner /> : null}
 
