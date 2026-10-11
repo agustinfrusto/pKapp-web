@@ -253,7 +253,7 @@ export default function QuizScreen({ route, navigation }) {
         className="border-b border-linea bg-fondo dark:border-lineaD dark:bg-fondoD"
         style={{ paddingTop: insets.top }}
       >
-        <Columna>
+        <Columna ancho="lectura">
           <View className="flex-row items-center gap-3.5 py-2">
             <FilaLista
               testID="cerrar-quiz"
@@ -316,7 +316,7 @@ export default function QuizScreen({ route, navigation }) {
       </View>
 
       <ScrollView ref={scrollRef} className="flex-1">
-        <Columna>
+        <Columna ancho="lectura">
           {/* Contexto: parcial, origen y meta. La meta va a la derecha si entra; si no,
               pasa a su propia línea, a todo el ancho y sin límite de líneas (D10: el
               tema nunca se recorta). */}
@@ -505,7 +505,7 @@ export default function QuizScreen({ route, navigation }) {
           className="border-t border-linea bg-fondo dark:border-lineaD dark:bg-fondoD"
           style={{ paddingBottom: insets.bottom }}
         >
-          <Columna>
+          <Columna ancho="lectura">
             <View className="pb-4 pt-3">
               <BotonRelleno
                 testID="boton-siguiente"

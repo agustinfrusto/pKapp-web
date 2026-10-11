@@ -837,7 +837,8 @@ async function examenEnCurso(pagina, base, t) {
 }
 
 // ---------------------------------------------------------------------------
-// Anchos: 320 y 360 sin recorte ni scroll horizontal; 768 y 1280 en columna.
+// Anchos: 320 y 360 sin recorte ni scroll horizontal; 768 en columna (desde 1024 rige
+// `lectura`: lo cubren `escritorioDelQuiz` y `escritorioDelExamenEnCurso`).
 
 // La meta «{shortName} · {tema}» (QUIZ-P8) no pierde el tema (D10 manda sobre «hasta dos
 // líneas»): a la derecha del contexto si entra; si no, en su propia línea debajo, a todo el
@@ -908,7 +909,8 @@ async function anchosDelQuiz(pagina, base, t) {
     t.ok('390: la meta corta alineada al borde derecho de la columna', cerca(corta.der, corta.columnaDer, 1), true);
   }
   await metaSinRecorte(pagina, t, 390);
-  for (const ancho of [768, 1280]) {
+  // Desde 1024 rige `lectura` (ESC-P4): 1023, 1024, 1280, 1366 y 1920 los cubre `escritorioDelQuiz`.
+  for (const ancho of [768]) {
     t.ok(`${ancho}: llegó al quiz`, await entrarAlQuiz(pagina, base, { ancho, alto: 900 }), true);
     await responder(pagina, 0);
     const m = await pagina.evaluar(EN_MARCO(`
@@ -930,6 +932,237 @@ async function anchosDelQuiz(pagina, base, t) {
   }
 }
 
+
+// ---------------------------------------------------------------------------
+// Escritorio (tarea 3.11e, ESC-P4; comun.md §7.2): bajo 1024 la columna `columna` de siempre;
+// desde 1024, `lectura` (600) con barras a todo el ancho. Orden de foco = orden visual = DOM.
+
+const ESCRITORIO = { corte: 1024, lectura: 600, columna: 448, margen: 8 * PASO };
+
+const MEDIR_ESCRITORIO = EN_MARCO(`
+  const caja = (n) => { if (!n) return null; const r = n.getBoundingClientRect();
+    return { x: r.left, der: r.right, y: r.top, ancho: r.width, alto: r.height }; };
+  const uno = (s) => caja(visibles(s)[0]);
+  const opciones = visibles('[data-testid^="opcion-quiz-"]').filter((n) => /^opcion-quiz-\\d+$/.test(n.dataset.testid))
+    .map((n) => ({ id: n.dataset.testid, ...caja(n) }));
+  const meta = visibles('[data-testid="meta-pregunta"]')[0];
+  // Ancestros que podrían recortar el foco: cualquier overflow distinto de visible entre el
+  // nodo y el contenedor de scroll (contenido) o la barra (cabecera). El ScrollView no cuenta.
+  const recortes = (nodo, hasta) => {
+    let k = 0;
+    for (let e = nodo && nodo.parentElement; e && !hasta(e); e = e.parentElement) {
+      const s = w.getComputedStyle(e);
+      if (s.overflowX !== 'visible' || s.overflowY !== 'visible') k++;
+    }
+    return k;
+  };
+  const enScroll = (e) => { const s = w.getComputedStyle(e); return s.overflowY === 'auto' || s.overflowY === 'scroll'; };
+  const enBarra = (e) => e.dataset && e.dataset.testid === 'barra-quiz';
+  return { vista: w.innerWidth, barra: uno('[data-testid="barra-quiz"]'), barraInf: uno('[data-testid="barra-inferior"]'),
+    cerrar: uno('[data-testid="cerrar-quiz"]'), contador: uno('[data-testid="contador-quiz"]'),
+    progreso: uno('[data-testid="progreso-quiz"]'), contexto: caja(meta && meta.parentElement),
+    enunciado: uno('[data-testid="enunciado-quiz"]'), nota: uno('[data-testid="nota-explicacion"]'),
+    aviso: uno('[data-testid="aviso-resultado-oculto"]'),
+    reportar: uno('[data-testid="boton-reportar"]'), siguiente: uno('[data-testid="boton-siguiente"]'),
+    opciones, scrollV: d.scrollingElement.scrollWidth, vistaDoc: d.documentElement.clientWidth,
+    recortesContenido: recortes(visibles('[data-testid="enunciado-quiz"]')[0], enScroll),
+    recortesBarra: recortes(visibles('[data-testid="cerrar-quiz"]')[0], enBarra) };
+`);
+
+// Paradas de Tab: id + caja de cada parada.
+const PARADAS_DE_TAB = () => EN_MARCO(`
+  const a = d.activeElement;
+  const c = a && a.closest ? a.closest('[data-testid]') : null;
+  if (!c) return null;
+  const r = c.getBoundingClientRect();
+  return { id: c.dataset.testid, x: r.left, y: r.top };
+`);
+
+// Con `desde`, enfoca ese control y cuenta las paradas siguientes: tras responder, el punto de
+// partida de Tab del navegador es la opción tocada, que ya no existe como control.
+async function paradasDeTab(pagina, cuantas, desde = null) {
+  await pagina.evaluar(EN_MARCO(desde
+    ? `const n = d.querySelector('[data-testid="${desde}"]'); n && n.focus();`
+    : 'd.activeElement && d.activeElement.blur && d.activeElement.blur();'));
+  const vistas = [];
+  for (let i = 0; i < cuantas; i++) {
+    await pagina.tecla('Tab');
+    vistas.push(await pagina.evaluar(PARADAS_DE_TAB()));
+  }
+  return vistas;
+}
+
+// Orden visual: arriba-abajo y, dentro de una fila (Δy ≤ 4), izquierda-derecha.
+const porOrdenVisual = (xs) => [...xs].sort((a, b) => (Math.abs(a.y - b.y) > 4 ? a.y - b.y : a.x - b.x));
+const bajan = (xs) => xs.every((c, i) => c && (i === 0 || c.y > xs[i - 1].y));
+
+// Ancho de la columna de lectura: `lectura` desde el corte; `columna` (sin su relleno `paso 5`)
+// debajo. `lectura` es la caja centrada que miden el enunciado, las opciones y «Siguiente».
+function columnaDe(ancho) {
+  return ancho >= ESCRITORIO.corte
+    ? Math.min(ESCRITORIO.lectura, ancho - 2 * ESCRITORIO.margen)
+    : Math.min(ESCRITORIO.columna, ancho) - 2 * 5 * PASO;
+}
+
+// Tab sigue el orden visual medido: las paradas esperadas salen de las cajas, ordenadas
+// arriba-abajo e izquierda-derecha, no de una lista fija.
+async function tabSigueLoVisual(pagina, t, n, etiqueta, paradas, desde = null) {
+  const esperadas = porOrdenVisual(paradas.filter(Boolean)).map((p) => p.id);
+  const vistas = (await paradasDeTab(pagina, esperadas.length, desde)).map((p) => p && p.id);
+  t.ok(`${n}: ${etiqueta}: orden de Tab = orden visual medido`, vistas.join(' '), esperadas.join(' '));
+}
+
+// Regiones que no se salen de la columna de lectura (la caja del enunciado) ni recortan el foco.
+function dentroDeLectura(t, n, m, nombre, caja) {
+  t.ok(`${n}: ${nombre} dentro de la columna de lectura`,
+    m.enunciado && caja && caja.x >= m.enunciado.x - 1 && caja.der <= m.enunciado.der + 1, true);
+}
+
+async function escritorioDelQuiz(pagina, base, t) {
+  const casos = [
+    { ancho: 1023, alto: 800, oscuro: false },
+    { ancho: 1024, alto: 800, oscuro: false }, { ancho: 1024, alto: 800, oscuro: true },
+    { ancho: 1280, alto: 800, oscuro: false },
+    { ancho: 1366, alto: 768, oscuro: false }, { ancho: 1366, alto: 768, oscuro: true },
+    { ancho: 1920, alto: 1080, oscuro: false }, { ancho: 1920, alto: 1080, oscuro: true },
+  ];
+  for (const { ancho, alto, oscuro } of casos) {
+    const n = `${ancho}${oscuro ? ' oscuro' : ' claro'}`;
+    const columna = columnaDe(ancho);
+    const dentro = (c, m, tol = 1) => c && cerca(c.x + c.ancho / 2, m.vista / 2, tol);
+
+    // Semilla fija: la misma primera pregunta en cada caso, con explicación (la nota de abajo).
+    t.ok(`${n}: llegó al quiz`, await entrarAlQuiz(pagina, base, { ancho, alto, oscuro, semilla: SEMILLA }), true);
+    if (oscuro) t.ok(`${n}: tema oscuro activo`, await pagina.evaluar(ESTA_OSCURO), true);
+
+    // Sin responder: regiones, anchos y orden de foco
+    const a = await pagina.evaluar(MEDIR_ESCRITORIO);
+    t.ok(`${n}: la barra del quiz va a todo el ancho`, a.barra && cerca(a.barra.ancho, a.vista, 1), true);
+    t.ok(`${n}: el enunciado mide la columna (${columna})`, a.enunciado && cerca(a.enunciado.ancho, columna, 1), true);
+    t.ok(`${n}: el enunciado va centrado`, dentro(a.enunciado, a), true);
+    t.ok(`${n}: cada opción llena la columna`,
+      a.opciones.length > 0 && a.opciones.every((o) => cerca(o.ancho, columna, 1)), true);
+    t.ok(`${n}: las opciones se separan paso 2.5`,
+      a.opciones.length > 1 && a.opciones.slice(1).every((o, i) =>
+        cerca(o.y - (a.opciones[i].y + a.opciones[i].alto), 2.5 * PASO, 1)), true);
+    t.ok(`${n}: cerrar y el contador quedan dentro de la columna`,
+      a.cerrar && a.contador
+      && a.cerrar.x >= (a.vista - columna) / 2 - 1 && a.contador.der <= (a.vista + columna) / 2 + 1, true);
+    dentroDeLectura(t, n, a, 'la fila de contexto', a.contexto);
+    t.ok(`${n}: cerrar mide 44 × 44`,
+      a.cerrar && a.cerrar.ancho >= LADO_TACTIL && a.cerrar.alto >= LADO_TACTIL, true);
+    t.ok(`${n}: cada opción mide al menos 44 de alto`,
+      a.opciones.length > 0 && a.opciones.every((o) => o.alto >= LADO_TACTIL), true);
+    t.ok(`${n}: sin scroll horizontal`, await pagina.evaluar(DESBORDA), 0);
+    t.ok(`${n}: el documento no se ensancha`, a.scrollV <= a.vistaDoc + 1, true);
+    t.ok(`${n}: ningún ancestro del contenido ni de la barra recorta con overflow`,
+      `${a.recortesContenido} ${a.recortesBarra}`, '0 0');
+
+    // DOM = visual: las regiones bajan en el orden del DOM y la barra va de izquierda a derecha.
+    t.ok(`${n}: las regiones bajan: barra, contexto, enunciado, opciones`,
+      bajan([a.barra, a.contexto, a.enunciado, ...a.opciones]), true);
+    t.ok(`${n}: la barra va de izquierda a derecha: cerrar, progreso, contador`,
+      a.cerrar && a.progreso && a.contador
+      && a.cerrar.der <= a.progreso.x + 1 && a.progreso.der <= a.contador.x + 1, true);
+    t.ok(`${n}: las opciones bajan en el orden visual`,
+      a.opciones.every((o, i) => i === 0 || o.y > a.opciones[i - 1].y), true);
+    await tabSigueLoVisual(pagina, t, n, 'sin responder', [{ id: 'cerrar-quiz', ...a.cerrar }, ...a.opciones]);
+
+    // Respondida: nota, reporte y barra inferior
+    t.ok(`${n}: respondió`, await responder(pagina, 0), true);
+    const r = await pagina.evaluar(MEDIR_ESCRITORIO);
+    t.ok(`${n}: la pregunta fija tiene nota de explicación`, r.nota !== null, true);
+    t.ok(`${n}: la barra inferior va a todo el ancho`, r.barraInf && cerca(r.barraInf.ancho, r.vista, 1), true);
+    t.ok(`${n}: el botón «Siguiente» mide la columna (${columna})`,
+      r.siguiente && cerca(r.siguiente.ancho, columna, 1), true);
+    t.ok(`${n}: el botón «Siguiente» va centrado`, dentro(r.siguiente, r), true);
+    t.ok(`${n}: la nota mide la columna`, r.nota && cerca(r.nota.ancho, columna, 1), true);
+    dentroDeLectura(t, n, r, '«Reportar pregunta»', r.reportar);
+    t.ok(`${n}: la nota, «Reportar pregunta» y «Siguiente» bajan en ese orden`,
+      bajan([r.enunciado, r.nota, r.reportar, r.siguiente]), true);
+    t.ok(`${n}: «Reportar pregunta» y «Siguiente» miden 44 de alto`,
+      r.reportar && r.siguiente && r.reportar.alto >= LADO_TACTIL && r.siguiente.alto >= LADO_TACTIL, true);
+    t.ok(`${n}: respondida, sin scroll horizontal`, await pagina.evaluar(DESBORDA), 0);
+    t.ok(`${n}: respondida, ningún ancestro recorta con overflow`,
+      `${r.recortesContenido} ${r.recortesBarra}`, '0 0');
+    await tabSigueLoVisual(pagina, t, n, 'respondida', [
+      { id: 'boton-reportar', ...r.reportar }, { id: 'boton-siguiente', ...r.siguiente },
+    ], 'cerrar-quiz');
+  }
+}
+
+// Examen en curso en escritorio (EXA-P1 sobre ESC-P4; ficha ExamenEnCurso.md, E04c): sin
+// retroalimentación, la misma columna `lectura` y el aviso dentro de ella.
+async function escritorioDelExamenEnCurso(pagina, base, t) {
+  const casos = [
+    { ancho: 1024, alto: 800, oscuro: false },
+    { ancho: 1366, alto: 768, oscuro: false }, { ancho: 1366, alto: 768, oscuro: true },
+    { ancho: 1920, alto: 1080, oscuro: false }, { ancho: 1920, alto: 1080, oscuro: true },
+  ];
+  try {
+    for (const { ancho, alto, oscuro } of casos) {
+      const n = `examen ${ancho}${oscuro ? ' oscuro' : ' claro'}`;
+      const columna = columnaDe(ancho);
+      const dentro = (c, m) => c && cerca(c.x + c.ancho / 2, m.vista / 2, 1);
+      await pagina.evaluar(BORRAR_ESTADISTICAS).catch(() => {});
+
+      t.ok(`${n}: llegó al quiz con el resultado oculto`,
+        await entrarAlQuiz(pagina, base, { ancho, alto, oscuro, ocultar: true, semilla: SEMILLA }), true);
+      t.ok(`${n}: respondió`, await responder(pagina, 0), true);
+      const r = await pagina.evaluar(MEDIR_ESCRITORIO);
+
+      t.ok(`${n}: la barra del quiz y la inferior van a todo el ancho`,
+        r.barra && r.barraInf && cerca(r.barra.ancho, r.vista, 1) && cerca(r.barraInf.ancho, r.vista, 1), true);
+      t.ok(`${n}: el enunciado mide la columna (${columna}) y va centrado`,
+        r.enunciado && cerca(r.enunciado.ancho, columna, 1) && dentro(r.enunciado, r), true);
+      t.ok(`${n}: cada opción llena la columna`,
+        r.opciones.length > 0 && r.opciones.every((o) => cerca(o.ancho, columna, 1)), true);
+      t.ok(`${n}: «Siguiente» mide la columna y va centrado`,
+        r.siguiente && cerca(r.siguiente.ancho, columna, 1) && dentro(r.siguiente, r), true);
+      t.ok(`${n}: sin nota de explicación`, r.nota, null);
+      t.ok(`${n}: el aviso «Resultado oculto hasta el final» mide la columna`,
+        r.aviso && cerca(r.aviso.ancho, columna, 1), true);
+      dentroDeLectura(t, n, r, 'el aviso', r.aviso);
+      dentroDeLectura(t, n, r, 'la fila de contexto', r.contexto);
+      dentroDeLectura(t, n, r, '«Reportar pregunta»', r.reportar);
+      t.ok(`${n}: el aviso, «Reportar pregunta» y «Siguiente» bajan en ese orden`,
+        bajan([r.enunciado, r.aviso, r.reportar, r.siguiente]), true);
+      t.ok(`${n}: cerrar, progreso y contador van de izquierda a derecha`,
+        r.cerrar && r.progreso && r.contador
+        && r.cerrar.der <= r.progreso.x + 1 && r.progreso.der <= r.contador.x + 1, true);
+      t.ok(`${n}: cerrar mide 44 × 44`,
+        r.cerrar && r.cerrar.ancho >= LADO_TACTIL && r.cerrar.alto >= LADO_TACTIL, true);
+      t.ok(`${n}: «Reportar pregunta» y «Siguiente» miden 44 de alto`,
+        r.reportar && r.siguiente && r.reportar.alto >= LADO_TACTIL && r.siguiente.alto >= LADO_TACTIL, true);
+      t.ok(`${n}: sin scroll horizontal`, await pagina.evaluar(DESBORDA), 0);
+      t.ok(`${n}: ningún ancestro del contenido ni de la barra recorta con overflow`,
+        `${r.recortesContenido} ${r.recortesBarra}`, '0 0');
+      // Con el resultado oculto solo la opción elegida es control: tras cerrar, elegida,
+      // reportar y siguiente.
+      await tabSigueLoVisual(pagina, t, n, 'respondida', [
+        r.opciones[0], { id: 'boton-reportar', ...r.reportar }, { id: 'boton-siguiente', ...r.siguiente },
+      ], 'cerrar-quiz');
+    }
+  } finally {
+    await pagina.evaluar(BORRAR_ESTADISTICAS).catch(() => {});
+    await limpiarAjustes(pagina);
+  }
+}
+
+// El arnés abre una página de 1300 px: para 1366 y 1920 hace falta una del ancho de la prueba.
+function conNavegadorAncho(fn, { ancho, alto }) {
+  return async function (_paginaDelArnes, base, t) {
+    const navegador = await conectarNavegador(PUERTO_CDP);
+    const pagina = await abrirPagina(navegador, { ancho, alto });
+    try {
+      await fn(pagina, base, t, navegador);
+    } finally {
+      await pagina.cerrar().catch(() => {});
+      navegador.cerrar();
+    }
+  };
+}
+
 // ===========================================================================
 // GRUPO A · corrección de 3.1 (teclado del control de tema, desborde, hover)
 // ===========================================================================
@@ -946,5 +1179,7 @@ module.exports = [
   { nombre: 'Quiz Plancha: progreso por barra continua con más de 40', correr: conNavegador(progresoPorBarra) },
   { nombre: 'Quiz Plancha: temporizador y alerta bajo 120 s', correr: conNavegador(temporizadorYAlerta) },
   { nombre: 'Quiz Plancha: examen en curso (resultado oculto)', correr: conNavegador(examenEnCurso) },
-  { nombre: 'Quiz Plancha: anchos 320, 360, 768 y 1280', correr: conNavegador(anchosDelQuiz) },
+  { nombre: 'Quiz Plancha: anchos 320, 360 y 768', correr: conNavegador(anchosDelQuiz) },
+  { nombre: 'Quiz Plancha: escritorio 1023, 1024, 1280, 1366 y 1920 (lectura)', correr: conNavegadorAncho(escritorioDelQuiz, { ancho: 1920, alto: 1200 }) },
+  { nombre: 'Quiz Plancha: examen en curso en escritorio 1024, 1366 y 1920', correr: conNavegadorAncho(escritorioDelExamenEnCurso, { ancho: 1920, alto: 1200 }) },
 ];
