@@ -60,13 +60,15 @@ Convención de 1.3 (D10): las secciones a a e describen la pantalla con las prop
 | Ayuda de marcado | `tintaSec` | `fondo` | — | `detalle` | — | `glifo-acierto` (chico), `acierto` | T3, N9 |
 | Filtro de tema en reposo (K4) | `tinta` | `superficie` | `borde`, `border` | `cuerpo` | — | — | T2, N4 |
 | Filtro de tema seleccionado (K4) | `fondo` | `tinta` | `tinta`, `border` | `cuerpo-fuerte` | — | — | T7, N6 |
-| Campo de texto (enunciado, opción, explicación) | `tinta` | `superficie` | `borde`, `border` | `cuerpo` | — | — | T2, N4 |
-| Texto de ayuda del campo (placeholder) | `tintaSec` | `superficie` | — | `cuerpo` | — | — | T4 |
+| Campo de texto (enunciado, opción, explicación) | `tinta` | `superficie` | `borde`, `border` | `campo` | — | — | T2, N4 |
+| Texto de ayuda del campo (placeholder) | `tintaSec` | `superficie` | — | `campo` | — | — | T4 |
 | Celda de letra en reposo (K3) | `tinta` | `superficie` | `borde`, `border` | `dato` | — | — | T2, N4 |
 | Celda de letra de la correcta | `fondo` | `acierto` | `acierto`, `border-2` | — | — | `glifo-acierto` (chico) | T8, N10 |
 | Quitar opción (K7) | `tintaSec` | `fondo` | — | — | — | `glifo-cerrar` (grande) | N19 |
 | «Agregar opción» (K3) | `tinta` | `superficie` | `borde`, `border` | `cuerpo-fuerte` | — | `glifo-mas` (chico), `tinta` | T2, N4, N6 |
 | «Guardar pregunta» (K1) | `fondo` | `tinta` | `tinta`, `border` | `cuerpo-fuerte` | — | `glifo-guardar` (chico), delante del texto | T7 |
+
+Los tres campos y su ayuda van en `campo` (`tokens.md` b.2), no en `cuerpo`: es el paso de tamaño 16 o más que D10 exige a todo campo editable para que Safari de iPhone no amplíe la página al enfocarlo. Con el interlineado de `campo` y el relleno `paso 3`, el campo de opción queda por encima del alto de `paso 11`.
 
 La celda de la correcta cambia la letra por el tilde, igual que hoy; el relleno `acierto` con glifo `fondo` es el mismo par que la celda de letra de la opción correcta del quiz (`Quiz.md` c.2, T8). El glifo de quitar va sobre `fondo`, fuera del campo: el par es N19 y el token (`tintaSec`) es el de `comun.md` §9.
 

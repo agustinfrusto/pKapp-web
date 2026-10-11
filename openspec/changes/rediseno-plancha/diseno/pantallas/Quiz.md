@@ -7,7 +7,7 @@
 | Comunes | `comun.md`: §4 marcas de estado, §5 estados (K1, K3, K7), §6 lámina, §7 anchos, §8 dimensiones, §9 glifos |
 | Navegador | Barra propia; sin barra interna: implica `headerShown: false` para `Quiz` en `App.js` (`comun.md` §3). Es la propuesta `QUIZ-P1`, aprobada |
 | Variantes | Origen `exam`, `generated` y `user`; con y sin explicación; con y sin temporizador; última pregunta |
-| Fuera de alcance | Insignia de parcial (distinción de parciales) y quiz sin retroalimentación (`hideFeedback`, examen en curso): su lugar está fijado; su ficha es 1.3 |
+| Fuera de alcance | Insignia de parcial (distinción de parciales) y quiz sin retroalimentación (`hideFeedback`, examen en curso): su lugar está fijado; sus fichas son `comun.md` §12 y `ExamenEnCurso.md` |
 | Propuestas | Sección f: `QUIZ-P1` y `QUIZ-P4` a `QUIZ-P10`. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
 
 ---
@@ -19,7 +19,7 @@
 | # | Bloque | Margen superior | Margen lateral | Separación inferior | Contenido |
 |---|---|---|---|---|---|
 | 1 | Barra del quiz | Área segura superior | Relleno `paso 5` | — | Cerrar, progreso, contador y tiempo (a.2). Filete inferior `linea` a ancho completo |
-| 2 | Fila de contexto | `paso 4` | `paso 5` | `paso 3` | Insignia de parcial (ver 1.3), origen y tema |
+| 2 | Fila de contexto | `paso 4` | `paso 5` | `paso 3` | Insignia de parcial (`comun.md` §12.3), origen y tema |
 | 3 | Caja del enunciado | — | `paso 5` | `paso 4` | Rótulo «Enunciado» (margen inferior `paso 1.5`) y enunciado de la pregunta |
 | 4 | Opciones | — | `paso 5` | `paso 2.5` entre opciones | Una por entrada de `options`, letras A, B, C… |
 | 5 | Nota de explicación | `paso 4` | `paso 5` | — | Solo si respondió, hay retroalimentación y la pregunta tiene `explanation` |
@@ -66,7 +66,7 @@ Relleno vertical `paso 2`; fila de alto `paso 11`; separación `paso 3.5` entre 
 | Tiempo en reposo | `tinta` | `fondo` | — | `rotulo-medio` | — | `glifo-reloj` | T1 |
 | Tiempo en alerta | `error` | `fondo` | `error`, `border-2` | `rotulo-medio` | — | `glifo-reloj` | T14, N12 |
 | Meta de la pregunta: «{shortName} · {tema}» | `tintaSec` | `fondo` | — | `rotulo` | — | — | T3 |
-| Insignia de parcial | ver 1.3 | | | | | | |
+| Insignia de parcial | `comun.md` §12.2 | | | | | | |
 | Chip de origen | Ver c.3 | | | `rotulo` | — | Ver c.3 | Ver c.3 |
 | Caja del enunciado | `tinta` | `superficie` | `linea`, `border` | `titulo` | — | — | T2, N1, N2 |
 | Rótulo «Enunciado» | `tintaSec` | `superficie` | — | `rotulo` | — | — | T4 |
@@ -99,7 +99,7 @@ Con más de 40 casillas, a ancho de teléfono cada una queda demasiado fina para
 | Cerrar (K7) | Glifo `tinta` | Contorno web `linea`, `border` | Inversión: glifo `fondo` sobre `tinta` | Contorno `foco`, `border-2`, separado `paso 0.5` | — | — |
 | «Reportar pregunta» (K3) | Borde `borde`; texto `tinta` | Borde `linea` | Inversión: fondo `tinta`; texto y glifo `fondo` | Contorno `foco` | — | — |
 | «Siguiente» (K1) | Fondo `tinta`; texto y glifo `fondo` | Contorno web `linea`, `border-2` | Inversión: fondo `superficie`; texto `tinta`; borde `linea` | Contorno `foco` | — | — |
-| Opción (K3) | Ver c.2 | Borde `linea` | Inversión total | Contorno `foco` | Ver 1.3 (sin retroalimentación) | Ver c.2: tras responder deja de recibir toque |
+| Opción (K3) | Ver c.2 | Borde `linea` | Inversión total | Contorno `foco` | `ExamenEnCurso.md` c.2 (sin retroalimentación) | Ver c.2: tras responder deja de recibir toque |
 
 ### c.2 Opción según el estado de la respuesta
 
@@ -109,7 +109,7 @@ Con más de 40 casillas, a ancho de teléfono cada una queda demasiado fina para
 | Correcta | Respondida; `idx` igual a `correctIndex`; con retroalimentación | `acierto`, `border-2` | `aciertoFondo` | Fondo `acierto`; letra `fondo`; filete derecho `acierto`, `border-2` | `cuerpo-fuerte`, `tinta` (T13) | `glifo-acierto` y «Correcta», `rotulo`, `acierto` (T12) |
 | Incorrecta | Respondida; es la elegida y no la correcta; con retroalimentación | `error`, `border-2` | `errorFondo` | Fondo `error`; letra `fondo`; filete derecho `error`, `border-2` | `cuerpo`, `tinta` (T17) | `glifo-error` y «Incorrecta · tu respuesta», `rotulo`, `error` (T16); si no entra en una línea a 390 px, salta de línea dentro de la celda de texto |
 | Apagada | Respondida; ni correcta ni elegida; con retroalimentación | `filete`, `border` | `superficie` | Letra `tintaSec`; filete derecho `filete` | `cuerpo`, `tintaSec` (T4) | — |
-| Sin retroalimentación | Respondida con `hideFeedback` | ver 1.3 | ver 1.3 | ver 1.3 | ver 1.3 | ver 1.3 |
+| Sin retroalimentación | Respondida con `hideFeedback` | `ExamenEnCurso.md` c.2 | `ExamenEnCurso.md` c.2 | `ExamenEnCurso.md` c.2 | `ExamenEnCurso.md` c.2 | `ExamenEnCurso.md` c.2 |
 
 | Por qué se distinguen sin color | Detalle |
 |---|---|
@@ -133,7 +133,7 @@ Medidas del chip: relleno vertical `paso 0.5`, horizontal `paso 2`; glifo chico;
 
 | Posición | Detalle |
 |---|---|
-| Fila de contexto | A la izquierda: insignia de parcial (ver 1.3, encima) y chip de origen. A la derecha: meta «{shortName} · {tema}», alineada a la derecha, hasta dos líneas |
+| Fila de contexto | A la izquierda: insignia de parcial (`comun.md` §12.3, encima) y chip de origen. A la derecha: meta «{shortName} · {tema}», alineada a la derecha, hasta dos líneas |
 
 ### c.4 Tiempo y progreso
 
@@ -161,7 +161,7 @@ Aciertos, errores e intermedia de rendimiento no aplican (—); banco reducido n
 | Tema | `TOPICS[currentQuestion.topic]`, o la clave si no hay nombre | Va después del id de materia, separado por « · » |
 | Id de materia | `materia.shortName` (`useMateria()`) | Antecede al tema en la meta de la fila de contexto |
 | Origen | `currentQuestion.source` y `currentQuestion.exam` | c.3 |
-| Parcial | `currentQuestion.parcial` | ver 1.3 |
+| Parcial | `currentQuestion.parcial` | `comun.md` §12.1 |
 | Explicación | `currentQuestion.explanation` | Se muestra si respondió, `!hideFeedback` y existe |
 | Contador | `currentIndex + 1` y `preguntas.length` | Dos dígitos con cero a la izquierda (formato del boceto); con totales de tres dígitos el ancho crece con el contenido |
 | Tiempo | `timeLeft` en segundos; formato `mm:ss` | Cuenta regresiva desde `timerMinutes * 60` |

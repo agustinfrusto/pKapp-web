@@ -8,7 +8,7 @@
 | Navegador | `headerShown: false`; header propio (HeaderMarca) |
 | Exclusivo | Campo de filamentos: solo en esta pantalla (D3) |
 | Variantes | Nota del creador visible o no (reaparece cada siete días); tarjeta en reposo, cargando o no disponible |
-| Fuera de alcance | Nota del creador y bloque de donación: su lugar está fijado; su ficha es 1.3 |
+| Fuera de alcance | Nota del creador y bloque de donación: su lugar está fijado; sus fichas son `Banners.md` y `DonationBox.md` |
 | Propuestas | Sección f: `MATERIA-P1` y `MATERIA-P2`. Sección h: conservado de main (D10). Comunes: `COMUN-P1`, `COMUN-P2` |
 
 ---
@@ -19,11 +19,11 @@
 
 | # | Bloque | Margen superior | Margen lateral | Separación inferior | Contenido |
 |---|---|---|---|---|---|
-| 1 | HeaderMarca | — | Relleno `paso 5` | — | `comun.md` §1. Slot `izquierda`: texto «ESFUNO» (`rotulo`, `tintaSec`), una línea, alineado a la izquierda y centrado en vertical dentro de la fila de alto `paso 11`; control de tema a la derecha |
+| 1 | HeaderMarca | — | Relleno `paso 5` | — | `comun.md` §1. Slot `izquierda`: texto «ESFUNO» (`rotulo`, `tintaSec`), una línea, alineado a la izquierda y centrado en vertical dentro de la fila de `comun.md` §1; control de tema a la derecha |
 | 2 | Lámina | `paso 1.5` | `paso 5` | `paso 3` | Campo, regla y cajetín (a.2) |
-| 3 | Nota del creador (ver 1.3) | — | `paso 5` | `paso 3` | Condicional. Conserva su posición actual: debajo del bloque de marca, encima de la lista |
+| 3 | Nota del creador (`Banners.md` a.1 y a.2) | — | `paso 5` | `paso 3` | Condicional. Conserva su posición actual: debajo del bloque de marca, encima de la lista |
 | 4 | Lista de materias | `paso 1.5` | `paso 5` | `paso 2.5` entre tarjetas | Una tarjeta por entrada de `MATERIA_LIST`, en su orden |
-| 5 | Bloque de donación (ver 1.3) | `paso 6` | `paso 5` | — | `DonationBox` con `origen="materias"`, precedido por su regla corta, como hoy |
+| 5 | Bloque de donación (`DonationBox.md` a.1) | `paso 6` | `paso 5` | — | `DonationBox` con `origen="materias"`, precedido por su regla corta, como hoy |
 | 6 | Relleno inferior del scroll | — | — | `paso 10` | Fin del scroll |
 
 ### a.2 Interior de la lámina
@@ -71,8 +71,8 @@
 | Etiqueta «Banco real» | `tintaSec` | `superficie` | — | `rotulo` | Izquierdo `filete` (separa las dos celdas) | — | T4 |
 | Estado «Cargando…» | `tintaSec` | `superficie` | — | `rotulo` | — | — | T4 |
 | Estado «Próximamente» | `inactivo` | `superficie` | `filete` (marco de la tarjeta) | `rotulo` | — | — | X5 |
-| Nota del creador | ver 1.3 | | | | | | |
-| Bloque de donación | ver 1.3 | | | | | | |
+| Nota del creador | `Banners.md` b | | | | | | |
+| Bloque de donación | `DonationBox.md` b | | | | | | |
 
 La ilustración y el campo son decorativos (`aria-hidden`). El nombre de la materia es el nombre accesible de la tarjeta.
 
@@ -85,8 +85,8 @@ La ilustración y el campo son decorativos (`aria-hidden`). El nombre de la mate
 | Tarjeta de materia (K6) | Borde `linea`; fondo `superficie`; texto `tinta`; ilustración `filamento` | Contorno web `linea`, `border` | Inversión total: fondo `tinta`; texto, id, cajetín e ilustración `fondo` | Contorno `foco`, `border-2`, separado `paso 0.5` | — | `materia.available` en falso: borde `filete`; texto, id e ilustración `inactivo`; celda del conteo «Próximamente» a todo el ancho del cajetín, sin «Banco real» y con el mismo alto; sin toque | Celda del conteo «Cargando…» en `tintaSec`; «Banco real» se conserva y el cajetín mantiene sus dos celdas; marco y fondo como en reposo; la tarjeta no recibe toque | — |
 | Otras tarjetas durante una carga | Sin cambio visual; el toque se ignora (`cargandoId`) | Igual que reposo | — | — | — | — | — | — |
 | Control de tema | `comun.md` §2 | `comun.md` §2 | `comun.md` §2 | `comun.md` §2 | `comun.md` §2 | — | — | — |
-| Nota del creador | ver 1.3 | ver 1.3 | ver 1.3 | ver 1.3 | — | — | — | — |
-| Bloque de donación | ver 1.3 | ver 1.3 | ver 1.3 | ver 1.3 | — | — | — | — |
+| Nota del creador | `Banners.md` c | `Banners.md` c | `Banners.md` c | `Banners.md` c | — | — | — | — |
+| Bloque de donación | `DonationBox.md` c | `DonationBox.md` c | `DonationBox.md` c | `DonationBox.md` c | — | — | — | — |
 
 Hoy las seis materias tienen `available` en verdadero; el estado «Próximamente» es la rama del código y se conserva. El cajetín mantiene sus dos celdas en «Cargando…»: el toque no lo hace saltar. En «Próximamente» no hay banco que rotular, así que la celda del conteo ocupa todo el cajetín con el mismo alto.
 
@@ -128,7 +128,7 @@ Hoy las seis materias tienen `available` en verdadero; el estado «Próximamente
 | Evento | Línea | Payload | Cuándo | Fila que lo cubre |
 |---|---|---|---|---|
 | `materia_elegida` | `MateriaSelectScreen.js:23` | `{ materia: materia.id }` | Al tocar una tarjeta disponible sin carga en curso, antes de `setCargandoId` | Tarjeta de materia (c, d.2). No se mueve |
-| `donacion_click` | `DonationBox.js:10` (componente; la ficha es 1.3) | `{ origen: 'materias', monto: amt }` | Al tocar un monto del bloque de donación | Bloque de donación (b, c). No se toca |
+| `donacion_click` | `DonationBox.js:10` (componente; ficha en `DonationBox.md` d.4) | `{ origen: 'materias', monto: amt }` | Al tocar un monto del bloque de donación | Bloque de donación (b, c). No se toca |
 
 ---
 
@@ -154,7 +154,7 @@ Cambios del boceto respecto de `main`, o de `main` respecto del boceto. El usuar
 
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
-| MATERIA-P1 | El slot `izquierda` de HeaderMarca muestra el texto «ESFUNO» en `rotulo` y `tintaSec` (T3), una línea, alineado a la izquierda y centrado en vertical dentro de la fila de alto `paso 11`. El alto del header no cambia (`comun.md` §1) | Texto del boceto aprobado por el usuario, con la cadena «ESFUNO»; `main` deja el slot vacío | visual | aprobada (usuario, 2026-10-10) |
+| MATERIA-P1 | El slot `izquierda` de HeaderMarca muestra el texto «ESFUNO» en `rotulo` y `tintaSec` (T3), una línea, alineado a la izquierda y centrado en vertical dentro de la fila de `comun.md` §1. El alto del header no cambia (`comun.md` §1) | Texto del boceto aprobado por el usuario, con la cadena «ESFUNO»; `main` deja el slot vacío | visual | aprobada (usuario, 2026-10-10) |
 | MATERIA-P2 | El cajetín de cada tarjeta tiene dos celdas separadas por un filete vertical `filete`: el conteo («{N} preguntas») a la izquierda y «Banco real» a la derecha, con relleno vertical `paso 1.5` y horizontal `paso 3` por celda y el filete superior `filete` de hoy. «Banco real» aparece en la tarjeta de una materia disponible sin preguntas generadas: hoy las seis, también las de banco reducido (`cyr` y `neuro`). Se conserva en «Cargando…» y no aparece en «Próximamente», donde el conteo ocupa todo el cajetín (condición acordada por Ingeniero y Diseñador el 2026-10-10: `CONVENCIONES.md`, C8) | Texto del boceto aprobado por el usuario; `main` solo muestra el conteo | visual | aprobada (usuario, 2026-10-10) |
 
 Propuestas comunes que alcanzan esta pantalla: `COMUN-P1` (ilustración de materia en `filamento`) y `COMUN-P2` (estados de control).
@@ -170,7 +170,7 @@ Solo quedan acá las que no admiten otra variante: las fija un invariante (D6, s
 | Rótulo de estado en lugar del conteo, en `dre` y `ryd` | Conteo real de `CONTEOS` | Spec `subject-catalog`: manda el dato |
 | Id desde el identificador en mayúsculas («ANATOMIA») | `shortName` | Dato de `metadata.js`; conserva la tilde de «Anatomía» |
 | Miniatura de 52 en celda de 68 | Pasos `12` y `16` | Escala de tokens (`comun.md` §8) |
-| Ausencia del bloque de donación | Se conserva en su lugar (ver 1.3) | D6: el evento `donacion_click` con `origen: 'materias'` sigue emitiéndose desde esta pantalla |
+| Ausencia del bloque de donación | Se conserva en su lugar (`DonationBox.md` a.1) | D6: el evento `donacion_click` con `origen: 'materias'` sigue emitiéndose desde esta pantalla |
 
 ---
 
@@ -180,4 +180,4 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 
 | Id | Qué se conserva | Motivo | Tipo |
 |---|---|---|---|
-| MATERIA-P3 | La nota del creador (condicional, debajo de la lámina, reaparece cada siete días) en el lugar fijado en a.1. El boceto no la incluye. Su aspecto es de 1.3 | Está en uso en `main` y es el canal del creador con quien usa la app | uso |
+| MATERIA-P3 | La nota del creador (condicional, debajo de la lámina, reaparece cada siete días) en el lugar fijado en a.1. El boceto no la incluye. Su aspecto es de `Banners.md` | Está en uso en `main` y es el canal del creador con quien usa la app | uso |

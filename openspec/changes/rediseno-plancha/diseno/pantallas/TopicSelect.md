@@ -7,7 +7,7 @@
 | Comunes | `comun.md`: §3 barra interna, §5 estados (K1, K3, K4, K5, K6, K7), §6 lámina, §7 anchos, §8 dimensiones, §9 glifos |
 | Navegador | Barra interna con título «pKapp · Elegir tema» y volver |
 | Variantes | A: `practice`, o `failed` con fallos. B: `exam`. C: `failed` sin fallos. Cada una con o sin filtro de parcial (`materia.config.parciales`) |
-| Fuera de alcance | Variante C (estado vacío): su lugar está fijado; su ficha es 1.3 |
+| Fuera de alcance | Variante C (estado vacío): su lugar está fijado; su ficha es `Vacios.md` (V2) |
 | Propuestas | Sección f: `TOPIC-P1` a `TOPIC-P5`. Comunes: `COMUN-P2` |
 
 ---
@@ -88,7 +88,7 @@ Filtros: alto `paso 11`, relleno horizontal `paso 3`, separación `paso 2` en ho
 | Texto del sorteo | `tintaSec` | `superficie` | — | `cuerpo` | — | — | T4 |
 | Disponibles | `acento` | `superficie` | — | `cuerpo-fuerte` | — | — | T6 |
 | Botón «Comenzar examen» (K1) | `fondo` | `tinta` | `tinta`, `border` | `cuerpo-fuerte` | — | — | T7 |
-| Estado vacío de `failed` | ver 1.3 | | | | | | |
+| Estado vacío de `failed` | `Vacios.md` b | | | | | | |
 
 ---
 
@@ -97,7 +97,7 @@ Filtros: alto `paso 11`, relleno horizontal `paso 3`, separación `paso 2` en ho
 | Elemento | Reposo | Hover (web) | Presionado | Foco | Seleccionado | Deshabilitado | Estado de dato |
 |---|---|---|---|---|---|---|---|
 | Filtro de fuente (K4) | Borde `borde`; texto `tinta` | Borde `linea` | Inversión: aspecto de seleccionado | Contorno `foco`, `border-2`, separado `paso 0.5` | Fondo `tinta`; texto `fondo` en `cuerpo-fuerte`; estado accesible seleccionado | — | Origen de la pregunta: «Todas», «Solo preguntas reales» y «Solo generadas» filtran la base; «Solo generadas» incluye también las preguntas del usuario |
-| Filtro de parcial (K4) | Igual | Igual | Igual | Igual | Igual | — | Insignias de parcial en el quiz: ver 1.3 |
+| Filtro de parcial (K4) | Igual | Igual | Igual | Igual | Igual | — | Insignias de parcial en el quiz: `comun.md` §12.2 y §12.3 |
 | Cuadrado menos (K5) | Borde `linea`; glifo `tinta` | Contorno web `linea`, `border` | Inversión | Contorno `foco` | — | Borde `filete`; glifo `inactivo`; con el valor en «Sin límite» | — |
 | Cuadrado más (K5) | Igual | Igual | Igual | Igual | — | Igual, con el valor en el máximo de la lista | — |
 | Valor del temporizador | Estático | — | — | — | — | — | «Sin límite» o «{n} min» |
@@ -105,7 +105,7 @@ Filtros: alto `paso 11`, relleno horizontal `paso 3`, separación `paso 2` en ho
 | Fila de tema (K7) | Texto `tinta`; filete inferior `filete` | Contorno web `linea`, `border` | Inversión total | Contorno `foco` | — | — | Solo aparece con al menos una pregunta tras los filtros |
 | Botón «Comenzar examen» (K1) | Fondo `tinta`; texto `fondo` | Contorno web `linea`, `border-2` | Inversión: fondo `superficie`; texto `tinta`; borde `linea` | Contorno `foco` | — | — | — |
 | Botón volver de la barra | `comun.md` §3 | `comun.md` §3 | `comun.md` §3 | `comun.md` §3 | — | — | — |
-| Estado vacío de `failed` | ver 1.3 | ver 1.3 | ver 1.3 | ver 1.3 | — | — | Sin preguntas falladas |
+| Estado vacío de `failed` | `Vacios.md` c | `Vacios.md` c | `Vacios.md` c | `Vacios.md` c | — | — | Sin preguntas falladas |
 
 Aciertos, errores, banda intermedia y banco reducido no aparecen en esta pantalla (—).
 

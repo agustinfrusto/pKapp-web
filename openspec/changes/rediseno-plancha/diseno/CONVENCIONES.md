@@ -7,7 +7,7 @@
 | Pedido | Usuario, 2026-10-10: «el diseñador debe también aceptar tus cambios, lleguen a convenciones y que no muera en ti, devuélvele tus conclusiones y déjalo opinar» |
 | Escribe | Diseñador: postura sobre C1 a C10 (§1), convenciones propias CD-1 a CD-27 (§2), gobernanza G-1 a G-4 (§3), alineaciones (§4) |
 | Responde | Ingeniero: una respuesta por conclusión técnica (ids en §1) y confirmación de CD y G |
-| Estado | C1 a C10: acordadas por Ingeniero y Diseñador el 2026-10-10 (`msg_ca7d8edfff64`). CD-1 a CD-27 y G-1 a G-4: propuestas del Diseñador, a confirmar por el Ingeniero |
+| Estado | C1 a C10 (`msg_ca7d8edfff64`), CD-1 a CD-27 y G-1 a G-4: acordadas por Ingeniero y Diseñador el 2026-10-10. Ninguna fila `abierta` ni `propuesta` |
 | Lo leen | Programador y Analista, antes de cada tarea 3.x |
 | Contexto | `design.md` (D2, D3, D6, D7, D9, D10), `tokens.md`, `pantallas/comun.md` |
 
@@ -18,7 +18,7 @@
 | Término | Significado |
 |---|---|
 | Postura | `acepta`, `acepta con ajuste` u `objeta` (en parte): la del Diseñador frente al texto del Ingeniero |
-| Estado | `acordada`: el Ingeniero aceptó el texto de la columna «Redacción» y rige para ambos. `abierta`: ajuste u objeción sin respuesta. `propuesta`: regla nueva del Diseñador que el Ingeniero aún no confirmó |
+| Estado | `acordada`: el Ingeniero aceptó el texto de la columna «Redacción» y rige para ambos. `abierta`: ajuste u objeción sin respuesta. `propuesta`: regla nueva del Diseñador que el Ingeniero aún no confirmó. Los dos últimos estados son para cambios futuros (G-2): hoy todas las filas están acordadas |
 | Quién decide | Estética: Diseñador, vinculante. Contratos e invariantes: Ingeniero, con la objeción registrada. Sin acuerdo: usuario |
 | Pregunta | Id del mensaje `question` enviado al coordinador por cada ajuste u objeción técnica |
 | CD-n | Convención del Diseñador (§2). No usa `D1` a `D10`, que son las decisiones de `design.md` |
@@ -67,9 +67,9 @@
 
 ---
 
-## 2. Convenciones del Diseñador (origen: Diseñador; estado: propuesta)
+## 2. Convenciones del Diseñador (origen: Diseñador; estado: acordada, Ingeniero y Diseñador, 2026-10-10)
 
-Reglas transversales que el Programador y el Analista aplican en cada 3.x. «Vive hoy en» dice dónde está la especificación completa; las filas con «reporte» o «nuevo» no estaban en ningún contrato versionado. Los comandos se corren desde la raíz del repo.
+Estado de CD-1 a CD-27: acordada (Ingeniero y Diseñador, 2026-10-10). Reglas transversales que el Programador y el Analista aplican en cada 3.x. «Vive hoy en» dice dónde está la especificación completa; las filas con «reporte» o «nuevo» no estaban en ningún contrato versionado. Los comandos se corren desde la raíz del repo.
 
 ### 2.1 Estados de control
 
@@ -113,7 +113,7 @@ Reglas transversales que el Programador y el Analista aplican en cada 3.x. «Viv
 |---|---|---|---|
 | CD-17 | Separaciones: `paso 0.5` entre casillas; `paso 1` entre rótulo y valor; `paso 2` entre elementos de un grupo y mínimo entre controles adyacentes; `paso 2.5` entre opciones y entre tarjetas; `paso 6` entre bloques; `paso 8` entre secciones; margen lateral `paso 5`; relleno de tarjeta, panel y nota `paso 3.5` | `tokens.md` c.3; `comun.md` §5.1; reporte | Ningún margen ni relleno fuera de la escala |
 | CD-18 | Sin valores arbitrarios (`mb-[18px]`, `py-[11px]`) ni medidas sueltas: solo pasos y tokens. Un valor del boceto se traslada al paso más cercano y no es propuesta | `tokens.md` c.3; `comun.md` §8 | `rg -n '\[[0-9]+px\]' src App.js` vacío al cierre |
-| CD-19 | Alto de HeaderMarca en MateriaSelect y Home = área segura superior + `paso 3.5` + `paso 11` + `paso 3.5`. Ni el contenido ni `numberOfLines` lo igualan | `comun.md` §1; D6 | Capturas de ambas: el primer bloque arranca en la misma ordenada |
+| CD-19 | Alto de HeaderMarca en MateriaSelect y Home = área segura superior + `paso 3.5` + (`paso 11` de cada opción del control de tema + `border` arriba y abajo de su contenedor) + `paso 3.5`. Ni el contenido ni `numberOfLines` lo igualan | `comun.md` §1; D6 | Capturas de ambas: el primer bloque arranca en la misma ordenada |
 | CD-20 | Una columna `max-w-columna` (448), centrada y anclada arriba en 768 y 1280; fondos y filetes de barra a todo el ancho; ninguna otra clase `max-w-*` | `comun.md` §7; `tokens.md` c.3 | `rg -n 'max-w-' src` solo `max-w-columna` |
 | CD-21 | Áreas seguras: HeaderMarca y barra interna suman la superior; las barras fijas, la inferior más `paso 4`; en apaisado, márgenes laterales no menores al área segura lateral | `comun.md` §5.1 | Captura con muesca |
 | CD-22 | Lámina o tarjeta con marcas de esquina: cuatro, `linea`, `border-2`, solo los dos lados hacia afuera, lado `paso 2`, sobresalen `paso 1`; decorativas | `comun.md` §6 | — |
@@ -122,7 +122,7 @@ Reglas transversales que el Programador y el Analista aplican en cada 3.x. «Viv
 
 | id | Convención | Vive hoy en | Cómo se verifica |
 |---|---|---|---|
-| CD-23 | Un paso tipográfico = `text-*` más `font-plex-*`, siempre juntos. El peso lo da la familia; interlineado en px; mayúsculas solo con `uppercase` en `rotulo`, con el texto fuente en caja normal. Sin cursiva, subrayado ni tachado; mínimo 11 px | `tokens.md` b.2, b.3 | `rg -n 'font-(bold\|semibold\|medium)\|italic\|underline\|line-through' src App.js` vacío al cierre |
+| CD-23 | Un paso tipográfico = `text-*` más `font-plex-*`, siempre juntos. El peso lo da la familia; interlineado en px; mayúsculas solo con `uppercase` en `rotulo`, con el texto fuente en caja normal. Sin cursiva, subrayado ni tachado; mínimo 11 px. Todo campo de texto editable y su placeholder van en `campo` (16 px o más): Safari de iPhone amplía la página al enfocar un campo menor (D10) | `tokens.md` b.2, b.3 | `rg -n 'font-(bold\|semibold\|medium)\|italic\|underline\|line-through' src App.js` vacío al cierre; cada `TextInput` del diff lleva `text-campo` |
 | CD-24 | Sin radios, sombras, gradientes ni transparencias de color: la elevación es filete. Única excepción: `strokeOpacity` del campo de filamentos (CD-16) | `tokens.md` a.2, c.1; D9 | `rg -n 'rounded-\|sombras\.' src App.js` vacío al cierre |
 
 ### 2.7 Datos y proceso
@@ -135,7 +135,9 @@ Reglas transversales que el Programador y el Analista aplican en cada 3.x. «Viv
 
 ---
 
-## 3. Gobernanza (propuesta del Diseñador; confirma el Ingeniero)
+## 3. Gobernanza (origen: Diseñador; estado: acordada, Ingeniero y Diseñador, 2026-10-10)
+
+Estado de G-1 a G-4: acordada (Ingeniero y Diseñador, 2026-10-10).
 
 | id | Regla | Origen |
 |---|---|---|
@@ -153,12 +155,11 @@ Reglas transversales que el Programador y el Analista aplican en cada 3.x. «Viv
 | `comun.md` §8 y §9 («Indicaciones de forma») | «El glifo chico … se dibuja sobre su propia grilla»; «cuadrícula de 24 para el glifo grande y propia para el chico» | Un viewBox común; el componente mantiene 1,5 px visibles (CD-9) | Diseñador | C5 | Aplicada (2026-10-10) |
 | `comun.md` §9, `glifo-reportar` | «si el usuario prefiere el rojo, `error` sobre `superficie`» | Sin alternativa roja: `tinta` (CD-14) | Diseñador | C4 | Aplicada (2026-10-10) |
 | `MateriaSelect.md` c, d.1 y f | «Banco real» sin cambio en Cargando y Próximamente; «cadena fija, igual en las seis tarjetas»; «aparece en las seis» | Cargando conserva las dos celdas; Próximamente, celda única a ancho completo; condición derivada del dato | Diseñador | C8 | Aplicada (2026-10-10) |
-| `tokens.md` c.2 | «1,5 · `strokeWidth` del SVG» | 1,5 px visibles a cualquier tamaño (CD-9) | Diseñador | C5 | Pendiente: `tokens.md` fuera de la ampliación de propiedad. Prevalece CD-9 (G-1) |
-| `tokens.md` a.2 y `comun.md` §0 | «Prohibido: transparencias de color» | Con la excepción de `strokeOpacity` del campo de filamentos (CD-24) | Diseñador | C7 | Pendiente: fuera de la ampliación. `design.md` D2 ya lleva la excepción |
 | `design.md` D10, Non-Goals, Context y D2/D3 | Sin regla de choque; «cambiar copy (salvo …)»; boceto sin versionar; ilustración con `id` | Orden de uso gana; copy aprobado; `diseno/referencia/`; contrato de datos con `encuadre` | Ingeniero | C1, C7, C10 | Aplicada (verificada con `git diff`) |
 | `proposal.md` línea 23 y «Open questions» 1 | «los reemplazan texto o glifos»; «¡» de RESULTS-P2 abierto | Glifo SVG con texto que acompaña; cerrada: RESULTS-P2 aprobada | Ingeniero | C1, C4 | Aplicada (verificada con `git diff`) |
 | `tasks.md` 3.1, 3.1b, 3.2, aceptación común de 3.x, 4.1, 5.0 | `webStyles.js` y `inject-pwa.js` sin dueño; 3.1b con la barra del quiz; 3.2 «ni en Cargando»; 390, 768 y 1280 px; sin retiro de legados | 3.1 y 4.1 reescriben los halos; 3.1b solo `App.js` e inset; 3.2 conserva Cargando; 360 y 320 px, `paso 2`, pares, sin legados; 5.0 | Ingeniero | C3, C6, C8, C9 | Aplicada (verificada con `git diff`) |
 | `tasks.md` 2.5, 2.6 y 3.2 (`regla`) | Sin tarea para `glifos.js`, `Glifo`, las generadas ni la regla graduada | Tareas 2.5 y 2.6; `regla` exportada desde `filamentos.js` en 3.2 | Ingeniero | C5, C7, C8 | Aplicada (verificada con `git diff`) |
 | `.gitignore` | `referencias-diseno/` entera | Sin cambio: `diseno/referencia/` no está ignorado | Ingeniero | C10 | No hace falta (`git check-ignore` sin salida) |
 | `svg/glifos/NOTAS-GLIFOS.md` §7, fila 1 | «Desvío de §9»: `viewBox` de 16 frente a la «cuadrícula de 24 para el glifo grande» | Sin desvío: `comun.md` §8 y §9 ya piden un viewBox común. 1.4 coincide con C5 y CD-9 (`24 / lado`) | Diseñador | C5 | Resuelta por la alineación de `comun.md` |
-| `comun.md` §9 y `svg/glifos/` | 35 ids en §9; 34 SVG | `glifo-eliminar` (fila de 1.3) sin dibujo | Diseñador (tarea) | C4, C5 | Pendiente: dibujarlo con las reglas de `NOTAS-GLIFOS.md` §1 a §3 |
+
+Cerradas por la tarea 1.4b (2026-10-10) y retiradas de la tabla: `tokens.md` c.2 (1,5 px visibles, CD-9), `tokens.md` a.2 y `comun.md` §0 (excepción de `strokeOpacity`, CD-24) y `glifo-eliminar` (SVG dibujado: 35 de 35). Sin alineaciones pendientes.

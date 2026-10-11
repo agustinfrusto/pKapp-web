@@ -7,7 +7,7 @@
 | Comunes | `comun.md`: §1 HeaderMarca, §2 control de tema, §5 estados (K2, K3), §6 lámina, §7 anchos, §8 dimensiones, §9 glifos |
 | Navegador | `headerShown: false`; header propio (HeaderMarca) |
 | Variantes | Con y sin banner de banco reducido (`materia.bancoReducido`); con y sin nota de privacidad (solo web) |
-| Fuera de alcance | Banner de banco reducido: su lugar está fijado; su ficha es 1.3 |
+| Fuera de alcance | Banner de banco reducido: su lugar está fijado; su ficha es `Banners.md` |
 | Propuestas | Sección f: `HOME-P2`. Sección h: conservado de main (D10). Comunes: `COMUN-P1`, `COMUN-P2` |
 
 ---
@@ -20,7 +20,7 @@
 |---|---|---|---|---|---|
 | 1 | HeaderMarca | — | Relleno `paso 5` | — | `comun.md` §1. Slot `izquierda`: botón «Cambiar materia». Control de tema a la derecha |
 | 2 | Tarjeta de materia | `paso 1.5` | `paso 5` | — | Ilustración, id, nombre y conteos (a.2) |
-| 3 | Banner de banco reducido (ver 1.3) | `paso 3` | `paso 5` | — | Solo si `materia.bancoReducido`. Sigue visible (D6) |
+| 3 | Banner de banco reducido (`Banners.md` a.1 y a.2) | `paso 3` | `paso 5` | — | Solo si `materia.bancoReducido`. Sigue visible (D6) |
 | 4 | Rótulo de sección | `paso 4` | `paso 5` | `paso 2` | «Plano / Acciones», entre la tarjeta de materia (o el banner, si hay) y la lista |
 | 5 | Lista de acciones | — | `paso 5` | `paso 2.5` entre acciones | Seis acciones, en el orden actual |
 | 6 | Nota de privacidad | `paso 6` | `paso 6` | — | Solo en web; centrada |
@@ -65,7 +65,7 @@ Relleno interno de la acción: `paso 3.5` en las cuatro caras.
 | Id de materia | `acento` | `superficie` | — | `rotulo` | — | — | T6 |
 | Nombre de materia | `tinta` | `superficie` | — | `titulo` | — | — | T2 |
 | Conteos | `tintaSec` | `superficie` | — | `detalle` | — | — | T4 |
-| Banner de banco reducido | ver 1.3 | | | | | | |
+| Banner de banco reducido | `Banners.md` b | | | | | | |
 | Rótulo de sección «Plano / Acciones» | `acento` | `fondo` | — | `rotulo` | — | — | T5 |
 | Acción primaria (K3) | `tinta` | `superficie` | `linea`, `border-2` | Título `item`; descripción `detalle` | — | Del cuadro de glifo (abajo) | T2, T4, N1, N2 |
 | Acción secundaria (K3) | `tinta` | `superficie` | `borde`, `border` | Título `item`; descripción `detalle` | — | Del cuadro de glifo (abajo) | T2, T4, N3, N4 |
@@ -80,8 +80,8 @@ Relleno interno de la acción: `paso 3.5` en las cuatro caras.
 | Secundaria | 2 | «Modo examen» | `glifo-examen` | `TopicSelect` con `mode: 'exam'` |
 | Secundaria | 3 | «Repasar fallos» | `glifo-repasar` | `TopicSelect` con `mode: 'failed'` |
 | Secundaria | 4 | «Mis estadísticas» | `glifo-estadisticas` | `Stats` |
-| Secundaria | 5 | «Agregar pregunta» | `glifo-agregar` | `AddQuestion` (ver 1.3) |
-| Secundaria | 6 | «Ajustes» | `glifo-ajustes` | `Settings` (ver 1.3) |
+| Secundaria | 5 | «Agregar pregunta» | `glifo-agregar` | `AddQuestion` (`AddQuestion.md`) |
+| Secundaria | 6 | «Ajustes» | `glifo-ajustes` | `Settings` (`Settings.md`) |
 
 ---
 
@@ -93,7 +93,7 @@ Relleno interno de la acción: `paso 3.5` en las cuatro caras.
 | Acción primaria (K3) | Borde `linea`, `border-2`; fondo `superficie` | Contorno web `linea`, `border` | Inversión total: fondo `tinta`; texto y glifos `fondo` | Contorno `foco`, `border-2`, separado `paso 0.5` | — | — | — | — |
 | Acción secundaria (K3) | Borde `borde`, `border` | Borde pasa a `linea` | Inversión total | Igual que primaria | — | — | — | — |
 | Tarjeta de materia | Estática (no es un control) | — | — | — | — | — | — | Conteo de preguntas reales y de preguntas extra, ambos visibles (d.1) |
-| Banner de banco reducido | ver 1.3 | ver 1.3 | ver 1.3 | ver 1.3 | — | — | Visible solo con `materia.bancoReducido` | — |
+| Banner de banco reducido | `Banners.md` c | `Banners.md` c | `Banners.md` c | `Banners.md` c | — | — | Visible solo con `materia.bancoReducido` | — |
 | Nota de privacidad | Estática | — | — | — | — | — | — | — |
 | Control de tema | `comun.md` §2 | `comun.md` §2 | `comun.md` §2 | `comun.md` §2 | `comun.md` §2 | — | — | — |
 
@@ -170,7 +170,7 @@ Solo quedan acá las que no admiten otra variante: las fija un invariante (D6, s
 | Boceto | Ficha | Motivo |
 |---|---|---|
 | «113 preguntas» como dato único | «{examCount} preguntas reales · {generatedCount} preguntas extra» | D6: origen visible; manda el dato y el copy actual |
-| Sin banner de banco reducido | Banner en su lugar (ver 1.3) | D6: banco reducido visible |
+| Sin banner de banco reducido | Banner en su lugar (`Banners.md` a.1) | D6: banco reducido visible |
 | Glifo de 26 en cuadro de 40 | Glifo `paso 6` en cuadro `paso 10` | Escala de tokens (`comun.md` §8): conserva el trazo de c.2 |
 
 ---

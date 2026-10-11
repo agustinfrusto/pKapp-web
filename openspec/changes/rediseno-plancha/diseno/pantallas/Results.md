@@ -7,7 +7,7 @@
 | Comunes | `comun.md`: §3 barra interna, §4 marcas de estado, §5 estados (K1, K2), §6 lámina, §7 anchos, §8 dimensiones, §9 glifos |
 | Navegador | Barra interna con título «pKapp · Resultados», sin volver (`headerBackVisible: false`) |
 | Variantes | Tramo alto, medio o bajo (a.2 de d); con y sin tira (hasta 40 respuestas); con y sin pedido de donación (solo web) |
-| Fuera de alcance | Revisión de respuestas (`showReview`, vista alternativa) y pedido de donación: su lugar está fijado; su ficha es 1.3 |
+| Fuera de alcance | Revisión de respuestas (`showReview`, vista alternativa) y pedido de donación: su lugar está fijado; sus fichas son `Revision.md` y `DonationBox.md` |
 | Propuestas | Sección f: `RESULTS-P1` a `RESULTS-P3`. Comunes: `COMUN-P2` |
 
 ---
@@ -21,11 +21,11 @@
 | 1 | Barra interna | — | — | — | `comun.md` §3, sin volver |
 | 2 | Tarjeta de resultado | `paso 4` | `paso 5` | `paso 3` | Lámina de `comun.md` §6; relleno `paso 4`; contenido alineado a la izquierda (a.2) |
 | 3 | Trío | — | `paso 5` | `paso 3` | Lámina de `comun.md` §6 con tres celdas (a.3) |
-| 4 | Pedido de donación (ver 1.3) | — | `paso 5` | `paso 3` | Condicional (d.2). Conserva su lugar actual: entre el trío y los botones |
+| 4 | Pedido de donación (`DonationBox.md` a.1) | — | `paso 5` | `paso 3` | Condicional (d.2). Conserva su lugar actual: entre el trío y los botones |
 | 5 | Botones | `paso 1.5` | `paso 5` | `paso 2.5` entre botones | Tres, en el orden actual |
 | 6 | Relleno inferior del scroll | — | — | `paso 8` | Fin del scroll |
 
-La acción «Revisar todas las respuestas» cambia la vista a la revisión en el mismo lugar, sin navegar: esa vista es de 1.3.
+La acción «Revisar todas las respuestas» cambia la vista a la revisión en el mismo lugar, sin navegar: esa vista es la ficha `Revision.md`.
 
 ### a.2 Interior de la tarjeta de resultado
 
@@ -78,8 +78,8 @@ Tres celdas de igual ancho, relleno vertical `paso 3`, separadas por filete vert
 | «Revisar todas las respuestas» (K2, acento) | `acento` | `superficie` | `acento`, `border` | `cuerpo-fuerte` | — | `glifo-revisar` (chico), delante del texto | T6, N18 |
 | «Volver a practicar» (K1) | `fondo` | `tinta` | `tinta`, `border` | `cuerpo-fuerte` | — | `glifo-reintentar` (chico), delante del texto | T7 |
 | «Inicio» (K2) | `tinta` | `superficie` | `linea`, `border` | `cuerpo-fuerte` | — | `glifo-inicio` (chico), delante del texto | T2, N2, N6 |
-| Pedido de donación | ver 1.3 | | | | | | |
-| Revisión de respuestas | ver 1.3 | | | | | | |
+| Pedido de donación | `DonationBox.md` b | | | | | | |
+| Revisión de respuestas | `Revision.md` b | | | | | | |
 
 Los tres botones tienen relleno vertical `paso 3.5` y texto centrado; el alto resultante supera `paso 11`. Cada uno lleva su glifo chico delante del texto, separado por `paso 2`; glifo y texto se centran como un grupo y el glifo toma el color del texto en todo estado (`comun.md` §9).
 
@@ -90,7 +90,7 @@ Los tres botones tienen relleno vertical `paso 3.5` y texto centrado; el alto re
 | Hasta 40 | Se muestran: una casilla por respuesta |
 | Más de 40 | Se omiten; el bloque se cierra sin dejar hueco |
 
-Con más de 40, a ancho de teléfono las casillas quedan demasiado finas. El detalle completo sigue en la revisión de respuestas (ver 1.3).
+Con más de 40, a ancho de teléfono las casillas quedan demasiado finas. El detalle completo sigue en la revisión de respuestas (`Revision.md`).
 
 ---
 
@@ -104,7 +104,7 @@ Con más de 40, a ancho de teléfono las casillas quedan demasiado finas. El det
 | Porcentaje y marca | Estático | — | — | — | — | — | `acierto` con `glifo-acierto` | `intermedia` con `glifo-intermedia` | `error` con `glifo-error` |
 | Tira | Estática | — | — | — | — | — | Casillas altas `acierto` y bajas `error`; la forma (alto) distingue sin color | Igual | Igual |
 | Trío | Estático | — | — | — | — | — | Cifras con su marca y su palabra | Igual | Igual |
-| Pedido de donación | ver 1.3 | ver 1.3 | ver 1.3 | ver 1.3 | — | — | Texto celebratorio desde `DONATION_WARM_SCORE` | — | — |
+| Pedido de donación | `DonationBox.md` c | `DonationBox.md` c | `DonationBox.md` c | `DonationBox.md` c | — | — | Texto celebratorio desde `DONATION_WARM_SCORE` | — | — |
 | Barra interna | `comun.md` §3 | | | | | | | | |
 
 Banco reducido y origen de la pregunta no aplican (—).
@@ -150,7 +150,7 @@ Los cortes 90, 75, 60 y 50 no cambian. La ficha solo traduce el tono de aviso qu
 | Incorrectas | `total - correctCount` | — |
 | Tema | `route.params.topic`, tal cual llega | Puede ser una clave de tema o «Todos los temas» |
 | Modo | `route.params.mode` | Solo viaja en los eventos |
-| Pedido de donación | `shouldShowDonation(percentage)`: solo web, con `percentage >= DONATION_MIN_SCORE`, contando en `localStorage` (`pkapp_donation_count`) | ver 1.3 |
+| Pedido de donación | `shouldShowDonation(percentage)`: solo web, con `percentage >= DONATION_MIN_SCORE`, contando en `localStorage` (`pkapp_donation_count`) | `DonationBox.md` d.1 |
 
 ### d.3 Invariantes
 
@@ -171,7 +171,7 @@ Los cortes 90, 75, 60 y 50 no cambian. La ficha solo traduce el tono de aviso qu
 |---|---|---|---|---|
 | `simulacro_terminado` | `ResultsScreen.js:61` | `{ mode, score: percentage, total }` | Una vez al montar, si hay respuestas | Tarjeta de resultado y trío (porcentaje, total). No se mueve |
 | `simulacro_aprobado` | `ResultsScreen.js:63` | `{ mode, score: percentage }` | Al montar, si `percentage >= APROBADO_MIN_SCORE` | Porcentaje, tramo alto o medio (d.1). No se mueve |
-| `donacion_click` | `ResultsScreen.js:247` | `{ origen: 'resultados', monto: amt }` | Al tocar un monto del pedido de donación | Pedido de donación (ver 1.3). No se toca |
+| `donacion_click` | `ResultsScreen.js:247` | `{ origen: 'resultados', monto: amt }` | Al tocar un monto del pedido de donación | Pedido de donación (`DonationBox.md` d.4). No se toca |
 
 ---
 
@@ -200,7 +200,7 @@ Cambios del boceto respecto de `main`, o de `main` respecto del boceto. El usuar
 |---|---|---|---|---|
 | RESULTS-P1 | La tarjeta de resultado arranca con el rótulo «Resultado» en `rotulo` y `tintaSec` (T4), alineado a la izquierda y sobre la fila de porcentaje, con margen inferior `paso 3`. Es el texto del boceto | Texto del boceto aprobado por el usuario; `main` no tiene el rótulo | visual | aprobada (usuario, 2026-10-10) |
 | RESULTS-P2 | El mensaje del tramo de 75 a 89 dice «Muy bien. Vas por buen camino.», sin signos, como en el boceto; `main` dice «¡Muy bien! Vas por buen camino.». Los otros cuatro mensajes de d.1 no cambian | Texto del boceto aprobado por el usuario | visual | aprobada (usuario, 2026-10-10) |
-| RESULTS-P3 | La tira tiene una casilla por respuesta cuando hay 40 o menos; con más, no se muestra, ni su leyenda. El boceto dibuja 24 casillas fijas | El total real varía; con más de 40 las casillas quedan demasiado finas a 390 px. El detalle completo sigue en la revisión de respuestas (ver 1.3) | visual | aprobada (usuario, 2026-10-10) |
+| RESULTS-P3 | La tira tiene una casilla por respuesta cuando hay 40 o menos; con más, no se muestra, ni su leyenda. El boceto dibuja 24 casillas fijas | El total real varía; con más de 40 las casillas quedan demasiado finas a 390 px. El detalle completo sigue en la revisión de respuestas (`Revision.md`) | visual | aprobada (usuario, 2026-10-10) |
 
 Propuestas comunes que alcanzan esta pantalla: `COMUN-P2` (estados de control).
 
@@ -213,5 +213,5 @@ Solo quedan acá las que no admiten otra variante: las fija un invariante (D6, s
 | Boceto | Ficha | Motivo |
 |---|---|---|
 | Porcentaje de un solo color y cifras ilustrativas | Tres tramos por `getResultFeedback`, con marca | D6 y spec «Estados semánticos distinguibles sin color» |
-| Sin pedido de donación | Conserva su lugar (ver 1.3) | D6: el evento `donacion_click` con `origen: 'resultados'` sigue emitiéndose desde esta pantalla |
-| Vista de revisión no dibujada (el botón sí está en el boceto) | Conserva la vista de `main` como destino del botón (ver 1.3) | El botón del boceto necesita su destino; la ficha de la vista es de 1.3 |
+| Sin pedido de donación | Conserva su lugar (`DonationBox.md` a.1) | D6: el evento `donacion_click` con `origen: 'resultados'` sigue emitiéndose desde esta pantalla |
+| Vista de revisión no dibujada (el botón sí está en el boceto) | Conserva la vista de `main` como destino del botón (`Revision.md`) | El botón del boceto necesita su destino; la ficha de la vista es `Revision.md` |

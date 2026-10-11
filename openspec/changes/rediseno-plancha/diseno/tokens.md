@@ -50,7 +50,7 @@ Nombre = clave en `plancha.claro` y `plancha.oscuro`. En Tailwind: `bg-fondo` y 
 | Placeholder | `tintaSec` (par T4) |
 | `meta theme-color` | Inicial, en `scripts/inject-pwa.js`: valor de `claro.fondo`. En ejecución: `fondo` del tema activo |
 | `StatusBar` | Contenido oscuro en claro y claro en oscuro (hoy `App.js` fija `light` siempre, por la banda navy) |
-| Prohibido | Gradientes, sombras, transparencias de color (el halo `rgba(...)` de `webStyles.js` sale al migrar) |
+| Prohibido | Gradientes, sombras, transparencias de color (el halo `rgba(...)` de `webStyles.js` sale al migrar). Única excepción: `strokeOpacity` del campo de filamentos (CD-24, `CONVENCIONES.md`; `design.md` D2). La ilustración de materia y el resto de la UI no la usan |
 
 ### a.3 Distinguibilidad de los tres estados
 
@@ -97,12 +97,15 @@ Cada paso es un `text-*` (tamaño, interlineado, espaciado) más un `font-plex-*
 | `item` | `text-item font-plex-sans-semibold` | Plex Sans | 600 | 16 | 22 | 0 | no | Nombre en lista (materia, tema), título de acción y de panel |
 | `cuerpo` | `text-cuerpo font-plex-sans` | Plex Sans | 400 | 15 | 22 | 0 | no | Texto de opción, explicación, mensaje, filtro en reposo |
 | `cuerpo-fuerte` | `text-cuerpo font-plex-sans-semibold` | Plex Sans | 600 | 15 | 22 | 0 | no | Botones, filtro o segmento activo, énfasis |
+| `campo` | `text-campo font-plex-sans` | Plex Sans | 400 | 16 | 22 | 0 | no | Texto escrito y texto de ayuda (placeholder) de todo campo de texto editable |
 | `detalle` | `text-detalle font-plex-sans` | Plex Sans | 400 | 13 | 18 | 0 | no | Descripción secundaria, pie de fila |
 | `rotulo` | `text-rotulo font-plex-mono uppercase` | Plex Mono | 400 | 11 | 16 | +0,66 | sí | Rótulos, metadatos, ids, chips, control de tema, leyendas, contadores |
 | `rotulo-medio` | `text-rotulo font-plex-mono-medium uppercase` | Plex Mono | 500 | 11 | 16 | +0,66 | sí | Valor dentro del cajetín («Preguntas 419») |
 | `dato` | `text-dato font-plex-mono-medium` | Plex Mono | 500 | 16 | 20 | 0 | no | Porcentaje en filas de estadísticas, letra de opción |
 | `cifra` | `text-cifra font-plex-mono-medium` | Plex Mono | 500 | 26 | 28 | 0 | no | Cifras del trío de resultados |
 | `display` | `text-display font-plex-mono-medium` | Plex Mono | 500 | 72 | 72 | −2,16 | no | Porcentaje de resultado |
+
+**Campo editable (D10).** Todo campo de texto editable usa `campo` (16 px) o un paso de 16 px o más, y su placeholder el mismo paso. Safari de iPhone amplía la página al enfocar un campo de menos de 16 px, y el viewport de `dist/index.html` no fija `maximum-scale`: con 16 px no hay ampliación y no se bloquea el zoom del usuario. Es un requisito técnico del Ingeniero; el nombre y el valor del paso son del Diseñador. `campo` no se usa en texto que no se edita: ahí rige la escala de arriba.
 
 ### b.3 Reglas
 
@@ -132,7 +135,7 @@ Cada paso es un `text-*` (tamaño, interlineado, espaciado) más un `font-plex-*
 | 1 | `border` | Marco de tarjeta, panel y control; divisores; base de barra |
 | 2 | `border-2` | Estado (acierto, error, seleccionado), acción primaria, panel de mezcla, contorno de foco |
 | 3 | `border-l-3` | Borde izquierdo de la nota o explicación |
-| 1,5 | `strokeWidth` del SVG | Trazo de glifos de acción (tarea 1.4) |
+| 1,5 | Visibles a cualquier tamaño: `stroke-width` del SVG = 1,5 × lado del viewBox / lado en px (con el `0 0 16 16` de 1.4, `24 / lado`) | Trazo de glifos (CD-9, `CONVENCIONES.md`; `svg/glifos/NOTAS-GLIFOS.md` §3) |
 
 Sin otros grosores: `border-4` y `border-8` quedan sin uso.
 
@@ -154,10 +157,10 @@ La escala por defecto de Tailwind (base 4 px) ya contiene todos los pasos del bo
 | `6` | 24 | Separación entre bloques |
 | `8` | 32 | Separación entre secciones |
 | `10` | 40 | Lado del cuadro de glifo |
-| `11` | 44 | Objetivo táctil mínimo (D10, 44 × 44 pt): alto de fila de control, filtro y barra; lado del cuadrado de paso; ancho de la celda de letra de una opción |
+| `11` | 44 | Objetivo táctil mínimo (D10, 44 × 44 pt): alto de fila de control, filtro y barra; alto útil de cada opción del control de tema (su contenedor suma el borde); lado del cuadrado de paso; ancho de la celda de letra de una opción |
 | `12` | 48 | Lado de la ilustración de materia en la tarjeta del selector; también el lado de la ilustración del estado vacío |
 | `16` | 64 | Ancho de la celda de ilustración en la tarjeta del selector; lado de la ilustración de materia en la tarjeta de Home |
-| `20` | 80 | Ancho mínimo del valor del temporizador del quiz |
+| `20` | 80 | Ancho mínimo del valor del temporizador del quiz; alto mínimo del campo multilínea de AddQuestion (enunciado y explicación) |
 | `24` | 96 | Ancho de la celda de ilustración en la tarjeta de materia de Home; relleno inferior del scroll del quiz (más el área segura inferior) |
 | `28` | 112 | Alto del campo de filamentos del selector |
 
@@ -198,6 +201,7 @@ fontSize: {
   marca:   ['28px', { lineHeight: '28px', letterSpacing: '-0.28px' }],
   titulo:  ['18px', { lineHeight: '24px' }],
   item:    ['16px', { lineHeight: '22px' }],
+  campo:   ['16px', { lineHeight: '22px' }],
   cuerpo:  ['15px', { lineHeight: '22px' }],
   detalle: ['13px', { lineHeight: '18px' }],
   rotulo:  ['11px', { lineHeight: '16px', letterSpacing: '0.66px' }],
@@ -219,7 +223,7 @@ maxWidth: {
 // spacing: sin cambios (escala por defecto de Tailwind, base 4 px).
 ```
 
-Los pasos `cuerpo-fuerte` y `rotulo-medio` reutilizan `text-cuerpo` y `text-rotulo` con otra familia: no necesitan clave de `fontSize`. Los nombres de `fontSize` no chocan con ninguna clave de color ni con las claves actuales (`xxs`, `xs`, `sm`, `base`, `md`, `lg`, `xl`, `display-sm`, `display-md`, `display-lg`), que siguen hasta que las tareas 3.x retiren su último uso. Verificado en seco con Tailwind 3.4.19 y el preset de NativeWind, en una configuración temporal fuera del repo: `text-rotulo` emite `font-size: 11px; line-height: 16px; letter-spacing: 0.66px`, `border-l-3` emite `3px`, `rounded-full` emite `0px`, `font-plex-sans-semibold` emite `PlexSans-SemiBold, system-ui, sans-serif`, `dark:bg-fondoD` resuelve con la variante `.dark` y `max-w-columna` emite `max-width: 448px` (misma comprobación en seco, con `maxWidth.columna` en `theme.extend`).
+Los pasos `cuerpo-fuerte` y `rotulo-medio` reutilizan `text-cuerpo` y `text-rotulo` con otra familia: no necesitan clave de `fontSize`. `campo` sí la lleva (`text-campo`, 16 px con interlineado de 22 px, como `item`) y se escribe con `font-plex-sans`; su nombre no existe en `tailwind.config.js` ni como clave de `colores.js` (`rg -nw campo`: solo comentarios). Los nombres de `fontSize` no chocan con ninguna clave de color ni con las claves actuales (`xxs`, `xs`, `sm`, `base`, `md`, `lg`, `xl`, `display-sm`, `display-md`, `display-lg`), que siguen hasta que las tareas 3.x retiren su último uso. Verificado en seco con Tailwind 3.4.19 y el preset de NativeWind, en una configuración temporal fuera del repo: `text-rotulo` emite `font-size: 11px; line-height: 16px; letter-spacing: 0.66px`, `border-l-3` emite `3px`, `rounded-full` emite `0px`, `font-plex-sans-semibold` emite `PlexSans-SemiBold, system-ui, sans-serif`, `dark:bg-fondoD` resuelve con la variante `.dark` y `max-w-columna` emite `max-width: 448px` (misma comprobación en seco, con `maxWidth.columna` en `theme.extend`).
 
 ### d.2 Color (cableado propuesto, lo decide 2.3)
 

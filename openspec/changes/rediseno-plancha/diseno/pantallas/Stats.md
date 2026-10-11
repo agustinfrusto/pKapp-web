@@ -7,7 +7,7 @@
 | Comunes | `comun.md`: §3 barra interna, §4 marcas de estado, §5 estados (K7), §6 lámina, §7 anchos, §8 dimensiones, §9 glifos |
 | Navegador | Barra interna con título «pKapp · Estadísticas» y volver |
 | Variantes | Con datos; fila con práctica o «Sin practicar»; con y sin «Más falladas» |
-| Fuera de alcance | Estado vacío «Sin estadísticas todavía» (`totalAnswered === 0`): su lugar está fijado; su ficha es 1.3 |
+| Fuera de alcance | Estado vacío «Sin estadísticas todavía» (`totalAnswered === 0`): su lugar está fijado; su ficha es `Vacios.md` (V1) |
 | Propuestas | Sección f: `STATS-P1`, `STATS-P2` y `STATS-P5`. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
 
 ---
@@ -86,7 +86,7 @@ Filete superior `filete`; relleno vertical `paso 3`; primera línea con marca de
 | Valor de falladas | Color de su banda | `fondo` | — | `rotulo-medio` | — | Marca de banda (chico) | T10, T18, T14 |
 | Enunciado de falladas | `tinta` | `fondo` | — | `cuerpo` | — | — | T1 |
 | Tema de falladas | `tintaSec` | `fondo` | — | `detalle` | — | — | T3 |
-| Estado vacío | ver 1.3 | | | | | | |
+| Estado vacío | `Vacios.md` b | | | | | | |
 
 ---
 
@@ -151,7 +151,7 @@ Los cortes 80 y 60 no cambian. La ficha solo traduce el tono de aviso que hoy us
 |---|---|
 | Cortes 80 y 60 | d.1 |
 | Tres bandas distinguibles sin color | Marca, posición respecto de las marcas de umbral y leyenda (c) |
-| Estado vacío | `totalAnswered === 0` muestra «Sin estadísticas todavía»: ver 1.3 |
+| Estado vacío | `totalAnswered === 0` muestra «Sin estadísticas todavía»: `Vacios.md` (V1) |
 | Orden de filas | El de `TOPICS` |
 | Sin emoji, radio ni sombra | El emoji del estado vacío, `rounded-*` y `sombras.cardAlta` salen de esta pantalla |
 | Color por `style` | El color depende de un valor calculado; sale del token de su banda, no de un literal |

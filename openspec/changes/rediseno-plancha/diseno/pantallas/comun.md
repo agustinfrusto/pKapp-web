@@ -6,7 +6,7 @@
 | Rama | `rediseno` |
 | Insumos | `tokens.md` (1.1), `hibrido.html`, `NOTAS.md`, `src/components/HeaderMarca.js`, `src/screens/*Screen.js`, `App.js` |
 | Lo usan | `MateriaSelect.md`, `Home.md`, `TopicSelect.md`, `Quiz.md`, `Results.md`, `Stats.md` |
-| Fuera de alcance (1.3) | AddQuestion, revisión de respuestas, examen en curso (quiz sin feedback), Settings, DonationBox, estados vacíos, banners y distinción de parciales. Se marcan «ver 1.3» |
+| Resuelto en 1.3 | `AddQuestion.md`, `Revision.md`, `ExamenEnCurso.md`, `Settings.md`, `DonationBox.md`, `Vacios.md` y `Banners.md`; la distinción de parciales está en §12. Las referencias de las fichas de 1.2 apuntan a archivo y sección |
 | Glifos | Se nombran en §9, con su función y el porqué de su color; se dibujan en 1.4 |
 | Propuestas | §11 (`COMUN-P1`, `COMUN-P2`) y sección f de cada ficha. Aprobadas por el usuario el 2026-10-10 (D10). Lo conservado de `main` va en la sección h de cada ficha |
 | Orden de lectura | Primero este archivo; cada ficha lo cita por sección (§N) y por clase de control (K1 a K7) |
@@ -23,13 +23,13 @@
 | `paso N` | Paso de espaciado de `tokens.md` c.3 (`p-N`, `m-N`, `gap-N`, `h-N`, `w-N`) |
 | T#, N#, X# | Pares de contraste de `tokens.md` e |
 | K1 a K7 | Clases de control de §5 |
-| «ver 1.3» | El elemento aparece en la pantalla; su ficha es de la tarea 1.3 |
+| Fichas de 1.3 | `AddQuestion.md`, `Settings.md`, `DonationBox.md`, `Revision.md`, `ExamenEnCurso.md`, `Vacios.md` y `Banners.md`; sus propuestas llevan los prefijos `ADD-`, `SET-`, `DON-`, `REV-`, `EXA-`, `VAC-`, `BAN-` y `PAR-` |
 | «—» | No aplica |
 | `COMUN-P#`, `MATERIA-P#`, `HOME-P#`, `TOPIC-P#`, `QUIZ-P#`, `RESULTS-P#`, `STATS-P#` | Propuestas aprobadas por el usuario el 2026-10-10 (D10): §11 y sección f de cada ficha. Los ids son únicos en todo el change; 1.3 usa sus propios prefijos |
 
 | Prohibido en todas las fichas | Origen |
 |---|---|
-| Radios, sombras, gradientes, transparencias de color, opacidad como estado | D9; `tokens.md` a.2 y c.1 |
+| Radios, sombras, gradientes, transparencias de color, opacidad como estado. Única excepción: `strokeOpacity` del campo de filamentos, solo en `MateriaSelect.md` (CD-24) | D9; `tokens.md` a.2 y c.1; `CONVENCIONES.md` CD-24 |
 | Cursiva, subrayado, tachado | `tokens.md` b.3 |
 | Emojis | spec `design-system`, «Interfaz sin emojis» |
 | Valores hexadecimales, medidas sueltas y valores arbitrarios `[N]` | brief 1.2; `tokens.md` c.3 |
@@ -45,13 +45,13 @@ Fila superior compartida. Reemplaza al bloque actual (fila, logo e imagen, bloqu
 |---|---|---|---|
 | Contenedor | Ancho completo | Fondo `fondo`; sin borde inferior | El primer bloque de cada pantalla trae su propio marco |
 | Relleno | Superior, inferior y lateral | Superior: área segura superior más `paso 3.5`; inferior `paso 3.5`; lateral `paso 5` | D10, áreas seguras |
-| Fila | Slot `izquierda`, control de tema | Alto fijo `paso 11`; distribución entre extremos; centrada en vertical | El alto no depende del contenido de `izquierda` |
+| Fila | Slot `izquierda`, control de tema | Alto fijo: `paso 11` de cada opción del control de tema más el `border` superior e inferior de su contenedor; distribución entre extremos; centrada en vertical | El alto no depende del contenido de `izquierda`. El botón «Cambiar materia» (`paso 11`) queda centrado en la fila |
 | Slot `izquierda` | MateriaSelect: vacío. Home: botón «Cambiar materia» (ficha de Home) | — | Vacío o con botón, la fila mide lo mismo |
-| Control de tema | Segmentado «Claro \| Oscuro», con glifo y texto en cada opción (§2) | Alto `paso 11` | Siempre a la derecha |
+| Control de tema | Segmentado «Claro \| Oscuro», con glifo y texto en cada opción (§2) | Alto útil de cada opción `paso 11`; el contenedor suma su `border` arriba y abajo (§2.1) | Siempre a la derecha |
 
 | Invariante D6 | Cómo se cumple |
 |---|---|
-| Altura igual de header entre MateriaSelect y Home | Alto del header = área segura superior + `paso 3.5` + `paso 11` + `paso 3.5` en las dos pantallas. Ningún texto, imagen ni botón lo estira. El primer bloque debajo arranca en la misma ordenada en ambas |
+| Altura igual de header entre MateriaSelect y Home | Alto del header = área segura superior + `paso 3.5` + (`paso 11` + `border` arriba y abajo del control de tema) + `paso 3.5` en las dos pantallas. Ningún texto, imagen ni botón lo estira. El primer bloque debajo arranca en la misma ordenada en ambas |
 | Prohibido | Alto por contenido, `numberOfLines` como forma de igualar alturas, segundo texto dentro del header |
 
 ---
@@ -64,11 +64,11 @@ Reemplaza al `Switch` y al emoji de sol o luna que lo acompaña hoy (`HeaderMarc
 
 | Elemento | Frente | Fondo | Borde | Paso | Notas |
 |---|---|---|---|---|---|
-| Contenedor | — | `fondo` | `linea`, `border` | Alto `paso 11` | N1. Agrupa las dos opciones |
+| Contenedor | — | `fondo` | `linea`, `border` | Alto `paso 11` de la opción más el `border` superior e inferior | N1. Agrupa las dos opciones; el borde queda fuera del alto útil, que cumple D10 (44 × 44) |
 | Opción en reposo | `tinta` (texto y glifo) | `fondo` | — | `rotulo` | T1, N5. Glifo chico sobre el texto, centrados y separados por `paso 0.5`. Texto fuente «Claro» u «Oscuro» en caja normal; el paso lo pasa a mayúsculas |
 | Opción seleccionada | `fondo` (texto y glifo) | `tinta` | — | `rotulo` | T7, N5. La inversión de valor se lee en escala de grises |
-| Relleno horizontal | — | — | — | `paso 2` por opción | Ancho por contenido; cada opción mide al menos `paso 11` de ancho |
-| Disposición | — | — | — | Glifo sobre texto, dentro del alto del contenedor | Apilados, el control ocupa menos ancho que con el glifo delante del texto: junto al botón «Cambiar materia» de Home la fila entra en teléfonos más angostos que el de referencia (390 px) sin cortar texto |
+| Relleno horizontal | — | — | — | `paso 2` por opción | Ancho por contenido; cada opción mide al menos `paso 11` de ancho y `paso 11` de alto útil |
+| Disposición | — | — | — | Glifo sobre texto, dentro del alto útil de la opción | Apilados, el control ocupa menos ancho que con el glifo delante del texto: junto al botón «Cambiar materia» de Home la fila entra en teléfonos más angostos que el de referencia (390 px) sin cortar texto |
 
 ### 2.2 Estados
 
@@ -100,7 +100,7 @@ Header del Stack de las pantallas internas. Reemplaza la banda de marca y el tí
 |---|---|
 | Dueña | Tarea 3.1b (`tasks.md`) |
 | Dónde vive | `App.js`: `screenOptions` del Stack (aspecto común) y `options` por ruta (título y volver visible o no) |
-| La usan | TopicSelect, Stats y Results (sin volver); AddQuestion y Settings (ver 1.3) |
+| La usan | TopicSelect, Stats y Results (sin volver); `AddQuestion.md` a.1 y `Settings.md` a.1 |
 | No la usan | MateriaSelect y Home (`headerShown: false`, HeaderMarca) y Quiz (`QUIZ-P1`: `headerShown: false` y barra propia) |
 | Reemplaza | `headerStyle`, `headerTintColor` y `headerTitleStyle` actuales y la flecha de texto del `headerLeft` de web |
 
@@ -117,7 +117,7 @@ Header del Stack de las pantallas internas. Reemplaza la banda de marca y el tí
 
 | Variante | Condición | Volver | Título | Filete |
 |---|---|---|---|---|
-| Con volver | Ruta con historial atrás y sin `headerBackVisible: false` (TopicSelect, Stats; AddQuestion y Settings: ver 1.3) | Visible (K7) | A la derecha del volver, separado `paso 3.5` | Inferior `linea`, `border`, a ancho completo |
+| Con volver | Ruta con historial atrás y sin `headerBackVisible: false` (TopicSelect, Stats; AddQuestion y Settings: `AddQuestion.md` a.1, `Settings.md` a.1) | Visible (K7) | A la derecha del volver, separado `paso 3.5` | Inferior `linea`, `border`, a ancho completo |
 | Sin volver | `headerBackVisible: false` (Results) | Ausente; el título arranca en el margen lateral `paso 5` | Igual | Igual |
 | Quiz | `QUIZ-P1` aprobada: `headerShown: false` | — | — | Lo pone la barra del quiz (`Quiz.md`) |
 
@@ -134,8 +134,8 @@ Header del Stack de las pantallas internas. Reemplaza la banda de marca y el tí
 | TopicSelect | «pKapp · Elegir tema» |
 | Results | «pKapp · Resultados» |
 | Stats | «pKapp · Estadísticas» |
-| AddQuestion | «pKapp · Agregar pregunta» (ver 1.3) |
-| Settings | «pKapp · Ajustes» (ver 1.3) |
+| AddQuestion | «pKapp · Agregar pregunta» (`AddQuestion.md`) |
+| Settings | «pKapp · Ajustes» (`Settings.md`) |
 | Quiz | Sin título visible: `QUIZ-P1` aprobada (`headerShown: false`) |
 
 ### 3.4 Contrato de comportamiento (lo que 3.1b verifica)
@@ -251,10 +251,11 @@ Pasos que fijan tamaños de componente. Todos figuran en `tokens.md` c.3: los pa
 | Componente | Dimensión | Paso |
 |---|---|---|
 | Fila de control y objetivo táctil mínimo | Alto (y ancho de cuadrados) | `paso 11` |
+| Opción del control de tema | Alto útil; el contenedor suma su `border` arriba y abajo | `paso 11` |
 | Cuadro del glifo de acción (Home) | Lado | `paso 10` |
 | Glifo grande (volver, cerrar, siguiente, acción) | Lado | `paso 6` |
 | Glifo chico (marcas inline, chevron, reloj, origen) | Lado; mismo viewBox que el grande | `paso 4` |
-| Glifo de estado vacío (ver 1.3) | Lado; el trazo se compensa para quedar en el grosor de c.2 | `paso 12` |
+| Glifo de estado vacío (`Vacios.md` a.2) | Lado; el trazo se compensa para quedar en el grosor de c.2 | `paso 12` |
 | Celda de ilustración en tarjeta de selector | Ancho | `paso 16` |
 | Ilustración en tarjeta de selector | Lado | `paso 12` |
 | Celda de ilustración en tarjeta de materia (Home) | Ancho | `paso 24` |
@@ -278,7 +279,7 @@ Los valores del boceto se trasladan al paso más cercano de la escala (`tokens.m
 
 ## 9. Inventario de glifos
 
-Un id por glifo; se dibujan en 1.4, trazo de c.2, sin relleno, en `currentColor`. Cada emoji o símbolo de texto que la interfaz muestra hoy tiene su glifo: ninguno se retira solo con texto (spec `design-system`, «Interfaz sin emojis»). El texto puede acompañar al glifo, no lo reemplaza. La fuente del inventario es `rg` de emojis y símbolos en `src/screens`, `src/components` y `App.js`. La columna «Reemplaza» es la única de las fichas que nombra emojis.
+Un id por glifo; se dibujan en 1.4 (y `glifo-eliminar` en 1.4b), sin relleno, en `currentColor`, en un único `viewBox 0 0 16 16` (grande, chico y vacío son el mismo archivo) y con el trazo de c.2 compensado por el componente (`svg/glifos/NOTAS-GLIFOS.md` §1 y §3). Cada emoji o símbolo de texto que la interfaz muestra hoy tiene su glifo: ninguno se retira solo con texto (spec `design-system`, «Interfaz sin emojis»). El texto puede acompañar al glifo, no lo reemplaza. La fuente del inventario es `rg` de emojis y símbolos en `src/screens`, `src/components` y `App.js`. La columna «Reemplaza» es la única de las fichas que nombra emojis.
 
 | Criterio de color | Detalle |
 |---|---|
@@ -289,45 +290,45 @@ Un id por glifo; se dibujan en 1.4, trazo de c.2, sin relleno, en `currentColor`
 
 | Id | Reemplaza | Lo usa | Tamaño | Función | Color y par | Por qué este color |
 |---|---|---|---|---|---|---|
-| `glifo-volver` | `←` (`HomeScreen.js:47`, `App.js:177`, `ResultsScreen.js:168`) | Home (botón «Cambiar materia»); barra interna (TopicSelect, Stats; AddQuestion y Settings: ver 1.3); Results, revisión (ver 1.3) | grande | Acción: volver a la pantalla anterior | `tinta` sobre `fondo` (N5); presionado `fondo` sobre `tinta` (T7) | Era la flecha de texto del botón, del color de su texto. Es navegación sin carga de estado: `tinta` la deja al nivel del rótulo del botón y reserva el acento para marca e identidad |
-| `glifo-chevron` | `›` (`HomeScreen.js:159`); `▲` y `▼` de los plegables (`SettingsScreen.js:110` y `158`), girado | Home (acciones); TopicSelect (filas de tema); Settings «Ver» y «Ocultar», girado (ver 1.3) | chico | Decoración funcional: la fila abre otra pantalla; en Settings, plegado o desplegado | `tintaSec` sobre `fondo` (N19) y sobre `superficie` (N20); en Settings, `acento` sobre `superficie` (N18) | En listas es una señal secundaria: se ve sin competir con el nombre de la fila (`tinta`) y por eso va un escalón abajo. El plegable de Ajustes era texto de acento, una acción: conserva ese rol con `acento` |
-| `glifo-cerrar` | `✕` (`QuizScreen.js:175`, `MateriaSelectScreen.js:92`, `ResultsScreen.js:263`, `AddQuestionScreen.js:203`) | Quiz (salir); nota del creador y pedido de donación (ver 1.3); AddQuestion, quitar opción (ver 1.3) | grande, objetivo `paso 11` | Acción: salir, descartar o quitar | Quiz: `tinta` sobre `fondo` (N5). Notas, donación y opciones: `tintaSec` sobre `superficie` (N20) | En el quiz es la única salida visible y pierde el progreso, con confirmación: va en `tinta` y no en `error`, que está reservado a respuesta incorrecta y banda baja (a.1). Descartar una nota o quitar una opción es menor: un escalón abajo, `tintaSec` |
+| `glifo-volver` | `←` (`HomeScreen.js:47`, `App.js:177`, `ResultsScreen.js:168`) | Home (botón «Cambiar materia»); barra interna (TopicSelect, Stats; AddQuestion y Settings: `AddQuestion.md` a.1, `Settings.md` a.1); Results, revisión («Volver» de arriba con `REV-P2` y «Volver» final: `Revision.md` b) | grande | Acción: volver a la pantalla anterior | `tinta` sobre `fondo` (N5); presionado `fondo` sobre `tinta` (T7) | Era la flecha de texto del botón, del color de su texto. Es navegación sin carga de estado: `tinta` la deja al nivel del rótulo del botón y reserva el acento para marca e identidad |
+| `glifo-chevron` | `›` (`HomeScreen.js:159`); `▲` y `▼` de los plegables (`SettingsScreen.js:110` y `158`), girado | Home (acciones); TopicSelect (filas de tema); Settings «Ver» y «Ocultar», girado (`Settings.md` a.3) | chico | Decoración funcional: la fila abre otra pantalla; en Settings, plegado o desplegado | `tintaSec` sobre `fondo` (N19) y sobre `superficie` (N20); en Settings, `acento` sobre `superficie` (N18) | En listas es una señal secundaria: se ve sin competir con el nombre de la fila (`tinta`) y por eso va un escalón abajo. El plegable de Ajustes era texto de acento, una acción: conserva ese rol con `acento` |
+| `glifo-cerrar` | `✕` (`QuizScreen.js:175`, `MateriaSelectScreen.js:92`, `ResultsScreen.js:263`, `AddQuestionScreen.js:203`) | Quiz (salir); nota del creador (`Banners.md` a.2) y pedido de donación (`DonationBox.md` a.2); AddQuestion, quitar opción (`AddQuestion.md` a.2) | grande, objetivo `paso 11` | Acción: salir, descartar o quitar | Quiz: `tinta` sobre `fondo` (N5). Notas, donación y opciones: `tintaSec` sobre `superficie` (N20) | En el quiz es la única salida visible y pierde el progreso, con confirmación: va en `tinta` y no en `error`, que está reservado a respuesta incorrecta y banda baja (a.1). Descartar una nota o quitar una opción es menor: un escalón abajo, `tintaSec` |
 | `glifo-siguiente` | `→` (`QuizScreen.js:323`) | Quiz («Siguiente», «Ver resultados») | grande | Acción: avanzar | `fondo` sobre `tinta` (T7, el par de N5) | Vive dentro del botón relleno (K1): hereda el color del texto y se lee con él como una sola acción primaria |
-| `glifo-acierto` | `✓` (`QuizScreen.js:262`, `ResultsScreen.js:105` y `138`, `AddQuestionScreen.js:175` y `186`) | Quiz (opción correcta); Results (marca del tramo alto, trío, revisión: ver 1.3); Stats (banda alta, leyenda); AddQuestion (correcta marcada: ver 1.3) | chico | Estado: correcta, banda alta | `acierto` sobre `fondo` (N9), `superficie` (N10) y `aciertoFondo` (N11) | Verde sobrio del boceto y el mismo token del marco y del relleno de la opción correcta: no suma un color. No depende solo del color: la silueta (tilde) y el texto «Correcta» lo sostienen en escala de grises (spec) |
-| `glifo-error` | `✗` (`QuizScreen.js:266`, `ResultsScreen.js:105` y `139`) | Quiz (opción incorrecta); Results (marca del tramo bajo, trío, revisión: ver 1.3); Stats (banda baja, leyenda, «Más falladas») | chico | Estado: incorrecta, banda baja | `error` sobre `fondo` (N12), `superficie` (N13) y `errorFondo` (N14) | Rojo sobrio del boceto, reservado a respuesta incorrecta y banda de menos de 60. La silueta (aspa) y la palabra «Incorrecta» sostienen el estado sin color |
+| `glifo-acierto` | `✓` (`QuizScreen.js:262`, `ResultsScreen.js:105` y `138`, `AddQuestionScreen.js:175` y `186`) | Quiz (opción correcta); Results (marca del tramo alto, trío, revisión: `Revision.md` a.3); Stats (banda alta, leyenda); AddQuestion (correcta marcada: `AddQuestion.md` a.2); Settings («Mis preguntas», correcta de cada tarjeta: `Settings.md` a.4) | chico | Estado: correcta, banda alta | `acierto` sobre `fondo` (N9), `superficie` (N10) y `aciertoFondo` (N11) | Verde sobrio del boceto y el mismo token del marco y del relleno de la opción correcta: no suma un color. No depende solo del color: la silueta (tilde) y el texto «Correcta» lo sostienen en escala de grises (spec) |
+| `glifo-error` | `✗` (`QuizScreen.js:266`, `ResultsScreen.js:105` y `139`) | Quiz (opción incorrecta); Results (marca del tramo bajo, trío, revisión: `Revision.md` a.3); Stats (banda baja, leyenda, «Más falladas») | chico | Estado: incorrecta, banda baja | `error` sobre `fondo` (N12), `superficie` (N13) y `errorFondo` (N14) | Rojo sobrio del boceto, reservado a respuesta incorrecta y banda de menos de 60. La silueta (aspa) y la palabra «Incorrecta» sostienen el estado sin color |
 | `glifo-intermedia` | Ninguno: hoy la banda lleva tono de aviso sin marca (`StatsScreen.js:195`, `ResultsScreen.js:299`) | Stats (banda 60–79, leyenda); Results (tramo medio) | chico | Estado: rendimiento intermedio | `intermedia` sobre `fondo` (N15) y `superficie` (N16) | El ámbar de `main` no existe en la paleta Plancha. El acero separa la banda del verde y del rojo en protanopía y deuteranopía (`tokens.md` a.3); la forma (dos trazos) hace el resto |
 | `glifo-menos` | `−` (`TopicSelectScreen.js:314`) | TopicSelect (temporizador) | chico | Acción: reducir el tiempo | `tinta` sobre `superficie` (N6); en el extremo, `inactivo` sobre `superficie` (X5, exento) | Acción neutra dentro de un cuadrado de marco `linea`. El extremo se apaga con `inactivo` y borde `filete` (estado «deshabilitado»): no depende solo del color, porque el borde también cambia |
-| `glifo-mas` | `+` (`TopicSelectScreen.js:326`) | TopicSelect (temporizador) | chico | Acción: aumentar el tiempo | Igual que `glifo-menos` | Igual que `glifo-menos` |
+| `glifo-mas` | `+` (`TopicSelectScreen.js:326`) | TopicSelect (temporizador); AddQuestion («Agregar opción»: `AddQuestion.md` a.2) | chico | Acción: aumentar el tiempo | Igual que `glifo-menos` | Igual que `glifo-menos` |
 | `glifo-claro` | ☀️ (`HeaderMarca.js:41`) | Control «Claro \| Oscuro» (HeaderMarca: MateriaSelect y Home), opción «Claro» | chico | Estado y acción: modo claro activo y elegirlo | El del texto de su opción: `tinta` sobre `fondo` (N5); seleccionada, `fondo` sobre `tinta` (T7) | El emoji era el indicador del `Switch`, con su propio color. Ahora el estado lo da la inversión `tinta`/`fondo` del segmento y el glifo hereda ese color: el control no suma un segundo indicador de color que compita con los estados semánticos |
 | `glifo-oscuro` | 🌙 (`HeaderMarca.js:41`) | Control «Claro \| Oscuro» (HeaderMarca), opción «Oscuro» | chico | Estado y acción: modo oscuro activo y elegirlo | Igual que `glifo-claro` | Igual que `glifo-claro` |
-| `glifo-explicacion` | 💡 (`QuizScreen.js:295`, `ResultsScreen.js:148`) | Quiz (rótulo «Nota / Explicación»); Results, revisión (ver 1.3) | chico | Aviso: dato adicional sobre la pregunta | `acento` sobre `superficie` (N18) | La bombilla marcaba «dato extra». En Plancha ese rol es de la nota, cuyo rótulo y borde izquierdo ya son `acento` (a.1): el glifo comparte color con su rótulo y la nota se lee como una pieza |
+| `glifo-explicacion` | 💡 (`QuizScreen.js:295`, `ResultsScreen.js:148`) | Quiz (rótulo «Nota / Explicación»); Results, revisión (`Revision.md` a.3) | chico | Aviso: dato adicional sobre la pregunta | `acento` sobre `superficie` (N18) | La bombilla marcaba «dato extra». En Plancha ese rol es de la nota, cuyo rótulo y borde izquierdo ya son `acento` (a.1): el glifo comparte color con su rótulo y la nota se lee como una pieza |
 | `glifo-reloj` | ⏱ (`QuizScreen.js:191`) | Quiz (cuenta regresiva) | chico | Aviso: tiempo restante, alerta con menos de 120 s | `tinta` sobre `fondo` (N5); con menos de 120 s, `error` sobre `fondo` (N12) y marco `error`, `border-2` | En `main` el tiempo pasa a rojo claro bajo 120 s: `error` conserva ese aviso y el marco suma la señal sin color. Con tiempo de sobra el reloj es neutro para no competir con el enunciado |
-| `glifo-reportar` | 🚩 (`QuizScreen.js:306`, `ResultsScreen.js:158`) | Quiz («Reportar pregunta»); Results, revisión (ver 1.3) | chico | Aviso: señalar un problema en la pregunta | `tinta` sobre `superficie` (N6) | La bandera roja avisaba de un problema. Acá es una utilidad secundaria que aparece junto a «Correcta» o «Incorrecta»: un glifo rojo se leería como otro estado de error de la respuesta. La forma y el texto llevan el aviso. Sin alternativa roja (`CONVENCIONES.md`, CD-14) |
+| `glifo-reportar` | 🚩 (`QuizScreen.js:306`, `ResultsScreen.js:158`) | Quiz («Reportar pregunta»); Results, revisión (`Revision.md` a.3) | chico | Aviso: señalar un problema en la pregunta | `tinta` sobre `superficie` (N6) | La bandera roja avisaba de un problema. Acá es una utilidad secundaria que aparece junto a «Correcta» o «Incorrecta»: un glifo rojo se leería como otro estado de error de la respuesta. La forma y el texto llevan el aviso. Sin alternativa roja (`CONVENCIONES.md`, CD-14) |
 | `glifo-origen-examen` | 📄 (`QuizScreen.js:219`) | Quiz (chip de origen `exam`) | chico | Origen: pregunta de examen real | `acento` sobre `superficie` (N18), en chip de marco `acento` | El examen real es la procedencia que más importa y toma el único color de marca. Marco y glifo del mismo color forman una pieza, y el fondo vacío lo separa de la generada |
 | `glifo-origen-generada` | ✨ (`QuizScreen.js:222`) | Quiz (chip de origen `generated`) | chico | Origen: pregunta generada | `fondo` sobre `tinta` (T7, el par de N5), en chip relleno | D6 pide que una generada nunca se presente como de examen real: el chip va relleno en `tinta`, silueta opuesta al marco del examen, y no comparte color con él: la diferencia no depende del matiz |
 | `glifo-origen-propia` | 👤 (`QuizScreen.js:225`) | Quiz (chip de origen `user`) | chico | Origen: pregunta del propio usuario | `tinta` sobre `superficie` (N6), en chip de marco `linea` | Es contenido del usuario: no certifica ni advierte, así que va neutro. Se distingue de las otras dos por silueta y texto, sin color |
 | `glifo-practicar` | `practicar.png` (`HomeScreen.js:9`) | Home («Entrena Temas/Parciales») | grande, en cuadro de acción | Decoración funcional: identifica el destino de la acción | `tinta` sobre `superficie` (N6), en cuadro de marco `filete` | Los PNG de `main` eran a color y distintos por acción. El color no debe distinguir destinos, para eso está el título: los seis glifos van en `tinta` y se leen como un lote. La jerarquía entre acción primaria y secundarias la da el marco (`linea`, `border-2` frente a `borde`), no el glifo |
 | `glifo-examen` | `examen.png` (`HomeScreen.js:10`) | Home («Modo examen») | grande, en cuadro de acción | Decoración funcional | Igual que `glifo-practicar` | Igual que `glifo-practicar` |
-| `glifo-repasar` | `repasar.png` (`HomeScreen.js:11`); 🎯 (`TopicSelectScreen.js:180`) | Home («Repasar fallos»); TopicSelect, estado vacío de `failed` (ver 1.3) | grande en cuadro de acción; en el estado vacío, `paso 12` | Decoración funcional | Igual que `glifo-practicar`; en el estado vacío, `tintaSec` sobre `fondo` (N19) | Igual que `glifo-practicar`. En el estado vacío es una ilustración sin acción: `tintaSec` la deja detrás del título (`tinta`) |
-| `glifo-estadisticas` | `estadisticas.png` (`HomeScreen.js:12`); 📊 (`StatsScreen.js:97`) | Home («Mis estadísticas»); Stats, estado vacío (ver 1.3) | grande en cuadro de acción; en el estado vacío, `paso 12` | Decoración funcional | Igual que `glifo-repasar` | Igual que `glifo-repasar` |
+| `glifo-repasar` | `repasar.png` (`HomeScreen.js:11`); 🎯 (`TopicSelectScreen.js:180`) | Home («Repasar fallos»); TopicSelect, estado vacío de `failed` (`Vacios.md` a.2) | grande en cuadro de acción; en el estado vacío, `paso 12` | Decoración funcional | Igual que `glifo-practicar`; en el estado vacío, `tintaSec` sobre `fondo` (N19) | Igual que `glifo-practicar`. En el estado vacío es una ilustración sin acción: `tintaSec` la deja detrás del título (`tinta`) |
+| `glifo-estadisticas` | `estadisticas.png` (`HomeScreen.js:12`); 📊 (`StatsScreen.js:97`) | Home («Mis estadísticas»); Stats, estado vacío (`Vacios.md` a.2) | grande en cuadro de acción; en el estado vacío, `paso 12` | Decoración funcional | Igual que `glifo-repasar` | Igual que `glifo-repasar` |
 | `glifo-agregar` | `agregar.png` (`HomeScreen.js:13`) | Home («Agregar pregunta») | grande, en cuadro de acción | Decoración funcional | Igual que `glifo-practicar` | Igual que `glifo-practicar` |
 | `glifo-ajustes` | `ajustes.png` (`HomeScreen.js:14`) | Home («Ajustes») | grande, en cuadro de acción | Decoración funcional | Igual que `glifo-practicar` | Igual que `glifo-practicar` |
 | `glifo-aleatorio` | 🎲 (`TopicSelectScreen.js:205`) | TopicSelect («Todos los temas mezclados») | grande | Decoración funcional: identifica el modo de mezcla | `acento` sobre `superficie` (N18) | La mezcla es la acción destacada de la pantalla y su tarjeta ya lleva marco `acento`: el glifo comparte ese color para anclar la tarjeta, y el título sigue en `tinta` (T2) |
 | `glifo-revisar` | 📋 (`ResultsScreen.js:220`) | Results («Revisar todas las respuestas») | chico | Acción: abrir el detalle respuesta por respuesta | `acento` sobre `superficie` (N18), como el texto del botón K2 de acento; presionado, `fondo` sobre `tinta` (T7) | El botón es la acción secundaria de acento del boceto: el glifo toma el color de su texto y se lee con él |
 | `glifo-reintentar` | 🔄 (`ResultsScreen.js:228`) | Results («Volver a practicar») | chico | Acción: repetir la práctica | `fondo` sobre `tinta` (T7, el par de N5) | El botón es la acción primaria rellena (K1): el glifo hereda `fondo` y se lee con el texto |
 | `glifo-inicio` | 🏠 (`ResultsScreen.js:236`) | Results («Inicio») | chico | Acción: volver al inicio | `tinta` sobre `superficie` (N6) | Acción terciaria neutra (K2 de marco `linea`): el glifo sigue al texto en `tinta` |
-| `glifo-mensaje` | 👋 (`MateriaSelectScreen.js:86`) | MateriaSelect, nota del creador (ver 1.3) | chico | Aviso: mensaje informativo del creador | `acento` sobre `superficie` (N18) | La nota es el único bloque informativo de la pantalla de entrada y su rótulo y borde son `acento`: el glifo la acompaña. El saludo era cálido, sin función de alerta |
-| `glifo-banco-reducido` | 📉 (`HomeScreen.js:129`) | Home, banner de banco reducido (ver 1.3) | chico | Aviso: el banco de la materia tiene menos preguntas | `acento` sobre `superficie` (N18) | Es un aviso informativo y no una falla: `error` lo haría parecer un problema de uso, e `intermedia` se confundiría con la banda de rendimiento. Va en `acento`, como la nota; la forma (tendencia descendente) y el texto llevan el aviso |
-| `glifo-trofeo` | 🏆 (`ResultsScreen.js:260`) | Results, pedido de donación con resultado alto (ver 1.3) | chico | Decoración funcional: celebración del resultado | `acierto` sobre `superficie` (N10) | El texto celebratorio aparece desde `DONATION_WARM_SCORE` (80), que es el corte de la banda alta: `acierto` repite el color de esa banda y no suma un dorado fuera de paleta |
-| `glifo-guardar` | 💾 (`AddQuestionScreen.js:238`, `SettingsScreen.js:175`) | AddQuestion («Guardar pregunta»); Settings («Descargar respaldo») (ver 1.3) | chico | Acción: guardar o descargar | El del texto del botón: K1 `fondo` sobre `tinta` (T7) o K3 `tinta` sobre `superficie` (N6) | Era un adorno neutro delante del texto de un botón: el glifo toma el color del botón y no agrega matiz |
-| `glifo-importar` | 📂 (`SettingsScreen.js:184`) | Settings («Importar respaldo») (ver 1.3) | chico | Acción: cargar un archivo | Igual que `glifo-guardar` | Igual que `glifo-guardar` |
-| `glifo-correo` | ✉️ (`SettingsScreen.js:223`) | Settings («Reportar un error») (ver 1.3) | chico | Acción: abrir un correo | `acento` sobre `fondo` (N17) o `superficie` (N18) | El enlace era de acento en `main`: el glifo conserva esa función de enlace de contacto con el mismo token que su texto |
-| `glifo-externo` | `↗` (`SettingsScreen.js:230`) | Settings («Código fuente») (ver 1.3) | chico | Aviso: el enlace sale de la app | `acento` sobre `fondo` (N17) o `superficie` (N18) | Marca que el enlace abre otro sitio: va del color del enlace para leerse como parte de él |
-| `glifo-eliminar` | `×` (`SettingsScreen.js:131`) | Settings, «Mis preguntas»: eliminar una pregunta propia (ver 1.3) | grande, objetivo `paso 11` | Acción: eliminar un dato guardado, con confirmación del sistema | `tintaSec` sobre `superficie` (N20); presionado, `fondo` sobre `tinta` (T7) | Es la única acción que borra un dato del usuario desde una tarjeta. Va en el mismo tono que descartar o quitar (`glifo-cerrar`) para no competir con el enunciado de la tarjeta, y se separa de él por silueta: borrar un dato guardado y descartar una nota no pueden leerse como la misma acción. No usa `error`, reservado a respuesta incorrecta, banda baja y validación (a.1); la confirmación del sistema ya advierte que no se puede deshacer |
+| `glifo-mensaje` | 👋 (`MateriaSelectScreen.js:86`) | MateriaSelect, nota del creador (`Banners.md` a.2) | chico | Aviso: mensaje informativo del creador | `acento` sobre `superficie` (N18) | La nota es el único bloque informativo de la pantalla de entrada y su rótulo y borde son `acento`: el glifo la acompaña. El saludo era cálido, sin función de alerta |
+| `glifo-banco-reducido` | 📉 (`HomeScreen.js:129`) | Home, banner de banco reducido (`Banners.md` a.2) | chico | Aviso: el banco de la materia tiene menos preguntas | `acento` sobre `superficie` (N18) | Es un aviso informativo y no una falla: `error` lo haría parecer un problema de uso, e `intermedia` se confundiría con la banda de rendimiento. Va en `acento`, como la nota; la forma (tendencia descendente) y el texto llevan el aviso |
+| `glifo-trofeo` | 🏆 (`ResultsScreen.js:260`) | Results, pedido de donación con resultado alto (`DonationBox.md` a.2) | chico | Decoración funcional: celebración del resultado | `acierto` sobre `superficie` (N10) | El texto celebratorio aparece desde `DONATION_WARM_SCORE` (80), que es el corte de la banda alta: `acierto` repite el color de esa banda y no suma un dorado fuera de paleta |
+| `glifo-guardar` | 💾 (`AddQuestionScreen.js:238`, `SettingsScreen.js:175`) | AddQuestion («Guardar pregunta»); Settings («Descargar respaldo») (`AddQuestion.md` b; `Settings.md` b) | chico | Acción: guardar o descargar | El del texto del botón: K1 `fondo` sobre `tinta` (T7) o K3 `tinta` sobre `superficie` (N6) | Era un adorno neutro delante del texto de un botón: el glifo toma el color del botón y no agrega matiz |
+| `glifo-importar` | 📂 (`SettingsScreen.js:184`) | Settings («Importar respaldo») (`Settings.md` b) | chico | Acción: cargar un archivo | Igual que `glifo-guardar` | Igual que `glifo-guardar` |
+| `glifo-correo` | ✉️ (`SettingsScreen.js:223`) | Settings («Reportar un error», `Settings.md` b); Banners, contacto del banner de banco reducido, solo con `BAN-P1` (`Banners.md` a.2) | chico | Acción: abrir un correo | `acento` sobre `fondo` (N17) o `superficie` (N18) | El enlace era de acento en `main`: el glifo conserva esa función de enlace de contacto con el mismo token que su texto |
+| `glifo-externo` | `↗` (`SettingsScreen.js:230`) | Settings («Código fuente») (`Settings.md` b) | chico | Aviso: el enlace sale de la app | `acento` sobre `fondo` (N17) o `superficie` (N18) | Marca que el enlace abre otro sitio: va del color del enlace para leerse como parte de él |
+| `glifo-eliminar` | `×` (`SettingsScreen.js:131`) | Settings, «Mis preguntas»: eliminar una pregunta propia (`Settings.md` b) | grande, objetivo `paso 11` | Acción: eliminar un dato guardado, con confirmación del sistema | `tintaSec` sobre `superficie` (N20); presionado, `fondo` sobre `tinta` (T7) | Es la única acción que borra un dato del usuario desde una tarjeta. Va en el mismo tono que descartar o quitar (`glifo-cerrar`) para no competir con el enunciado de la tarjeta, y se separa de él por silueta: borrar un dato guardado y descartar una nota no pueden leerse como la misma acción. No usa `error`, reservado a respuesta incorrecta, banda baja y validación (a.1); la confirmación del sistema ya advierte que no se puede deshacer |
 
 ### Indicaciones de forma para 1.4
 
-El dibujo lo decide 1.4 dentro de estas reglas: un viewBox común para todos los glifos (el componente mantiene 1,5 px visibles a cualquier lado, `CONVENCIONES.md` CD-9), terminación cuadrada, ángulos rectos donde el motivo lo permita, un solo grosor (c.2).
+El dibujo lo decidió 1.4 dentro de estas reglas (`svg/glifos/NOTAS-GLIFOS.md`): un viewBox común para todos los glifos (el componente mantiene 1,5 px visibles a cualquier lado, `CONVENCIONES.md` CD-9), terminación cuadrada, ángulos rectos donde el motivo lo permita, un solo grosor (c.2).
 
 | Glifo | Indicación |
 |---|---|
