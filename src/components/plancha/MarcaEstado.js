@@ -1,9 +1,9 @@
 // Marca de estado (comun.md §4): glifo, color y texto propios. Ningún estado se
 // comunica solo por color. El glifo es decorativo: el texto da el nombre.
 // Props: `estado` (`acierto` | `error` | `intermedia`), `texto`,
-//   `paso`        `rotulo` (por defecto) | `detalle` | `dato` | `display`: paso tipográfico
-//                 del texto (tokens.md b.2); el glifo es `paso 6` con `display` y `paso 4`
-//                 en los demás
+//   `paso`        `rotulo` (por defecto) | `rotulo-medio` | `detalle` | `dato` | `display`:
+//                 paso tipográfico del texto (tokens.md b.2); el glifo es `paso 6` con
+//                 `display` y `paso 4` en los demás
 //   `colorTexto`  `estado` (por defecto: el texto lleva el color del estado) | `tintaSec`
 //                 (rótulo del trío y leyenda: texto `tintaSec`, glifo en el color del estado)
 import React from 'react';
@@ -20,6 +20,7 @@ const ESTADOS = {
 
 const PASOS = {
   rotulo: { tipografia: 'font-plex-mono text-rotulo uppercase', glifo: GLIFO_CHICO },
+  'rotulo-medio': { tipografia: 'font-plex-mono-medium text-rotulo uppercase', glifo: GLIFO_CHICO },
   detalle: { tipografia: 'font-plex-sans text-detalle', glifo: GLIFO_CHICO },
   dato: { tipografia: 'font-plex-mono-medium text-dato', glifo: GLIFO_CHICO },
   display: { tipografia: 'font-plex-mono-medium text-display', glifo: GLIFO_GRANDE },

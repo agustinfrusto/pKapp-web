@@ -34,7 +34,7 @@
 //   forma (K4)      filtro | segmentado (contenedor linea, opciones sin borde, rotulo)
 //   variante (K6)   normal | acento (border-2 acento, sin marcas de esquina)
 //   tono (K7)       normal | sec (glifo y texto tintaSec en reposo)
-//   paso (MarcaEstado)       rotulo | detalle | dato | display (glifo paso 6 solo con display)
+//   paso (MarcaEstado)       rotulo | rotulo-medio | detalle | dato | display (glifo paso 6 solo con display)
 //   colorTexto (MarcaEstado) estado | tintaSec
 //
 // Estado accesible (web): K3 con `seleccionado` emite `aria-pressed` (botón conmutable);
