@@ -811,6 +811,68 @@ async function hoverSinHalo(pagina, base, t) {
   t.ok('ningún <style> del documento tiene box-shadow con rgba', estilos, 0);
 }
 
+// ===========================================================================
+// GRUPO B · tarea 2.10, plan B de D2 (Ilustracion.web.js: <svg> del DOM)
+// ===========================================================================
+
+// Atributos y estructura de cada <svg> visible. `texto` es el color del texto contiguo
+// (mismo token que el glifo), para no repetir colores literales.
+const LEER_SVGS = `Array.from(document.querySelectorAll('svg')).filter((s) => {
+  const r = s.getBoundingClientRect();
+  return r.width > 0 && r.height > 0;
+}).map((s) => {
+  const caja = s.closest('[role="radio"], [role="button"]');
+  const rotulo = caja ? Array.from(caja.querySelectorAll('div')).find((n) =>
+    n.children.length === 0 && n.textContent.trim() !== '') : null;
+  const rgb = rotulo ? getComputedStyle(rotulo).color.match(/\\d+/g).slice(0, 3).map(Number) : null;
+  return {
+    nombre: caja ? ((caja.getAttribute('aria-label') || caja.textContent).trim().toLowerCase()) : null,
+    width: s.getAttribute('width'),
+    height: s.getAttribute('height'),
+    viewBox: s.getAttribute('viewBox'),
+    par: s.getAttribute('preserveAspectRatio'),
+    stroke: s.getAttribute('stroke'),
+    trazo: s.getAttribute('stroke-width'),
+    oculto: s.getAttribute('aria-hidden'),
+    hijos: Array.from(s.children).map((c) => c.tagName.toLowerCase()).join(','),
+    texto: rgb ? '#' + rgb.map((c) => c.toString(16).padStart(2, '0')).join('') : null,
+  };
+})`;
+
+async function svgDelDom(pagina, base, t) {
+  // Valores de la build con react-native-svg, tomados antes del cambio.
+  const GLIFO_16 = { width: '16', height: '16', viewBox: '0 0 16 16',
+    par: 'xMidYMid meet', trazo: '1.5', oculto: 'true' };
+  const GLIFO_24 = { ...GLIFO_16, width: '24', height: '24', trazo: '1' };
+  const comparar = (rotulo, svg, esperado, hijos) => {
+    t.ok(`${rotulo}: width y height`, `${svg.width}×${svg.height}`, `${esperado.width}×${esperado.height}`);
+    t.ok(`${rotulo}: viewBox y preserveAspectRatio`, `${svg.viewBox}|${svg.par}`, `${esperado.viewBox}|${esperado.par}`);
+    t.ok(`${rotulo}: stroke-width`, svg.trazo, esperado.trazo);
+    t.ok(`${rotulo}: aria-hidden="true"`, svg.oculto, esperado.oculto);
+    t.ok(`${rotulo}: stroke = color del texto contiguo`, svg.stroke, svg.texto);
+    t.ok(`${rotulo}: cantidad y etiquetas de los hijos`, svg.hijos, hijos);
+  };
+
+  await pagina.ir(base + '/');
+  await pagina.esperarTexto('Tus materias');
+  await cerrarNota(pagina);
+  const selector = await pagina.evaluar(LEER_SVGS);
+  const claro = selector.find((s) => s.nombre === 'claro');
+  const oscuro = selector.find((s) => s.nombre === 'oscuro');
+  t.ok('MateriaSelect: hay glifos de tema', !!claro && !!oscuro, true);
+  if (claro && oscuro) {
+    comparar('MateriaSelect glifo-claro', claro, GLIFO_16, 'circle,path,path');
+    comparar('MateriaSelect glifo-oscuro', oscuro, GLIFO_16, 'path');
+  }
+
+  t.ok('elegir la materia lleva a /inicio', await pagina.clic(MATERIA) !== null && await pagina.esperarUrl('/inicio'), true);
+  await pagina.esperarA(async () =>
+    (await pagina.evaluar(LEER_SVGS)).some((s) => s.nombre === 'cambiar materia'));
+  const volver = (await pagina.evaluar(LEER_SVGS)).find((s) => s.nombre === 'cambiar materia');
+  t.ok('Home: hay glifo-volver', !!volver, true);
+  if (volver) comparar('Home glifo-volver', volver, GLIFO_24, 'path');
+}
+
 module.exports = [
   { nombre: 'elegir materia sin rebotar al selector', correr: elegirMateria },
   { nombre: 'el selector muestra seis materias', correr: seisMaterias },
@@ -831,4 +893,6 @@ module.exports = [
   { nombre: 'HeaderMarca: teclado del control Claro | Oscuro', correr: tecladoDelControlDeTema },
   { nombre: 'HeaderMarca: control negativo del desborde', correr: controlNegativoDeDesborde },
   { nombre: 'HeaderMarca: hover sin halo ni box-shadow', correr: hoverSinHalo },
+  // Grupo B
+  { nombre: 'Ilustracion: svg del DOM conserva atributos y estructura', correr: svgDelDom },
 ];
