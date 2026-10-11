@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>pKapp · prueba automática (script)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 20px; background: #f4f5f6; color: #14181d; }
+    p { font-size: 15px; line-height: 1.45; }
+    a { color: #0b6e80; }
+    #registro { font-family: ui-monospace, monospace; font-size: 12px; background: #fff; border: 1px solid #c9ced4; padding: 8px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <p><strong id="titulo">Prueba automática</strong></p>
+  <p>Al cargar, esta página intenta abrir pkapp.uy en otro navegador sin que toques nada. Si después de 3 segundos seguís viendo esta página dentro de Instagram, la redirección automática no funcionó.</p>
+  <div id="registro"></div>
+  <p><a href="/prueba-salir">Volver a la página de prueba</a></p>
+  <script>
+    (function () {
+      var DESTINOS = {
+        a: 'intent://pkapp.uy/#Intent;scheme=https;S.browser_fallback_url=https%3A%2F%2Fpkapp.uy%2F;end',
+        c: 'instagram://extbrowser/?url=https%3A%2F%2Fpkapp.uy%2F'
+      };
+      var modo = (location.search.match(/[?&]modo=([a-z])/) || [])[1] || 'a';
+      var destino = DESTINOS[modo] || DESTINOS.a;
+      var registro = document.getElementById('registro');
+      function anotar(t) { registro.textContent += new Date().toLocaleTimeString() + '  ' + t + '\n'; }
+      document.getElementById('titulo').textContent = 'Prueba automática ' + modo.toUpperCase() + ' (script al cargar)';
+      document.addEventListener('visibilitychange', function () {
+        anotar(document.hidden ? 'la página quedó oculta (salió a otra app)' : 'la página volvió a verse');
+      });
+      // Solo dentro de un navegador interno: en Chrome no hay nada de qué salir.
+      if (!/Instagram|FBAN|FBAV|FB_IAB/i.test(navigator.userAgent || '')) {
+        anotar('no es un navegador interno: no redirijo');
+        return;
+      }
+      anotar('redirijo a ' + destino);
+      location.href = destino;
+      setTimeout(function () { anotar('3 s después: sigo acá'); }, 3000);
+    })();
+  </script>
+</body>
+</html>
