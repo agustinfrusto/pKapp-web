@@ -64,28 +64,38 @@ if (!html.includes('@media (hover: hover)')) {
   console.log('  Hover styles ya presentes, skip.');
 }
 
-// 3. (Opcional) Cloudflare Web Analytics
-// Para activarlo en Cloudflare Pages: settings → environment variables →
-// agregar CF_ANALYTICS_TOKEN con el token del beacon.
-const cfToken = process.env.CF_ANALYTICS_TOKEN;
-if (cfToken && !html.includes('static.cloudflareinsights.com')) {
-  const cfBeacon = `
-    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "${cfToken}"}'></script>`;
-  html = html.replace('</body>', `${cfBeacon}\n  </body>`);
-  console.log('  Cloudflare Analytics beacon inyectado.');
-} else if (cfToken) {
-  console.log('  Cloudflare Analytics beacon ya presente, skip.');
-}
+// 3 y 4. Analítica: solo en el build de producción de Cloudflare Pages
+// (CF_PAGES_BRANCH === 'main'). Previews de otras ramas y builds locales no
+// inyectan Umami ni el beacon, para no contar visitas que no son de producción.
+const rama = process.env.CF_PAGES_BRANCH;
+const esProduccion = rama === 'main';
 
-// 4. Umami (analítica de eventos, sin cookies). El website-id es público.
-const UMAMI_SRC = 'https://cloud.umami.is/script.js';
-const UMAMI_WEBSITE_ID = '6dcfe8fe-3b80-48dc-a324-57ccc4fa9bae';
-if (!html.includes('data-website-id')) {
-  const umamiTag = `    <script defer src="${UMAMI_SRC}" data-website-id="${UMAMI_WEBSITE_ID}"></script>`;
-  html = html.replace('</head>', `${umamiTag}\n  </head>`);
-  console.log('  Umami analytics inyectado.');
+if (!esProduccion) {
+  console.log(`  analítica omitida: ${rama ? `rama ${rama}` : 'build local'}`);
 } else {
-  console.log('  Umami analytics ya presente, skip.');
+  // 3. (Opcional) Cloudflare Web Analytics
+  // Para activarlo en Cloudflare Pages: settings → environment variables →
+  // agregar CF_ANALYTICS_TOKEN con el token del beacon.
+  const cfToken = process.env.CF_ANALYTICS_TOKEN;
+  if (cfToken && !html.includes('static.cloudflareinsights.com')) {
+    const cfBeacon = `
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "${cfToken}"}'></script>`;
+    html = html.replace('</body>', `${cfBeacon}\n  </body>`);
+    console.log('  Cloudflare Analytics beacon inyectado.');
+  } else if (cfToken) {
+    console.log('  Cloudflare Analytics beacon ya presente, skip.');
+  }
+
+  // 4. Umami (analítica de eventos, sin cookies). El website-id es público.
+  const UMAMI_SRC = 'https://cloud.umami.is/script.js';
+  const UMAMI_WEBSITE_ID = '6dcfe8fe-3b80-48dc-a324-57ccc4fa9bae';
+  if (!html.includes('data-website-id')) {
+    const umamiTag = `    <script defer src="${UMAMI_SRC}" data-website-id="${UMAMI_WEBSITE_ID}"></script>`;
+    html = html.replace('</head>', `${umamiTag}\n  </head>`);
+    console.log('  Umami analytics inyectado.');
+  } else {
+    console.log('  Umami analytics ya presente, skip.');
+  }
 }
 
 fs.writeFileSync(indexHtml, html);
