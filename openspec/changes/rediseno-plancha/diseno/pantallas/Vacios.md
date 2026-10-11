@@ -8,9 +8,7 @@
 | Lo usan | `Stats` (V1), `TopicSelect` (V2 y V4), `Settings` (V3) |
 | Variantes | Pantalla vacía (V1, V2), mensaje dentro de un plegable (V3), lista vacía (V4) |
 | Fuera de alcance | Avisos del sistema (V5): su aspecto no es del sistema visual. Estados ya cubiertos por la ficha de su pantalla (V6 a V14 de a.1) |
-| Propuestas | Sección f: `VAC-P1` a `VAC-P4`, pendientes. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
-
-Convención de 1.3 (D10): las secciones a a e describen la superficie con las propuestas de f aplicadas. La sección f.2 trae la variante sin el cambio de cada una, al mismo nivel de detalle, y es la que se implementa si el usuario no la aprueba. Base de comparación: el boceto para lo visual; `main` para funciones, datos, copy y orden de uso.
+| Propuestas | Sección f: `VAC-P1` a `VAC-P4`, aprobadas (usuario, 2026-10-10); `VAC-P2` con revisión del usuario al implementar. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
 
 ---
 
@@ -185,27 +183,18 @@ Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—)
 
 ---
 
-## f. Propuestas pendientes (D10)
+## f. Propuestas aprobadas (D10)
 
-Cambios respecto de `main` que el boceto no dibuja. Quedan pendientes hasta que el usuario las apruebe; el cuerpo de la ficha (a a e) las describe aplicadas.
-
-### f.1 Propuestas
+Cambios respecto de `main` que el boceto no dibuja. El usuario los aprobó el 2026-10-10 (D10): rigen tal como están descritos acá y en el cuerpo de la ficha (a a e). No hay variantes alternativas.
 
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
-| VAC-P1 | V1 y V2 se presentan como una lámina vacía (marco `linea` con marcas de esquina), anclada arriba de la columna, en lugar de texto suelto centrado en la pantalla | Es la misma gramática de lámina de las demás pantallas; en tablet y escritorio un texto centrado en vertical queda lejos de la barra | visual | pendiente |
-| VAC-P2 | Cada estado vacío con destino obvio suma un botón de marco: V1 y V2, «Practicar»; V3, «Agregar pregunta». No reemplaza ni quita ningún camino | Hoy el estado vacío es un callejón: el usuario debe volver a Home y buscar la acción. El destino es el mismo de siempre, con un toque | uso | pendiente |
-| VAC-P3 | Cuando los filtros dejan cero temas (V4), bajo el rótulo de sección aparece «No hay preguntas disponibles con los filtros actuales.» | Hoy la pantalla queda con un rótulo sin lista y una mezcla con «0 preguntas»; el motivo solo aparece al tocar. La cadena ya existe en el aviso del sistema | uso | pendiente |
-| VAC-P4 | Mientras la primera carga de V1 y V2 no resolvió, no se muestra la lámina vacía: solo la barra sobre `fondo`. Hoy los estados iniciales (`stats` y `failedIds` vacíos) pintan «Sin estadísticas todavía» y «Sin preguntas falladas» hasta que llegan los datos | Evita un parpadeo del estado vacío para quien sí tiene datos; no agrega pantalla ni cadena | uso | pendiente |
+| VAC-P1 | V1 y V2 se presentan como una lámina vacía (marco `linea` con marcas de esquina), anclada arriba de la columna, en lugar de texto suelto centrado en la pantalla | Es la misma gramática de lámina de las demás pantallas; en tablet y escritorio un texto centrado en vertical queda lejos de la barra | visual | aprobada (usuario, 2026-10-10) |
+| VAC-P2 | Cada estado vacío con destino obvio suma un botón de marco: V1 y V2, «Practicar»; V3, «Agregar pregunta». No reemplaza ni quita ningún camino | Hoy el estado vacío es un callejón: el usuario debe volver a Home y buscar la acción. El destino es el mismo de siempre, con un toque | uso | aprobada (usuario, 2026-10-10), con dudas: revisión del usuario al implementar |
+| VAC-P3 | Cuando los filtros dejan cero temas (V4), bajo el rótulo de sección aparece «No hay preguntas disponibles con los filtros actuales.» | Hoy la pantalla queda con un rótulo sin lista y una mezcla con «0 preguntas»; el motivo solo aparece al tocar. La cadena ya existe en el aviso del sistema | uso | aprobada (usuario, 2026-10-10) |
+| VAC-P4 | Mientras la primera carga de V1 y V2 no resolvió, no se muestra la lámina vacía: solo la barra sobre `fondo`. Hoy los estados iniciales (`stats` y `failedIds` vacíos) pintan «Sin estadísticas todavía» y «Sin preguntas falladas» hasta que llegan los datos | Evita un parpadeo del estado vacío para quien sí tiene datos; no agrega pantalla ni cadena | uso | aprobada (usuario, 2026-10-10) |
 
-### f.2 Variante sin el cambio
-
-| Id | Si no se aprueba | Detalle |
-|---|---|---|
-| VAC-P1 | Texto suelto sobre `fondo` | Sin marco ni marcas de esquina. Columna `max-w-columna` centrada en horizontal y anclada arriba, margen superior `paso 12`, relleno lateral `paso 8`; contenido centrado: glifo de `paso 12` en `tintaSec` sobre `fondo` (N19), título en `titulo` y `tinta` (T1) con margen superior `paso 4`, texto en `cuerpo` y `tintaSec` (T3) con margen superior `paso 2`. Es el par que fija `comun.md` §9 para estos glifos. V1 conserva tirar para actualizar. No se centra en vertical en la ventana (`comun.md` §7) |
-| VAC-P2 | Sin botón | Se omite el bloque 4 de a.2 y el bloque 3 de a.3; el contenido termina en el texto. La salida es la barra interna (volver) o, en V3, la acción de Home, como hoy |
-| VAC-P3 | Sin mensaje | Se omite el bloque 2 de a.4: bajo el rótulo no hay nada. La tarjeta de mezcla con «0 preguntas» y el aviso del sistema al tocarla son el único indicio, como hoy |
-| VAC-P4 | Sin estado de carga | La pantalla pinta de inmediato con los valores iniciales, como hoy: V1 y V2 aparecen un instante y, cuando llegan los datos, se reemplazan por el contenido real sin transición. Sin tokens ni cadenas propias |
+Revisión del usuario al implementar (`VAC-P2`): el usuario la aprobó con dudas y quiere verla implementada. Las tareas que la implementan, 3.7 (`StatsScreen`, V1), 3.4 (`TopicSelectScreen`, V2) y 3.8 (`SettingsScreen`, V3), se la muestran antes del commit de cada una.
 
 ---
 

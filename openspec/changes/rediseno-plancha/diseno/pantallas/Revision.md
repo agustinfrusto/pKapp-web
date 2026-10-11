@@ -8,9 +8,7 @@
 | Navegador | La barra interna de `Results`, con título «pKapp · Resultados» y sin volver. La revisión no cambia el título |
 | Variantes | Respuesta correcta o incorrecta; con y sin explicación; con y sin filtro (sin respuestas incorrectas no hay filtro); hasta cientos de respuestas |
 | Fuera de alcance | Tarjeta de resultado, trío y botones del resumen (`Results.md`); pedido de donación (`DonationBox.md`; no se muestra en la revisión) |
-| Propuestas | Sección f: `REV-P1`, `REV-P2` y `REV-P3`, pendientes. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
-
-Convención de 1.3 (D10): las secciones a a e describen la superficie con las propuestas de f aplicadas. La sección f.2 trae la variante sin el cambio de cada una, al mismo nivel de detalle, y es la que se implementa si el usuario no la aprueba. Base de comparación: el boceto para lo visual; `main` para funciones, datos, copy y orden de uso.
+| Propuestas | Sección f: `REV-P1`, `REV-P2` y `REV-P3`, aprobadas (usuario, 2026-10-10). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
 
 ---
 
@@ -43,7 +41,7 @@ Convención de 1.3 (D10): las secciones a a e describen la superficie con las pr
 | 2 | Encabezado | Fila entre extremos; margen inferior `paso 2` | «#{n}» a la izquierda; a la derecha, `glifo-acierto` o `glifo-error` (chico) y «Correcta» o «Incorrecta», separados `paso 1.5` |
 | 3 | Enunciado | Margen inferior `paso 3` | Texto de la pregunta |
 | 4 | Opciones | Separación `paso 2.5` entre filas | Una fila por opción (a.4) |
-| 5 | Nota | Margen superior `paso 3`; solo con explicación | `glifo-explicacion` y texto; con rótulo si se aprueba `REV-P3` |
+| 5 | Nota | Margen superior `paso 3`; solo con explicación | Rótulo «Nota / Explicación» con `glifo-explicacion` delante (`REV-P3`) y texto |
 | 6 | «Reportar pregunta» | Margen superior `paso 2`; alto mínimo `paso 11` | K7 con `glifo-reportar` (chico) delante, separado `paso 2` |
 
 ### a.4 Interior de una opción
@@ -183,7 +181,7 @@ La revisión no emite eventos y la ficha no agrega ninguno.
 | Índice | «#{n}» | Igual | — |
 | Estado de la respuesta | Tilde o aspa y «Correcta» o «Incorrecta» | `glifo-acierto` o `glifo-error` y «Correcta» o «Incorrecta» | Reemplazo de símbolo |
 | Estado de la opción | Solo tilde o aspa, sin texto | `glifo-acierto` y «Correcta»; `glifo-error` y «Incorrecta · tu respuesta» | Lo exige `comun.md` §4 (cada estado lleva marca y texto); son las palabras de `Quiz.md` c.2 (`QUIZ-P7`, aprobada) y del encabezado de la tarjeta |
-| Explicación | Emoji de bombilla y texto | `glifo-explicacion` y texto; con `REV-P3`, rótulo «Nota / Explicación» | Reemplazo de emoji; `REV-P3` |
+| Explicación | Emoji de bombilla y texto | Rótulo «Nota / Explicación» con `glifo-explicacion` delante, y texto | Reemplazo de emoji; `REV-P3` |
 | Reportar | Emoji de bandera y «Reportar pregunta» | «Reportar pregunta» con `glifo-reportar` | Reemplazo de emoji |
 | Volver | Flecha de texto y «Volver» | «Volver» con `glifo-volver` | Reemplazo de símbolo |
 | Inicio | «Inicio» | Igual | — |
@@ -192,25 +190,15 @@ La revisión no emite eventos y la ficha no agrega ninguno.
 
 ---
 
-## f. Propuestas pendientes (D10)
+## f. Propuestas aprobadas (D10)
 
-Cambios respecto de `main` que el boceto no dibuja. Quedan pendientes hasta que el usuario las apruebe; el cuerpo de la ficha (a a e) las describe aplicadas.
-
-### f.1 Propuestas
+Cambios respecto de `main` que el boceto no dibuja. El usuario los aprobó el 2026-10-10 (D10): rigen tal como están descritos acá y en el cuerpo de la ficha (a a e). No hay variantes alternativas.
 
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
-| REV-P1 | Sobre la lista va un filtro de dos opciones, «Todas» e «Incorrectas». «Incorrectas» muestra solo las falladas, con su número original. Si no hay falladas, el filtro no aparece | Un examen completo tiene hasta decenas de respuestas y lo que se estudia son las falladas; hoy hay que recorrer todo el scroll. No cambia el orden de uso: por defecto se ve la lista completa, como hoy | uso | pendiente |
-| REV-P2 | «Volver» (a la vista de resumen) también va arriba de la lista, además de los botones del final | La barra interna de `Results` no tiene volver (`headerBackVisible: false`); con decenas de respuestas, el único camino de regreso queda al final del scroll | uso | pendiente |
-| REV-P3 | La nota de explicación lleva el rótulo «Nota / Explicación» con `glifo-explicacion` delante, como en el quiz (`QUIZ-P6`, aprobada). `main` solo muestra la bombilla y el texto | Mismo componente y mismo rótulo que el quiz: una explicación se lee igual en los dos lugares | visual | pendiente |
-
-### f.2 Variante sin el cambio
-
-| Id | Si no se aprueba | Detalle |
-|---|---|---|
-| REV-P1 | Lista completa, sin filtro | Se omite el bloque 4 de a.1: el bloque 3 (o el 2, si tampoco se aprueba `REV-P2`) cierra con `paso 3` y la lista arranca debajo. Todas las tarjetas se muestran, en orden, con los tokens de b y c.2. Sin estado «Solo incorrectas» ni cadena «Mostrar» |
-| REV-P2 | «Volver» solo al final | Se omite el bloque 3 de a.1: el encabezado cierra con `paso 3` y sigue el filtro o la lista. «Volver» final (K2) e «Inicio» (K1) quedan como en el bloque 6, con los mismos tokens, estados y objetivo `paso 11` |
-| REV-P3 | Nota sin rótulo | La nota conserva el marco (izquierdo `acento`, `border-l-3`; resto `filete`, `border`) y el relleno `paso 3`. Dentro, una fila con `glifo-explicacion` (chico, `acento`, N18) y el texto en `cuerpo` y `tinta` (T2), separados `paso 2`, alineados arriba. Sin rótulo, sin margen inferior de rótulo |
+| REV-P1 | Sobre la lista va un filtro de dos opciones, «Todas» e «Incorrectas». «Incorrectas» muestra solo las falladas, con su número original. Si no hay falladas, el filtro no aparece | Un examen completo tiene hasta decenas de respuestas y lo que se estudia son las falladas; hoy hay que recorrer todo el scroll. No cambia el orden de uso: por defecto se ve la lista completa, como hoy | uso | aprobada (usuario, 2026-10-10) |
+| REV-P2 | «Volver» (a la vista de resumen) también va arriba de la lista, además de los botones del final | La barra interna de `Results` no tiene volver (`headerBackVisible: false`); con decenas de respuestas, el único camino de regreso queda al final del scroll | uso | aprobada (usuario, 2026-10-10) |
+| REV-P3 | La nota de explicación lleva el rótulo «Nota / Explicación» con `glifo-explicacion` delante, como en el quiz (`QUIZ-P6`, aprobada). `main` solo muestra la bombilla y el texto | Mismo componente y mismo rótulo que el quiz: una explicación se lee igual en los dos lugares | visual | aprobada (usuario, 2026-10-10) |
 
 ---
 

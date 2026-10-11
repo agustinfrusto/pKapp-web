@@ -3,14 +3,12 @@
 | Campo | Valor |
 |---|---|
 | Superficie | Componente `DonationBox` (`src/components/DonationBox.js`) y su variante de resultados, `DonationPrompt` (`src/screens/ResultsScreen.js`, ≈ l. 242). Un solo aspecto para las dos |
-| Boceto | Sin figura: el boceto no dibuja el pedido de donación. La ficha extiende su gramática (panel de marco `linea`, rótulos y controles K3) |
+| Boceto | Sin figura: el boceto no dibuja el pedido de donación. La ficha extiende su gramática (lámina con marcas de esquina, marco `acento`, rótulos y controles K3) |
 | Comunes | `comun.md`: §4 marcas de estado, §5 estados (K3, K7), §7 anchos, §8 dimensiones, §9 glifos |
 | Lo usan | `MateriaSelect` (bloque 5 de `MateriaSelect.md` a.1, `origen="materias"`) y `Results` (bloque 4 de `Results.md` a.1, `origen: 'resultados'`) |
 | Variantes | Persistente, sin descartar (MateriaSelect, todas las plataformas) y descartable (Results, solo web); texto normal y celebratorio (80 o más) |
 | Fuera de alcance | La página de Mercado Pago (`Linking.openURL`) |
-| Propuestas | Sección f: `DON-P1`, pendiente. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
-
-Convención de 1.3 (D10): las secciones a a e describen la superficie con las propuestas de f aplicadas. La sección f.2 trae la variante sin el cambio de cada una, al mismo nivel de detalle, y es la que se implementa si el usuario no la aprueba. Base de comparación: el boceto para lo visual; `main` para funciones, datos, copy y orden de uso.
+| Propuestas | Sección f: `DON-P1`, aprobada (usuario, 2026-10-10), con la observación de b. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
 
 ---
 
@@ -25,7 +23,7 @@ Convención de 1.3 (D10): las secciones a a e describen la superficie con las pr
 
 ### a.2 Interior del panel
 
-Panel con relleno `paso 3.5` en las cuatro caras.
+Panel con relleno `paso 3.5` en las cuatro caras, marco `acento` y las cuatro marcas de esquina de `comun.md` §6 (lado `paso 2`, sobresalen `paso 1`; el margen lateral `paso 5` les deja lugar). Las marcas quedan fuera del marco: no tocan el objetivo de descartar, que va dentro, a ras del marco.
 
 | # | Parte | Medidas | Contenido |
 |---|---|---|---|
@@ -50,7 +48,7 @@ Panel con relleno `paso 3.5` en las cuatro caras.
 
 | Elemento | Frente | Fondo | Borde | Paso tipográfico | Filete | Glifo | Par |
 |---|---|---|---|---|---|---|---|
-| Panel (cuerpo) | — | `superficie` | `linea`, `border` | — | — | — | N1 |
+| Panel (cuerpo) | — | `superficie` | `acento`, `border`; marcas de esquina `linea` (§6) | — | — | — | N17, N18, N1 |
 | Regla corta | — | `fondo` | — | — | `filete`, `border` | — | X1 |
 | Título, variante normal | `tinta` | `superficie` | — | `item` | — | — | T2 |
 | Título, variante celebratoria | `tinta` | `superficie` | — | `item` | — | `glifo-trofeo` (chico), `acierto` | T2, N10 |
@@ -60,6 +58,25 @@ Panel con relleno `paso 3.5` en las cuatro caras.
 | Pie «Vía Mercado Pago» | `tintaSec` | `superficie` | — | `rotulo` | — | — | T4 |
 
 La celebración la llevan la palabra y el glifo; el color del panel no cambia entre variantes. `glifo-trofeo` va con texto: decorativo, oculto a lectores (`aria-hidden`, `accessibilityElementsHidden`). `glifo-cerrar` va solo: lleva nombre accesible (e). Todo control mide al menos `paso 11` de alto y de ancho, con `paso 2` como mínimo entre controles adyacentes.
+
+### b.1 Qué hace destacar al bloque (observación del usuario sobre `DON-P1`)
+
+Con los montos en K3 el panel pierde el relleno de `main`. Para que siga llamando ligeramente la atención sin color fuerte, el bloque se distingue de su entorno por el marco y la lámina, no por el relleno. Sin token ni glifo nuevo.
+
+| Recurso | Valor | Por qué |
+|---|---|---|
+| Marco `acento` | `acento`, `border` (N17 sobre `fondo`, N18 sobre `superficie`) | Es el único color de marca y el que ya marca lo destacado en TopicSelect (panel de mezcla, `border-2`). Con `border` queda un escalón más liviano que la mezcla |
+| Marcas de esquina | `comun.md` §6 sin cambio: `linea`, `border-2`, lado `paso 2` | Lo lee como lámina, la misma familia que la tarjeta de resultado y el trío de Results (marco `linea` con las mismas marcas): lo único que cambia es el color del marco |
+| Cuerpo y texto | Sin cambio: `superficie`, título `tinta` en `item` | Contraste de texto intacto (T2). El título no pasa a `acento` para no competir con las cabeceras de pantalla |
+| Montos | K3 de `borde` (lo aprobado en `DON-P1`) | Quedan neutros dentro del marco: el ojo va primero al marco y luego a los montos |
+
+| No se usa | Motivo |
+|---|---|
+| Relleno `acento` o `tinta` en el panel | Color o peso fuertes; en Results competiría con «Volver a practicar» (K1), que es la acción primaria |
+| Borde izquierdo `acento` | Es la gramática de la nota (`Banners.md`): en MateriaSelect el pedido se leería como otra nota del creador |
+| `border-2` | Es el grosor del panel de mezcla, la acción destacada de TopicSelect; el pedido no debe igualarla |
+| Glifo propio de donación | El inventario de §9 está cerrado en 1.4; un corazón u otro símbolo suma calidez fuera de la paleta. El trofeo de la variante celebratoria ya existe |
+| Rótulo nuevo | Copy de `main` conservado (DON-C1, DON-C2); no se agregan palabras |
 
 ---
 
@@ -121,7 +138,7 @@ Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—)
 | Un toque abre el pago | `handleDonate(amt)` y `openLink(amt)`: emiten el evento y, en `requestAnimationFrame`, `Linking.openURL(MP_LINKS[amt])` con `catch` vacío |
 | Aviso de no pertenencia | «NO ES DE UDELAR» se conserva en mayúsculas dentro del texto (copy de `main`); el paso tipográfico no lo altera |
 | Sin emoji, radio ni sombra | El trofeo, el símbolo de cerrar, `rounded-*`, la familia `warning*` y `activeOpacity` salen del componente (`comun.md` §9, D9) |
-| Sin tono cálido propio | La paleta Plancha no tiene tono de aviso cálido: el pedido es neutro y no usa `intermedia` ni `error`, que son estados de rendimiento |
+| Sin tono cálido propio | La paleta Plancha no tiene tono de aviso cálido: el pedido destaca con el `acento` de marca (b.1) y no usa `intermedia` ni `error`, que son estados de rendimiento |
 | Misma ficha, dos usos | El aspecto de `DonationBox` y de `DonationPrompt` es idéntico; difieren en descartar y en el texto celebratorio |
 
 ### d.4 Eventos `track(...)`
@@ -151,21 +168,13 @@ Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—)
 
 ---
 
-## f. Propuestas pendientes (D10)
+## f. Propuestas aprobadas (D10)
 
-Cambios respecto de `main` que el boceto no dibuja. Quedan pendientes hasta que el usuario las apruebe; el cuerpo de la ficha (a a e) las describe aplicadas.
-
-### f.1 Propuestas
+Cambios respecto de `main` que el boceto no dibuja. El usuario los aprobó el 2026-10-10 (D10): rigen tal como están descritos acá y en el cuerpo de la ficha (a a e). No hay variantes alternativas.
 
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
-| DON-P1 | Los cuatro montos son botones de marco (K3) en lugar de botones rellenos. El pedido deja de ser el bloque más pesado de la pantalla | `main` los rellena con el tono de aviso. En Results, con los montos rellenos y «Volver a practicar» (K1) habría una hilera de botones de relleno `tinta` y la acción primaria perdería jerarquía. Costo: el pedido llama menos la atención que hoy y puede bajar los toques | visual | pendiente |
-
-### f.2 Variante sin el cambio
-
-| Id | Si no se aprueba | Detalle |
-|---|---|---|
-| DON-P1 | Montos K1 rellenos | Cada monto: fondo `tinta`, texto `fondo` en `dato` (T7), borde `tinta`, `border`; alto `paso 11`; celdas iguales separadas por `paso 2`, como en a.2. Hover (web): contorno `linea`, `border-2`. Presionado: inversión, fondo `superficie`; texto `tinta`; borde `linea`. Foco: contorno `foco`, `border-2`, separado `paso 0.5`. Panel, título, texto y pie no cambian. En Results la pantalla pasa a tener una hilera de botones rellenos y, debajo, «Volver a practicar» (K1): `Results.md` no cambia, el pedido sigue entre el trío y los botones |
+| DON-P1 | Los cuatro montos son botones de marco (K3) en lugar de botones rellenos. El pedido deja de ser el bloque más pesado de la pantalla y compensa con marco `acento` y marcas de esquina (b.1), para seguir llamando ligeramente la atención | `main` los rellena con el tono de aviso. En Results, con los montos rellenos y «Volver a practicar» (K1) habría una hilera de botones de relleno `tinta` y la acción primaria perdería jerarquía. Observación del usuario: «de todas maneras la caja de donaciones debe llamar ligeramente la atención, revisar» | visual | aprobada (usuario, 2026-10-10) |
 
 ---
 
@@ -176,7 +185,7 @@ Solo quedan acá las que no admiten otra variante: las fija un invariante (D6, s
 | Boceto | Ficha | Motivo |
 |---|---|---|
 | Sin figura de este componente | Panel con la gramática del boceto | El boceto no lo cubre; `main` fija funciones, datos y copy (D10) |
-| (`main`) fondo y borde de la familia de aviso (`warning*`) | Panel `superficie` con marco `linea` | La paleta Plancha no tiene tono cálido (`tokens.md` a.1); un tono de estado (`intermedia`, `error`) se leería como rendimiento |
+| (`main`) fondo y borde de la familia de aviso (`warning*`) | Panel `superficie` con marco `acento` y marcas de esquina | La paleta Plancha no tiene tono cálido (`tokens.md` a.1); un tono de estado (`intermedia`, `error`) se leería como rendimiento. El `acento` conserva el énfasis sin ese riesgo (b.1) |
 | (`main`) descartar con ampliación táctil de 8 | Objetivo `paso 11` | D10: objetivo táctil mínimo de 44 × 44 pt |
 | (`main`) texto sobre el relleno de aviso | Texto `tinta` o `fondo` según el relleno | Pares medidos de `tokens.md` e |
 

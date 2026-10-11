@@ -5,10 +5,10 @@
 | Pantalla | `ResultsScreen` (`src/screens/ResultsScreen.js`), ruta `Results` |
 | Boceto | Figura 05 «Resultados» (`hibrido.html`) |
 | Comunes | `comun.md`: §3 barra interna, §4 marcas de estado, §5 estados (K1, K2), §6 lámina, §7 anchos, §8 dimensiones, §9 glifos |
-| Navegador | Barra interna con título «pKapp · Resultados», sin volver (`headerBackVisible: false`) |
+| Navegador | Barra interna con título «pKapp · Resultados», sin volver (`headerBackVisible: false`): el lugar del volver queda vacío y la fila conserva el alto `paso 11` (`MAQUETA-P1`, `comun.md` §3.5) |
 | Variantes | Tramo alto, medio o bajo (a.2 de d); con y sin tira (hasta 40 respuestas); con y sin pedido de donación (solo web) |
 | Fuera de alcance | Revisión de respuestas (`showReview`, vista alternativa) y pedido de donación: su lugar está fijado; sus fichas son `Revision.md` y `DonationBox.md` |
-| Propuestas | Sección f: `RESULTS-P1` a `RESULTS-P3`. Comunes: `COMUN-P2` |
+| Propuestas | Sección f: `RESULTS-P1` a `RESULTS-P3`. Comunes: `COMUN-P2` y `MAQUETA-P1` (aprobada, usuario, 2026-10-10) |
 
 ---
 
@@ -18,7 +18,7 @@
 
 | # | Bloque | Margen superior | Margen lateral | Separación inferior | Contenido |
 |---|---|---|---|---|---|
-| 1 | Barra interna | — | — | — | `comun.md` §3, sin volver |
+| 1 | Barra interna | — | — | — | `comun.md` §3, sin volver; fila de alto `paso 11` con el lugar del volver vacío y el título en el margen lateral `paso 5` (`MAQUETA-P1`) |
 | 2 | Tarjeta de resultado | `paso 4` | `paso 5` | `paso 3` | Lámina de `comun.md` §6; relleno `paso 4`; contenido alineado a la izquierda (a.2) |
 | 3 | Trío | — | `paso 5` | `paso 3` | Lámina de `comun.md` §6 con tres celdas (a.3) |
 | 4 | Pedido de donación (`DonationBox.md` a.1) | — | `paso 5` | `paso 3` | Condicional (d.2). Conserva su lugar actual: entre el trío y los botones |
@@ -202,7 +202,7 @@ Cambios del boceto respecto de `main`, o de `main` respecto del boceto. El usuar
 | RESULTS-P2 | El mensaje del tramo de 75 a 89 dice «Muy bien. Vas por buen camino.», sin signos, como en el boceto; `main` dice «¡Muy bien! Vas por buen camino.». Los otros cuatro mensajes de d.1 no cambian | Texto del boceto aprobado por el usuario | visual | aprobada (usuario, 2026-10-10) |
 | RESULTS-P3 | La tira tiene una casilla por respuesta cuando hay 40 o menos; con más, no se muestra, ni su leyenda. El boceto dibuja 24 casillas fijas | El total real varía; con más de 40 las casillas quedan demasiado finas a 390 px. El detalle completo sigue en la revisión de respuestas (`Revision.md`) | visual | aprobada (usuario, 2026-10-10) |
 
-Propuestas comunes que alcanzan esta pantalla: `COMUN-P2` (estados de control).
+Propuestas comunes que alcanzan esta pantalla: `COMUN-P2` (estados de control) y `MAQUETA-P1` (barra interna de igual alto con y sin volver, `comun.md` §3.5; aprobada, usuario, 2026-10-10).
 
 ---
 

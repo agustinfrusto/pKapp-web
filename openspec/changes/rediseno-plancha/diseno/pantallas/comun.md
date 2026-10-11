@@ -108,8 +108,8 @@ Header del Stack de las pantallas internas. Reemplaza la banda de marca y el tí
 
 | Elemento | Frente | Fondo | Borde | Paso | Notas |
 |---|---|---|---|---|---|
-| Barra | — | `fondo` | Inferior `linea`, `border`, a ancho completo | Relleno vertical `paso 4`, lateral `paso 5` | N1. El contenido va dentro de la columna (§7) |
-| Botón volver | `tinta`, `glifo-volver` | — | — | Objetivo `paso 11`; glifo `paso 6` | N5. Ausente en Results (`headerBackVisible: false`) |
+| Barra | — | `fondo` | Inferior `linea`, `border`, a ancho completo | Relleno vertical `paso 4`, lateral `paso 5`; fila de contenido de alto `paso 11` con y sin volver (`MAQUETA-P1`, 3.5) | N1. El contenido va dentro de la columna (§7) |
+| Botón volver | `tinta`, `glifo-volver` | — | — | Objetivo `paso 11`; glifo `paso 6` | N5. Ausente en Results (`headerBackVisible: false`): su lugar queda vacío |
 | Título | `tinta` | — | — | `titulo`; una línea | T1. Copy actual de `App.js` (3.3) |
 | Separación | — | — | — | `paso 3.5` entre volver y título | — |
 
@@ -118,7 +118,7 @@ Header del Stack de las pantallas internas. Reemplaza la banda de marca y el tí
 | Variante | Condición | Volver | Título | Filete |
 |---|---|---|---|---|
 | Con volver | Ruta con historial atrás y sin `headerBackVisible: false` (TopicSelect, Stats; AddQuestion y Settings: `AddQuestion.md` a.1, `Settings.md` a.1) | Visible (K7) | A la derecha del volver, separado `paso 3.5` | Inferior `linea`, `border`, a ancho completo |
-| Sin volver | `headerBackVisible: false` (Results) | Ausente; el título arranca en el margen lateral `paso 5` | Igual | Igual |
+| Sin volver | `headerBackVisible: false` (Results) | Ausente; su lugar queda vacío y la fila conserva el alto `paso 11`. El título arranca en el margen lateral `paso 5` | Igual | Igual |
 | Quiz | `QUIZ-P1` aprobada: `headerShown: false` | — | — | Lo pone la barra del quiz (`Quiz.md`) |
 
 | Elemento | Reposo | Hover (web) | Presionado | Foco | Seleccionado | Deshabilitado |
@@ -149,6 +149,15 @@ Header del Stack de las pantallas internas. Reemplaza la banda de marca y el tí
 | Pageview | `trackPageview` usa el nombre de ruta, no el título: no se altera |
 | Áreas seguras | Relleno superior: área segura superior más `paso 4`. En apaisado, márgenes laterales no menores al área segura lateral |
 | Columna | Filete y fondo de la barra a todo el ancho; volver y título dentro de la columna `columna` (§7) |
+| Alto | Igual con y sin volver: relleno `paso 4` arriba y abajo y fila de `paso 11` (`MAQUETA-P1`, 3.5). El título no cambia de lugar vertical al pasar de una pantalla con volver a Results |
+
+### 3.5 Propuestas aprobadas (D10)
+
+El usuario la aprobó el 2026-10-10 y rige tal como está descrita en 3.1, 3.2 y 3.4. No hay variante alternativa. Origen: `diseno/maqueta/NOTAS-MAQUETA.md` §7.
+
+| Id | Qué cambia | Motivo | Tipo | Estado |
+|---|---|---|---|---|
+| MAQUETA-P1 | La barra interna mide lo mismo con y sin volver: fila de alto `paso 11` en las dos variantes. En Results el lugar del volver queda vacío y el título arranca en el margen lateral `paso 5` | Con volver la barra mide `paso 4` + `paso 11` + `paso 4`; sin volver, `paso 4` + una línea de título + `paso 4`, y al pasar de TopicSelect o Stats a Results el título saltaba `paso 5`. Figuras 03a, 05a y 06 de la maqueta | visual | aprobada (usuario, 2026-10-10) |
 
 ---
 
@@ -433,14 +442,11 @@ No aparece en `Results`, la revisión, `Stats`, `Settings` ni `Home`.
 
 La insignia no es un control: no tiene hover, presionado, foco ni deshabilitado. El filtro conserva la matriz de `TopicSelect.md` c.
 
-### 12.4 Propuestas pendientes (D10)
+### 12.4 Propuestas aprobadas (D10)
+
+El usuario las aprobó el 2026-10-10 y rigen tal como están descritas en 12.2 y 12.3. No hay variantes alternativas.
 
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
-| PAR-P1 | La insignia de parcial del quiz y del examen en curso pasa del par de pasteles a una marca de dos casillas más el texto de siempre, sin color propio | `parcial.1` y `parcial.2` no existen en Plancha y la paleta excluye lo colorido. El par comunica una categoría que el texto solo no hace evidente de un vistazo; la posición de la casilla llena sí, sin color y con la misma tinta en los dos | visual | pendiente |
-| PAR-P2 | El filtro de parcial del selector lleva la misma marca delante del texto | La marca que el usuario elige en el selector es la que ve en la pregunta. Hoy el filtro no lleva pastel y se distingue solo por texto | visual | pendiente |
-
-| Id | Si no se aprueba | Detalle |
-|---|---|---|
-| PAR-P1 | Insignia solo de texto | Sin marca ni color propio: el texto «1er Parcial» o «2do Parcial» en `rotulo` y `tinta` (T1) sobre `fondo`, en una línea, encima del chip de origen, con margen inferior `paso 1`. Sin marco ni relleno. La distinción es solo el texto, como en el boceto |
-| PAR-P2 | Filtro solo de texto | El filtro de parcial queda como en `TopicSelect.md` b y c: K4 con el texto del parcial y sin marca. «Examen», «1er Parcial» y «2do Parcial» se distinguen por texto, como hoy |
+| PAR-P1 | La insignia de parcial del quiz y del examen en curso pasa del par de pasteles a una marca de dos casillas más el texto de siempre, sin color propio | `parcial.1` y `parcial.2` no existen en Plancha y la paleta excluye lo colorido. El par comunica una categoría que el texto solo no hace evidente de un vistazo; la posición de la casilla llena sí, sin color y con la misma tinta en los dos | visual | aprobada (usuario, 2026-10-10) |
+| PAR-P2 | El filtro de parcial del selector lleva la misma marca delante del texto | La marca que el usuario elige en el selector es la que ve en la pregunta. Hoy el filtro no lleva pastel y se distingue solo por texto | visual | aprobada (usuario, 2026-10-10) |

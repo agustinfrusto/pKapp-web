@@ -8,9 +8,7 @@
 | Navegador | Barra interna con título «pKapp · Ajustes» y volver (`comun.md` §3.3) |
 | Variantes | Plegables cerrados o abiertos; con y sin preguntas propias; web (con respaldo) o nativo (sin respaldo) |
 | Fuera de alcance | Diálogos del sistema (`confirm`, `avisar`) y el selector de archivos del navegador: su aspecto no es del sistema visual. El estado vacío de «Mis preguntas» tiene su ficha en `Vacios.md` |
-| Propuestas | Sección f: `SET-P1` y `SET-P2`, pendientes. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
-
-Convención de 1.3 (D10): las secciones a a e describen la pantalla con las propuestas de f aplicadas. La sección f.2 trae la variante sin el cambio de cada una, al mismo nivel de detalle, y es la que se implementa si el usuario no la aprueba. Base de comparación: el boceto para lo visual; `main` para funciones, datos, copy y orden de uso.
+| Propuestas | Sección f: `SET-P1` y `SET-P2`, aprobadas (usuario, 2026-10-10). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
 
 ---
 
@@ -203,23 +201,14 @@ Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—)
 
 ---
 
-## f. Propuestas pendientes (D10)
+## f. Propuestas aprobadas (D10)
 
-Cambios respecto de `main` que el boceto no dibuja. Quedan pendientes hasta que el usuario las apruebe; el cuerpo de la ficha (a a e) las describe aplicadas.
-
-### f.1 Propuestas
+Cambios respecto de `main` que el boceto no dibuja. El usuario los aprobó el 2026-10-10 (D10): rigen tal como están descritos acá y en el cuerpo de la ficha (a a e). No hay variantes alternativas.
 
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
-| SET-P1 | El `Switch` de «Ocultar resultado hasta el final» pasa a un control segmentado de dos opciones, «No» y «Sí», de la misma clase K4 que el control «Claro \| Oscuro» (D7). Un toque en la opción no seleccionada cambia el ajuste, como hoy | El `Switch` es un elemento circular de plataforma que no admite radio 0 ni los tokens (`tokens.md` c.1); D7 ya resolvió el mismo problema con el control de tema. El estado se lee con palabra e inversión de valor, no solo por posición | visual | pendiente |
-| SET-P2 | «Resetear estadísticas» usa `error` en borde y texto (K2 de peligro). Es la única acción destructiva e irreversible de la pantalla | `main` la distingue con tono de peligro y el usuario ya la reconoce así. Es una excepción a la reserva de `error` (incorrecta, banda baja, validación y alerta de tiempo: `tokens.md` a.1 y CD-8 de `CONVENCIONES.md`); por eso necesita aprobación | visual | pendiente |
-
-### f.2 Variante sin el cambio
-
-| Id | Si no se aprueba | Detalle |
-|---|---|---|
-| SET-P1 | `Switch` de plataforma con colores de tokens | A la derecha del bloque de texto, con el mismo alto de fila y la misma separación `paso 3.5`. `trackColor`: apagado `borde`, encendido `tinta`; `thumbColor` `superficie`; fondo de iOS `borde`. Pares: pulgar `superficie` sobre pista `borde` (N4) y sobre `tinta` (N6). Estado: posición del pulgar, sin palabra. Área táctil de `paso 11` de alto y de ancho (el interruptor visible mide menos y se amplía con `hitSlop`). Hover sin cambio; presionado lo resuelve la plataforma; foco: el de la plataforma, sin contorno `foco` propio. `accessibilityRole` interruptor con `accessibilityLabel` «Ocultar resultado hasta el final» y estado marcado. El control conserva la forma circular de plataforma: es una excepción a `tokens.md` c.1 que esta variante deja declarada |
-| SET-P2 | K2 neutro | Texto `tinta` (T2) y borde `linea`, `border` (N2) sobre `superficie`. Hover: contorno web `linea`, `border`. Presionado: inversión, fondo `tinta`; texto `fondo`; borde `tinta` (T7). Foco: contorno `foco`. Misma ubicación (detrás del divisor, último de «Tus datos») y mismo texto; la advertencia la da la confirmación del sistema, como hoy |
+| SET-P1 | El `Switch` de «Ocultar resultado hasta el final» pasa a un control segmentado de dos opciones, «No» y «Sí», de la misma clase K4 que el control «Claro \| Oscuro» (D7). Un toque en la opción no seleccionada cambia el ajuste, como hoy | El `Switch` es un elemento circular de plataforma que no admite radio 0 ni los tokens (`tokens.md` c.1); D7 ya resolvió el mismo problema con el control de tema. El estado se lee con palabra e inversión de valor, no solo por posición | visual | aprobada (usuario, 2026-10-10) |
+| SET-P2 | «Resetear estadísticas» usa `error` en borde y texto (K2 de peligro). Es la única acción destructiva e irreversible de la pantalla | `main` la distingue con tono de peligro y el usuario ya la reconoce así. Es una excepción a la reserva de `error` (incorrecta, banda baja, validación y alerta de tiempo: `tokens.md` a.1 y CD-8 de `CONVENCIONES.md`), aprobada por el usuario | visual | aprobada (usuario, 2026-10-10) |
 
 ---
 

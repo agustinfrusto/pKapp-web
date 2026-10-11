@@ -9,9 +9,7 @@
 | Navegador | Igual que `Quiz.md`: sin barra interna y con barra propia del quiz (`QUIZ-P1`, aprobada) |
 | Variantes | Con y sin temporizador; con y sin parcial; origen examen, generada o propia; última pregunta; sin responder o respondida |
 | Fuera de alcance | Lo que no cambia respecto de `Quiz.md`: barra del quiz, progreso, contador, tiempo, caja del enunciado, chip de origen, salida con confirmación |
-| Propuestas | Sección f: `EXA-P1`, pendiente. Sección h: conservado de main (D10). Comunes: `COMUN-P2` y `PAR-P1` (`comun.md` §12) |
-
-Convención de 1.3 (D10): las secciones a a e describen la superficie con las propuestas de f aplicadas. La sección f.2 trae la variante sin el cambio de cada una, al mismo nivel de detalle, y es la que se implementa si el usuario no la aprueba. Base de comparación: el boceto para lo visual; `main` para funciones, datos, copy y orden de uso.
+| Propuestas | Sección f: `EXA-P1`, aprobada (usuario, 2026-10-10). Sección h: conservado de main (D10). Comunes: `COMUN-P2` y `PAR-P1` (`comun.md` §12), aprobadas |
 
 ---
 
@@ -153,21 +151,13 @@ Origen de la pregunta, acierto o error de una opción, banda intermedia y banco 
 
 ---
 
-## f. Propuestas pendientes (D10)
+## f. Propuestas aprobadas (D10)
 
-Cambios respecto de `main` que el boceto no dibuja. Quedan pendientes hasta que el usuario las apruebe; el cuerpo de la ficha (a a e) las describe aplicadas.
-
-### f.1 Propuestas
+Cambios respecto de `main` que el boceto no dibuja. El usuario los aprobó el 2026-10-10 (D10): rigen tal como están descritos acá y en el cuerpo de la ficha (a a e). No hay variantes alternativas.
 
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
-| EXA-P1 | Tras responder sin retroalimentación aparece una línea, «Resultado oculto hasta el final», en el lugar donde iría la nota de explicación | Hoy el toque sobre una opción no muestra respuesta alguna y nada explica por qué: quien activó el ajuste semanas atrás puede creer que la app no registró el toque. La línea no agrega gestos | uso | pendiente |
-
-### f.2 Variante sin el cambio
-
-| Id | Si no se aprueba | Detalle |
-|---|---|---|
-| EXA-P1 | Sin aviso | Se omite el bloque 5b de a.1: tras responder, debajo de las opciones va directo «Reportar pregunta» (margen superior `paso 3.5`, centrado), como en `main`. Sin cadena nueva |
+| EXA-P1 | Tras responder sin retroalimentación aparece una línea, «Resultado oculto hasta el final», en el lugar donde iría la nota de explicación | Hoy el toque sobre una opción no muestra respuesta alguna y nada explica por qué: quien activó el ajuste semanas atrás puede creer que la app no registró el toque. La línea no agrega gestos | uso | aprobada (usuario, 2026-10-10) |
 
 ---
 

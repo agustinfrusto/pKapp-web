@@ -8,9 +8,7 @@
 | Navegador | Barra interna con título «pKapp · Agregar pregunta» y volver (`comun.md` §3.3) |
 | Variantes | De 2 a 6 opciones; con y sin correcta marcada; guardando; con teclado abierto |
 | Fuera de alcance | Diálogos del sistema (`confirm`, `avisar`): su texto está en d.2 y e; su aspecto no es del sistema visual |
-| Propuestas | Sección f: `ADD-P1` y `ADD-P2`, pendientes. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
-
-Convención de 1.3 (D10): las secciones a a e describen la pantalla con las propuestas de f aplicadas. La sección f.2 trae la variante sin el cambio de cada una, al mismo nivel de detalle, y es la que se implementa si el usuario no la aprueba. Base de comparación: el boceto para lo visual; `main` para funciones, datos, copy y orden de uso.
+| Propuestas | Sección f: `ADD-P1` y `ADD-P2`, aprobadas (usuario, 2026-10-10); `ADD-P1` con revisión del usuario al implementar. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
 
 ---
 
@@ -177,23 +175,16 @@ El texto de ayuda del campo (placeholder) lleva el color del token `tintaSec` en
 
 ---
 
-## f. Propuestas pendientes (D10)
+## f. Propuestas aprobadas (D10)
 
-Cambios respecto de `main` que el boceto no dibuja. Quedan pendientes hasta que el usuario las apruebe; el cuerpo de la ficha (a a e) las describe aplicadas.
-
-### f.1 Propuestas
+Cambios respecto de `main` que el boceto no dibuja. El usuario los aprobó el 2026-10-10 (D10): rigen tal como están descritos acá y en el cuerpo de la ficha (a a e). No hay variantes alternativas.
 
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
-| ADD-P1 | Los temas pasan de una fila con scroll horizontal a filtros K4 con salto de línea: todos quedan a la vista y se elige con un toque, sin deslizar | Con puntero (PC y Mac) el scroll horizontal no tiene gesto visible, porque el indicador está oculto. A 390 px el tema elegido puede quedar fuera de pantalla. Costo: la lista ocupa varias filas antes del enunciado; en la materia con más temas y nombres largos (`bcyt`) es lo más alto de la pantalla | uso | pendiente |
-| ADD-P2 | Los rótulos de grupo van en `rotulo` y `tintaSec` (T3), sin dos puntos: «Tema», «Enunciado de la pregunta», «Opciones de respuesta», «Explicación (opcional)». El paso los muestra en mayúsculas | Misma gramática de rótulos mono que el resto de las pantallas; los dos puntos ya salieron en TopicSelect (`TOPIC-P3`, aprobada) | visual | pendiente |
+| ADD-P1 | Los temas pasan de una fila con scroll horizontal a filtros K4 con salto de línea: todos quedan a la vista y se elige con un toque, sin deslizar | Con puntero (PC y Mac) el scroll horizontal no tiene gesto visible, porque el indicador está oculto. A 390 px el tema elegido puede quedar fuera de pantalla. Costo: la lista ocupa varias filas antes del enunciado; en la materia con más temas y nombres largos (`bcyt`) es lo más alto de la pantalla | uso | aprobada (usuario, 2026-10-10), con dudas: revisión del usuario al implementar |
+| ADD-P2 | Los rótulos de grupo van en `rotulo` y `tintaSec` (T3), sin dos puntos: «Tema», «Enunciado de la pregunta», «Opciones de respuesta», «Explicación (opcional)». El paso los muestra en mayúsculas | Misma gramática de rótulos mono que el resto de las pantallas; los dos puntos ya salieron en TopicSelect (`TOPIC-P3`, aprobada) | visual | aprobada (usuario, 2026-10-10) |
 
-### f.2 Variante sin el cambio
-
-| Id | Si no se aprueba | Detalle |
-|---|---|---|
-| ADD-P1 | Una sola fila de filtros K4 con scroll horizontal | Fila única de alto `paso 11` dentro de un scroll horizontal sin indicador (como hoy); separación `paso 2`; relleno final `paso 5` para que el último filtro no quede pegado al borde; margen inferior del grupo `paso 6`. Cada filtro conserva los tokens de b (reposo `borde` y `tinta`, seleccionado `tinta` y `fondo`) y los estados de c.1. Los nombres largos no saltan de línea: el filtro crece en ancho. El filtro siguiente asoma cortado en el borde de la columna como indicio de que hay más; sin degradado (a.2 de `tokens.md`). El elegido no se desplaza solo a la vista |
-| ADD-P2 | Rótulos con dos puntos y en `cuerpo-fuerte` | Rótulo en `cuerpo-fuerte` y `tintaSec` (T3), en caja normal y con dos puntos: «Tema:», «Enunciado de la pregunta:», «Opciones de respuesta:», «Explicación (opcional):». Margen inferior `paso 1.5` en lugar de `paso 2`; el resto de las medidas de a.1 no cambia. La ayuda de marcado sigue en `detalle` (T3) |
+Revisión del usuario al implementar (`ADD-P1`): el usuario la aprobó con dudas y quiere verla implementada. La tarea 3.9 (`AddQuestionScreen`) se la muestra, en claro y oscuro y en la materia de nombres de tema más largos, antes del commit.
 
 ---
 

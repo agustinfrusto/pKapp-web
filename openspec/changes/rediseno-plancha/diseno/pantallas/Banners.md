@@ -8,9 +8,7 @@
 | Lo usan | `Home` (banco reducido y privacidad) y `MateriaSelect` (nota del creador) |
 | Variantes | Banco reducido solo en materias con `bancoReducido` (hoy `cyr` y `neuro`); nota del creador visible o descartada (reaparece a los siete días); privacidad solo en web |
 | Fuera de alcance | La lámina, la tarjeta de materia y la lista de acciones (`MateriaSelect.md`, `Home.md`) |
-| Propuestas | Sección f: `BAN-P1`, pendiente. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
-
-Convención de 1.3 (D10): las secciones a a e describen la superficie con las propuestas de f aplicadas. La sección f.2 trae la variante sin el cambio de cada una, al mismo nivel de detalle, y es la que se implementa si el usuario no la aprueba. Base de comparación: el boceto para lo visual; `main` para funciones, datos, copy y orden de uso.
+| Propuestas | Sección f: `BAN-P1`, aprobada (usuario, 2026-10-10). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
 
 ---
 
@@ -133,7 +131,7 @@ Origen de la pregunta, aciertos de rendimiento y estado vacío no aplican (—).
 | Elemento | Actual | Nuevo | Motivo |
 |---|---|---|---|
 | Banner, rótulo | Emoji de descenso y «Banco más reducido» | «Banco más reducido» con `glifo-banco-reducido`; el paso lo muestra en mayúsculas | Reemplazo de emoji |
-| Banner, texto | «Esta materia tiene menos preguntas que las anteriores porque tuve acceso a menos prototipos de examen.» y, en otro párrafo, «Si tenés material para aportar, escribime a pkappsoporte@gmail.com.» | Iguales; con `BAN-P1`, el correo pasa de enlace en la oración a botón y la oración termina en «escribime a» | `BAN-P1` |
+| Banner, texto | «Esta materia tiene menos preguntas que las anteriores porque tuve acceso a menos prototipos de examen.» y, en otro párrafo, «Si tenés material para aportar, escribime a pkappsoporte@gmail.com.» | Iguales; el correo pasa de enlace en la oración a botón y la oración termina en «escribime a» | `BAN-P1` |
 | Nota del creador, rótulo | Emoji de saludo y «Una nota del creador» | «Una nota del creador» con `glifo-mensaje`; el paso lo muestra en mayúsculas | Reemplazo de emoji |
 | Nota del creador, texto | «¡Hola! Estoy sumando las materias que faltan (Digestivo, Renal y Endócrino, y Reproductor y Desarrollo) y dándole una lavada de cara a la página. Van llegando de a poco, ¡gracias por la paciencia!» | Igual | Copy del usuario |
 | Descartar | Símbolo de cruz | `glifo-cerrar`; nombre accesible «Cerrar nota» | Reemplazo de símbolo; cadena accesible nueva, no visible |
@@ -142,21 +140,13 @@ Origen de la pregunta, aciertos de rendimiento y estado vacío no aplican (—).
 
 ---
 
-## f. Propuestas pendientes (D10)
+## f. Propuestas aprobadas (D10)
 
-Cambios respecto de `main` que el boceto no dibuja. Quedan pendientes hasta que el usuario las apruebe; el cuerpo de la ficha (a a e) las describe aplicadas.
-
-### f.1 Propuestas
+Cambios respecto de `main` que el boceto no dibuja. El usuario los aprobó el 2026-10-10 (D10): rigen tal como están descritos acá y en el cuerpo de la ficha (a a e). No hay variantes alternativas.
 
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
-| BAN-P1 | En el banner de banco reducido, el correo de contacto pasa de enlace subrayado dentro de la oración a un botón de marco de acento (K2) con `glifo-correo`, debajo del texto. La oración termina en «escribime a» y el botón dice «pkappsoporte@gmail.com» | El sistema no admite subrayado (`tokens.md` b.3) y un enlace en línea mide una línea de texto, bajo el objetivo táctil de 44 × 44 pt (D10 y C3 de `CONVENCIONES.md`). Como botón es un objetivo propio y se distingue por forma | uso | pendiente |
-
-### f.2 Variante sin el cambio
-
-| Id | Si no se aprueba | Detalle |
-|---|---|---|
-| BAN-P1 | Enlace en la oración | Se omite el bloque 4 de a.2. El texto sigue igual que en `main`: segundo párrafo «Si tenés material para aportar, escribime a pkappsoporte@gmail.com.» con el correo como fragmento de texto en `acento` y `cuerpo-fuerte` (T6), sin subrayado; se distingue del resto por color y peso. Toque: `Linking.openURL('mailto:…')`, igual que hoy. Hover (web): contorno `acento`, `border` alrededor del fragmento. Presionado: inversión del fragmento (fondo `tinta`; texto `fondo`). Foco: contorno `foco`, `border-2`, separado `paso 0.5`. Objetivo táctil: el alto de la línea, bajo `paso 11` (excepción de enlace en línea) |
+| BAN-P1 | En el banner de banco reducido, el correo de contacto pasa de enlace subrayado dentro de la oración a un botón de marco de acento (K2) con `glifo-correo`, debajo del texto. La oración termina en «escribime a» y el botón dice «pkappsoporte@gmail.com» | El sistema no admite subrayado (`tokens.md` b.3) y un enlace en línea mide una línea de texto, bajo el objetivo táctil de 44 × 44 pt (D10 y C3 de `CONVENCIONES.md`). Como botón es un objetivo propio y se distingue por forma | uso | aprobada (usuario, 2026-10-10) |
 
 ---
 
