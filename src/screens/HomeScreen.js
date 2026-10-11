@@ -1,30 +1,27 @@
 // Pantalla principal: muestra los modos de uso disponibles.
+// Ficha: openspec/changes/rediseno-plancha/diseno/pantallas/Home.md (y Banners.md).
 import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity, Pressable, ScrollView, Image, Platform, Linking, useWindowDimensions } from 'react-native';
+import { View, Text, Pressable, ScrollView, Platform, Linking, useWindowDimensions } from 'react-native';
 import { useMateria } from '../materia/MateriaContext';
+import { MATERIA_LIST } from '../materias';
 import HeaderMarca from '../components/HeaderMarca';
 import Glifo from '../components/Glifo';
+import Ilustracion from '../components/Ilustracion';
+import {
+  BotonMarco, ControlMarco, Lamina, RotuloSeccion, Columna, useEstadoControl,
+} from '../components/plancha';
 import { useTema } from '../theme/TemaContext';
 import { plancha } from '../theme/colores';
-import { sombras } from '../theme/sombras';
 
-const icons = {
-  practicar:   require('../assets/practicar.png'),
-  examen:      require('../assets/examen.png'),
-  repasar:     require('../assets/repasar.png'),
-  estadisticas: require('../assets/estadisticas.png'),
-  agregar:     require('../assets/agregar.png'),
-  ajustes:     require('../assets/ajustes.png'),
-};
-
+// Escala de 4 px por paso (tokens.md c.3, comun.md §8).
+const PX_POR_PASO = 4;
+const GLIFO_CHICO = 4 * PX_POR_PASO;
+const GLIFO_GRANDE = 6 * PX_POR_PASO;
+const ILUSTRACION_MATERIA = 16 * PX_POR_PASO;
 
 // Botón del slot `izquierda` (K2, comun.md §1.1): con texto desde 360 px; bajo
 // 360 solo el glifo, en un cuadrado de paso 11, con el texto como nombre accesible.
 const ANCHO_CORTE = 360;
-
-// Glifo del botón: paso 6 de la escala de 4 px (tokens.md c.3, comun.md §8).
-const PX_POR_PASO = 4;
-const GLIFO_VOLVER = 6 * PX_POR_PASO;
 
 function BotonCambiarMateria({ navigation }) {
   const { width } = useWindowDimensions();
@@ -47,7 +44,7 @@ function BotonCambiarMateria({ navigation }) {
               : 'border-linea bg-fondo dark:border-lineaD dark:bg-fondoD'
           }`}
         >
-          <Glifo id="glifo-volver" size={GLIFO_VOLVER} color={pressed ? tema.fondo : tema.tinta} />
+          <Glifo id="glifo-volver" size={GLIFO_GRANDE} color={pressed ? tema.fondo : tema.tinta} />
           {soloGlifo ? null : (
             <Text className={`font-plex-sans-semibold text-cuerpo ${
               pressed ? 'text-fondo dark:text-fondoD' : 'text-tinta dark:text-tintaD'}`}>
@@ -62,6 +59,7 @@ function BotonCambiarMateria({ navigation }) {
 
 export default function HomeScreen({ navigation }) {
   const { materia } = useMateria();
+  const { oscuro } = useTema();
   const QUESTIONS = materia?.QUESTIONS;
   // Conteo por fuente en una sola pasada (memoizado).
   // El memo va antes del early return: React exige que la cantidad de hooks no
@@ -77,121 +75,174 @@ export default function HomeScreen({ navigation }) {
 
   if (!materia) return null; // Aún no se eligió materia (Fase 2)
 
+  const tema = oscuro ? plancha.oscuro : plancha.claro;
   const examSize = materia.config?.examSize || 75;
   const examModeCount = Math.min(examSize, QUESTIONS.length);
+  // Id de la ficha (d.1): id corto y posición en el selector, con dos dígitos.
+  const posicion = String(MATERIA_LIST.findIndex((m) => m.id === materia.id) + 1).padStart(2, '0');
 
   return (
-    <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900" contentContainerClassName="pb-[30px]">
+    <ScrollView className="flex-1 bg-fondo dark:bg-fondoD" contentContainerClassName="pb-8">
       <HeaderMarca izquierda={<BotonCambiarMateria navigation={navigation} />} />
-      {/* Pendiente de 3.3: el nombre y los conteos pasan a la tarjeta de materia. */}
-      <View className="items-center bg-brand px-6 pb-5 pt-3 dark:bg-brandD-deep">
-        <Text numberOfLines={1} className="text-center text-md text-brand-tint">{materia.name}</Text>
-        <Text numberOfLines={1} className="mt-2 text-center text-sm text-brand-pale">
-          {examCount} preguntas reales · {generatedCount} preguntas extra
-        </Text>
-      </View>
-
-      {materia.bancoReducido ? <BancoReducidoBanner /> : null}
-
-      <View className="p-4">
-        <ModeCard
-          icon={icons.practicar}
-          title="Entrena Temas/Parciales"
-          description="Crea tu propio test eligiendo temas o practica para los parciales"
-          onPress={() => requestAnimationFrame(() => navigation.navigate('TopicSelect', { mode: 'practice' }))}
-        />
-
-        <ModeCard
-          icon={icons.examen}
-          title="Modo examen"
-          description={`${examModeCount} preguntas al azar como en el parcial real`}
-          onPress={() => requestAnimationFrame(() => navigation.navigate('TopicSelect', { mode: 'exam' }))}
-        />
-
-        <ModeCard
-          icon={icons.repasar}
-          title="Repasar fallos"
-          description="Preguntas que te costaron antes"
-          onPress={() => requestAnimationFrame(() => navigation.navigate('TopicSelect', { mode: 'failed' }))}
-        />
-
-        <ModeCard
-          icon={icons.estadisticas}
-          title="Mis estadísticas"
-          description="% de aciertos por tema, preguntas falladas"
-          onPress={() => requestAnimationFrame(() => navigation.navigate('Stats'))}
-          iconSize={64}
-        />
-
-        <ModeCard
-          icon={icons.agregar}
-          title="Agregar pregunta"
-          description="Agregá tus propias preguntas al banco"
-          onPress={() => requestAnimationFrame(() => navigation.navigate('AddQuestion'))}
-        />
-
-        <ModeCard
-          icon={icons.ajustes}
-          title="Ajustes"
-          description="Filtrar fuente, resetear estadísticas"
-          onPress={() => requestAnimationFrame(() => navigation.navigate('Settings'))}
-          iconSize={38}
-        />
-      </View>
-
-      {Platform.OS === 'web' && (
-        <View className="items-center px-6 pb-4 pt-2">
-          <Text className="text-center text-xxs leading-4 text-muted dark:text-mutedD">
-            Tus estadísticas y preguntas se guardan localmente en tu navegador.
-            {'\n'}
-            Se usan analíticas anónimas (sin cookies ni datos personales).
-          </Text>
+      <Columna>
+        <View className="mt-1.5">
+          <Lamina testID="home-tarjeta-materia">
+            <View className="flex-row">
+              <View className="w-24 items-center justify-center border-r border-filete dark:border-fileteD">
+                {materia.ilustracion ? (
+                  <Ilustracion datos={materia.ilustracion} color={tema.filamento} size={ILUSTRACION_MATERIA} />
+                ) : null}
+              </View>
+              <View className="min-w-0 flex-1 px-3 py-2">
+                <RotuloSeccion color="acento">{`${materia.shortName} · ${posicion}`}</RotuloSeccion>
+                <Text className="mt-1.5 font-plex-sans-semibold text-titulo text-tinta dark:text-tintaD">
+                  {materia.name}
+                </Text>
+                <Text className="mt-1.5 font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
+                  {examCount} preguntas reales · {generatedCount} preguntas extra
+                </Text>
+              </View>
+            </View>
+          </Lamina>
         </View>
-      )}
+
+        {materia.bancoReducido ? <BancoReducidoBanner tema={tema} /> : null}
+
+        <View className="mb-2 mt-4">
+          <RotuloSeccion testID="home-rotulo-acciones" color="acento">Plano / Acciones</RotuloSeccion>
+        </View>
+
+        <View testID="home-acciones" className="gap-2.5">
+          <Accion
+            clave="practicar"
+            primaria
+            glifo="glifo-practicar"
+            titulo="Entrena Temas/Parciales"
+            descripcion="Crea tu propio test eligiendo temas o practica para los parciales"
+            onPress={() => requestAnimationFrame(() => navigation.navigate('TopicSelect', { mode: 'practice' }))}
+          />
+          <Accion
+            clave="examen"
+            glifo="glifo-examen"
+            titulo="Modo examen"
+            descripcion={`${examModeCount} preguntas al azar como en el parcial real`}
+            onPress={() => requestAnimationFrame(() => navigation.navigate('TopicSelect', { mode: 'exam' }))}
+          />
+          <Accion
+            clave="repasar"
+            glifo="glifo-repasar"
+            titulo="Repasar fallos"
+            descripcion="Preguntas que te costaron antes"
+            onPress={() => requestAnimationFrame(() => navigation.navigate('TopicSelect', { mode: 'failed' }))}
+          />
+          <Accion
+            clave="estadisticas"
+            glifo="glifo-estadisticas"
+            titulo="Mis estadísticas"
+            descripcion="% de aciertos por tema, preguntas falladas"
+            onPress={() => requestAnimationFrame(() => navigation.navigate('Stats'))}
+          />
+          <Accion
+            clave="agregar"
+            glifo="glifo-agregar"
+            titulo="Agregar pregunta"
+            descripcion="Agregá tus propias preguntas al banco"
+            onPress={() => requestAnimationFrame(() => navigation.navigate('AddQuestion'))}
+          />
+          <Accion
+            clave="ajustes"
+            glifo="glifo-ajustes"
+            titulo="Ajustes"
+            descripcion="Filtrar fuente, resetear estadísticas"
+            onPress={() => requestAnimationFrame(() => navigation.navigate('Settings'))}
+          />
+        </View>
+
+        {Platform.OS === 'web' && (
+          <View testID="home-privacidad" className="mx-1 mt-6 items-center">
+            <Text className="text-center font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
+              Tus estadísticas y preguntas se guardan localmente en tu navegador.
+              {'\n'}
+              Se usan analíticas anónimas (sin cookies ni datos personales).
+            </Text>
+          </View>
+        )}
+      </Columna>
     </ScrollView>
   );
 }
 
 // Aviso para las materias donde se consiguieron pocos examenes: explica el
 // tamano del banco y pide material, en vez de dejar al usuario suponiendo.
-function BancoReducidoBanner() {
+// Banners.md: nota con borde izquierdo de acento; el correo es un botón K2 de acento.
+const CORREO = 'pkappsoporte@gmail.com';
+
+function BancoReducidoBanner({ tema }) {
   function escribir() {
-    requestAnimationFrame(() => Linking.openURL('mailto:pkappsoporte@gmail.com').catch(() => {}));
+    requestAnimationFrame(() => Linking.openURL(`mailto:${CORREO}`).catch(() => {}));
   }
 
   return (
-    <View className="mx-4 mt-3 rounded-md border border-slate-200 bg-white p-3.5 dark:border-brandD-border dark:bg-slate-800">
-      <Text className="mb-1.5 text-base font-bold text-brand dark:text-brandD-light">📉 Banco más reducido</Text>
-      <Text className="text-sm leading-5 text-slate-600 dark:text-brandD-ink">
+    <View
+      testID="home-banco-reducido"
+      className="mt-3 border border-l-3 border-filete border-l-acento bg-superficie p-3.5 dark:border-fileteD dark:border-l-acentoD dark:bg-superficieD"
+    >
+      <View className="mb-2 flex-row items-center gap-1.5">
+        <Glifo id="glifo-banco-reducido" size={GLIFO_CHICO} color={tema.acento} />
+        <RotuloSeccion color="acento">Banco más reducido</RotuloSeccion>
+      </View>
+      <Text className="font-plex-sans text-cuerpo text-tinta dark:text-tintaD">
         Esta materia tiene menos preguntas que las anteriores porque tuve acceso a menos prototipos de examen.
-        {'\n\n'}
-        Si tenés material para aportar, escribime a{' '}
-        <Text className="font-semibold text-brand underline dark:text-brandD-light" onPress={escribir}>pkappsoporte@gmail.com</Text>.
       </Text>
+      <Text className="mt-3 font-plex-sans text-cuerpo text-tinta dark:text-tintaD">
+        Si tenés material para aportar, escribime a
+      </Text>
+      <BotonMarco
+        className="mt-3 self-start"
+        tono="acento"
+        glifo="glifo-correo"
+        etiqueta={CORREO}
+        accessibilityLabel={`Escribir a ${CORREO}`}
+        onPress={escribir}
+      />
     </View>
   );
 }
 
-function ModeCard({ icon, title, description, onPress, iconSize = 50 }) {
+// Acción de la lista (K3, comun.md §5.2): la primera con énfasis `primaria`
+// (borde `linea`, border-2); las demás con borde `borde`.
+function Accion({ clave, titulo, descripcion, glifo, primaria, onPress }) {
   return (
-    <TouchableOpacity
-      className="mb-3 flex-row items-center rounded-md bg-white p-4 dark:bg-slate-800"
-      style={sombras.card}
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
-      {/* Baldosa clara en oscuro: tres de los seis PNG son RGB sin alfa
-          (agregar, ajustes, repasar) y en fondo oscuro se ven como recuadros
-          blancos; los otros tres son line art oscuro y se pierden. La baldosa
-          resuelve las dos cosas sin tocar los assets. */}
-      <View className="mr-4 h-16 w-16 items-center justify-center dark:rounded-md dark:bg-white">
-        <Image source={icon} style={{ width: iconSize, height: iconSize }} resizeMode="contain" />
+    <ControlMarco testID={`home-accion-${clave}`} enfasis={primaria ? 'primaria' : 'normal'} onPress={onPress}>
+      <ContenidoAccion titulo={titulo} descripcion={descripcion} glifo={glifo} />
+    </ControlMarco>
+  );
+}
+
+// Interior de la acción (Home.md a.3): cuadro de glifo (paso 10), texto flexible y
+// chevron. K3 invierte todo en presionado, y un descendiente libre no hereda el color:
+// el color sale del estado del control. El relleno es paso 3.5 en las cuatro caras;
+// K3 trae paso 4 horizontal, que `-mx-0.5` lleva a paso 3.5.
+function ContenidoAccion({ titulo, descripcion, glifo }) {
+  const { invertido, texto, glifo: claveGlifo } = useEstadoControl();
+  const { oscuro } = useTema();
+  const tema = oscuro ? plancha.oscuro : plancha.claro;
+
+  return (
+    <View className="-mx-0.5 flex-1 flex-row items-center gap-3.5 py-3.5">
+      <View className="h-10 w-10 items-center justify-center border border-filete dark:border-fileteD">
+        <Glifo id={glifo} size={GLIFO_GRANDE} color={tema[claveGlifo]} />
       </View>
-      <View className="flex-1">
-        <Text className="text-md font-semibold text-brand-ink dark:text-brandD-ink">{title}</Text>
-        <Text className="mt-0.5 text-sm text-brand-soft dark:text-brandD-soft">{description}</Text>
+      <View className="min-w-0 flex-1">
+        <Text className={`font-plex-sans-semibold text-item ${texto}`}>{titulo}</Text>
+        <Text
+          className={`mt-1 font-plex-sans text-detalle ${
+            invertido ? 'text-fondo dark:text-fondoD' : 'text-tintaSec dark:text-tintaSecD'}`}
+        >
+          {descripcion}
+        </Text>
       </View>
-      <Text className="text-xl text-brand-pale dark:text-brandD-border">›</Text>
-    </TouchableOpacity>
+      <Glifo id="glifo-chevron" size={GLIFO_CHICO} color={invertido ? tema.fondo : tema.tintaSec} />
+    </View>
   );
 }

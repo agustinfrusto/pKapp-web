@@ -57,8 +57,11 @@ export async function cargarMateria(id) {
   const cargar = CARGADORES[id];
   if (!cargar) return null;
   const mod = await cargar();
+  // La ilustración sale del registro estático (D3): la materia cargada tiene la misma
+  // forma que su elemento de MATERIA_LIST más el banco, sin tocar la carga diferida.
   const materia = {
     ...mod.default,
+    ilustracion: MATERIA_LIST.find((m) => m.id === id)?.ilustracion,
     preguntas: CONTEOS[id] ?? 0,
     generadas: GENERADAS[id] ?? 0,
   };

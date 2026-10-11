@@ -179,6 +179,27 @@ async function main() {
     svg.status !== 0 && (svg.stdout + svg.stderr).includes('no-existe-2-8b'),
     `exit ${svg.status}: ${(svg.stdout + svg.stderr).trim().split('\n').slice(-2).join(' / ')}`);
 
+  // esperarTexto no distingue mayúsculas: el rótulo de MateriaSelect es «Tus
+  // materias» en el DOM pero innerText devuelve «TUS MATERIAS» (text-transform).
+  // Navegador simulado: Runtime.evaluate devuelve un texto fijo.
+  const { abrirPagina } = require('../cdp');
+  const paginaCon = async (texto) => abrirPagina({
+    enviar: async (metodo) => {
+      if (metodo === 'Target.createTarget') return { targetId: 't' };
+      if (metodo === 'Target.attachToTarget') return { sessionId: 's' };
+      if (metodo === 'Runtime.evaluate') return { result: { value: texto } };
+      return {};
+    },
+    alEvento() {},
+  });
+  const rotulada = await paginaCon('TUS MATERIAS DE ESFUNO');
+  esperar('esperarTexto: «tus materias» encuentra «TUS MATERIAS»',
+    await rotulada.esperarTexto('tus materias', { limite: 300 }) === true);
+  esperar('esperarTexto: «Tus materias» encuentra «TUS MATERIAS»',
+    await rotulada.esperarTexto('Tus materias', { limite: 300 }) === true);
+  esperar('esperarTexto: un texto ausente sigue sin encontrarse',
+    await rotulada.esperarTexto('Resultados', { limite: 300 }) === false);
+
   // A6: gen-conteos no reescribe si no cambia, sin temporales.
   const conteos = path.join(RAIZ, 'src', 'materias', 'conteos.js');
   const gen = () => spawnSync('node', [path.join(RAIZ, 'scripts', 'gen-conteos.mjs')], { cwd: RAIZ, encoding: 'utf8' });

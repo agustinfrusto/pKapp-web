@@ -67,3 +67,16 @@ export const ilustracion = {
     { tipo: 'path', props: { d: 'M -10 59 C 104 29, 209 89, 358 47', strokeWidth: 1.6, strokeOpacity: 1 }, tono: 'acento' },
   ],
 };
+
+// Regla graduada de la lámina (MateriaSelect.md a.2): una marca menor cada 10 unidades del
+// dibujo y una mayor cada 50, ambas apoyadas en el filete inferior. Mismo contrato que
+// `ilustracion`; las proporciones son las del boceto (`hibrido.html`, figura 01), no pasos
+// de la escala. `ancho: '100%'` y `alto` paso 2.5 los pone quien la dibuja.
+export const regla = {
+  viewBox: '0 0 348 10',
+  encuadre: 'none',
+  trazo: { ancho: 1, union: 'miter', extremo: 'butt' },
+  elementos: [
+    { tipo: 'path', props: { d: 'M0 9.5 H348 M0 9.5 V3 M10 9.5 V6 M20 9.5 V6 M30 9.5 V6 M40 9.5 V6 M50 9.5 V3 M60 9.5 V6 M70 9.5 V6 M80 9.5 V6 M90 9.5 V6 M100 9.5 V3 M110 9.5 V6 M120 9.5 V6 M130 9.5 V6 M140 9.5 V6 M150 9.5 V3 M160 9.5 V6 M170 9.5 V6 M180 9.5 V6 M190 9.5 V6 M200 9.5 V3 M210 9.5 V6 M220 9.5 V6 M230 9.5 V6 M240 9.5 V6 M250 9.5 V3 M260 9.5 V6 M270 9.5 V6 M280 9.5 V6 M290 9.5 V6 M300 9.5 V3 M310 9.5 V6 M320 9.5 V6 M330 9.5 V6 M340 9.5 V6' } },
+  ],
+};

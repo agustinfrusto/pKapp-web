@@ -202,8 +202,11 @@ async function abrirPagina(navegador, { ancho = 900, alto = 1400, escala = 1, mo
   pagina.esperarUrl = (esperada, opts) =>
     pagina.esperarA(async () => await pagina.url() === esperada, opts);
 
+  // Sin distinguir mayúsculas: la mayúscula de un rótulo es presentación por
+  // CSS (innerText la devuelve ya aplicada), no contenido.
   pagina.esperarTexto = (txt, opts) =>
-    pagina.esperarA(async () => (await pagina.texto(4000)).includes(txt), opts);
+    pagina.esperarA(async () =>
+      (await pagina.texto(4000)).toLowerCase().includes(String(txt).toLowerCase()), opts);
 
   pagina.cerrar = () => navegador.enviar('Target.closeTarget', { targetId });
 

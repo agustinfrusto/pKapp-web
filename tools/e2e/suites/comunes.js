@@ -2,19 +2,43 @@
 
 const MATERIA = 'Biología Celular y Tisular';
 
-// La nota del creador aparece en un perfil nuevo y tapa las tarjetas.
+// El botón de descartar de la nota del creador es solo un glifo (`glifo-cerrar`): no tiene
+// texto que buscar, se lo ubica por su nombre accesible (Banners.md e).
+const DESCARTAR_NOTA = '[aria-label="Cerrar nota"]';
+
+const PUNTO_DE_NOTA = `(function () {
+  const n = Array.from(document.querySelectorAll(${JSON.stringify(DESCARTAR_NOTA)})).find((e) => {
+    const r = e.getBoundingClientRect();
+    return r.width > 0 && r.height > 0;
+  });
+  if (!n) return null;
+  n.scrollIntoView({ block: 'center' });
+  const r = n.getBoundingClientRect();
+  return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+})()`;
+
+// El rótulo de la lámina sale en mayúsculas por CSS (paso `rotulo`) y `innerText` lo
+// devuelve así: el selector se reconoce sin distinguir mayúsculas.
+const TEXTO_DEL_SELECTOR = 'tus materias de esfuno';
+
+const esperarSelector = (pagina, opts) => pagina.esperarA(async () =>
+  (await pagina.texto(4000)).toLowerCase().includes(TEXTO_DEL_SELECTOR), opts);
+
+// La nota del creador aparece en un perfil nuevo y empuja las tarjetas.
 async function cerrarNota(pagina) {
-  if (await pagina.ubicar('✕')) {
-    await pagina.clic('✕');
-    await pagina.esperarA(async () => !await pagina.ubicar('✕'), { limite: 3000 });
-  }
+  if (!await pagina.evaluar(PUNTO_DE_NOTA)) return;
+  // Dos pasadas, como `pagina.clic`: la primera acomoda el scroll, la segunda mide.
+  await new Promise((r) => setTimeout(r, 400));
+  const punto = await pagina.evaluar(PUNTO_DE_NOTA);
+  if (punto) await pagina.clicEn(punto.x, punto.y);
+  await pagina.esperarA(async () => !await pagina.evaluar(PUNTO_DE_NOTA), { limite: 3000 });
 }
 
 // La carga de la materia baja un chunk aparte, así que se espera por la URL y
 // no por un tiempo fijo.
 async function entrarAMateria(pagina, base, nombre = MATERIA) {
   await pagina.ir(base + '/');
-  await pagina.esperarTexto('Tus materias');
+  await esperarSelector(pagina);
   await cerrarNota(pagina);
   await pagina.clic(nombre);
   return pagina.esperarUrl('/inicio');
@@ -103,8 +127,10 @@ async function abrirMarco(pagina, base, ancho, alto = 800) {
   return esperarEnMarco(pagina, 'Tus materias');
 }
 
+// Sin distinguir mayúsculas: los rótulos (paso `rotulo`) salen en mayúsculas por CSS.
 const esperarEnMarco = (pagina, texto) => pagina.esperarA(async () =>
-  (await pagina.evaluar(EN_MARCO('return d.body ? d.body.innerText : "";'))).includes(texto));
+  (await pagina.evaluar(EN_MARCO('return d.body ? d.body.innerText : "";')))
+    .toLowerCase().includes(texto.toLowerCase()));
 
 // Click por coordenadas sobre el elemento enfocable más específico del iframe
 // que tenga ese texto o ese rol de radio (sin distinguir mayúsculas: el paso
@@ -146,4 +172,4 @@ async function medirAmbasPantallas(pagina, base, ancho) {
 
 const TITULO_DEL_QUIZ = 'pKapp · Quiz';
 
-module.exports = { MATERIA, cerrarNota, entrarAMateria, MARCO, PASO, LADO_TACTIL, DESBORDES, EN_MARCO, MEDIR_PANTALLA, abrirMarco, esperarEnMarco, clicEnMarco, irAHomeEnMarco, medirAmbasPantallas, TITULO_DEL_QUIZ };
+module.exports = { MATERIA, cerrarNota, esperarSelector, entrarAMateria, MARCO, PASO, LADO_TACTIL, DESBORDES, EN_MARCO, MEDIR_PANTALLA, abrirMarco, esperarEnMarco, clicEnMarco, irAHomeEnMarco, medirAmbasPantallas, TITULO_DEL_QUIZ };
