@@ -456,8 +456,46 @@ async function paraleloCortado(senal, codigoEsperado) {
   for (const p of pids) { try { process.kill(p, 'SIGKILL'); } catch { /* ya no está */ } }
 }
 
+// `arnes.js` mismo: no deja `pkapp-arnes-*` en $TMPDIR ni al terminar ni cortado por señal.
+// Cuenta las carpetas de la corrida antes y después, en un $TMPDIR propio.
+const ARNES = path.join(__dirname, 'arnes.js');
+const carpetasArnes = (tmp) => fs.readdirSync(tmp).filter((n) => n.startsWith('pkapp-arnes-'));
+
+async function arnesSinTemporales(senal, codigoEsperado) {
+  const tmp = tmpPrivado();
+  const antes = carpetasArnes(tmp).length;
+  const proceso = spawn('node', [ARNES], {
+    cwd: RAIZ, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, TMPDIR: tmp },
+  });
+  let salida = '';
+  proceso.stdout.on('data', (d) => { salida += d; });
+  proceso.stderr.on('data', (d) => { salida += d; });
+  const cierre = new Promise((r) => proceso.once('close', (codigo, sig) => r({ codigo, senal: sig })));
+  const rotulo = senal ? `arnes.js cortado con ${senal}` : 'arnes.js hasta el final';
+  if (senal) {
+    const creo = await hasta(() => carpetasArnes(tmp).length > 0, 20000);
+    esperar(`${rotulo}: creó sus temporales antes de cortar`, creo, salida.slice(-300));
+    proceso.kill(senal);
+  }
+  const fin = await Promise.race([cierre, pausa(180000).then(() => null)]);
+  if (!fin) proceso.kill('SIGKILL');
+  const despues = carpetasArnes(tmp);
+  if (senal) {
+    esperar(`${rotulo}: sale con ${codigoEsperado}`, fin && codigoDe(fin) === codigoEsperado,
+      `salió con ${fin ? JSON.stringify(fin) : 'nada (colgado)'}\n    ${salida.slice(-200)}`);
+  } else {
+    esperar(`${rotulo}: sale 0`, fin && fin.codigo === 0, salida.slice(-300));
+  }
+  esperar(`${rotulo}: no deja pkapp-arnes-* (antes ${antes}, después ${despues.length})`,
+    despues.length === 0, despues.join(', '));
+}
+
 async function main() {
   try {
+    await arnesSinTemporales(null);
+    await arnesSinTemporales('SIGINT', 130);
+    await arnesSinTemporales('SIGTERM', 143);
+    await arnesSinTemporales('SIGHUP', 129);
     await elegirPuertos();
     await cortarConSenal('SIGINT', 130);
     await cortarConSenal('SIGTERM', 143);

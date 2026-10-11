@@ -48,7 +48,27 @@ function esperar(nombre, cond, detalle = '') {
   if (!cond) fallos.push(nombre);
 }
 
-const distTemporal = fs.mkdtempSync(path.join(os.tmpdir(), 'pkapp-arnes-'));
+// Un solo camino de limpieza para todos los temporales: lo corren el cierre normal, la
+// caída y las señales (mismo criterio que entorno.js). Es idempotente. Esta prueba no
+// lanza Chrome: los `correr.js` que invoca limpian el suyo con entorno.js.
+const temporales = new Set();
+function temporal(prefijo) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), prefijo));
+  temporales.add(dir);
+  return dir;
+}
+function limpiar() {
+  for (const dir of temporales) {
+    try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* se reintenta al salir */ }
+    temporales.delete(dir);
+  }
+}
+for (const [nombre, numero] of Object.entries({ SIGHUP: 1, SIGINT: 2, SIGTERM: 15 })) {
+  process.on(nombre, () => { limpiar(); process.exit(128 + numero); });
+}
+process.on('exit', limpiar);
+
+const distTemporal = temporal('pkapp-arnes-');
 fs.writeFileSync(path.join(distTemporal, 'index.html'), '<!doctype html><title>t</title>');
 
 function correr(args, env = {}, script = CORRER) {
@@ -95,7 +115,7 @@ async function main() {
   // de HEAD llegan invertidas, para que el orden dependa solo de ORDEN.
   const fuenteIndice = fs.readFileSync(path.join(RAIZ, 'tools', 'e2e', 'suites', 'index.js'), 'utf8');
   const indiceInyectado = (transformar = (f) => f) => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pkapp-suites-'));
+    const dir = temporal('pkapp-suites-');
     try {
       const fuente = transformar(fuenteIndice)
         .replace(/const SUPERFICIES = \[[\s\S]*?\];/, "const SUPERFICIES = ['nueva', 'antiguas'];");
@@ -126,7 +146,7 @@ async function main() {
   // A5: superficie vacía, nombre inexistente, `--suite=x`. Ninguna superficie real queda
   // sin suites: el arnés se copia a un árbol temporal con un índice que suma `vacia`, una
   // superficie declarada sin suites, y el resto de su código es el real.
-  const arbol = fs.mkdtempSync(path.join(os.tmpdir(), 'pkapp-arnes-vacia-'));
+  const arbol = temporal('pkapp-arnes-vacia-');
   const carpetaE2e = path.join(arbol, 'tools', 'e2e');
   fs.mkdirSync(path.join(carpetaE2e, 'suites'), { recursive: true });
   for (const archivo of ['correr.js', 'cdp.js', 'entorno.js']) {
@@ -282,7 +302,7 @@ async function main() {
 main()
   .catch((err) => { console.error(err); fallos.push('excepción'); })
   .finally(() => {
-    fs.rmSync(distTemporal, { recursive: true, force: true });
+    limpiar();
     console.log(fallos.length ? `\n${fallos.length} prueba(s) fallaron.` : '\nTodo OK.');
     process.exit(fallos.length ? 1 : 0);
   });
