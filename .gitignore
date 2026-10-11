@@ -80,3 +80,4 @@ skills-lock.json
 .codegraph/
 .orca/
 openspec/changes/*/diseno/maqueta/*.png
+openspec/changes/*/diseno/svg/glifos/*.png
