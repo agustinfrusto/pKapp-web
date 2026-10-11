@@ -4,7 +4,7 @@ Rama: `rediseno`. Una tarea por despacho, en orden, un commit por tarea. Compuer
 ## 0. Línea de base (Ingeniero)
 
 - [x] 0.1 En `rediseno`, `npm run build:web`. Registrar en `evidencia/base.md` el gzip del shell (base de D5) y el crudo como control. Shell gzip: 221.379 bytes
-- [ ] 0.2 (después de 2.4) Capturar las pantallas a 390 px en claro y oscuro desde un build de `main` y guardarlas en `evidencia/antes/`. Bloqueada el 2026-10-09: `npm run screenshots` se cuelga (`evidencia/base.md`)
+- [x] 0.2 (60 capturas de main a08ed80/v1.7.1; se versionan las 12 de 390) (después de 2.4) Capturar las pantallas a 390 px en claro y oscuro desde un build de `main` y guardarlas en `evidencia/antes/`. Bloqueada el 2026-10-09: `npm run screenshots` se cuelga (`evidencia/base.md`)
 
 ## 1. Fichas de diseño (Diseñador, `claude-sonnet-5-5`, `max`)
 
