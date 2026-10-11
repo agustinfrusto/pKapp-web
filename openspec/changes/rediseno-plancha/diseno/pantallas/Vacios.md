@@ -73,8 +73,8 @@ Dentro del cuerpo de «Mis preguntas» (`Settings.md` a.1, bloque 3), a `paso 2.
 | # | Parte | Medidas | Contenido |
 |---|---|---|---|
 | 1 | Panel | `superficie`, `linea`, `border`; relleno `paso 3.5`; contenido centrado | — |
-| 2 | Texto | Una o más líneas | Mensaje de V3 |
-| 3 | Acción (`VAC-P2`) | Margen superior `paso 3`; ancho por contenido; relleno horizontal `paso 8`; alto `paso 11` | K2 «Agregar pregunta» |
+| 2 | Texto | Centrado; una o más líneas; paso `detalle` (b) | Mensaje de V3 |
+| 3 | Acción (`VAC-P2`) | Centrada bajo el texto; margen superior `paso 3`; ancho por contenido; relleno horizontal `paso 8`; alto `paso 11` | K2 «Agregar pregunta» |
 
 ### a.4 Lista de temas vacía (V4)
 

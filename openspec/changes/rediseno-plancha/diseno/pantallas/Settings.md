@@ -32,7 +32,7 @@ Panel con relleno `paso 3.5` en las cuatro caras. Una fila: bloque de texto flex
 | Pieza | Medidas | Contenido |
 |---|---|---|
 | Bloque de texto | Título y, debajo, descripción con margen superior `paso 1`; el título salta de línea si no entra | «Ocultar resultado hasta el final» y su descripción |
-| Control segmentado | Dos opciones iguales, alto `paso 11`, relleno horizontal `paso 3`, ancho mínimo `paso 11` por opción; ancho por contenido | «No» y «Sí» (`SET-P1`) |
+| Control segmentado | Dos opciones iguales; alto útil de cada opción `paso 11` y el contenedor suma su `border` arriba y abajo (como el control de tema, `comun.md` §2.1); relleno horizontal `paso 3`, ancho mínimo `paso 11` por opción; ancho por contenido | «No» y «Sí» (`SET-P1`) |
 
 ### a.3 Interior del plegable
 
@@ -45,7 +45,7 @@ Panel con relleno `paso 3.5` en las cuatro caras. Una fila: bloque de texto flex
 
 | Cuerpo | Medidas | Contenido |
 |---|---|---|
-| «Mis preguntas», con preguntas | Tarjetas separadas por `paso 2.5`; relleno `paso 3.5`; primera fila con tema a la izquierda y eliminar a la derecha; enunciado a dos líneas como máximo (margen superior `paso 1.5`); correcta en una línea con `glifo-acierto` (margen superior `paso 1.5`, separación `paso 2`) | Una tarjeta por pregunta propia, en el orden que devuelve `getUserQuestions` |
+| «Mis preguntas», con preguntas | Tarjetas separadas por `paso 2.5`; relleno `paso 3.5`; primera fila con tema a la izquierda y eliminar a la derecha: la fila mide al menos `paso 11` por el objetivo de eliminar, sin márgenes negativos, y el tema (`rotulo`) salta de línea si es largo; enunciado a dos líneas como máximo (margen superior `paso 1.5`); correcta en una línea con `glifo-acierto` (margen superior `paso 1.5`, separación `paso 2`) | Una tarjeta por pregunta propia, en el orden que devuelve `getUserQuestions` |
 | «Mis preguntas», sin preguntas | Ver `Vacios.md` (V3) | Mensaje |
 | «Tus datos», web | Panel con relleno `paso 3.5`; texto con margen inferior `paso 2.5`; botones de ancho completo y alto mínimo `paso 11`, separados `paso 2`; divisor `filete` con margen vertical `paso 3` entre los botones de respaldo y el de reseteo | Texto, «Descargar respaldo», «Importar respaldo», divisor, «Resetear estadísticas» |
 | «Tus datos», nativo | Panel con relleno `paso 3.5` | Solo «Resetear estadísticas» |
@@ -57,8 +57,8 @@ Panel con relleno `paso 3.5`; los filetes `filete` separan las tres franjas.
 | # | Franja | Medidas | Contenido |
 |---|---|---|---|
 | 1 | Identidad | Fila entre extremos con salto de línea, separación `paso 2` | «pKapp» con su versión a la izquierda; «Preparación para ESFUNO» a la derecha |
-| 2 | Banco | Filete superior `filete`; relleno superior `paso 3`; fila entre extremos | Etiqueta «Banco de {materia}» a la izquierda y total a la derecha; debajo, el desglose por origen (margen superior `paso 1`) |
-| 3 | Enlaces | Filete superior `filete`; relleno superior `paso 3`; fila con salto de línea, separación `paso 2` | Dos botones K2 de acento |
+| 2 | Banco | Margen superior `paso 3` sobre el filete superior `filete`; relleno superior `paso 3`; fila entre extremos | Etiqueta «Banco de {materia}» a la izquierda y total a la derecha; debajo, el desglose por origen (margen superior `paso 1`) |
+| 3 | Enlaces | Margen superior `paso 3` sobre el filete superior `filete`; relleno superior `paso 3`; fila con salto de línea, separación `paso 2` | Dos botones K2 de acento |
 
 ### a.6 Otros anchos (D10)
 

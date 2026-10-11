@@ -47,9 +47,11 @@ La vista admite tirar para actualizar (`RefreshControl`); es un control nativo y
 
 La barra lleva dos marcas verticales, en el 60 % y en el 80 % de su ancho: alto `paso 3.5`, centradas sobre la barra, de modo que sobresalen arriba y abajo.
 
+Fila «Sin practicar» (`accuracy === null`, V7 de `Vacios.md`): sin barra ni marca de banda; a la derecha del nombre, «Sin practicar» en `detalle` y `tintaSec` en el lugar del valor, y debajo, en el detalle de la fila, «{t} preguntas disponibles» (c).
+
 ### a.4 Interior de una fila de falladas
 
-Filete superior `filete`; relleno vertical `paso 3`; primera línea con marca de banda (glifo chico), «#{n}» y, a la derecha, «{pct}% ({aciertos}/{respuestas})»; segunda línea con el enunciado a dos líneas como máximo (margen superior `paso 1.5`); tercera línea con el tema (margen superior `paso 1`).
+Filete superior `filete`; relleno vertical `paso 3`; primera línea con «#{n}» a la izquierda y, a la derecha, la marca de banda (glifo chico) delante del valor «{pct}% ({aciertos}/{respuestas})», separados `paso 1.5`; segunda línea con el enunciado a dos líneas como máximo (margen superior `paso 1.5`); tercera línea con el tema (margen superior `paso 1`).
 
 ### a.5 Tablet y escritorio (D10)
 
@@ -57,6 +59,7 @@ Filete superior `filete`; relleno vertical `paso 3`; primera línea con marca de
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | Tarjeta, filas y barras llenan la columna; las marcas de umbral siguen en el 60 % y el 80 % del ancho de la barra |
 | 1280 px | Igual | Igual | Las filas siguen en una columna: sin tabla ni dos columnas |
+| 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. En cada fila por tema el nombre salta de línea y el valor (marca y porcentaje) conserva su ancho a la derecha; la barra llena el ancho y las marcas siguen en el 60 % y el 80 %. La leyenda de bandas salta de línea si sus tres ítems no entran en una fila. En «Más falladas» la primera línea conserva «#{n}» y el valor; el enunciado y el tema saltan de línea |
 
 ---
 
@@ -212,4 +215,4 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 | Id | Qué se conserva | Motivo | Tipo |
 |---|---|---|---|
 | STATS-P3 | Las filas por tema siguen el orden de los temas de la materia (el de TopicSelect). El boceto las ordena de mayor a menor porcentaje | Continuidad (D10): el usuario ubica cada tema por su posición, la misma en TopicSelect y en Stats | uso |
-| STATS-P4 | Bajo las filas por tema sigue la lista «Más falladas» (hasta 10), con la marca de banda delante del valor. El boceto termina en las filas por tema | Está en uso en `main` | uso |
+| STATS-P4 | Bajo las filas por tema sigue la lista «Más falladas» (hasta 10, por acierto ascendente), con el valor «{pct}% ({aciertos}/{respuestas})» a la derecha y la marca de banda delante de él. El dato, el orden y la cantidad son los de `main`; el aspecto es Plancha (`CONVENCIONES.md`, C1 y CD-7): el valor toma el color y la marca de su banda (d.1), no el rojo único de `main`. Una fallada con 80 % o más lleva `glifo-acierto`: es la banda de su porcentaje, el mismo estado que en el resto de la app. El boceto termina en las filas por tema | Está en uso en `main`. CD-7 (acordada) fija el mismo token y la misma marca por estado, también en «Más falladas» | uso |

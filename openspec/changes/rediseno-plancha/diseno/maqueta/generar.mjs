@@ -464,7 +464,7 @@ function pantallaHome(m) {
 
   return `
 <div class="pantalla" data-pantalla="Home">
-  ${headerMarca(`<button type="button" class="k2 btn-cambiar t-cuerpo-fuerte c-tinta">${glifo('glifo-volver')}<span>Cambiar materia</span></button>`)}
+  ${headerMarca(`<button type="button" class="k2 btn-cambiar t-cuerpo-fuerte c-tinta" aria-label="Cambiar materia">${glifo('glifo-volver')}<span>Cambiar materia</span></button>`)}
   <div class="col mt-1_5">
     <section class="lam mat-card">
       ${marcas}
@@ -1311,6 +1311,14 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 @media (hover:hover){.tema-op:hover{outline:1px solid var(--linea);outline-offset:-1px}}
 .tema-op:active{background:var(--tinta);color:var(--fondo)}
 .btn-cambiar{display:inline-flex;align-items:center;gap:8px;height:44px;padding-inline:12px;background:var(--fondo)}
+/* comun.md §1.1: con menos de 360 px de ancho el botón de Home es solo glifo-volver, un cuadrado
+   de paso 11; el texto queda como nombre accesible (aria-label). El criterio es el ancho de la
+   pantalla (container query sobre .cab), no el contenido medido. */
+.cab{container-type:inline-size}
+@container (max-width:359.98px){
+  .btn-cambiar{width:44px;padding-inline:0;justify-content:center}
+  .btn-cambiar span{display:none}
+}
 
 /* ===== barra interna (comun.md §3) ===== */
 .barra-int{background:var(--fondo);border-bottom:1px solid var(--linea)}
@@ -1465,7 +1473,9 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 /* ===== Notas y avisos (Banners.md) ===== */
 .nota{position:relative;background:var(--superficie);border:1px solid var(--filete);border-left:3px solid var(--acento);padding:14px}
 .nota-rot{display:flex;align-items:center;gap:6px;margin-bottom:8px}
-.nota-cerrable .nota-rot{padding-right:44px}
+/* Banners.md a.2: el encabezado reserva paso 8 (32 px) de alto mínimo; con el relleno superior
+   (14 px) suma más que el objetivo de descartar (44 px) y el texto arranca debajo de él. */
+.nota-cerrable .nota-rot{padding-right:44px;min-height:32px}
 .nota p+p{margin-top:12px}
 .btn-contacto{display:inline-flex;align-items:center;gap:8px;height:44px;padding-inline:16px;margin-top:12px;max-width:100%}
 .cerrar-esq{position:absolute;top:0;right:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center}

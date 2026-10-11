@@ -30,7 +30,7 @@ Cuerpo con relleno `paso 3.5` en las cuatro caras.
 
 | # | Parte | Medidas | Contenido |
 |---|---|---|---|
-| 1 | Encabezado | Fila; glifo chico y rótulo separados `paso 1.5`; margen inferior `paso 2`. En la nota del creador, el rótulo deja libre `paso 11` a la derecha y la fila reserva el alto del objetivo de descartar: alto mínimo `paso 11` menos el relleno superior `paso 3.5`, de modo que el texto arranca bajo el objetivo y ninguna parte de este pisa la primera línea (D10, CD-10; `MAQUETA-P4`) | Glifo y rótulo |
+| 1 | Encabezado | Fila; glifo chico y rótulo separados `paso 1.5`; margen inferior `paso 2`. En la nota del creador, el rótulo deja libre `paso 11` a la derecha y la fila reserva el alto del objetivo de descartar: alto mínimo `paso 8`, que sumado al relleno superior `paso 3.5` supera `paso 11`, de modo que el texto arranca bajo el objetivo y ninguna parte de este pisa la primera línea (D10, CD-10; `MAQUETA-P4`) | Glifo y rótulo |
 | 2 | Descartar (solo nota del creador) | Objetivo `paso 11` por `paso 11`, en la esquina superior derecha del cuerpo, a ras del marco; glifo grande centrado | `glifo-cerrar` |
 | 3 | Texto | Párrafos separados por `paso 3` | Mensaje |
 | 4 | Contacto (`BAN-P1`, solo banco reducido) | Margen superior `paso 3`; alto `paso 11`; ancho por contenido; relleno horizontal `paso 4` | K2 de acento con `glifo-correo` |
@@ -100,7 +100,7 @@ Origen de la pregunta, aciertos de rendimiento y estado vacío no aplican (—).
 |---|---|---|
 | Banner de banco reducido | `materia.bancoReducido` (`src/materias/<id>/metadata.js`) | Hoy `cyr` y `neuro` |
 | Correo de contacto | Cadena fija `pkappsoporte@gmail.com` | Abre `mailto:` con `Linking.openURL` dentro de `requestAnimationFrame` y `catch` vacío |
-| Marca de visto de la nota | `localStorage`, clave `pkapp_about_seen_at` (`ABOUT_KEY`) | Valor `Date.now()` como cadena, escrito al descartar |
+| Marca de visto de la nota | `localStorage`, clave `pkapp_about_seen_at_v2` (`ABOUT_KEY`) | Valor `Date.now()` como cadena, escrito al descartar |
 | Intervalo de reaparición | `ABOUT_INTERVAL_MS`: siete días en milisegundos | La nota reaparece cuando `Date.now() - seenAt >= intervalo` |
 | Visibilidad de la nota | Efecto al montar: visible si no hay `localStorage` (nativo), no hay marca o venció el intervalo | Inicia oculta y se resuelve tras el primer render; en nativo, descartar la oculta solo hasta que se vuelve a montar |
 | Nota de privacidad | `Platform.OS === 'web'` | Solo web |

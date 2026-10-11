@@ -34,6 +34,8 @@
 | 2 | Regla graduada | Alto `paso 2.5`; ancho completo | Filete inferior `filete` | Trazo en `tintaSec` |
 | 3 | Cajetín | Relleno vertical `paso 2.5`, horizontal `paso 3.5`; distribución entre extremos | — | Izquierda: «pKapp». Derecha, alineado a la derecha: «Tus materias de ESFUNO» y debajo «Elegí una para empezar» |
 
+La regla graduada es el dibujo `regla` de `src/assets/filamentos.js`, con `encuadre: 'none'` (`CONVENCIONES.md`, C7): una marca menor cada 10 unidades del dibujo y una mayor cada 50, la mayor más alta que la menor, ambas en `tintaSec` y apoyadas en el filete inferior. Las proporciones son las del boceto (figura 01, `hibrido.html`): son parte del dibujo y no pasos de la escala.
+
 ### a.3 Interior de la tarjeta de materia
 
 | # | Parte | Medidas | Divisor | Contenido |
@@ -48,6 +50,7 @@
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | Lámina y tarjetas llenan la columna. El campo conserva su alto (`paso 28`) y se estira en horizontal |
 | 1280 px | Igual | Igual | La lista sigue en una sola columna: sin grilla de tarjetas. El fondo `fondo` ocupa todo el ancho |
+| 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. HeaderMarca: «ESFUNO» y el control de tema entran en la fila con su alto de siempre (`comun.md` §1.1). El campo conserva su alto (`paso 28`) y se estira al ancho de la lámina. En el cajetín de la lámina, «pKapp» queda a la izquierda y la meta a la derecha, y la meta salta de línea si no entra. En la tarjeta, el nombre salta de línea y el cajetín conserva sus dos celdas, con el texto de cada una saltando de línea; la celda de ilustración conserva `paso 16` |
 
 ---
 

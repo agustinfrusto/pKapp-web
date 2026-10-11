@@ -152,10 +152,10 @@ La escala por defecto de Tailwind (base 4 px) ya contiene todos los pasos del bo
 | `2.5` | 10 | Separación entre opciones y entre tarjetas |
 | `3` | 12 | Padding horizontal de cajetín y de opción |
 | `3.5` | 14 | Padding interno de tarjeta, panel y nota |
-| `4` | 16 | Padding de botón; padding de tarjeta de resultados |
+| `4` | 16 | Padding de botón; padding de lámina con cifra o con acción central (tarjeta de resultado de Results, tarjeta global de Stats, tarjeta «Modo Examen» de TopicSelect); relleno vertical de la barra interna |
 | `5` | 20 | Margen lateral de pantalla |
 | `6` | 24 | Separación entre bloques |
-| `8` | 32 | Separación entre secciones |
+| `8` | 32 | Separación entre secciones; alto mínimo del encabezado de la nota que reserva el objetivo de descartar (`Banners.md` a.2) |
 | `10` | 40 | Lado del cuadro de glifo |
 | `11` | 44 | Objetivo táctil mínimo (D10, 44 × 44 pt): alto de fila de control, filtro y barra; alto útil de cada opción del control de tema (su contenedor suma el borde); lado del cuadrado de paso; ancho de la celda de letra de una opción |
 | `12` | 48 | Lado de la ilustración de materia en la tarjeta del selector; también el lado de la ilustración del estado vacío |

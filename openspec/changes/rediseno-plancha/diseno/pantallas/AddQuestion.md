@@ -30,7 +30,7 @@
 
 | Pieza | Medidas | Contenido |
 |---|---|---|
-| Selector de tema | Filtros K4 en fila con salto de línea; alto mínimo `paso 11`; relleno horizontal `paso 3`, vertical `paso 2`; separación `paso 2` en horizontal y en vertical; el nombre salta de línea dentro del filtro si no entra en el ancho de la columna | Un filtro por entrada de `TOPICS`, en su orden (`ADD-P1`) |
+| Selector de tema | Filtros K4 en fila con salto de línea; alto mínimo `paso 11`; relleno horizontal `paso 3`, vertical `paso 2`; separación `paso 2` en horizontal y en vertical; el nombre, alineado a la izquierda, salta de línea dentro del filtro si no entra en el ancho de la columna; los filtros no se estiran para llenar la fila | Un filtro por entrada de `TOPICS`, en su orden (`ADD-P1`) |
 | Campo multilínea | Alto mínimo `paso 20`; relleno `paso 3`; el alto crece con el contenido; texto alineado arriba | Enunciado y explicación |
 | Fila de opción | Fila alineada arriba; separación `paso 2` entre piezas; filas separadas por `paso 2.5` | Celda de letra, campo y quitar |
 | Celda de letra | Lado `paso 11` | Letra de la opción o, si es la correcta, `glifo-acierto` (chico) |

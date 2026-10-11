@@ -42,6 +42,7 @@ Relleno vertical `paso 2`; fila de alto `paso 11`; separación `paso 3.5` entre 
 | Pieza | Medidas | Contenido |
 |---|---|---|
 | Opción | Fila; celda de letra de ancho `paso 11` con filete derecho; texto con relleno vertical `paso 3` y horizontal `paso 3` | Letra, texto y, tras responder, línea de estado con margen superior `paso 1` |
+| Nota de explicación | Relleno `paso 3.5` en las cuatro caras; el rótulo es una fila con `glifo-explicacion` (chico) y el texto separados `paso 1.5`; la explicación va a `paso 1.5` bajo el rótulo | Rótulo «Nota / Explicación» y texto de la explicación |
 | Barra inferior | Relleno superior `paso 3`; inferior área segura más `paso 4` | Un botón de ancho completo, relleno vertical `paso 3.5` y horizontal `paso 4`, texto a la izquierda y glifo a la derecha |
 
 ### a.4 Tablet y escritorio (D10)
@@ -50,6 +51,7 @@ Relleno vertical `paso 2`; fila de alto `paso 11`; separación `paso 3.5` entre 
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | Las dos barras llevan su filete a todo el ancho; su contenido va dentro de la columna. El enunciado y las opciones llenan la columna |
 | 1280 px | Igual | Igual | Igual. El botón de la barra inferior mide el ancho de la columna, no el de la ventana |
+| 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. En la barra del quiz, cerrar (`paso 11`), contador y tiempo conservan su tamaño y el progreso toma el espacio libre: las casillas se angostan o la barra continua se acorta, sin cambiar la regla de 40 (`QUIZ-P4`). En la fila de contexto la meta salta hasta dos líneas. El enunciado y el texto de cada opción saltan de línea; la celda de letra conserva `paso 11`. La barra inferior conserva el botón de ancho completo |
 
 ---
 

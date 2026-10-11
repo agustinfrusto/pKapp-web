@@ -8,7 +8,7 @@
 | Navegador | Barra interna con título «pKapp · Resultados», sin volver (`headerBackVisible: false`): el lugar del volver queda vacío y la fila conserva el alto `paso 11` (`MAQUETA-P1`, `comun.md` §3.5) |
 | Variantes | Tramo alto, medio o bajo (a.2 de d); con y sin tira (hasta 40 respuestas); con y sin pedido de donación (solo web) |
 | Fuera de alcance | Revisión de respuestas (`showReview`, vista alternativa) y pedido de donación: su lugar está fijado; sus fichas son `Revision.md` y `DonationBox.md` |
-| Propuestas | Sección f: `RESULTS-P1` a `RESULTS-P3`. Comunes: `COMUN-P2` y `MAQUETA-P1` (aprobada, usuario, 2026-10-10) |
+| Propuestas | Sección f: `RESULTS-P1` a `RESULTS-P3`. Sección h: conservado de main (D10). Comunes: `COMUN-P2` y `MAQUETA-P1` (aprobada, usuario, 2026-10-10) |
 
 ---
 
@@ -36,7 +36,7 @@ La acción «Revisar todas las respuestas» cambia la vista a la revisión en el
 | 3 | Subtítulo | Margen superior `paso 2.5` | «{correctCount} de {total} correctas» |
 | 4 | Mensaje | Margen superior `paso 1.5` | Mensaje del tramo de `getResultFeedback` |
 | 5 | Tira | Margen superior `paso 4`, inferior `paso 2`; casillas separadas por `paso 0.5`, alineadas por la base | Una casilla por respuesta, en orden; solo con 40 respuestas o menos |
-| 6 | Leyenda | Separación `paso 4` entre ítems; margen inferior `paso 3.5` | Solo si hay tira |
+| 6 | Leyenda | Separación `paso 4` entre ítems; margen inferior `paso 3.5`. Delante de cada texto, una muestra de la casilla de la tira, separada `paso 1.5` y alineada por la base: la de «Correcta» de lado `paso 2`, en `acierto`; la de «Incorrecta» de `paso 2` de ancho y `paso 1` de alto, en `error` (la relación de alto 2 a 1 de la tira) | Solo si hay tira |
 | 7 | Chip de tema | Relleno vertical `paso 0.5`, horizontal `paso 2`; ancho por contenido | `TOPICS[topic]` cuando `topic` es una clave de `TOPICS`; «Todos los temas» cuando no (`MAQUETA-P2`: bug de `main`, se corrige en 3.6) |
 
 ### a.3 Interior del trío
@@ -49,6 +49,7 @@ Tres celdas de igual ancho, relleno vertical `paso 3`, separadas por filete vert
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | Tarjeta, trío y botones llenan la columna. La tira sigue la regla de 40 |
 | 1280 px | Igual | Igual | Los tres botones siguen apilados: sin fila horizontal |
+| 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. En la tarjeta, el mensaje y el chip de tema saltan de línea; con 40 respuestas o menos la tira reparte sus casillas en el ancho disponible y la leyenda salta de línea si no entra. En el trío cada celda conserva un tercio del ancho y su rótulo salta de línea si no entra. Los tres botones siguen apilados, con el texto saltando dentro del botón si no entra |
 
 ---
 
@@ -67,6 +68,8 @@ Tres celdas de igual ancho, relleno vertical `paso 3`, separadas por filete vert
 | Casilla correcta de la tira | — | `acierto` | — | — | — | — | N10 |
 | Casilla incorrecta de la tira | — | `error` | — | — | — | — | N13 |
 | Leyenda | `tintaSec` | `superficie` | — | `rotulo` | — | — | T4 |
+| Muestra de «Correcta» en la leyenda | — | `acierto` | — | — | — | — | N10 |
+| Muestra de «Incorrecta» en la leyenda | — | `error` | — | — | — | — | N13 |
 | Chip de tema | `acento` | `superficie` | `acento`, `border` | `rotulo` | — | — | T6, N18 |
 | Trío (cuerpo) | — | `superficie` | `linea`, `border`; marcas de esquina (§6) | — | Divisores `filete` | — | N1, N2, X2 |
 | Cifra de correctas | `acierto` | `superficie` | — | `cifra` | — | — | T11 |
@@ -215,3 +218,17 @@ Solo quedan acá las que no admiten otra variante: las fija un invariante (D6, s
 | Porcentaje de un solo color y cifras ilustrativas | Tres tramos por `getResultFeedback`, con marca | D6 y spec «Estados semánticos distinguibles sin color» |
 | Sin pedido de donación | Conserva su lugar (`DonationBox.md` a.1) | D6: el evento `donacion_click` con `origen: 'resultados'` sigue emitiéndose desde esta pantalla |
 | Vista de revisión no dibujada (el botón sí está en el boceto) | Conserva la vista de `main` como destino del botón (`Revision.md`) | El botón del boceto necesita su destino; la ficha de la vista es `Revision.md` |
+
+---
+
+## h. Conservado de main (D10)
+
+Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `main` es la base de funciones, datos, copy y orden de uso (`design.md`, D10, «Base de comparación»). Se conservan por D10, sin aprobación.
+
+| Id | Qué se conserva | Motivo | Tipo |
+|---|---|---|---|
+| RESULTS-C1 | El pedido de donación entre el trío y los botones, solo en web, con sus umbrales (`DONATION_MIN_SCORE`, `DONATION_WARM_SCORE`) y su frecuencia (1 de cada 3 aprobados). El boceto no lo dibuja. Su aspecto es de `DonationBox.md` | D6: eventos y umbrales de donación; `DON-C3` y `DON-C6` | uso |
+| RESULTS-C2 | La vista de revisión de respuestas como destino de «Revisar todas las respuestas», en el mismo lugar y sin navegar. El boceto dibuja el botón y no su destino | Flujo de `main`; `Revision.md` (`REV-C1`) | uso |
+| RESULTS-C3 | El orden de los tres botones («Revisar todas las respuestas», «Volver a practicar», «Inicio») y sus acciones: alternar la revisión, `navigation.goBack()` y navegar a `Home` | Orden y gestos de `main` (d.3) | uso |
+| RESULTS-C4 | Los cinco mensajes de `getResultFeedback` y sus cortes 90, 75, 60 y 50, salvo el texto del tramo de 75 a 89 (`RESULTS-P2`) | D6 y copy de `main` (d.1, e) | copy |
+| RESULTS-C5 | Los eventos `simulacro_terminado`, `simulacro_aprobado` y `donacion_click` con sus payloads | D6: eventos y payloads (d.4) | dato |

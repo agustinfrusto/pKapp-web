@@ -8,7 +8,7 @@
 | Qué es | Las pantallas y superficies tal como las fijan las fichas aprobadas de 1.2 y 1.3. No es un boceto nuevo: lo que se vea distinto de una ficha es un defecto de la maqueta, salvo lo listado en §6 |
 | Fuentes | `pantallas/comun.md` y las trece fichas (1.2 y 1.3); `tokens.md`; `src/theme/colores.js` (`plancha`); `svg/<id>.svg` (familia B); `svg/glifos/` (35); `src/assets/filamentos.js`; `src/materias/*`; `src/utils/mercadopago.js` (montos); `app.json` (versión) |
 | Archivos | `maqueta.html`, `generar.mjs`, `capturar.mjs`, `maqueta-<ancho>-<tema>.png` (6), este archivo. Los PNG quedan fuera de git por la regla de `.gitignore` (`openspec/changes/*/diseno/maqueta/*.png`): existen en disco y `capturar.mjs` los regenera |
-| Fuera de alcance | Diálogos del sistema (`confirm`, `avisar`, V5 de `Vacios.md`) y el selector de archivos; la carga inicial de V1 y V2 (`VAC-P4`: solo la barra, es una ausencia); la regla de 320 y 360 px de cada ficha (la maqueta mide 390, 768 y 1280) |
+| Fuera de alcance | Diálogos del sistema (`confirm`, `avisar`, V5 de `Vacios.md`) y el selector de archivos; la carga inicial de V1 y V2 (`VAC-P4`: solo la barra, es una ausencia); el tablero a 360 y 320 px: la maqueta dibuja 390, 768 y 1280. La variante de 320 px del botón «Cambiar materia» (`comun.md` §1.1) existe en el HTML (container query sobre el header) y se midió forzando el ancho de la pantalla (§4) |
 
 ---
 
@@ -19,11 +19,13 @@
 | 1 | Ilustraciones de materia: ahora son las de la familia B (`svg/<id>.svg`); el generador las lee del mismo lugar, sin cambios de código | 01, 01b, 02 |
 | 2 | Glifos: de 27 a 35. Se suman `glifo-mensaje`, `glifo-banco-reducido`, `glifo-trofeo`, `glifo-guardar`, `glifo-importar`, `glifo-correo`, `glifo-externo` y `glifo-eliminar`. Figura nueva 14 con el inventario completo | 14 y las figuras de 1.3 |
 | 3 | `MAQUETA-P1` aplicada: la fila de la barra interna mide `paso 11` con y sin volver. Todas las barras miden lo mismo (77 px con su filete) y el título de Results no salta | 03a, 03b, 05a a 05c, 06 y las de 1.3 |
-| 4 | `MAQUETA-P3` aplicada: cada opción del control de tema mide 44 px de alto útil; el contenedor suma su borde (46 px) y el header mide 74 px (14 + 46 + 14), igual en MateriaSelect y en Home | 01, 02 |
+| 4 | `MAQUETA-P3` (desviación por invariante D10, `comun.md` §2.4) aplicada: cada opción del control de tema mide 44 px de alto útil; el contenedor suma su borde (46 px) y el header mide 74 px (14 + 46 + 14), igual en MateriaSelect y en Home | 01, 02 |
 | 5 | Los bloques reservados «ver 1.3» pasan a los componentes de su ficha, en el lugar que fijaban `MateriaSelect.md`, `Home.md` y `Results.md`: nota del creador y donación (01), banner de banco reducido (02), pedido de donación (05a y 05b). 05c queda sin pedido: con 38 % no alcanza `DONATION_MIN_SCORE` | 01, 02, 05a a 05c |
 | 6 | Marca de parcial en el filtro de parcial del selector (`PAR-P2`) | 03a |
 | 7 | Figuras nuevas de 1.3, en los mismos anchos y temas: 07a a 14 (16 figuras) | §2 |
 | 8 | `capturar.mjs`: 3 columnas a 768 y 1280 px (antes 2). Con 30 figuras, 2 columnas pasaban los 16 384 px de alto del PNG (20 519 px). Alturas actuales: 14 544 px (390) y 15 325 px (768 y 1280) | `capturar.mjs` |
+
+| 9 | Corrección de la auditoría 1.5 (2026-10-10): bajo 360 px de ancho el botón «Cambiar materia» de Home es solo `glifo-volver` en un cuadrado de `paso 11`, con `aria-label` (`comun.md` §1.1, `Home.md` g). Alto mínimo `paso 8` del encabezado de la nota del creador, que deja el texto bajo el objetivo de descartar (`Banners.md` a.2, `MAQUETA-P4`). Nada cambia a 390, 768 y 1280 px salvo ese encabezado | 01, 13 y 02 bajo 360 px |
 
 Las cifras de §4, las decisiones de §6 y las propuestas de §7 reemplazan a las de la primera pasada.
 
@@ -100,7 +102,7 @@ El tablero numera 30 figuras: 24 pantallas, o estados de pantalla, y 6 de compon
 | `STATS-P1` dos marcas; `STATS-P2` leyenda; `STATS-P5` `display` | 06 |
 | `STATS-P3` orden de `TOPICS`; `STATS-P4` «Más falladas» | 06 |
 | `MAQUETA-P1` barra interna de igual alto | 03a, 03b, 05a a 05c, 06, 07, 08, 10, 12 |
-| `MAQUETA-P3` opciones del control de tema de `paso 11` | 01, 02 |
+| `MAQUETA-P3` opciones del control de tema de `paso 11` (desviación por invariante, no propuesta: `comun.md` §2.4) | 01, 02 |
 | `ADD-P1` temas con salto de línea; `ADD-P2` rótulos sin dos puntos | 07a, 07b |
 | `SET-P1` «No \| Sí»; `SET-P2` «Resetear estadísticas» en `error` | 08a, 08b |
 | `DON-P1` montos en K3 con marco `acento` | 01, 05a, 05b, 09 |
@@ -147,10 +149,12 @@ Medido en Chrome headless sobre `maqueta.html`, en 390 claro, 390 oscuro, 768 cl
 | Fuentes | `document.fonts` | Plex Sans 400 y 600, Plex Mono 400 y 500, cargadas |
 | Radios, sombras, degradados, opacidad, cursiva, subrayado | Estilo calculado de cada elemento de `.pantalla`, en las cuatro combinaciones | 0 |
 | Emojis | `\p{Extended_Pictographic}` sobre el texto del documento | 0 |
-| Alto de header (D6, `MAQUETA-P3`) | Medido en navegador | 74 px en MateriaSelect y en Home; opciones del control de tema de 44 px, contenedor de 46 px |
+| Alto de header (D6, D10) | Medido en navegador | 74 px en MateriaSelect y en Home; opciones del control de tema de 44 px, contenedor de 46 px |
 | Alto de la barra interna (`MAQUETA-P1`) | Medido en navegador, todas las barras | 77 px (fila de 76 px más el filete), un solo valor: con y sin volver |
 | Objetivo táctil (D10) | Todo `button` habilitado de las pantallas | Ninguno bajo 44 × 44 px (en la primera pasada eran dos opciones del control de tema) |
 | Columna (D10) | Medida en navegador | 390 px: ancho completo menos márgenes. 768 y 1280: 448 px centrada; barras y filetes a todo el ancho |
+| Botón «Cambiar materia» y fila de HeaderMarca a 360, 359 y 320 px (`comun.md` §1.1) | Chrome headless sobre `maqueta.html`, con el ancho de `.pantalla` forzado | 360 px: botón con texto de 174 × 44 px, control de tema de 114 px y 32 px entre ambos; 359 y 320 px: botón de 44 × 44 px, `aria-label` «Cambiar materia» y al menos 122 px entre controles. Alto de header 74 px en todos. Ninguna de las 30 figuras desborda a 360 ni a 320 px; ningún botón bajo 44 × 44 px |
+| Nota del creador (`MAQUETA-P4`) | Medido en navegador | Objetivo de descartar hasta 45 px desde el borde superior de la nota y primer párrafo desde 55 px: sin superposición |
 | Selector, hash y control de tema | Clics por CDP, repetidos en esta pasada | El control de tema cambia el tema y `aria-checked`, el selector cambia el ancho, el hash se actualiza (`#768-oscuro`) y «Ir a 13» lleva la figura al borde superior |
 | Glifos | Cuadrados `g-falta` y figura 14 | 35 de 35 dibujados; huella `cf64b601`, impresa por `generar.mjs` y escrita en `<meta name="generator">` |
 | Glifo faltante | `MAQUETA_GLIFOS=<carpeta vacía> MAQUETA_SALIDA=<archivo> node generar.mjs`, repetido en esta pasada | 0 de 35 dibujados; los 35 salen como cuadrado de `filete` numerado y el panel al pie los lista; el tablero no se rompe |
@@ -180,32 +184,32 @@ Medido en Chrome headless sobre `maqueta.html`, en 390 claro, 390 oscuro, 768 cl
 
 ## 6. Lo que la ficha no fija y la maqueta resolvió
 
-Confirmar o fijar en la ficha. Ninguna de estas decisiones está aprobada. Las 12 primeras vienen de la primera pasada; la 9 cambió porque las fichas de 1.3 ya existen.
+Estas decisiones las tomó la maqueta porque la ficha no las fijaba. La corrección de la auditoría 1.5 (2026-10-10) fijó en la ficha de su superficie las que cambian lo que se ve (columna «Estado»); las demás son del tablero y ninguna ficha las regula. Las 12 primeras vienen de la primera pasada; la 9 cambió porque las fichas de 1.3 ya existen. Ninguna es propuesta: no cambian el uso ni salen del boceto o de `main`.
 
-| # | Dónde | Qué resolvió la maqueta | Por qué |
-|---|---|---|---|
-| 1 | MateriaSelect, regla graduada | Marca menor cada 10 px (3,5 px de alto) y mayor cada 50 (6,5 px), en `tintaSec`, apoyadas en el filete inferior | La ficha fija alto, color y filete; el espaciado sale del boceto (`hibrido.html`) |
-| 2 | MateriaSelect, campo | El SVG se estira al ancho de la lámina y a `paso 28` de alto (`preserveAspectRatio="none"`) | `MateriaSelect.md` a.4: «se estira en horizontal» |
-| 3 | Marcas de esquina | 8 px de lado; sobresalen 4 px del borde exterior | `comun.md` §6: lado `paso 2`, sobresale `paso 1` |
-| 4 | Results, leyenda de la tira | Muestra de 8 × 8 en `acierto` y de 8 × 4 en `error` delante del texto | La ficha define el texto y no la muestra; proporción de la tira (`paso 6` y `paso 3`) |
-| 5 | Stats, «Más falladas», marca de banda | Delante del valor «{pct}% ({c}/{a})», a la derecha | `Stats.md` a.4 la nombra antes de «#{n}»; la tabla b y `comun.md` §4 la ponen delante del valor |
-| 6 | TopicSelect, «Comenzar examen» | Relleno vertical `paso 3.5` y horizontal `paso 8` | La ficha fija el horizontal; el vertical es el de los otros botones K1 |
-| 7 | Quiz, nota | Glifo y rótulo en fila con `paso 1.5` de separación; texto con `paso 1.5` de margen superior | La ficha no fija esa separación |
-| 8 | Quiz, alto de pantalla | 844 px mínimo, con la barra inferior pegada abajo | Solo del tablero: el alto de un teléfono |
-| 9 | Bloques «ver 1.3» (primera pasada) | Ya no hay: cada bloque es el componente de su ficha. Los componentes de 1.3 además se muestran aislados en 09 y 13 | Las fichas de 1.3 fijan lugar e interior |
-| 10 | Áreas seguras | Cero | La maqueta es web |
-| 11 | TopicSelect, tarjeta de mezcla | `paso 1.5` bajo el rótulo «Mezcla» y `paso 1` sobre el conteo | La ficha fija solo el primero |
-| 12 | Stats, fila «Sin practicar» | «Sin practicar» en `detalle` y `tintaSec` a la derecha, sin barra, y «{t} preguntas disponibles» debajo | `Stats.md` c |
-| 13 | Settings, «Cuestionario» | Cada opción de «No \| Sí» mide 44 px de alto útil y el contenedor suma su borde (46 px) | La ficha fija «alto `paso 11`»; mismo criterio que `MAQUETA-P3` |
-| 14 | Settings, «Acerca de» | `paso 3` de margen encima del filete de cada franja | La ficha fija el relleno bajo el filete, no el espacio sobre él |
-| 15 | Settings, tarjeta de pregunta propia | La fila del tema mide 44 px por el objetivo de eliminar; sin márgenes negativos. Tema en `rotulo` que salta de línea si es largo | La ficha fija el objetivo y la fila, no cómo conviven |
-| 16 | AddQuestion, selector de tema | El nombre alineado a la izquierda dentro del filtro, que salta de línea; los filtros no se estiran | La ficha fija que el nombre salte de línea, no su alineación |
-| 17 | Revisión, tarjetas | Cuatro respuestas de muestra en lugar de «hasta cientos»; la barra dice «pKapp · Resultados» | Alcanza para mostrar los dos estados y las dos vistas del filtro |
-| 18 | Vacios V3, panel compacto | Texto en `detalle` centrado y botón K2 centrado debajo | `Vacios.md` a.3: «contenido centrado»; el paso del texto sale de b |
-| 19 | Marca de parcial | Casilla de 10 px (`paso 2.5`) con borde de 1 px del color del contenedor; la llena, rellena con el mismo color | `comun.md` §12.2 fija medida, marco y relleno; el color es el del texto |
-| 20 | Donación en Results | 05a celebratoria y 05b normal; 05c sin pedido | `DONATION_MIN_SCORE` y `DONATION_WARM_SCORE` (`DonationBox.md` d.1); el «1 de cada 3» es de muestra |
-| 21 | Figuras 09, 11c, 13 y 14 | Varias variantes en una figura, con rótulo de estado, como 01b y 04e | Son componentes, no pantallas |
-| 22 | Tablero, columnas | 3 columnas a 768 y 1280 px en la captura | Con 2 el PNG pasaba el tope de alto (§0, #8) |
+| # | Dónde | Qué resolvió la maqueta | Por qué | Estado |
+|---|---|---|---|---|
+| 1 | MateriaSelect, regla graduada | Marca menor cada 10 px (3,5 px de alto) y mayor cada 50 (6,5 px), en `tintaSec`, apoyadas en el filete inferior | La ficha fija alto, color y filete; el espaciado sale del boceto (`hibrido.html`) | Fijada: `MateriaSelect.md` a.2 |
+| 2 | MateriaSelect, campo | El SVG se estira al ancho de la lámina y a `paso 28` de alto (`preserveAspectRatio="none"`) | `MateriaSelect.md` a.4: «se estira en horizontal» | Ya en la ficha: `MateriaSelect.md` a.4 |
+| 3 | Marcas de esquina | 8 px de lado; sobresalen 4 px del borde exterior | `comun.md` §6: lado `paso 2`, sobresale `paso 1` | Ya en la ficha: `comun.md` §6 (`paso 2` y `paso 1`) |
+| 4 | Results, leyenda de la tira | Muestra de 8 × 8 en `acierto` y de 8 × 4 en `error` delante del texto | La ficha define el texto y no la muestra; proporción de la tira (`paso 6` y `paso 3`) | Fijada: `Results.md` a.2 #6 y b |
+| 5 | Stats, «Más falladas», marca de banda | Delante del valor «{pct}% ({c}/{a})», a la derecha | La ficha se contradecía: a.4 la nombraba antes de «#{n}» y la tabla b, h y `comun.md` §4 la ponen delante del valor. a.4 quedó alineada con el valor (auditoría 1.5, B3) | Resuelta: `Stats.md` a.4 (delante del valor) |
+| 6 | TopicSelect, «Comenzar examen» | Relleno vertical `paso 3.5` y horizontal `paso 8` | La ficha fija el horizontal; el vertical es el de los otros botones K1 | Fijada: `TopicSelect.md` a.2 |
+| 7 | Quiz, nota | Glifo y rótulo en fila con `paso 1.5` de separación; texto con `paso 1.5` de margen superior | La ficha no fija esa separación | Fijada: `Quiz.md` a.3 |
+| 8 | Quiz, alto de pantalla | 844 px mínimo, con la barra inferior pegada abajo | Solo del tablero: el alto de un teléfono | Del tablero: ninguna ficha la regula |
+| 9 | Bloques «ver 1.3» (primera pasada) | Ya no hay: cada bloque es el componente de su ficha. Los componentes de 1.3 además se muestran aislados en 09 y 13 | Las fichas de 1.3 fijan lugar e interior | Resuelta en la primera pasada |
+| 10 | Áreas seguras | Cero | La maqueta es web | Del tablero: ninguna ficha la regula |
+| 11 | TopicSelect, tarjeta de mezcla | `paso 1.5` bajo el rótulo «Mezcla» y `paso 1` sobre el conteo | La ficha fija solo el primero | Fijada: `TopicSelect.md` a.4 |
+| 12 | Stats, fila «Sin practicar» | «Sin practicar» en `detalle` y `tintaSec` a la derecha, sin barra, y «{t} preguntas disponibles» debajo | `Stats.md` c | Fijada: `Stats.md` a.3 |
+| 13 | Settings, «Cuestionario» | Cada opción de «No \| Sí» mide 44 px de alto útil y el contenedor suma su borde (46 px) | La ficha fija «alto `paso 11`»; mismo criterio que `MAQUETA-P3` | Fijada: `Settings.md` a.2 |
+| 14 | Settings, «Acerca de» | `paso 3` de margen encima del filete de cada franja | La ficha fija el relleno bajo el filete, no el espacio sobre él | Fijada: `Settings.md` a.5 |
+| 15 | Settings, tarjeta de pregunta propia | La fila del tema mide 44 px por el objetivo de eliminar; sin márgenes negativos. Tema en `rotulo` que salta de línea si es largo | La ficha fija el objetivo y la fila, no cómo conviven | Fijada: `Settings.md` a.4 |
+| 16 | AddQuestion, selector de tema | El nombre alineado a la izquierda dentro del filtro, que salta de línea; los filtros no se estiran | La ficha fija que el nombre salte de línea, no su alineación | Fijada: `AddQuestion.md` a.2 |
+| 17 | Revisión, tarjetas | Cuatro respuestas de muestra en lugar de «hasta cientos»; la barra dice «pKapp · Resultados» | Alcanza para mostrar los dos estados y las dos vistas del filtro | Del tablero: muestra |
+| 18 | Vacios V3, panel compacto | Texto en `detalle` centrado y botón K2 centrado debajo | `Vacios.md` a.3: «contenido centrado»; el paso del texto sale de b | Fijada: `Vacios.md` a.3 |
+| 19 | Marca de parcial | Casilla de 10 px (`paso 2.5`) con borde de 1 px del color del contenedor; la llena, rellena con el mismo color | `comun.md` §12.2 fija medida, marco y relleno; el color es el del texto | Ya en la ficha: `comun.md` §12.2 |
+| 20 | Donación en Results | 05a celebratoria y 05b normal; 05c sin pedido | `DONATION_MIN_SCORE` y `DONATION_WARM_SCORE` (`DonationBox.md` d.1); el «1 de cada 3» es de muestra | Del tablero: muestra; umbrales en `DonationBox.md` d.1 |
+| 21 | Figuras 09, 11c, 13 y 14 | Varias variantes en una figura, con rótulo de estado, como 01b y 04e | Son componentes, no pantallas | Del tablero |
+| 22 | Tablero, columnas | 3 columnas a 768 y 1280 px en la captura | Con 2 el PNG pasaba el tope de alto (§0, #8) | Del tablero |
 
 ---
 
@@ -218,14 +222,14 @@ Surgieron al maquetar. No se aplicaron en la maqueta: se dibuja lo aprobado.
 | Id | Estado | Cómo se ve |
 |---|---|---|
 | `MAQUETA-P1` | Aprobada (usuario, 2026-10-10); `comun.md` §3.5 | Aplicada en la maqueta (§0, #3) |
-| `MAQUETA-P3` | Aprobada: la recogen `comun.md` §1, §2.1 y §8 y `tokens.md` c.3, sin llevar el id | Aplicada en la maqueta (§0, #4) |
+| `MAQUETA-P3` | Desviación por invariante (D10, 44 × 44 pt), no propuesta y sin estado de aprobación: `comun.md` §2.4; la recogen §1, §2.1 y §8 y `tokens.md` c.3 | Aplicada en la maqueta (§0, #4) |
 | `MAQUETA-P2` | Bug, se corrige en 3.6: es un bug de `main`, no una propuesta. `Results.md` (a.1 #7, d.2): el chip muestra `TOPICS[topic]` si `topic` es una clave y «Todos los temas» si no | La figura 05b sigue dibujando la clave cruda hasta que la maqueta se regenere |
 
 ### Nuevas
 
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
-| `MAQUETA-P4` | En la nota del creador, el texto arranca debajo del objetivo de descartar: el encabezado reserva el alto del objetivo (`paso 11` menos el relleno superior `paso 3.5`) | El objetivo de `paso 11` pegado al marco baja hasta 44 px y el texto arranca a 38 px (`paso 3.5` + rótulo de 16 + `paso 2`): 6 px del objetivo se superponen con la primera línea. En el pedido de donación no ocurre: el título de 22 px lleva el texto a 44. Figuras 01 y 13 | defecto (D10, CD-10) | Resuelta como defecto en `Banners.md` a.2 #1: decisión del Ingeniero, no propuesta |
+| `MAQUETA-P4` | En la nota del creador, el texto arranca debajo del objetivo de descartar: el encabezado reserva alto mínimo `paso 8`, que con el relleno superior `paso 3.5` supera el objetivo (`paso 11`) | El objetivo de `paso 11` pegado al marco baja hasta 44 px y el texto arranca a 38 px (`paso 3.5` + rótulo de 16 + `paso 2`): 6 px del objetivo se superponen con la primera línea. En el pedido de donación no ocurre: el título de 22 px lleva el texto a 44. Figuras 01 y 13 | defecto (D10, CD-10) | Resuelta como defecto en `Banners.md` a.2 #1: decisión del Ingeniero, no propuesta. Expresada con un paso existente (`paso 8`) y aplicada en la maqueta (§0, #9) |
 
 ### Observaciones sin acción propuesta
 

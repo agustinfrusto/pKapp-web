@@ -171,6 +171,14 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 @media (hover:hover){.tema-op:hover{outline:1px solid var(--linea);outline-offset:-1px}}
 .tema-op:active{background:var(--tinta);color:var(--fondo)}
 .btn-cambiar{display:inline-flex;align-items:center;gap:8px;height:44px;padding-inline:12px;background:var(--fondo)}
+/* comun.md §1.1: con menos de 360 px de ancho el botón de Home es solo glifo-volver, un cuadrado
+   de paso 11; el texto queda como nombre accesible (aria-label). El criterio es el ancho de la
+   pantalla (container query sobre .cab), no el contenido medido. */
+.cab{container-type:inline-size}
+@container (max-width:359.98px){
+  .btn-cambiar{width:44px;padding-inline:0;justify-content:center}
+  .btn-cambiar span{display:none}
+}
 
 /* ===== barra interna (comun.md §3) ===== */
 .barra-int{background:var(--fondo);border-bottom:1px solid var(--linea)}
@@ -325,7 +333,9 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
 /* ===== Notas y avisos (Banners.md) ===== */
 .nota{position:relative;background:var(--superficie);border:1px solid var(--filete);border-left:3px solid var(--acento);padding:14px}
 .nota-rot{display:flex;align-items:center;gap:6px;margin-bottom:8px}
-.nota-cerrable .nota-rot{padding-right:44px}
+/* Banners.md a.2: el encabezado reserva paso 8 (32 px) de alto mínimo; con el relleno superior
+   (14 px) suma más que el objetivo de descartar (44 px) y el texto arranca debajo de él. */
+.nota-cerrable .nota-rot{padding-right:44px;min-height:32px}
 .nota p+p{margin-top:12px}
 .btn-contacto{display:inline-flex;align-items:center;gap:8px;height:44px;padding-inline:16px;margin-top:12px;max-width:100%}
 .cerrar-esq{position:absolute;top:0;right:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center}
@@ -613,7 +623,7 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
   
 <div class="pantalla" data-pantalla="Home">
   
-<header class="cab"><div class="col cab-fila"><div class="cab-izq"><button type="button" class="k2 btn-cambiar t-cuerpo-fuerte c-tinta"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg><span>Cambiar materia</span></button></div>
+<header class="cab"><div class="col cab-fila"><div class="cab-izq"><button type="button" class="k2 btn-cambiar t-cuerpo-fuerte c-tinta" aria-label="Cambiar materia"><svg class="g g-grande" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/></svg><span>Cambiar materia</span></button></div>
 <div class="tema" role="radiogroup" aria-label="Modo oscuro">
   <button type="button" class="tema-op" role="radio" data-op="claro" data-set="tema:claro"><svg class="g g-chico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="2" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="2.5"/>
 <path d="M8 1.5V3M8 13V14.5M1.5 8H3M13 8H14.5"/>
@@ -1557,7 +1567,7 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
   
 <div class="col "><div class="t-rotulo c-acento sec-rotulo">Acerca de</div>
 <div class="set-panel">
-  <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.7.1</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
+  <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.7.4</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
   <div class="acerca-franja">
     <div class="acerca-fila"><span class="t-rotulo c-sec">Banco de Cardiovascular y Respiratorio</span><span class="t-dato c-tinta">115</span></div>
     <div class="t-detalle c-sec acerca-des">113 de exámenes · 0 generadas · 2 tuyas</div>
@@ -1635,7 +1645,7 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
   
 <div class="col "><div class="t-rotulo c-acento sec-rotulo">Acerca de</div>
 <div class="set-panel">
-  <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.7.1</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
+  <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.7.4</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
   <div class="acerca-franja">
     <div class="acerca-fila"><span class="t-rotulo c-sec">Banco de Cardiovascular y Respiratorio</span><span class="t-dato c-tinta">115</span></div>
     <div class="t-detalle c-sec acerca-des">113 de exámenes · 0 generadas · 2 tuyas</div>
@@ -2001,7 +2011,7 @@ html[data-tema="claro"] .tema-op[data-op="claro"],html[data-tema="oscuro"] .tema
   
 <div class="col "><div class="t-rotulo c-acento sec-rotulo">Acerca de</div>
 <div class="set-panel">
-  <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.7.1</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
+  <div class="acerca-fila"><span><span class="t-item c-tinta">pKapp</span> <span class="t-rotulo-medio c-sec">v1.7.4</span></span><span class="t-detalle c-sec">Preparación para ESFUNO</span></div>
   <div class="acerca-franja">
     <div class="acerca-fila"><span class="t-rotulo c-sec">Banco de Cardiovascular y Respiratorio</span><span class="t-dato c-tinta">113</span></div>
     <div class="t-detalle c-sec acerca-des">113 de exámenes · 0 generadas · 0 tuyas</div>

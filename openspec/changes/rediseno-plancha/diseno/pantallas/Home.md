@@ -18,7 +18,7 @@
 
 | # | Bloque | Margen superior | Margen lateral | Separación inferior | Contenido |
 |---|---|---|---|---|---|
-| 1 | HeaderMarca | — | Relleno `paso 5` | — | `comun.md` §1. Slot `izquierda`: botón «Cambiar materia». Control de tema a la derecha |
+| 1 | HeaderMarca | — | Relleno `paso 5` | — | `comun.md` §1. Slot `izquierda`: botón «Cambiar materia» (con texto desde 360 px; solo glifo bajo 360 px, `comun.md` §1.1). Control de tema a la derecha |
 | 2 | Tarjeta de materia | `paso 1.5` | `paso 5` | — | Ilustración, id, nombre y conteos (a.2) |
 | 3 | Banner de banco reducido (`Banners.md` a.1 y a.2) | `paso 3` | `paso 5` | — | Solo si `materia.bancoReducido`. Sigue visible (D6) |
 | 4 | Rótulo de sección | `paso 4` | `paso 5` | `paso 2` | «Plano / Acciones», entre la tarjeta de materia (o el banner, si hay) y la lista |
@@ -51,6 +51,8 @@ Relleno interno de la acción: `paso 3.5` en las cuatro caras.
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | La tarjeta de materia y las acciones llenan la columna. La nota de privacidad queda centrada dentro de la columna |
 | 1280 px | Igual | Igual | Las seis acciones siguen en una sola columna: sin grilla, para conservar el orden |
+| 360 px | Ancho completo menos margen lateral `paso 5` | — | Sin scroll horizontal. La fila de HeaderMarca lleva el botón con glifo y texto y el control de tema, con al menos `paso 2` entre ambos (`comun.md` §1.1) |
+| 320 px | Igual | — | Sin scroll horizontal. El botón «Cambiar materia» muestra solo `glifo-volver` en un cuadrado de `paso 11` (`comun.md` §1.1); el alto de la fila no cambia. En la tarjeta de materia el nombre y los conteos saltan de línea y la celda de ilustración conserva `paso 24`. En cada acción el título y la descripción saltan de línea; el cuadro de glifo y el chevron conservan su lado |
 
 ---
 
@@ -59,7 +61,8 @@ Relleno interno de la acción: `paso 3.5` en las cuatro caras.
 | Elemento | Frente | Fondo | Borde | Paso tipográfico | Filete | Glifo | Par |
 |---|---|---|---|---|---|---|---|
 | Control de tema | `comun.md` §2 | | | | | | |
-| Botón «Cambiar materia» (K2) | `tinta` | `fondo` | `linea`, `border` | `cuerpo-fuerte` | — | `glifo-volver` (grande), `tinta` | T1, N1, N5 |
+| Botón «Cambiar materia» (K2), desde 360 px | `tinta` | `fondo` | `linea`, `border` | `cuerpo-fuerte` | — | `glifo-volver` (grande), `tinta`, delante del texto | T1, N1, N5 |
+| Botón «Cambiar materia» (K2), bajo 360 px | `tinta` | `fondo` | `linea`, `border` | — | — | `glifo-volver` (grande), `tinta`, único contenido; cuadrado de `paso 11` | N1, N5 |
 | Tarjeta de materia (cuerpo) | — | `superficie` | `linea`, `border`; marcas de esquina (§6) | — | — | — | N1, N2 |
 | Ilustración | `filamento` | `superficie` | — | — | Derecho `filete` | Ilustración de materia (D3) | X3 |
 | Id de materia | `acento` | `superficie` | — | `rotulo` | — | — | T6 |
@@ -89,7 +92,7 @@ Relleno interno de la acción: `paso 3.5` en las cuatro caras.
 
 | Elemento | Reposo | Hover (web) | Presionado | Foco | Seleccionado | Deshabilitado | Banco reducido | Origen de la pregunta |
 |---|---|---|---|---|---|---|---|---|
-| Botón «Cambiar materia» (K2) | `tinta` sobre `fondo`; borde `linea` | Contorno web `linea`, `border` | Inversión: `fondo` sobre `tinta`; borde `tinta` | Contorno `foco`, `border-2`, separado `paso 0.5` | — | — | — | — |
+| Botón «Cambiar materia» (K2), con o sin texto | `tinta` sobre `fondo`; borde `linea` | Contorno web `linea`, `border` | Inversión: `fondo` sobre `tinta`; borde `tinta` | Contorno `foco`, `border-2`, separado `paso 0.5` | — | — | — | — |
 | Acción primaria (K3) | Borde `linea`, `border-2`; fondo `superficie` | Contorno web `linea`, `border` | Inversión total: fondo `tinta`; texto y glifos `fondo` | Contorno `foco`, `border-2`, separado `paso 0.5` | — | — | — | — |
 | Acción secundaria (K3) | Borde `borde`, `border` | Borde pasa a `linea` | Inversión total | Igual que primaria | — | — | — | — |
 | Tarjeta de materia | Estática (no es un control) | — | — | — | — | — | — | Conteo de preguntas reales y de preguntas extra, ambos visibles (d.1) |
@@ -142,7 +145,7 @@ Las seis acciones no tienen estado deshabilitado en el código actual; ninguna s
 
 | Elemento | Actual | Nuevo | Motivo |
 |---|---|---|---|
-| Botón de volver | «← Cambiar materia» (flecha de texto) | «Cambiar materia» con `glifo-volver` | Reemplazo de símbolo |
+| Botón de volver | «← Cambiar materia» (flecha de texto) | «Cambiar materia» con `glifo-volver`; bajo 360 px solo el glifo, con nombre accesible «Cambiar materia» (`comun.md` §1.1) | Reemplazo de símbolo; ancho mínimo (D10) |
 | Nombre y conteos | En el header: nombre y «{examCount} preguntas reales · {generatedCount} preguntas extra» | Los mismos textos, dentro de la tarjeta de materia | Ubicación |
 | Id de materia | No existe | `{shortName} · {NN}` | Elemento del boceto, derivado de datos |
 | Rótulo de sección | No existe | «Plano / Acciones» | Texto del boceto, aprobado por el usuario |
@@ -172,6 +175,7 @@ Solo quedan acá las que no admiten otra variante: las fija un invariante (D6, s
 | «113 preguntas» como dato único | «{examCount} preguntas reales · {generatedCount} preguntas extra» | D6: origen visible; manda el dato y el copy actual |
 | Sin banner de banco reducido | Banner en su lugar (`Banners.md` a.1) | D6: banco reducido visible |
 | Glifo de 26 en cuadro de 40 | Glifo `paso 6` en cuadro `paso 10` | Escala de tokens (`comun.md` §8): conserva el trazo de c.2 |
+| Botón «Cambiar materia» con texto en todo ancho | Bajo 360 px, solo `glifo-volver` en un cuadrado de `paso 11`, con el texto como nombre accesible | D10 y C3: a 320 px el botón con texto y el control de tema no entran en la fila sin partir el texto ni quedar pegados (`comun.md` §1.1). El destino y el gesto no cambian |
 
 ---
 

@@ -8,7 +8,7 @@
 | Navegador | Barra interna con título «pKapp · Elegir tema» y volver |
 | Variantes | A: `practice`, o `failed` con fallos. B: `exam`. C: `failed` sin fallos. Cada una con o sin filtro de parcial (`materia.config.parciales`) |
 | Fuera de alcance | Variante C (estado vacío): su lugar está fijado; su ficha es `Vacios.md` (V2) |
-| Propuestas | Sección f: `TOPIC-P1` a `TOPIC-P5`. Comunes: `COMUN-P2` |
+| Propuestas | Sección f: `TOPIC-P1` a `TOPIC-P5`. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
 
 ---
 
@@ -34,7 +34,7 @@
 | 3 | Tarjeta «Modo Examen» | — | `paso 5` | — | Lámina de `comun.md` §6, contenido centrado, relleno `paso 4` |
 | 4 | Relleno inferior del scroll | — | — | `paso 8` | Fin del scroll |
 
-Interior de la tarjeta «Modo Examen», de arriba abajo: título (`titulo`), texto del sorteo (`cuerpo`, margen superior `paso 2`), disponibles (`cuerpo-fuerte`, margen superior `paso 3.5`), botón (margen superior `paso 5`, relleno horizontal `paso 8`).
+Interior de la tarjeta «Modo Examen», de arriba abajo: título (`titulo`), texto del sorteo (`cuerpo`, margen superior `paso 2`), disponibles (`cuerpo-fuerte`, margen superior `paso 3.5`), botón (margen superior `paso 5`, relleno horizontal `paso 8` y vertical `paso 3.5`, el de los otros botones K1).
 
 ### a.3 Interior del panel de filtros
 
@@ -51,7 +51,7 @@ Filtros: alto `paso 11`, relleno horizontal `paso 3`, separación `paso 2` en ho
 
 | Pieza | Medidas | Contenido |
 |---|---|---|
-| Tarjeta de mezcla | Relleno vertical `paso 3`, horizontal `paso 3.5`; separación `paso 3` entre glifo y texto | `glifo-aleatorio` y, en el bloque de texto, rótulo «Mezcla» (margen inferior `paso 1.5`), título y conteo |
+| Tarjeta de mezcla | Relleno vertical `paso 3`, horizontal `paso 3.5`; separación `paso 3` entre glifo y texto | `glifo-aleatorio` y, en el bloque de texto, rótulo «Mezcla» (margen inferior `paso 1.5`), título y conteo (margen superior `paso 1`) |
 | Fila de tema | Relleno vertical `paso 3`; separación `paso 3` entre columnas; alto mínimo `paso 11` | Índice, nombre con conteo debajo, chevron |
 
 ### a.5 Tablet y escritorio (D10)
@@ -60,6 +60,7 @@ Filtros: alto `paso 11`, relleno horizontal `paso 3`, separación `paso 2` en ho
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | Panel, tarjeta y filas llenan la columna. Los filtros saltan de línea cuando no entran |
 | 1280 px | Igual | Igual | La lista de temas sigue en una columna: sin grilla |
+| 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. Los filtros saltan de línea con `paso 2` entre ellos y el nombre salta dentro del filtro si no entra; en el temporizador, los dos cuadrados de `paso 11` conservan su lado y el valor queda entre ambos. En la tarjeta de mezcla y en cada fila de tema el nombre salta de línea; el glifo, el índice y el chevron conservan su ancho. En «Modo Examen» el texto del sorteo salta de línea y «Comenzar examen» conserva su alto y salta de línea si su texto no entra |
 
 ---
 
@@ -188,3 +189,17 @@ Solo quedan acá las que no admiten otra variante: las fija un invariante (D6, s
 | Boceto | Ficha | Motivo |
 |---|---|---|
 | Cuadrado de 36 | Lado `paso 11` | D10: objetivo táctil mínimo de 44 × 44 pt |
+
+---
+
+## h. Conservado de main (D10)
+
+Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `main` es la base de funciones, datos, copy y orden de uso (`design.md`, D10, «Base de comparación»). Se conservan por D10, sin aprobación.
+
+| Id | Qué se conserva | Motivo | Tipo |
+|---|---|---|---|
+| TOPIC-C1 | Las tres variantes por `mode` (`practice`, `exam`, `failed`) y el toque único que inicia el quiz: tarjeta de mezcla, fila de tema o «Comenzar examen», con los mismos parámetros. El boceto solo dibuja `practice` | `main` es la base de funciones (d.2) | uso |
+| TOPIC-C2 | Los valores de partida de los filtros: fuente «Todas», parcial «Examen» y temporizador «Sin límite»; el grupo «Parcial» solo existe con parciales | Valores de partida de `main` (d.2) | uso |
+| TOPIC-C3 | Las opciones del temporizador (`TIMER_OPTIONS`): «Sin límite» y de 10 a 120 minutos de a 10; el cuadrado del extremo se apaga. El boceto dibuja un solo valor | Dato de `main` (d.1) | dato |
+| TOPIC-C4 | La tarjeta «Modo Examen» de la variante `exam`: título, texto del sorteo según `examSize` o `examSizeParcial`, «Disponibles: {n} preguntas» y «Comenzar examen». Su contenido es de `main`; su lámina es `TOPIC-P5` | Función y copy de `main` (d.1, e) | uso |
+| TOPIC-C5 | El orden de los temas (el de `TOPICS`), solo con los que tienen al menos una pregunta tras los filtros, y «Solo generadas» incluye las preguntas del usuario | Orden de uso y datos de `main` (c, d.1) | dato |
