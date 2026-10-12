@@ -39,7 +39,7 @@ Nombre = clave en `plancha.claro` y `plancha.oscuro`. En Tailwind: `bg-fondo` y 
 | `intermedia` | `#3f5f7a` | `#8fb4c9` | Banda de 60 a 79 (D6): porcentaje, barra y marca en estadísticas y resultados | Acero: tercer tono frío, ni cálido ni saturado; separable de verde y rojo en protanopía y deuteranopía (a.3) |
 | `filamento` | `#14181d` | `#8fb4c9` | Trazo del campo de filamentos y de las ilustraciones de materia | Valor del boceto (`--fil`): tinta en claro, acero en oscuro |
 | `manifestTema` | `#0b0d10` | `#0b0d10` | `theme_color` de `public/manifest.json`; `themeColor` de `app.json` | D8: tinta del ícono. No depende del tema |
-| `manifestFondo` | `#0b0d10` | `#0b0d10` | `background_color` del manifest; `backgroundColor` de `app.json`; splash nativo de `App.js` | Splash continuo con el ícono, sin franja de otro color |
+| `manifestFondo` | `#0b0d10` | `#0b0d10` | `background_color` del manifest; `backgroundColor` de `app.json`. Ya no lo lee `App.js`: el splash de React se retira con `REV-2` (decisión del Ingeniero, 2026-10-12; a.2, bloque «Decisión · `theme-color` inicial») | Splash de la PWA continuo con el ícono, sin franja de otro color |
 | `iconoFondo` | `#0b0d10` | `#0b0d10` | Fondo de los íconos PWA de `public/` (`icon-192`, `icon-512`, `icon-maskable-512` y `apple-touch-icon`) y del favicon, generados desde `diseno/favicon/` (tarea 4.2, `NOTAS-FAVICON.md`); `tools/e2e/suites/pwa.js` afirma que no depende del tema. Sin lector en `app.json` desde la 5.0c (fuente corregida en la 5.0b) | Reemplaza `#6366f1` por la tinta del ícono |
 
 ### a.2 Reglas de uso
@@ -52,7 +52,8 @@ Nombre = clave en `plancha.claro` y `plancha.oscuro`. En Tailwind: `bg-fondo` y 
 | Hover y presionado | Sin token propio: marco de 1 a 2 px o inversión `tinta`/`fondo`; la matriz de estados va en las fichas |
 | Placeholder | `tintaSec` (par T4) |
 | `meta theme-color` | Un solo `<meta>`, sin `media`. Inicial (`scripts/inject-pwa.js`): `claro.fondo`. En ejecución (`App.js`): `fondo` del tema activo. `manifestTema` es del manifest y de `app.json`, no del meta. Decisión y porqué: bloque siguiente |
-| `StatusBar` | Contenido oscuro en claro y claro en oscuro (hoy `App.js` fija `light` siempre, por la banda navy) |
+| Fondo del documento y `color-scheme` (`REV-2`) | `html` lleva `background-color` = `claro.fondo` y `color-scheme: light`; `html.dark`, `oscuro.fondo` y `color-scheme: dark`, en el `<style>` del `<head>` servido. El lienzo del navegador y su cromo (barras de scroll, diálogos, selector de archivo) siguen al tema de la app. Valores y aceptación: bloque siguiente |
+| `StatusBar` | Contenido oscuro en claro y claro en oscuro |
 | Prohibido | Gradientes, sombras, transparencias de color (el halo `rgba(...)` de `webStyles.js` sale al migrar). Única excepción: `strokeOpacity` del campo de filamentos (CD-24, `CONVENCIONES.md`; `design.md` D2). La ilustración de materia y el resto de la UI no la usan |
 
 #### Decisión · `theme-color` inicial (tarea 4.1, resuelta 2026-10-11)
@@ -71,7 +72,16 @@ El valor inicial es el que muestra el navegador desde que parsea el `<head>` has
 | Meta en el HTML servido (antes de montar) | `claro.fondo` | `scripts/inject-pwa.js` |
 | Meta con React montado | `fondo` del tema activo | `App.js`, efecto sobre `chrome.cabecera`; reescribe el único meta |
 | `theme_color` del manifest y `themeColor` de `app.json` | `manifestTema` (igual en ambos temas) | D8; lo que el sistema muestra antes de que exista el documento |
-| Contraste | Sin pares nuevos | El meta tiñe el cromo del navegador, no texto de la app; E1 a E4 no cambian |
+| Fondo del documento (`REV-2`, aprobada por el usuario el 2026-10-12) | `html { background-color: <claro.fondo> }` y `html.dark { background-color: <oscuro.fondo> }` en un `<style>` del `<head>` servido, con los valores leídos de `plancha` (como ya hace el meta) | `scripts/inject-pwa.js`, `pwaTags`. `TemaContext.aplicar` ya alterna la clase `dark` en `html` (`src/theme/TemaContext.js:20`), así que el fondo acompaña al tema en ejecución. Antes de montar, el lienzo es `claro.fondo` (y en Safari 26, el tinte de la pestaña: H2 de 4.1); quien usa oscuro lo ve hasta montar, como hoy: el script síncrono de la fila «Aplazada» sigue aplazado |
+| `color-scheme` (`REV-2`) | `html { color-scheme: light }` y `html.dark { color-scheme: dark }`, en el mismo `<style>` | Ídem. Barras de scroll (Windows; macOS con barras visibles), `window.confirm` y `window.alert` en Chrome y Edge, el selector de archivo de «Importar respaldo» y el resaltado de selección siguen al tema de la app (hoy quedan claros con el tema oscuro) |
+| Splash de `App.js` (`REV-2`) | Se retira entero: contenedor `splashStyles`, `Animated.sequence`, logo y tagline (`App.js:93` a `155`). Ningún cuadro `manifestFondo` al cargar: el primer cuadro que React pinta es la app, en el tema guardado | Decisión del Ingeniero con `REV-2` (2026-10-12): con nativo retirado (5.0) era código muerto; −0,2 KB en el bundle. `Vacios.md` V19 describe el arranque resultante. `manifestFondo` sigue vivo para el manifest y `app.json` (a.1) |
+| Contraste | Sin pares nuevos | El meta y el fondo del documento tiñen el cromo y el lienzo del navegador, no texto de la app; E1 a E4 no cambian (CD-27) |
+
+Aceptación de `REV-2` (para la spec del Ingeniero y la e2e): (1) la secuencia de cuadros al cargar en claro no contiene ningún cuadro `#0b0d10` (`Page.startScreencast` del arnés); (2) `getComputedStyle(document.documentElement).colorScheme` vale `light` con el tema claro y `dark` con el oscuro, y `backgroundColor` es el `fondo` del tema; (3) la suite `pwa.js` sigue en verde (un solo meta `theme-color`, que no cambia); (4) `rg -n 'Animated\.' src App.js` vacío.
+
+| Id | Qué cambia | Sin el cambio | Tipo | Estado |
+|---|---|---|---|---|
+| `REV-2` (revisión 5.0b, `tasks.md` 5.0b.2) | Las tres filas de arriba: sin cuadro oscuro al cargar (splash retirado), `html` y `html.dark` con `background-color` = `fondo` de su tema y `color-scheme` por tema. ≈ 0,1 KB en el HTML servido; −0,2 KB en el bundle | Cuadro `#0b0d10` en cada carga con el tema claro (y logo invisible en oscuro); lienzo del navegador sin fondo antes de montar; cromo claro con el tema oscuro | visual (bordes de app, D8) | aprobada (usuario, 2026-10-12) |
 
 ### a.3 Distinguibilidad de los tres estados
 
@@ -237,7 +247,11 @@ Un ancho distinto para escritorio es otro token con nombre propio, no una varian
 | `lectura` | A lo sumo 80 caracteres por línea en los pasos de texto corrido (WCAG 1.4.8) | Medido en la maqueta con IBM Plex Sans (`NOTAS-MAQUETA.md` §8): enunciado `titulo` 64; opción `cuerpo` 73; nota y revisión `cuerpo` 77; descripción de acción `detalle` 77. Con 640 la nota y la revisión daban 86 |
 | `lateral` | El ancho de columna de un teléfono de 360 con margen lateral `paso 5` (360 − 2 × 20): la lámina con el campo de filamentos y las tarjetas ya están verificadas a ese ancho | El campo se estira 320 / 348 = 0,92× (viewBox de 348): dentro del 0,80× a 1,28× validado y bajo el ~1,4× de `design.md` D2, así que `encuadre` sigue en `'none'` |
 | `hoja` | `lateral` + `paso 8` + `lectura` | Con el margen lateral `paso 8` a cada lado entra completa desde 1016 px de ventana: en el corte (1024) no hay ajuste |
-| `hoja-amplia` | Tres celdas de rejilla del ancho de una tarjeta de teléfono junto a la región lateral | 1440 − `lateral` − `paso 8` = 1088 de región principal; con `paso 4` entre celdas, cada una mide 352 (una tarjeta de un teléfono de 390 mide 350) |
+| `hoja-amplia` | Tres celdas de rejilla del ancho de una tarjeta de teléfono junto a la región lateral | Con el contenido entero (1440 px): 1440 − `lateral` − `paso 8` = 1088 de región principal; con `paso 4` entre celdas, cada una mide 352 (una tarjeta de un teléfono de 390 mide 350). El contenido entero solo existe desde 1504 px de ventana (1440 más el margen lateral `paso 8` a cada lado): entre 1440 y 1503 px la hoja cede ancho y cada celda mide (ventana − 448) / 3, de 331 px a 1440 a 352 px a 1503, nunca menos que los 280 de una tarjeta de un teléfono de 320 (`REV-7`, variante A, 2026-10-12: corrige la cuenta; el corte `amplio` sigue en 1440) |
+
+| Id | Qué cambia | Sin el cambio | Tipo | Estado |
+|---|---|---|---|---|
+| `REV-7`, variante A (revisión 5.0b, `tasks.md` 5.0b.7) | Solo documentación: la fila `hoja-amplia` de arriba cuenta las celdas entre 1440 y 1503 px de ventana (331 a 352 px) y aclara que los 352 valen desde 1504 px. Ningún token, corte ni clase cambia; 0 B. Sin el cambio: la ficha afirmaba 352 px desde 1440, cuando la fórmula presupone un contenido de 1440 px que solo existe con ventana de 1504 o más; el layout no se rompía, la cuenta estaba mal | Variante B, no elegida: mover el corte `amplio` a 1504 px (una constante `CORTE_AMPLIO` y recapturar 1440), para que las celdas midieran 352 desde el primer píxel del corte | documentación | aprobada (usuario, 2026-10-12; A, la recomendada) |
 
 **Medidas de escritorio con pasos existentes** (`spacing` no cambia).
 

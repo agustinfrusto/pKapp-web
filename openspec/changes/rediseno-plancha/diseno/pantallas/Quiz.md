@@ -8,7 +8,7 @@
 | Navegador | Barra propia; sin barra interna: implica `headerShown: false` para `Quiz` en `App.js` (`comun.md` §3). Es la propuesta `QUIZ-P1`, aprobada |
 | Variantes | Origen `exam`, `generated` y `user`; con y sin explicación; con y sin temporizador; última pregunta |
 | Fuera de alcance | Insignia de parcial (distinción de parciales) y quiz sin retroalimentación (`hideFeedback`, examen en curso): su lugar está fijado; sus fichas son `comun.md` §12 y `ExamenEnCurso.md` |
-| Propuestas | Sección f: `QUIZ-P1` y `QUIZ-P4` a `QUIZ-P10`. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Propuestas | Sección f: `QUIZ-P1` y `QUIZ-P4` a `QUIZ-P10`. Sección f.1: `REV-1`, `REV-3`, `REV-8` y `REV-9` de la revisión 5.0b, aprobadas (usuario, 2026-10-12). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P4`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.4 |
 
 ---
@@ -24,9 +24,11 @@
 | 3 | Caja del enunciado | — | `paso 5` | `paso 4` | Rótulo «Enunciado» (margen inferior `paso 1.5`) y enunciado de la pregunta |
 | 4 | Opciones | — | `paso 5` | `paso 2.5` entre opciones | Una por entrada de `options`, letras A, B, C… |
 | 5 | Nota de explicación | `paso 4` | `paso 5` | — | Solo si respondió, hay retroalimentación y la pregunta tiene `explanation` |
-| 6 | «Reportar pregunta» | `paso 3.5` | Centrado | — | Solo si respondió |
+| 6 | «Reportar pregunta» | `paso 3.5` | Centrado | — | Solo si respondió. K7 sin marco (`REV-3`): `glifo-reportar` chico delante del texto en `cuerpo`; alto mínimo `paso 11`, relleno horizontal `paso 4` |
 | 7 | Relleno inferior del scroll | — | — | `paso 24` más área segura inferior | Deja libre la barra inferior |
 | 8 | Barra inferior (fija) | — | Relleno `paso 5` | — | Solo si respondió. Filete superior `linea` a ancho completo |
+
+Movimiento (`REV-1`, c.5): al responder, los bloques 5 a 8 entran con un fundido de `opacity` de 150 ms (la barra inferior suma `translateY` de `paso 2` a 0); al cambiar de pregunta, los bloques 2 a 4 entran con el mismo fundido. El alto de cada bloque se reserva en el mismo cuadro: el movimiento nunca mueve el layout.
 
 ### a.2 Interior de la barra del quiz
 
@@ -52,8 +54,8 @@ Relleno vertical `paso 2`; fila de alto `paso 11`; separación `paso 3.5` entre 
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | Las dos barras llevan su filete a todo el ancho; su contenido va dentro de la columna. El enunciado y las opciones llenan la columna |
 | 1280 px (desde 1024 px) | Sección «Escritorio» de esta ficha (`ESC-P4`, aprobada): `lectura` | Igual | Barras a todo el ancho; el botón de la barra inferior mide `lectura`, no la ventana |
-| 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. En la barra del quiz, cerrar (`paso 11`), contador y tiempo conservan su tamaño y el progreso toma el espacio libre: las casillas se angostan o la barra continua se acorta, sin cambiar la regla de 40 (`QUIZ-P4`). En la fila de contexto la meta salta hasta dos líneas. El enunciado y el texto de cada opción saltan de línea; la celda de letra conserva `paso 11`. La barra inferior conserva el botón de ancho completo |
-| (5.0b, sin documentar) Meta «{shortName} · {tema}», a todo ancho | — | A la derecha de la fila de contexto | Hoy la app no limita las líneas de la meta (`QuizScreen.js`, `testID` `meta-pregunta`, sin `numberOfLines`): toma el ancho que dejan la insignia de parcial y el chip de origen, salta de línea las veces que haga falta y nunca recorta. Con el tema más largo del catálogo («RyD · Eje hipotálamo-hipófiso-testicular y respuesta sexual», 59 caracteres) son tres líneas a 320 px y dos desde 360 px. El «hasta dos líneas» de `QUIZ-P8` no rige en el código; sin cambio en esta tarea (propuesta `REV-8` de `.orca/reports/rediseno-5.0b-revision.md`) |
+| 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. En la barra del quiz, cerrar (`paso 11`), contador y tiempo conservan su tamaño y el progreso toma el espacio libre: las casillas se angostan o la barra continua se acorta, sin cambiar la regla de 40 (`QUIZ-P4`). En la fila de contexto la meta salta de línea sin tope ni recorte (`REV-8`, fila siguiente): con el tema más largo del catálogo, dos líneas a 360 px y tres a 320 px. El enunciado y el texto de cada opción saltan de línea; la celda de letra conserva `paso 11`. La barra inferior conserva el botón de ancho completo |
+| Meta «{shortName} · {tema}» (`REV-8`, aprobada 2026-10-12) | — | A la derecha de la fila de contexto si entra en la misma fila; si no, en su propia línea debajo, a todo el ancho de la columna y alineada a la derecha | Sin tope de líneas ni recorte (`QuizScreen.js`, `testID` `meta-pregunta`, sin `numberOfLines`; es la regla de D10: el tema nunca se recorta ni se abrevia): toma el ancho que dejan la insignia de parcial y el chip de origen y salta de línea las veces que haga falta. Con el tema más largo del catálogo («RyD · Eje hipotálamo-hipófiso-testicular y respuesta sexual», 59 caracteres) son dos líneas desde 360 px y tres a 320 px; a 390 px la meta corta queda en la fila del contexto y la larga baja a su propia línea. Lo afirma `anchosDelQuiz` (`tools/e2e/suites/quiz.js`) |
 
 ---
 
@@ -79,7 +81,7 @@ Relleno vertical `paso 2`; fila de alto `paso 11`; separación `paso 3.5` entre 
 | Línea de estado de la opción | `acierto` o `error` | `aciertoFondo` o `errorFondo` | — | `rotulo` | — | `glifo-acierto` o `glifo-error` | T12, T16, N11, N14 |
 | Nota de explicación | `tinta` | `superficie` | Izquierdo `acento`, `border-l-3`; resto `filete`, `border` | `cuerpo` | — | — | T2, N18 |
 | Rótulo «Nota / Explicación» | `acento` | `superficie` | — | `rotulo` | — | `glifo-explicacion` (chico), delante del texto, `acento` | T6, N18 |
-| «Reportar pregunta» (K3) | `tinta` | `superficie` | `borde`, `border` | `cuerpo-fuerte` | — | `glifo-reportar` | T2, N4 |
+| «Reportar pregunta» (K7, `REV-3`) | `tinta` | `fondo` (el de la página; sin relleno propio) | — (sin marco) | `cuerpo` | — | `glifo-reportar` (chico), delante del texto, `tinta` | T1, N5 |
 | Barra inferior | — | `fondo` | Superior `linea`, `border` | — | — | — | N1 |
 | «Siguiente» o «Ver resultados» (K1) | `fondo` | `tinta` | `tinta`, `border` | `cuerpo-fuerte` | — | `glifo-siguiente` | T7 |
 
@@ -101,9 +103,11 @@ Con más de 40 casillas, a ancho de teléfono cada una queda demasiado fina para
 | Elemento | Reposo | Hover (web) | Presionado | Foco | Seleccionado | Deshabilitado |
 |---|---|---|---|---|---|---|
 | Cerrar (K7) | Glifo `tinta` | Contorno web `linea`, `border` | Inversión: glifo `fondo` sobre `tinta` | Contorno `foco`, `border-2`, separado `paso 0.5` | — | — |
-| «Reportar pregunta» (K3) | Borde `borde`; texto `tinta` | Borde `linea` | Inversión: fondo `tinta`; texto y glifo `fondo` | Contorno `foco` | — | — |
+| «Reportar pregunta» (K7, `REV-3`) | Sin marco; texto y glifo `tinta` sobre `fondo` (T1, N5) | Contorno web `linea`, `border` (N1) | Inversión total: fondo `tinta`; texto y glifo `fondo` (T7) | Contorno `foco`, `border-2`, separado `paso 0.5` (N7) | — | — |
 | «Siguiente» (K1) | Fondo `tinta`; texto y glifo `fondo` | Contorno web `linea`, `border-2` | Inversión: fondo `superficie`; texto `tinta`; borde `linea` | Contorno `foco` | — | — |
 | Opción (K3) | Ver c.2 | Borde `linea` | Inversión total | Contorno `foco` | `ExamenEnCurso.md` c.2 (sin retroalimentación) | Ver c.2: tras responder deja de recibir toque |
+
+Ningún estado de esta tabla lleva transición: hover, presionado y foco cambian en el mismo cuadro (CD-2, CD-3). El único movimiento de la pantalla es el fundido de entrada de c.5.
 
 ### c.2 Opción según el estado de la respuesta
 
@@ -121,6 +125,7 @@ Con más de 40 casillas, a ancho de teléfono cada una queda demasiado fina para
 | Texto | «Correcta» e «Incorrecta · tu respuesta» |
 | Peso | La correcta pasa a `cuerpo-fuerte` |
 | Ambas a la vez | Si la elegida es incorrecta, la correcta también se marca: aparecen las dos líneas de estado |
+| Movimiento (`REV-1`) | El marco, el relleno, la celda de letra y el texto de la opción tocada (y de la correcta, si difiere) cambian en el mismo cuadro del toque, sin animación; solo la línea de estado entra con el fundido de c.5 |
 
 ### c.3 Origen de la pregunta
 
@@ -139,7 +144,7 @@ Medidas del chip: relleno vertical `paso 0.5`, horizontal `paso 2`; glifo chico;
 
 | Posición | Detalle |
 |---|---|
-| Fila de contexto | A la izquierda: insignia de parcial (`comun.md` §12.3, encima) y chip de origen. A la derecha: meta «{shortName} · {tema}», alineada a la derecha, hasta dos líneas |
+| Fila de contexto | A la izquierda: insignia de parcial (`comun.md` §12.3, encima) y chip de origen. A la derecha: meta «{shortName} · {tema}», alineada a la derecha, sin tope de líneas ni recorte (`REV-8`): si no entra en la fila pasa a su propia línea debajo, a todo el ancho de la columna; con el tema más largo del catálogo, dos líneas desde 360 px y tres a 320 px (a.4) |
 
 ### c.4 Tiempo y progreso
 
@@ -150,6 +155,31 @@ Medidas del chip: relleno vertical `paso 0.5`, horizontal `paso 2`; glifo chico;
 | Progreso | Casilla vacía, llena, actual | La actual es la última llena |
 
 Aciertos, errores e intermedia de rendimiento no aplican (—); banco reducido no aplica (—).
+
+### c.5 Movimiento (`REV-1`, aprobada por el usuario el 2026-10-12)
+
+Fundido de entrada, sin cambio de layout. Vale para el quiz y para el examen en curso (`ExamenEnCurso.md` a.2). Mandato de `tasks.md` 5.0b: solo `opacity` y `transform` que calcule el compositor, 200 ms como máximo, `prefers-reduced-motion` respetado, sin JS cuadro a cuadro ni librerías.
+
+| Aspecto | Regla |
+|---|---|
+| Qué entra con fundido al responder | En cada opción marcada, la línea de estado (`MarcaEstado`); la nota «Nota / Explicación»; el aviso «Resultado oculto hasta el final» (examen en curso, `EXA-P1`); «Reportar pregunta»; la barra inferior. `opacity` de 0 a 1 en 150 ms, curva `cubic-bezier(0, 0, 0.2, 1)` (el `ease-out` de Tailwind). La barra inferior suma `transform: translateY(8px)` (`paso 2`) a `translateY(0)` en los mismos 150 ms: su alto se reserva en el mismo cuadro, como hoy; solo se desplaza su contenido |
+| Qué entra con fundido al pasar de pregunta | El bloque fila de contexto + caja del enunciado + opciones (bloques 2 a 4 de a.1), con el mismo fundido, cada vez que cambia `currentIndex`. La barra del quiz (progreso, contador, tiempo) cambia sin animación; el scroll vuelve arriba sin animar, como hoy (`scrollTo` con `animated: false`, `QuizScreen.js:219`); «Ver resultados» navega con `replace`, sin animación |
+| Qué no se anima | El cambio de estado de la opción tocada (marco, relleno, celda de letra y texto): respuesta inmediata al toque, en el mismo cuadro. Presionado, hover y foco: sin transición (CD-2, CD-3). El progreso, el temporizador y su alerta. Nada en salida: lo que desaparece, desaparece en el mismo cuadro |
+| Ningún estado por opacidad | La opacidad es solo el fundido de entrada; en reposo todo está a opacidad 1. El estado lo siguen dando marco, relleno, marca y texto (CD-24, `comun.md` §4). Ninguna clase `opacity-*` nueva en `src/`: el `rg -n 'opacity-' src` del chequeo de 3.14 sigue dando solo el carrusel |
+| Mecanismo (fijado por el Diseñador, 2026-10-12) | **Web Animations API**, variante (a) de `diseno/revision-5.0b.md` §3.1. Un hook de `src/components/plancha/` (nombre a criterio del Ingeniero; en §3.1, `useEntrada(ref, clave)`) que, en un efecto de layout sobre `[clave]` y con el nodo DOM del `View` (en react-native-web el `ref` del `View` es el elemento), llama `el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 150, easing: 'cubic-bezier(0,0,0.2,1)' })`; para la barra inferior, los keyframes `{ opacity: 0, transform: 'translateY(8px)' }` y `{ opacity: 1, transform: 'none' }`. Sin `fill`: al terminar, el estilo vuelve al del elemento y no queda nada residual; si el elemento se desmonta o la clave cambia antes de los 150 ms, `cancel()`. Clave: `currentIndex` para el bloque de la pregunta; las piezas que aparecen al responder se montan en ese momento y animan al montar. Efecto de layout (no `useEffect`) para que el primer cuadro pintado ya sea el keyframe 0 y no haya un destello a opacidad 1 |
+| Por qué (a) y no (b) | Con las clases `opacity-0` → `opacity-100` (variante (b), la del carrusel) el elemento se monta invisible y recién se hace visible en un render posterior: con movimiento reducido quedaría un cuadro invisible, y la barra necesitaría un segundo envoltorio o `transition-[opacity,transform]` para no transicionar también el hover y el presionado (CD-2, CD-3). Con (a) no hay clase intermedia ni residual, una sola llamada cubre `opacity` y `transform`, la reentrada al cambiar de pregunta no necesita `key` ni desmontar, y `document.getAnimations()` expone la animación tal cual la pide la aceptación |
+| Movimiento reducido | Si `window.matchMedia('(prefers-reduced-motion: reduce)').matches`, el hook no llama a `animate`: todo aparece de inmediato, como hasta la 5.0b. Mismo chequeo que el carrusel (`src/components/RegionAvisos.js:87`) |
+| Solo web | Solo si `Platform.OS === 'web'` y `typeof el.animate === 'function'`; si no, nada (sin `Animated`, `requestAnimationFrame` ni temporizadores que cambien estilos). Los toques responden durante el fundido: la opacidad no bloquea eventos |
+| Peso | ≈ 0,3 a 0,4 KB gzip de JS (el hook y cinco refs); 0 B de CSS. Entra en la holgura de D5 (5.164 B tras la 5.0); lo mide la 3.x con el build y la e2e |
+
+| # | Aceptación observable | Cómo se observa |
+|---|---|---|
+| 1 | Inmediatamente tras responder, las piezas nuevas tienen animaciones de 150 ms cuyos keyframes solo tocan `opacity` (la barra inferior, `opacity` y `transform`) | `document.getAnimations()` en el mismo tick del `click`: `effect.getTiming().duration` ≤ 200 y `effect.getKeyframes()` sin otra propiedad |
+| 2 | Con movimiento reducido no hay ninguna animación | `Emulation.setEmulatedMedia` con `prefers-reduced-motion: reduce`: `document.getAnimations()` vacío tras responder y tras «Siguiente» |
+| 3 | La opción tocada cambia de estado en el mismo cuadro | Captura inmediata tras el `click`: marco, relleno y celda de letra ya en su estado final (c.2) |
+| 4 | Tras «Siguiente», el scroll está arriba y el bloque de la pregunta entra con fundido | `scrollTop` 0; una animación sobre el bloque de la pregunta |
+| 5 | Ningún `opacity` distinto de 1 en reposo | El chequeo de 3.14 sobre el estilo calculado, 200 ms después de cada acción |
+| 6 | Shell dentro de D5 | Método de `evidencia/base.md`; tope 256.379 B |
 
 ---
 
@@ -183,6 +213,8 @@ Aciertos, errores e intermedia de rendimiento no aplican (—); banco reducido n
 | Cerrar | `handleQuit` navega a `Home`; la confirmación la pone el guardia |
 | Fin del quiz | Última pregunta: «Ver resultados» navega con `navigation.replace('Results', …)`. Tiempo agotado: el mismo `replace`, sin confirmar |
 | Gestos | Un toque por respuesta y uno por «Siguiente», como en `main` |
+| Movimiento (`REV-1`) | Solo `opacity` y `transform` calculados por el compositor, 150 ms, sin bloquear ni demorar un toque y sin mover el layout; con `prefers-reduced-motion: reduce`, ninguna animación; ningún estado se expresa con opacidad (c.5) |
+| Foco tras «Siguiente» (web, teclado; `REV-9`) | Cuando la barra inferior se desmonta al cambiar de pregunta, el foco pasa a la primera opción de la pregunta nueva si estaba en «Siguiente» o quedó en `body` por el desmontaje; con puntero el foco no se mueve. Convención Engram 70 (el foco tras quitar un control va al primero habilitado); detalle en «Orden, teclado y foco» |
 | Sin emoji, radio ni sombra | Los emojis de origen, explicación, reporte y tiempo pasan a glifos (`comun.md` §9, con su función y el porqué de su color); `rounded-*` y `sombras.card` salen de esta pantalla |
 
 ### d.3 Eventos `track(...)`
@@ -226,11 +258,22 @@ Cambios del boceto respecto de `main`, o de `main` respecto del boceto. El usuar
 | QUIZ-P5 | La caja del enunciado lleva el rótulo «Enunciado» en `rotulo` y `tintaSec` (T4), dentro de la caja y sobre el texto, con margen inferior `paso 1.5`; la caja crece lo que mide el rótulo. Es el texto del boceto | Texto del boceto aprobado por el usuario; `main` solo muestra el texto de la pregunta | visual | aprobada (usuario, 2026-10-10) |
 | QUIZ-P6 | El rótulo de la nota dice «Nota / Explicación», en `rotulo` y `acento` (T6), con `glifo-explicacion` delante (el glifo lo exige la spec de emojis). Es el texto del boceto | Texto del boceto aprobado por el usuario; `main` dice «Explicación» | visual | aprobada (usuario, 2026-10-10) |
 | QUIZ-P7 | La línea de estado de la opción elegida dice «Incorrecta · tu respuesta» (`rotulo`, `error`, T16) con `glifo-error` delante; la correcta conserva «Correcta». Si no entra en una línea a 390 px, salta de línea dentro de la celda de texto. Es el texto del boceto | Texto del boceto aprobado por el usuario; `main` solo marca la elegida como incorrecta | visual | aprobada (usuario, 2026-10-10) |
-| QUIZ-P8 | A la derecha de la fila de contexto va la meta «{shortName} · {tema}» en `rotulo` y `tintaSec` (T3), alineada a la derecha y hasta dos líneas; `shortName` sale de `materia.shortName`. Es el texto del boceto | Texto del boceto aprobado por el usuario; `main` muestra solo el tema | visual | aprobada (usuario, 2026-10-10) |
+| QUIZ-P8 | A la derecha de la fila de contexto va la meta «{shortName} · {tema}» en `rotulo` y `tintaSec` (T3), alineada a la derecha, sin tope de líneas ni recorte: si no entra en la fila pasa a su propia línea debajo, a todo el ancho de la columna; con el tema más largo del catálogo, dos líneas desde 360 px y tres a 320 px (`REV-8`, 2026-10-12; hasta la 5.0b decía «hasta dos líneas», que no cabía junto con «sin recorte» a 320 px); `shortName` sale de `materia.shortName`. Es el texto del boceto | Texto del boceto aprobado por el usuario; `main` muestra solo el tema | visual | aprobada (usuario, 2026-10-10); enmendada por `REV-8` (usuario, 2026-10-12) |
 | QUIZ-P9 | El contador es «NN / NN» con cero a la izquierda («01 / 24»), en `rotulo` y `tinta` (T1); con totales de tres dígitos el ancho crece con el contenido. Es el formato del boceto | Texto del boceto aprobado por el usuario; `main` no rellena con cero | visual | aprobada (usuario, 2026-10-10) |
 | QUIZ-P10 | Tras responder con retroalimentación, las opciones que no son la elegida ni la correcta pasan a `tintaSec` con marco `filete`. En el boceto quedan en reposo | Conserva el efecto de `main` (opciones apagadas, hoy por opacidad) sin transparencia: la elegida y la correcta se destacan por contraste | visual | aprobada (usuario, 2026-10-10) |
 
 Propuestas comunes que alcanzan esta pantalla: `COMUN-P2` (estados de control).
+
+### f.1 Propuestas de la revisión 5.0b (aprobadas por el usuario el 2026-10-12)
+
+Origen: `diseno/revision-5.0b.md` §3 (`tasks.md` 5.0b.1, 5.0b.3, 5.0b.8 y 5.0b.9). Rigen tal como quedaron escritas en el cuerpo de la ficha (a a d y «Orden, teclado y foco»); la columna «Sin el cambio» describe la variante descartada (C2). Las implementa el Programador con la spec del Ingeniero.
+
+| Id | Qué cambia | Sin el cambio | Motivo | Tipo | Estado |
+|---|---|---|---|---|---|
+| `REV-1` | Movimiento del quiz (c.5): lo que aparece al responder (líneas de estado, nota, aviso «Resultado oculto», «Reportar pregunta», barra inferior) entra con un fundido de `opacity` de 150 ms; la barra suma `translateY` de `paso 2` a 0; al pasar de pregunta, el bloque contexto + enunciado + opciones entra con el mismo fundido. La opción tocada cambia en el mismo cuadro. Mecanismo: Web Animations API. Con `prefers-reduced-motion`, nada. ≈ 0,4 KB | Todo aparece de inmediato, como hasta la 5.0b: la respuesta, la nota y la barra se materializan sin orden y la pregunta siguiente parece la misma pantalla con otro texto | Un fundido corto da respuesta al toque y orienta sin demorar nada ni mover el layout; precedente `BAN-P2` (`src/components/RegionAvisos.js:353`); dentro de CD-24 (la opacidad no codifica estado) | visual | aprobada (usuario, 2026-10-12) |
+| `REV-3` | «Reportar pregunta» pasa de K3 (marco `borde`, `cuerpo-fuerte`, sobre `superficie`) a K7 sin marco: `glifo-reportar` chico delante, texto `cuerpo` en `tinta` sobre `fondo`, centrado, alto mínimo `paso 11`, relleno horizontal `paso 4`; hover contorno `linea`, presionado inversión total, foco `foco` (a.1 bloque 6, b, c.1, h `QUIZ-P2`). También en el examen en curso. Pares: T1 16,32 / 15,97; N5; hover N1; presionado T7. 0 B | K3 con marco `borde` y `cuerpo-fuerte`, como `QUIZ-P2` hasta la 5.0b | Reportar es una utilidad ocasional; con marco y negrita pesa como una opción de respuesta. Sin marco y en regular queda un escalón por debajo de las opciones y de «Siguiente», en el mismo escalón que descartar y eliminar (K7 sin marco). Conserva E2 y CD-14 (`tinta`, sin rojo); el escalón a `tintaSec` es `CC-1`, pendiente | visual | aprobada (usuario, 2026-10-12) |
+| `REV-8` | `QUIZ-P8` adopta lo que hace la app: la meta no tiene tope de líneas ni recorte; si no entra en la fila del contexto pasa a su propia línea, a todo el ancho; con el tema más largo, dos líneas desde 360 px y tres a 320 px (a.4, c.3, f). Solo documentación; la aserción `anchosDelQuiz` de la e2e ya lo afirma y el Programador alinea su comentario | La ficha pedía «hasta dos líneas» y «sin recorte» a la vez, y el código resolvía a favor de «sin recorte» sin que la ficha lo dijera | El Analista de 3.5 mostró que las dos reglas no caben juntas a 320 px; D10 manda (sin recorte desde 320 px) y los nombres de tema nunca se abrevian (`AddQuestion-ADD-P3.md` d.2) | documentación | aprobada (usuario, 2026-10-12) |
+| `REV-9` | Foco tras «Siguiente» con teclado: al desmontarse la barra inferior, el foco pasa a la primera opción de la pregunta nueva (solo web; solo si el foco estaba en la barra o quedó en `body`). ≈ 0,1 KB («Orden, teclado y foco», d.2) | Al activar «Siguiente» con Enter el botón se desmonta y el foco cae en `body`: el siguiente Tab arranca desde el principio de la página | Convención Engram 70 (foco tras quitar un control); WCAG 2.4.3; precedente `TopicSelect.md` f.1 | uso | aprobada (usuario, 2026-10-12) |
 
 ---
 
@@ -250,7 +293,7 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 
 | Id | Qué se conserva | Motivo | Tipo |
 |---|---|---|---|
-| QUIZ-P2 | «Reportar pregunta» bajo la explicación, solo tras responder, como botón de marco neutro (K3: `borde`, texto `tinta`) con `glifo-reportar`. El boceto no lo incluye | Está en uso en `main` y es el único camino para avisar de una pregunta errónea desde el quiz (`reportQuestion`, `src/utils/report.js`) | uso |
+| QUIZ-P2 | «Reportar pregunta» bajo la explicación, solo tras responder, como botón sin marco (K7: texto `cuerpo` en `tinta`, `glifo-reportar` chico delante; aspecto fijado por `REV-3` el 2026-10-12, antes K3 de marco `borde` en `cuerpo-fuerte`). Función, lugar y condición se conservan; el aspecto es de la ficha (E1). El boceto no lo incluye | Está en uso en `main` y es el único camino para avisar de una pregunta errónea desde el quiz (`reportQuestion`, `src/utils/report.js`) | uso |
 | QUIZ-P3 | Con temporizador activo, la barra muestra `glifo-reloj` y «mm:ss» bajo el contador; con menos de 120 s, texto y glifo pasan a `error` y el bloque lleva marco `error`, `border-2`. El boceto no tiene temporizador | El temporizador se configura en TopicSelect y corta el quiz al llegar a cero (`replace` a Results); la alerta es el aviso de que se acaba el tiempo | uso |
 
 ---
@@ -301,6 +344,8 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 | Orden de DOM | El del teléfono, sin cambio |
 | Tab | Cerrar, opciones A, B, C…, «Reportar pregunta», «Siguiente»: el de siempre |
 | Cambia de lugar | Nada: solo el ancho de la columna |
+| Tras «Siguiente» con teclado (`REV-9`; rige en todo ancho, solo web) | Al activar «Siguiente» con Enter o Espacio, la barra inferior se desmonta y el foco pasa a la primera opción de la pregunta nueva (`opcion-quiz-0`), solo si el foco estaba en «Siguiente» o quedó en `body` por el desmontaje; con puntero el foco no se mueve y no aparece contorno (`:focus-visible`). «Ver resultados» navega con `replace` y no aplica. Precedente: `TopicSelect.md` f.1 (foco al desaparecer «Fuente»); convención Engram 70; WCAG 2.4.3. Aceptación: Enter sobre «Siguiente» deja `document.activeElement` dentro de `opcion-quiz-0` y el Tab siguiente va a la opción B |
+| Movimiento (`REV-1`; rige en todo ancho) | El fundido de c.5 no cambia el orden ni mueve el foco: las piezas que entran son paradas de Tab desde el primer cuadro (la opacidad no las saca del árbol de accesibilidad) y el contorno de foco de la primera opción entra con su bloque, sin animación propia |
 
 ### Propuesta
 

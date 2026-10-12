@@ -2,13 +2,13 @@
 
 | Campo | Valor |
 |---|---|
-| Superficie | Tres avisos de las pantallas de entrada: banner de banco reducido (`BancoReducidoBanner`, `src/screens/HomeScreen.js:122`), nota del creador (`AboutBanner`, `src/screens/MateriaSelectScreen.js:67`) y nota de privacidad (`HomeScreen.js:107`) |
+| Superficie | Tres avisos de las pantallas de entrada: banner de banco reducido (`BancoReducidoBanner`, `src/screens/HomeScreen.js:122`), nota del creador (`AboutBanner`, `src/screens/MateriaSelectScreen.js:67`) y nota de privacidad (`HomeScreen.js:107`). Además, fuera de React, el aviso de navegador interno de Instagram (`scripts/inject-pwa.js`): sección «Aviso de navegador interno», al final (`REV-6`) |
 | Boceto | Sin figura: el boceto no dibuja estos avisos. La ficha usa la «nota» de `Quiz.md` b (borde izquierdo de acento, rótulo mono con glifo) y la extiende a dos avisos informativos |
 | Comunes | `comun.md`: §5 estados (K2, K7), §7 anchos, §8 dimensiones, §9 glifos |
 | Lo usan | `Home` (banco reducido y privacidad) y `MateriaSelect` (nota del creador) |
 | Variantes | Banco reducido solo en materias con `bancoReducido` (hoy `cyr` y `neuro`); nota del creador visible o descartada (reaparece a los siete días); privacidad solo en web |
 | Fuera de alcance | La lámina, la tarjeta de materia y la lista de acciones (`MateriaSelect.md`, `Home.md`) |
-| Propuestas | Sección f: `BAN-P1`, aprobada (usuario, 2026-10-10). Sección h: conservado de main (D10). Comunes: `COMUN-P2`. Sección «3.14», al final: varios mensajes, `BAN-P2` aprobada (usuario, 2026-10-11) y `BAN-P3` y `BAN-P4` no elegidas |
+| Propuestas | Sección f: `BAN-P1`, aprobada (usuario, 2026-10-10). Sección h: conservado de main (D10). Comunes: `COMUN-P2`. Sección «3.14»: varios mensajes, `BAN-P2` aprobada (usuario, 2026-10-11) y `BAN-P3` y `BAN-P4` no elegidas. Sección «Aviso de navegador interno», al final: `REV-6` de la revisión 5.0b, aprobada (usuario, 2026-10-12) |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P11`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.4 |
 
 ---
@@ -24,7 +24,7 @@ Los lugares los fijaron las fichas de 1.2; esta ficha da el interior.
 | Home | Banner de banco reducido (bloque 3 de `Home.md` a.1) | `paso 3` | `paso 5` | — | Solo si `materia.bancoReducido`; sigue visible (D6) |
 | MateriaSelect | Nota del creador (bloque 3 de `MateriaSelect.md` a.1) | — | `paso 5` | `paso 3` | Condicional; debajo de la lámina y encima de la lista |
 | Home | Nota de privacidad (bloque 6 de `Home.md` a.1) | `paso 6` | `paso 6` | — | Solo web; centrada |
-| Toda la app, fuera de React (web) | (5.0b, sin documentar) Aviso «Abrí pKapp en tu navegador» (`scripts/inject-pwa.js`, bloque `AVISO` y `SALIR_SCRIPT`) | — | 0: hoja a sangre | — | Solo dentro del navegador interno de Instagram o Facebook (por `userAgent`), 1,5 s después de cargar y si la salida automática (`intent://` en Android, `instagram://extbrowser` en iOS) no funcionó; no vuelve en la sesión tras cerrarlo (`sessionStorage`). Hoy es el marcador de posición, no el diseño Plancha: hoja fija al pie, a sangre, fondo `fondo` con filete superior `tinta`, fuente del sistema de 16 px, título en negrita, botones de 44 px con texto y borde `acento` («Abrir en tu navegador» relleno `acento`), «Link copiado» como texto, un «✕» de texto como cerrar, y sigue a `prefers-color-scheme` y no al tema de la app. Diseño Plancha pendiente de aplicar: `.orca/reports/aviso-navegador-diseno.md` (propuesta `REV-6` de `.orca/reports/rediseno-5.0b-revision.md`) |
+| Toda la app, fuera de React (web) | Aviso de navegador interno (`scripts/inject-pwa.js`, bloque `AVISO` y `SALIR_SCRIPT`; sección «Aviso de navegador interno» de esta ficha, `REV-6`) | — (lámina fija, anclada abajo) | `paso 5` | `paso 5` más área segura inferior | Solo dentro del navegador interno de Instagram (por `userAgent`; con Facebook no se pinta: decisión del Ingeniero, 2026-10-12), 1,5 s después de cargar y si la salida automática (`intent://` en Android, `instagram://extbrowser` en iOS) no funcionó; no vuelve en la sesión tras cerrarlo (`sessionStorage`). Lámina Plancha flotante con marcas de esquina (`comun.md` §6), ancho máximo `columna`, en el tema guardado de la app: rótulo mono con `glifo-externo`, título, explicación, K1 «Abrir en tu navegador», K2 «Copiar link» (estados copiado y error), nota al pie y cerrar K7 con `glifo-cerrar` |
 
 ### a.2 Interior de la nota (banco reducido y nota del creador)
 
@@ -515,3 +515,269 @@ Desvío de la APG, deliberado: el control de rotación va al final de la región
 | `BAN-P2` | La nota del creador pasa a ser un mensaje de una lista; con 2 o más mensajes para la pantalla, una región los muestra de a uno, avanza sola una vuelta con «Pausar» y «Reanudar», contador y anterior y siguiente | Pedido del usuario (2026-10-11): comunicar más de una cosa y, quizás, con un carrusel automático | uso | **aprobada** (usuario, 2026-10-11) |
 | `BAN-P3` | Igual que `BAN-P2` sin avance automático: solo cambia con anterior y siguiente | Comunicar varias cosas sin sumar altura ni movimiento; es `BAN-P2` sin temporizador | uso | no elegida (usuario, 2026-10-11); era la recomendada |
 | `BAN-P4` | Con 2 o más mensajes para la pantalla, se apilan, cada uno con su × y su regla de reaparición | Comunicar varias cosas sin esconder ninguna ni sumar mecanismo | uso | no elegida (usuario, 2026-10-11) |
+
+---
+
+## Aviso de navegador interno · `REV-6` aprobada (usuario, 2026-10-12)
+
+| Campo | Valor |
+|---|---|
+| Estado | **`REV-6` aprobada** (usuario, 2026-10-12; `CONVENCIONES.md` C2; `tasks.md` 5.0b.6). Propuesta de `diseno/revision-5.0b.md` §3 y §3.4 sobre el diseño de `.orca/reports/aviso-navegador-diseno.md` (2026-10-11, verificado en Chrome headless en siete anchos). Esta sección es la fuente para el Programador: el reporte no se versiona y la ficha prevalece (G-1) |
+| Dónde vive | `scripts/inject-pwa.js`: bloque `AVISO` (copy y CSS) y `SALIR_SCRIPT` (lógica), inyectados en `index.html` antes del bundle, para todos los visitantes. Fuera de React y de NativeWind: CSS en línea con variables, sin clases Tailwind; los hex se leen de `plancha` al generar el HTML, como el meta `theme-color` |
+| Cuándo se pinta | Solo con `userAgent` de Instagram (decisión del Ingeniero, 2026-10-12: con Facebook, `FBAN`, `FBAV` o `FB_IAB`, no se pinta, porque ahí «Abrir en tu navegador» no tiene mecanismo); 1,5 s después de cargar, si `document.visibilityState` sigue `visible` (la salida automática no funcionó); no si `sessionStorage['pkapp-salir-cerrado']` existe ni si ya hay `#pkapp-salir`. La salida automática previa (`intent://` en Android, `instagram://extbrowser` en iOS) y su marca de sesión son lógica de `SALIR_SCRIPT` que esta ficha no cambia; qué conserva con Facebook lo fija la spec del Ingeniero |
+| Qué cambia respecto del marcador de posición (hasta la 5.0b) | Hoja a sangre con filete superior, fuente del sistema de 16 px, botones de borde `acento` («Abrir» relleno `acento`), «Link copiado» como texto suelto, «✕» de texto y `prefers-color-scheme` → lámina Plancha flotante con marcas de esquina, K1/K2/K7, rótulo mono con `glifo-externo`, explicación, `glifo-cerrar`, estados copiado y error en el propio botón, y el tema guardado de la app |
+| Ajustes a la propuesta del reporte (`revision-5.0b.md` §3.4) | Margen lateral e inferior `paso 5` (20 px), no 16: rige `comun.md` §7, no el margen de `main` (H5). Tema desde el tema guardado de la app, no desde `prefers-color-scheme` (H1): la app no sigue al sistema. Solo Instagram (H3) |
+| Sin cambio (ya implementado en `rediseno`; lo afirma `tools/e2e/suites/navegador.js`) | Nombre accesible por `aria-labelledby` al título; el foco entra al aviso al abrirse (`tabIndex = -1`) y vuelve al elemento anterior al cerrarlo; Escape cierra; `role="dialog"` sin `aria-modal` (no es modal); los botones son `<button>`; cerrar con `aria-label="Cerrar"`; `<input readonly>` con el link como respaldo si la copia falla; `role="status"` en el texto que cambia |
+| Pendiente de dispositivo (no se fijan valores sin él) | H2: el rótulo del menú «⋯» de Instagram en iOS no está verificado; por eso `manual` no lo cita. H8: iPhone real con el WKWebView de Instagram (`:active`, que `instagram://extbrowser` abra Safari, `env(safe-area-inset-bottom)`, `ui-monospace`). Cuando haya captura, el Diseñador fija la variante de `manual` |
+| Peso | +1,05 KB gzip en `index.html` (reporte §10: 4 322 B / 1 634 B gzip el objeto `AVISO`, contra 1 205 / 583 del marcador; solo el CSS, 3 233 / 1 139). Fuera del bundle JS y CSS; si cuenta en D5 lo decide el Ingeniero |
+
+### Ubicación y forma
+
+| Decisión | Valor | Por qué (una línea) |
+|---|---|---|
+| Forma | Lámina flotante anclada abajo, no modal: sin velo, sin trampa de foco, no bloquea el scroll ni el uso de la app | Sugiere; la app sí funciona dentro de Instagram. Una hoja a sangre recortaría las marcas de esquina con el borde del viewport; a pantalla completa sería un muro |
+| Posición | `position: fixed`, fuera del flujo; `#root` no cambia de tamaño. Tapa el pie de la app hasta que se cierra (H4 del reporte, aceptado) | No participa del layout de React Native Web |
+| Margen lateral e inferior | `paso 5` (20 px); el inferior suma `env(safe-area-inset-bottom, 0px)` | `comun.md` §7 (margen lateral de pantalla) y §5.1 (área segura inferior) |
+| Ancho máximo | `columna` (448 px), centrada con `margin: 0 auto` | Mismo token que la columna de contenido (`tokens.md` c.3) |
+| Marco | 1 px `linea`; cuatro marcas de esquina de 8 × 8 (`paso 2`), `border-2` `linea` en los dos lados externos, que sobresalen `paso 1` del marco | `comun.md` §6; CD-22; decorativas (`aria-hidden`) |
+| Radios, sombras, gradientes, transparencias | Ninguno | D9; `tokens.md` a.2 y c.1 |
+| Animación | Ninguna: aparece y desaparece en el mismo cuadro | Cero CSS extra; sin salto de layout; no es una superficie de React y no entra en `REV-1` |
+| Hover | No definido | Solo se pinta en navegadores internos táctiles: se omiten las reglas `@media (hover: hover)` de K1, K2 y K7 |
+| Capa | `z-index: 2147483647` | Por encima de todo lo que pinte React |
+
+### Layout y medidas (390 px)
+
+```
+ ┌                                       ┐   marcas: 8×8, border-2 linea, sobresalen 4 px del marco
+   [ext] NAVEGADOR DE INSTAGRAM        [×]    rótulo 11/16 mono + glifo-externo · cerrar 44×44 a ras del marco
+   Abrí pKapp en tu navegador                 título 16/22 SemiBold
+   Así guardás tu progreso y podés            explicación 15/22 tintaSec
+   instalarla.
+   [ Abrir en tu navegador ] [ Copiar link ]  K1 | K2, alto 44, separación 8 (una fila cuando el contenido lo permite)
+   ───────────────────────────────────────    filete 1 px
+   Si no se abre, tocá ⋯ y elegí abrirla…     nota 13/18 tintaSec
+ └                                       ┘   marco 1 px linea · relleno 14 · margen 20 a los bordes
+```
+
+| Elemento | Valor | Paso Plancha |
+|---|---|---|
+| Lámina | `position: fixed; left: 20px; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); max-width: 448px; margin: 0 auto; box-sizing: border-box` | `paso 5`, `columna` |
+| Cuerpo | Fondo `superficie`; borde 1 px `linea`; relleno 14 px en las cuatro caras; `font: 400 15px/22px` de la pila sans; `text-size-adjust: 100%` | `paso 3.5`, `cuerpo` |
+| Marcas de esquina | Cuatro `<i aria-hidden>` de 8 × 8, `position: absolute`, `top/bottom/left/right: -5px` (4 px fuera del marco más el borde de 1 px), `border: 0 solid linea` con `border-width` de 2 px solo en los dos lados externos (`2px 0 0 2px`, `2px 2px 0 0`, `0 0 2px 2px`, `0 2px 2px 0`); `pointer-events: none` | `paso 2`; sobresalen `paso 1` |
+| Encabezado | Fila (`display: flex; align-items: center`); `glifo-externo` de 16 px y rótulo separados 6 px; alto mínimo 32 px; margen inferior 8 px; `padding-right: 44px` para que el título nunca pase bajo el objetivo de cerrar | `paso 1.5`, `paso 8`, `paso 2`, `paso 11` |
+| Rótulo | Plex Mono 11/16, espaciado +0,66 px, mayúsculas por CSS (`text-transform: uppercase`), `acento` | `rotulo` |
+| Título | Plex Sans SemiBold 16/22, `tinta`; lleva el `id` que nombra el diálogo (`aria-labelledby`) | `item` |
+| Explicación | Plex Sans 15/22, `tintaSec`; margen superior 4 px | `cuerpo`, `paso 1` |
+| Fila de botones | Margen superior 12 px; separación 8 px; `flex-wrap: wrap` | `paso 3`, `paso 2` |
+| K1 «Abrir en tu navegador» y K2 «Copiar link» | Alto mínimo 44 px; relleno `0 16px`; Plex Sans SemiBold 15/22; `white-space: nowrap`; `min-width: 116px`; K1 `flex: 2 1 auto`, K2 `flex: 1 1 auto`; `touch-action: manipulation`; sin resaltado de toque del sistema | `paso 11`, `paso 4`, `cuerpo-fuerte` |
+| Cerrar (K7) | 44 × 44 px, `position: absolute; top: 0; right: 0`, a ras del marco; `glifo-cerrar` de 24 px centrado; sin relleno ni borde | `paso 11`; glifo grande `paso 6` |
+| Nota | Margen superior 12 px; borde superior 1 px `filete`; `padding-top: 12px`; Plex Sans 13/18, `tintaSec`. Es el párrafo con `role="status"`: su texto cambia tras copiar y tras un error | `paso 3`, `detalle` |
+| Link de respaldo (`<input readonly>`, solo tras un error de copia) | Margen superior 8 px; ancho completo; alto mínimo 44 px (es un control: D10); relleno horizontal 12 px; fondo `fondo`; borde 1 px `filete`; Plex Sans 13/18, `tinta`; recibe el foco y queda seleccionado al mostrarse; oculto (`hidden`) en reposo | `paso 2`, `paso 11`, `paso 3`, `detalle` |
+| Trazo de los glifos | `stroke-width` = 1,5 × 16 / lado (`tokens.md` c.2, CD-9): cerrar a 24 px, `1`; externo a 16 px, `1.5`. Extremo cuadrado, unión `miter`, límite 2; `currentColor`; `aria-hidden` y `focusable="false"` | `comun.md` §8 y §9 |
+
+Sin radios, sombras, gradientes, transparencias, cursiva ni subrayado en ningún descendiente (`#pkapp-salir * { border-radius: 0; box-shadow: none }`).
+
+### Tipografía y pila de respaldo
+
+| Rol | Paso | Familia registrada | Tamaño/alto | Peso CSS | Color |
+|---|---|---|---|---|---|
+| Rótulo | `rotulo` | `PlexMono-Regular` | 11/16, +0,66 px, mayúsculas | 400 | `acento` |
+| Título | `item` | `PlexSans-SemiBold` | 16/22 | 600 | `tinta` |
+| Explicación | `cuerpo` | `PlexSans-Regular` | 15/22 | 400 | `tintaSec` |
+| Botones | `cuerpo-fuerte` | `PlexSans-SemiBold` | 15/22 | 600 | Según control |
+| Nota y link de respaldo | `detalle` | `PlexSans-Regular` | 13/18 | 400 | `tintaSec` / `tinta` |
+
+| Pila | Valor |
+|---|---|
+| Sans (400) | `"PlexSans-Regular", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif` |
+| Sans (600) | `"PlexSans-SemiBold", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif` |
+| Mono | `"PlexMono-Regular", ui-monospace, "SF Mono", Menlo, Consolas, "Roboto Mono", "Courier New", monospace` |
+
+El nombre registrado va primero: cuando el `@font-face` de la app ya cargó, el aviso toma Plex sin tocarse; antes, y en WebViews viejos, cae a la pila del sistema (la de `tokens.md` d.1, extendida con nombres para WebViews). El peso se declara en CSS (600) porque el sistema no lo da por la familia. Sin precarga de woff2 (opción A del reporte §6: 0 B; la B, solo `PlexMono-Regular.woff2` de 10 088 B en la rama de Instagram, la decide el Ingeniero; la C y el `preload` global, descartadas).
+
+### Tokens y tema
+
+Variables CSS en `#pkapp-salir`; el bloque oscuro solo las redefine. Los hex se leen de `plancha` al generar el HTML.
+
+| Token Plancha | Variable | Claro | Oscuro | Uso en el aviso |
+|---|---|---|---|---|
+| `fondo` | `--fo` | `#f4f5f6` | `#0b0d10` | Texto de K1 y de las inversiones; fondo del link de respaldo |
+| `superficie` | `--su` | `#ffffff` | `#12161b` | Cuerpo de la lámina; fondo de K2 y de K1 presionado |
+| `tinta` | `--ti` | `#14181d` | `#e6e9ed` | Título; relleno de K1; relleno de K2 y de cerrar presionados; texto del link de respaldo |
+| `tintaSec` | `--ts` | `#4a525c` | `#98a2ae` | Explicación, nota, `glifo-cerrar` |
+| `linea` | `--li` | `#14181d` | `#c9d0d8` | Marco, marcas de esquina, borde de K2 |
+| `filete` | `--fi` | `#b9bfc6` | `#2b323a` | Divisor de la nota; borde del link de respaldo |
+| `acento` | `--ac` | `#0b6e80` | `#5cc3d6` | Rótulo, `glifo-externo`, K2 copiado |
+| `foco` | `--fc` | `#095c6b` | `#7fd6e3` | Contorno de foco: 2 px, separado 2 px |
+| `error` | `--er` | `#a32424` | `#f08c8c` | K2 en estado de error de copia |
+
+| Tema | Regla |
+|---|---|
+| Fuente del tema | El tema guardado de la app: campo `tema` del objeto JSON de `localStorage['pkapp_settings']` (`src/db/database.web.js:9`). `'oscuro'` → variables oscuras; `'claro'`, clave ausente, inválida o `localStorage` inaccesible → claro, el tema por defecto de la app (`src/theme/TemaContext.js`, `POR_DEFECTO`) |
+| Mecanismo | Las variables oscuras cuelgan de la clase `o` en `#pkapp-salir` (`#pkapp-salir.o { … }`), que `SALIR_SCRIPT` pone al crear el nodo si leyó `'oscuro'`; **no** de `@media (prefers-color-scheme: dark)`. La app no sigue al sistema (H1): con `prefers-color-scheme` un celular en oscuro vería la lámina oscura sobre una app clara |
+| Qué se ve | Lámina en el mismo tema que la app que tapa. Es esperable que un visitante que llega desde Instagram no tenga la clave (almacenamiento aparte del navegador real): ve claro, igual que la app |
+
+### Matriz de estados
+
+Celdas «claro / oscuro». Sin hover (solo táctil). Presionado = `:active`; foco = `:focus-visible`.
+
+| Componente | Estado | Fondo | Borde | Texto o glifo | Notas |
+|---|---|---|---|---|---|
+| Lámina | Reposo | `superficie` | 1 px `linea` | `tinta` | Cuatro marcas `linea`; el contenedor recibe el foco al abrirse sin contorno (`#pkapp-salir:focus { outline: 0 }`: foco programático, no de teclado) |
+| Rótulo y `glifo-externo` | Reposo | — | — | `acento` | Decorativos (`aria-hidden`) |
+| K1 «Abrir en tu navegador» | Reposo | `tinta` | 1 px `tinta` | `fondo` | T7 |
+| K1 | Presionado | `superficie` | 1 px `linea` | `tinta` | Inversión a `superficie` (regla 2.9-1 de `comun.md` §5.2) |
+| K1 | Foco | = reposo | Contorno 2 px `foco`, separado 2 px | = reposo | N8 |
+| K1 | Hover, deshabilitado, cargando | n/a | n/a | n/a | Sin hover táctil; nunca se deshabilita; `instagram://` no emite señal observable: la nota cubre «si no se abre». Si el UA de Instagram no es Android ni iOS, K1 no se crea (no hay mecanismo) y K2 toma la fila |
+| K2 «Copiar link» | Reposo | `superficie` | 1 px `linea` | `tinta` | T2, N2 |
+| K2 | Presionado | `tinta` | 1 px `tinta` | `fondo` | Inversión |
+| K2 | Copiado (clase `k`) | `superficie` | 2 px `acento` | `acento` | Etiqueta «Copiado»; variante de acento de K2 (T6, N18); 2 px = estado (`tokens.md` c.2); permanente hasta cerrar |
+| K2 | Error de copia (clase `n`) | `superficie` | 2 px `error` | `error` | Etiqueta sin cambio; T15, N13; el texto del error va en la nota y aparece el link de respaldo |
+| Cerrar (K7) | Reposo | Sin relleno | — | `tintaSec` | 44 × 44 a ras del marco; nombre accesible «Cerrar»; N20 |
+| Cerrar | Presionado | `tinta` | — | `fondo` | Inversión total |
+| Cerrar | Foco | = reposo | Contorno 2 px `foco`, separado 2 px | = reposo | N8 |
+| Nota | Reposo | — | Superior 1 px `filete` | `tintaSec` | `detalle`; texto `manual` |
+| Nota | Tras copiar | — | Igual | Igual | Texto `pegar` |
+| Nota | Tras un error de copia | — | Igual | Igual | Texto `aMano`; debajo, el link de respaldo |
+| Link de respaldo | Error | `fondo` | 1 px `filete` | `tinta` | Con foco y seleccionado; T1, X2 |
+
+Estado semántico sin color solo (CD-6): el copiado y el error cambian el grosor del marco (1 a 2 px) y el texto de la nota; el copiado además cambia la etiqueta.
+
+### Copy
+
+Voseo imperativo en título, nota y mensajes; infinitivo en botones. Sin emojis ni signos de exclamación.
+
+| Clave de `AVISO` | Texto | Dónde | Notas |
+|---|---|---|---|
+| `rotulo` | `Navegador de Instagram` | Rótulo del encabezado; mayúsculas por CSS | Solo Instagram: no hace falta la variante «Navegador interno» de Facebook |
+| `titulo` | `Abrí pKapp en tu navegador` | Título (`item`); nombre accesible del diálogo | Sin cambio respecto del marcador |
+| `explicacion` | `Así guardás tu progreso y podés instalarla.` | Explicación (`cuerpo`) | Una oración, un beneficio |
+| `abrir` | `Abrir en tu navegador` | K1 | Fijado por el brief de 2.6 y la e2e |
+| `copiar` | `Copiar link` | K2 | Ídem |
+| `copiado` | `Copiado` | Etiqueta de K2 en estado copiado | Más corto que «Copiar link»: no fuerza reflujo de la fila (antes, «Link copiado» como texto suelto) |
+| `pegar` | `Pegalo en la barra de direcciones de tu navegador.` | Nota, tras copiar | Copiar no termina la tarea: dice el paso que sigue |
+| `manual` | `Si no se abre, tocá ⋯ y elegí abrirla en tu navegador.` | Nota (`detalle`) en reposo | No cita el rótulo del menú de Instagram (H2). El «⋯» (U+22EF) no está en el subset latin de Plex: se pinta con la fuente del sistema; queda como texto porque cita el menú de Instagram, no un control de pKapp (H7) |
+| `aMano` | `No se pudo copiar. Mantené presionado el link para copiarlo.` | Nota, tras un error de copia; con el link de respaldo debajo | Antes, «Copialo a mano» |
+| `cerrar` | `Cerrar` | `aria-label` de K7 | La e2e lo busca por ese atributo |
+
+Variante de `manual` si se verifica el rótulo en un iPhone (H2): `Si no se abre, tocá ⋯ y elegí «Abrir en el navegador externo».` Pendiente; no se aplica sin captura.
+
+### Cierre y foco
+
+| Gesto | Resultado | Persistencia |
+|---|---|---|
+| Abrirse | El foco entra al contenedor (`tabIndex = -1`), sin contorno; se recuerda el elemento con foco anterior | — |
+| Tocar cerrar (K7) o Escape | Se quita el nodo; la app queda tal cual; el foco vuelve al elemento anterior | `sessionStorage['pkapp-salir-cerrado'] = '1'` |
+| Recargar o navegar dentro de la app | No reaparece | Misma sesión |
+| Abrir pKapp otra vez desde Instagram | Reaparece (WebView nuevo, `sessionStorage` vacío; sin verificar en dispositivo) | Intencional: depende del navegador, no del tiempo (la nota del creador vuelve a los siete días porque es contenido) |
+| Tocar fuera de la lámina | No cierra; el toque llega a la app | Sin velo |
+| Tocar «Abrir en tu navegador» o «Copiar link» | La lámina no se cierra: quien usa la app todavía necesita la nota | — |
+| Volver a Instagram tras una salida exitosa | La lámina sigue ahí; sin autocierre | — |
+| Tab | Orden K1, K2, cerrar (y el link de respaldo tras un error): el DOM es el visual. Sin trampa de foco: Tab sale a la app | — |
+
+### Contraste y objetivos táctiles
+
+Fórmula y truncado a 2 decimales como `tokens.md` e; recalculados el 2026-10-12 desde `src/theme/colores.js`. Todos son pares existentes de E1 a E3: ningún par nuevo (CD-27).
+
+| Par | Id | Claro | Oscuro | Mínimo | Criterio |
+|---|---|---|---|---|---|
+| Título: `tinta` sobre `superficie` | T2 | 17,82 | 14,91 | 4,5 | 1.4.3 |
+| Explicación y nota: `tintaSec` sobre `superficie` | T4 | 7,91 | 7,01 | 4,5 | 1.4.3 |
+| Rótulo y `glifo-externo`: `acento` sobre `superficie` | T6, N18 | 5,90 | 8,84 | 4,5 / 3 | 1.4.3 / 1.4.11 |
+| K1: `fondo` sobre `tinta` | T7 | 16,32 | 15,97 | 4,5 | 1.4.3 |
+| K1 presionado y K2 reposo: `tinta` sobre `superficie` | T2 | 17,82 | 14,91 | 4,5 | 1.4.3 |
+| K2 presionado y cerrar presionado: `fondo` sobre `tinta` | T7 | 16,32 | 15,97 | 4,5 | 1.4.3 |
+| K2 copiado: `acento` sobre `superficie` | T6, N18 | 5,90 | 8,84 | 4,5 / 3 | 1.4.3 / 1.4.11 |
+| K2 error: `error` sobre `superficie` | T15, N13 | 7,40 | 7,64 | 4,5 / 3 | 1.4.3 / 1.4.11 |
+| Borde de K2 y marco: `linea` sobre `superficie` | N2 | 17,82 | 11,67 | 3 | 1.4.11 |
+| Marco contra la página de la app: `linea` sobre `fondo` | N1 | 16,32 | 12,50 | 3 | 1.4.11: la lámina se separa de la app por el marco, no por el relleno (`superficie` sobre `fondo`: 1,09 / 1,07, exento, como X6) |
+| `glifo-cerrar`: `tintaSec` sobre `superficie` | N20 | 7,91 | 7,01 | 3 | 1.4.11 |
+| Foco: `foco` sobre `superficie` | N8 | 7,62 | 10,92 | 3 | 1.4.11, 2.4.7 |
+| Link de respaldo: `tinta` sobre `fondo` | T1 | 16,32 | 15,97 | 4,5 | 1.4.3 |
+| Divisor `filete` sobre `superficie` (decorativo) | X2 | 1,85 | 1,40 | exento | — |
+
+Objetivos táctiles (D10, 44 × 44 pt; WCAG 2.5.8 AA 24 × 24, 2.5.5 AAA 44 × 44):
+
+| Objetivo | Tamaño | Separación al vecino |
+|---|---|---|
+| K1 | ≥ 189 × 44 px en una fila; apilado, el ancho del contenido | 8 px (`paso 2`) a K2 |
+| K2 | ≥ 116 × 44 px en una fila; apilado, el ancho del contenido | 8 px a K1 |
+| Cerrar | 44 × 44 px | No pisa texto: el encabezado reserva `padding-right: 44px` y el título arranca a 54 px del borde interior (14 + 32 + 8), bajo el objetivo |
+| Link de respaldo | Ancho completo × ≥ 44 px | 8 px a la nota |
+
+### Anchos y alturas
+
+Una fila de botones cuando el contenido (ancho de ventana − 40 de márgenes − 2 de borde − 28 de relleno) alcanza los 313 px de K1 + separación + K2 (189 + 8 + 116): desde ~383 px de ventana; por debajo, apilados (decide el contenido con `flex-wrap`, sin consulta de medios). `min-width: 116px` fija el ancho de K2 en reposo y en «Copiado»: el layout no cambia al copiar. El viewport real del navegador interno es menor que la pantalla.
+
+| Ancho de ventana | Botones | Qué se ve |
+|---|---|---|
+| 320 px | Apilados | Lámina de 280 px; la explicación salta a dos líneas |
+| 360 y 375 px | Apilados | Con 16 px de margen (reporte) 375 daba una fila; con `paso 5` el contenido queda en 305 px y apila |
+| 390 px y más | Una fila | Desde 488 px de ventana la lámina mide `columna` (448) y queda centrada |
+
+Alturas: el reporte las midió con margen de 16 px y `main` detrás (217 px desde 390 px en una fila; 287 a 360; 309 a 320; con el link de respaldo, hasta 371). Con `paso 5` el Programador las vuelve a medir en la 3.x (aceptación 3) y las registra en `evidencia/despues/`; esta ficha no las fija a mano.
+
+### Estructura para el Programador
+
+El DOM que el CSS espera. `SALIR_SCRIPT` ya crea `#pkapp-salir`, el `<style>`, el título con `id`, la fila de botones, el párrafo de estado, el `<input>` de respaldo, la nota y el botón de cerrar; cambia lo marcado.
+
+```
+div#pkapp-salir [role=dialog] [aria-labelledby=pkapp-salir-t] [tabindex=-1] (.o con tema oscuro)
+├─ style                              AVISO.css
+├─ i.a  i.b  i.c  i.d  [aria-hidden]  marcas de esquina (nuevo)
+├─ div.h                              glifo-externo (innerHTML) + span.r = AVISO.rotulo (nuevo)
+├─ p.t#pkapp-salir-t                  AVISO.titulo
+├─ p.e                                AVISO.explicacion (nuevo)
+├─ div.f
+│  ├─ button.p                        AVISO.abrir   (K1; solo con mecanismo de salida)
+│  └─ button                          AVISO.copiar  (K2; .k copiado, .n error)
+├─ p.m [role=status]                  AVISO.manual, luego pegar o aMano (una sola nota: reemplaza al párrafo de estado suelto)
+├─ input[readonly][hidden]            link de respaldo (ya existe; con un selector propio para el estilo)
+└─ button.x [aria-label=AVISO.cerrar] glifo-cerrar (innerHTML; sin el carácter «✕»)
+```
+
+| # | Cambio en `SALIR_SCRIPT` (hoy en `scripts/inject-pwa.js`, bloque 2.6) | Tipo |
+|---|---|---|
+| D1 | Agregar las cuatro `<i>` con clases `a b c d` y `aria-hidden="true"` tras el `<style>` | Obligatorio: sin ellas no hay lámina |
+| D2 | Antes del título, `div.h` con `innerHTML = AVISO.glifoExterno` y `span.r = AVISO.rotulo`; después del título, `p.e = AVISO.explicacion` | Obligatorio |
+| D3 | La nota lleva la clase `m` y `role="status"`; el párrafo de estado suelto desaparece: tras copiar, `cp.textContent = AVISO.copiado; cp.className = 'k'; n.textContent = AVISO.pegar` | Obligatorio (el CSS cuelga de `.m`; una sola nota) |
+| D4 | Con rechazo de `writeText` o `execCommand` en `false`: `cp.className = 'n'; n.textContent = AVISO.aMano` y mostrar el `<input>` de respaldo con el link, con foco y seleccionado (ya lo hace `no()`); «Copiado» solo si `execCommand` devolvió `true` (ya lo hace `leg()`) | Obligatorio |
+| D5 | El botón de cerrar sin texto: `x.innerHTML = AVISO.glifoCerrar`, conservando `aria-label` | Obligatorio: un carácter U+2715 no es el `glifo-cerrar` de la Plancha (CD-13) |
+| D6 | Al crear el nodo, leer `localStorage['pkapp_settings']`, parsear y, si `tema === 'oscuro'`, `d.className = 'o'`; cualquier error → claro | Obligatorio (tema de la app) |
+| D7 | La prueba del UA para pintar el aviso pasa de `/Instagram\|FBAN\|FBAV\|FB_IAB/` a solo Instagram; qué conserva la salida automática con Facebook lo fija la spec del Ingeniero | Obligatorio para el aviso |
+| D8 | `aria-labelledby`, `tabIndex = -1`, `d.focus()`, Escape y la devolución del foco se conservan tal cual (ya verificados por la e2e) | Sin cambio |
+
+Glifos como SVG en línea (`viewBox 0 0 16 16`, `fill="none"`, `stroke="currentColor"`, `stroke-linecap="square"`, `stroke-linejoin="miter"`, `stroke-miterlimit="2"`, `aria-hidden="true"`, `focusable="false"`): `glifo-externo` a 16 px con `stroke-width="1.5"` y `glifo-cerrar` a 24 px con `stroke-width="1"`, con los trazos de `src/assets/glifos.js` (los mismos que la app dibuja). El literal CSS completo, verificado en Node y en Chrome con margen de 16 px, está en el reporte §10: es un punto de partida; si difiere de esta ficha, manda la ficha (G-1).
+
+### Aceptación observable (para la spec y `tools/e2e/suites/navegador.js`)
+
+| # | Comprobación | Esperado |
+|---|---|---|
+| 1 | Todos los `button` de `#pkapp-salir` miden ≥ 44 × 44 | `true` (ya en la e2e) |
+| 2 | Hay cuatro marcas de esquina: `#pkapp-salir i[aria-hidden="true"]` | 4 |
+| 3 | Alto de `#pkapp-salir` con viewport emulado (`Emulation.setDeviceMetricsOverride`) a 320 × 568, 360 × 740, 375 × 667, 390 × 844 y 430 × 932 | Se mide y se registra en `evidencia/despues/<tarea>/`; a 390 px y más, una fila de botones; a 375 px y menos, apilados |
+| 4 | Nada pasa el borde derecho de la lámina: `button, p, span, .f` con `right <= lámina.right` | `true` en reposo, copiado y error |
+| 5 | Los botones no cambian de fila al copiar | Mismo `top` de K2 antes y después |
+| 6 | Tras copiar: etiqueta y nota | `Copiado` y el texto de `pegar`; K2 con borde de 2 px `acento` |
+| 7 | Tras un error de copia | K2 con borde de 2 px `error`; la nota dice el texto de `aMano`; el `<input>` visible con la URL, con foco y seleccionado |
+| 8 | Ningún descendiente con radio o sombra | `border-radius` `0px` y `box-shadow` `none` en todos |
+| 9 | Fondo de la lámina según el tema guardado | Con `pkapp_settings.tema = 'oscuro'` sembrado antes de cargar: `rgb(18, 22, 27)`; sin la clave o con `'claro'`: `rgb(255, 255, 255)`; `prefers-color-scheme` emulado no cambia nada |
+| 10 | Con UA de Facebook (`FBAN`, `FBAV`, `FB_IAB`) | No existe `#pkapp-salir` a los 2,2 s |
+| 11 | Cerrar quita el aviso y no vuelve en la sesión; Escape cierra; el foco vuelve | Ya en la e2e |
+| 12 | Sin emojis ni símbolos de texto: `innerText` de `#pkapp-salir` sin «✕» | El cierre es un SVG |
+
+### Lo que cambia en la e2e (`tools/e2e/suites/navegador.js`, para el Programador)
+
+| Prueba de hoy | Cambio |
+|---|---|
+| `facebookIosSoloCopiar` («aviso sin botón de abrir») | Pasa a afirmar que con UA de Facebook no se pinta el aviso (fila 10) |
+| `suiteSalidaAndroid('facebook android')` | Según lo que la spec del Ingeniero fije para la salida automática con Facebook; esta ficha no la toca |
+| `suiteCopiar`: «Link copiado» y «Copialo a mano» | Pasan a «Copiado» (etiqueta de K2) y al texto de `aMano` en la nota; el link seleccionable sigue siendo el `<input>` |
+| `avisoAccesible`: nombre por `aria-labelledby`, foco, Escape | Sin cambio |
+| Nuevas | Filas 2, 4 a 9 y 12 |
+
+### Propuesta
+
+| Id | Qué cambia | Sin el cambio | Motivo | Tipo | Estado |
+|---|---|---|---|---|---|
+| `REV-6` (revisión 5.0b, `tasks.md` 5.0b.6) | El aviso de navegador interno se dibuja con la lámina Plancha de esta sección (marcas de esquina, K1/K2/K7, rótulo mono con `glifo-externo`, explicación, `glifo-cerrar`, estados copiado y error), con margen `paso 5`, el tema guardado de la app y solo dentro de Instagram | El marcador de posición de 2.6: hoja a sangre con fuente del sistema, botones `acento`, «Link copiado» suelto, «✕» de texto y `prefers-color-scheme`; se pintaba también dentro de Facebook, donde «Abrir en tu navegador» no hace nada | La primera pantalla que ve quien llega desde Instagram no era la Plancha; el diseño ya existía, verificado en Chrome, y faltaba aplicarlo a `rediseno` | visual | aprobada (usuario, 2026-10-12); H2 y H8 pendientes de iPhone real |

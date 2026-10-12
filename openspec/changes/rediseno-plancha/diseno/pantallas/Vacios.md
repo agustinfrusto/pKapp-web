@@ -8,7 +8,7 @@
 | Lo usan | `Stats` (V1), `TopicSelect` (V2 y V4), `Settings` (V3) |
 | Variantes | Pantalla vacía (V1, V2), mensaje dentro de un plegable (V3), lista vacía (V4) |
 | Fuera de alcance | Avisos del sistema (V5): su aspecto no es del sistema visual. Estados ya cubiertos por la ficha de su pantalla (V6 a V14 de a.1) |
-| Propuestas | Sección f: `VAC-P1` a `VAC-P4`, aprobadas (usuario, 2026-10-10); `VAC-P2` con revisión del usuario al implementar; `VAC-P5`, aprobada (usuario, 2026-10-11). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Propuestas | Sección f: `VAC-P1` a `VAC-P4`, aprobadas (usuario, 2026-10-10); `VAC-P2` con revisión del usuario al implementar; `VAC-P5`, aprobada (usuario, 2026-10-11). Sección f.2: `REV-2` de la revisión 5.0b (usuario, 2026-10-12), que se fija en `tokens.md` a.2 y alcanza a V19. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P12`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.5 |
 
 ---
@@ -49,7 +49,7 @@ Elementos que se omiten sin dejar hueco, o pantalla sin render. Su fila de matri
 | V16 | Sin nota del creador, sin banner | `MateriaSelectScreen`, `HomeScreen` | Nota vista hace menos de siete días; materia sin `bancoReducido` | `MateriaSelectScreen.js:81`, `HomeScreen.js:59` | El bloque no se renderiza | `Banners.md` c |
 | V17 | Materia sin temas | `AddQuestionScreen` | `Object.keys(TOPICS).length === 0` | `AddQuestionScreen.js:19` y `20` | El grupo «Tema» queda sin filtros y `topic` sin valor | No ocurre con las seis materias registradas; sin diseño propio |
 | V18 | Materia sin preguntas propias | `TopicSelectScreen`, panel de filtros | `userQuestions.length === 0` | Nuevo (`TOPIC-P6`): hoy el grupo se dibuja siempre, `TopicSelectScreen.js:321` | El grupo «Fuente» no se renderiza: ni rótulo, ni filtros, ni divisor ni hueco; el filtro vale «Todas». Es la regla de `VAC-C5` | `TopicSelect.md` a.3, c y f.1 |
-| V19 (5.0b, sin documentar) | Arranque en web: antes y durante el primer render | `App.js` | `splashDone` arranca en falso también en web; el efecto que lo pone en verdadero corre después del primer pintado | `App.js:93`, `116` a `121`, `141` a `155` | El primer cuadro que React pinta es el contenedor del splash: fondo `manifestFondo` (oscuro, el de la PWA) con el logo a opacidad 0, reemplazado por la app en el cuadro siguiente; quien usa el tema claro ve un cuadro oscuro en cada carga. Antes de montar, el lienzo es el del navegador (`html` y `body` sin fondo declarado) y el documento no declara `color-scheme`: las barras de scroll y los diálogos del navegador quedan claros también con el tema oscuro | Ninguna; propuesta `REV-2` de `.orca/reports/rediseno-5.0b-revision.md` |
+| V19 (`REV-2`, aprobada 2026-10-12) | Arranque en web: antes del primer render y durante la carga | `scripts/inject-pwa.js` (`<style>` del `<head>` servido) y `App.js` | Siempre, en cada carga | `inject-pwa.js`, `pwaTags`; `App.js:93` a `155` (el splash, que se retira) | Sin splash: el primer cuadro que React pinta es la app, en el tema guardado; ningún cuadro `manifestFondo`. Antes de montar, el lienzo del navegador es `claro.fondo` (`html { background-color }`) y, con la clase `dark` en `html`, `oscuro.fondo`; `color-scheme` es `light` o `dark` según esa clase, así que las barras de scroll y los diálogos del navegador siguen al tema de la app. Quien usa el tema oscuro ve lienzo claro hasta que React monta y lee el tema (decisión 4.1: el script síncrono sigue aplazado) | `tokens.md` a.2, filas «Fondo del documento y `color-scheme`» y bloque «Decisión · `theme-color` inicial»; f.2 |
 
 ### a.2 Lámina vacía (V1 y V2)
 
@@ -237,6 +237,14 @@ Para la tarea 3.x que implementa el cambio y para el e2e. Las propias se siembra
 | Pantalla | **Cambia, una clase:** quitar `mt-2` del `Text` del mensaje en `TopicSelectScreen.js` (el de la lista vacía, bajo el rótulo; hoy línea 287). Queda el `mb-2` del contenedor del rótulo (línea 282): es el `paso 2` de la ficha y vale igual con la lista y sin ella. Nada más cambia: ni el color, ni la tipografía, ni el margen lateral |
 | e2e | `V8 … paso 2` (`temas.js`, `presentacionDeVacP5`) hoy compara el `margin-top` propio del mensaje con `8px`; por eso pasa con 16 px a la vista. Debe medir la distancia: borde superior del mensaje menos borde inferior del texto del rótulo igual a 8 px (con margen de 1 px), y el `margin-top` del mensaje en `0px` |
 | Sin cambio | La lista con temas (V1 a V3 de `TopicSelect.md`) no cambia; escritorio tampoco (mismo código bajo el rótulo, a ancho de hoja) |
+
+### f.2 Propuesta de la revisión 5.0b que alcanza a esta ficha (aprobada por el usuario el 2026-10-12)
+
+Se fija en `tokens.md` a.2 (bloque «Decisión · `theme-color` inicial»); acá queda lo que cambia en V19. «Sin el cambio» describe la variante descartada (C2).
+
+| Id | Qué cambia en esta ficha | Sin el cambio | Tipo | Estado |
+|---|---|---|---|---|
+| `REV-2` (`tasks.md` 5.0b.2) | V19 (a.1): el arranque en web no pinta ningún cuadro oscuro (splash de `App.js` retirado, decisión del Ingeniero), el lienzo del navegador antes de montar es `claro.fondo` y `color-scheme` sigue al tema | Primer cuadro con el contenedor del splash (`manifestFondo`, logo a opacidad 0) en cada carga; `html` y `body` sin fondo declarado; sin `color-scheme`, con el cromo del navegador claro también en oscuro | visual (bordes de app, D8) | aprobada (usuario, 2026-10-12) |
 
 ---
 

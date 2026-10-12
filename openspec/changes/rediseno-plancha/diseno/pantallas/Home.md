@@ -8,7 +8,7 @@
 | Navegador | `headerShown: false`; header propio (HeaderMarca) |
 | Variantes | Con y sin banner de banco reducido (`materia.bancoReducido`); con y sin nota de privacidad (solo web) |
 | Fuera de alcance | Banner de banco reducido: su lugar está fijado; su ficha es `Banners.md` |
-| Propuestas | Sección f: `HOME-P2` (usuario, 2026-10-10), `HOME-P4` y `HOME-P5` (usuario, 2026-10-11). Sección h: conservado de main (D10). Comunes: `COMUN-P1`, `COMUN-P2` |
+| Propuestas | Sección f: `HOME-P2` (usuario, 2026-10-10), `HOME-P4` y `HOME-P5` (usuario, 2026-10-11). Sección «Escritorio · Propuesta»: `ESC-P2` (usuario, 2026-10-11) y `REV-5` de la revisión 5.0b (usuario, 2026-10-12). Sección h: conservado de main (D10). Comunes: `COMUN-P1`, `COMUN-P2` |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P2`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.4 |
 
 ---
@@ -22,7 +22,7 @@
 | 1 | HeaderMarca | — | Relleno `paso 5` | — | `comun.md` §1. Slot `izquierda`: botón «Cambiar materia» (con texto desde 360 px; solo glifo bajo 360 px, `comun.md` §1.1). Control de tema a la derecha |
 | 2 | Tarjeta de materia | `paso 1.5` | `paso 5` | — | Ilustración, id, nombre y conteos (a.2) |
 | 3 | Banner de banco reducido (`Banners.md` a.1 y a.2) | `paso 3` | `paso 5` | — | Solo si `materia.bancoReducido`. Sigue visible (D6) |
-| 4 | Rótulo de sección | `paso 4` | `paso 5` | `paso 2` | «Plano / Acciones», entre la tarjeta de materia (o el banner, si hay) y la lista |
+| 4 | Rótulo de sección | `paso 4` bajo el corte `escritorio`; desde el corte, `paso 1.5` (`REV-5`, sección «Escritorio · Medidas») | `paso 5` | `paso 2` | «Plano / Acciones», entre la tarjeta de materia (o el banner, si hay) y la lista |
 | 5 | Lista de acciones | — | `paso 5` | `paso 2.5` entre acciones | Seis acciones, en el orden actual |
 | 6 | Nota de privacidad | `paso 6` | `paso 6` | — | Solo en web; centrada |
 | 7 | Relleno inferior del scroll | — | — | `paso 8` | Fin del scroll |
@@ -161,7 +161,7 @@ Cambios del boceto respecto de `main`, o de `main` respecto del boceto. El usuar
 
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
-| HOME-P2 | Sobre la lista de acciones va el rótulo de sección «Plano / Acciones» (texto del boceto), en `rotulo` y `acento` (T5), con margen superior `paso 4`, lateral `paso 5` e inferior `paso 2`, entre la tarjeta de materia (o el banner, si hay) y la lista | Texto del boceto aprobado por el usuario; `main` no lo tiene | visual | aprobada (usuario, 2026-10-10) |
+| HOME-P2 | Sobre la lista de acciones va el rótulo de sección «Plano / Acciones» (texto del boceto), en `rotulo` y `acento` (T5), con margen superior `paso 4` bajo el corte `escritorio` (desde el corte, `paso 1.5`: `REV-5`, 2026-10-12), lateral `paso 5` e inferior `paso 2`, entre la tarjeta de materia (o el banner, si hay) y la lista | Texto del boceto aprobado por el usuario; `main` no lo tiene | visual | aprobada (usuario, 2026-10-10); margen de escritorio enmendado por `REV-5` (usuario, 2026-10-12) |
 | HOME-P4 | El conteo de la tarjeta de materia dice «{examCount} preguntas reales» y suma « · {generatedCount} preguntas extra» solo cuando `generatedCount` es mayor que cero. La condición es del dato, no de la materia ni una constante: si un banco vuelve a traer preguntas generadas, el término reaparece. Con los datos de hoy ninguna de las seis materias lo muestra | `generatedCount` vale cero en las seis materias: «0 preguntas extra» era una constante que partía el conteo en dos líneas desde 390 px y hacía leer «0 preguntas extra» sin saber qué son. «Reales» sigue nombrando el origen (D6) | copy | aprobada (usuario, 2026-10-11) |
 | HOME-P5 | La descripción de la acción «Ajustes» dice «Ocultar resultado, resetear estadísticas» en lugar de «Filtrar fuente, resetear estadísticas». Título, glifo, destino y las otras cinco descripciones no cambian | Ajustes no tiene filtro de fuente (sus secciones son Cuestionario, Mis preguntas, Tus datos y Acerca de): el filtro vive en TopicSelect y con `TOPIC-P6` es todavía menos «un ajuste». La cadena nueva nombra dos cosas que Ajustes sí tiene. Es copy de `main` (D10) | copy | aprobada (usuario, 2026-10-11) |
 
@@ -224,7 +224,7 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 |---|---|---|---|---|
 | — | HeaderMarca | «Cambiar materia» con texto y control de tema (`comun.md` §1, §1.1) | Dentro de `hoja` | Dentro de `hoja-amplia` |
 | 1 | Lateral | Tarjeta de materia (a.2) y, debajo a `paso 3`, el banner de banco reducido (`Banners.md`) si `materia.bancoReducido` | Ancho `lateral`, anclada arriba a la izquierda | Igual |
-| 2 | Principal | Rótulo «Plano / Acciones» (`HOME-P2`) y las seis acciones (a.3), en su orden | Una columna; la descripción de cada acción en una línea | 2 columnas, `paso 4` entre celdas: 1 2 / 3 4 / 5 6; la primaria (`border-2`) sigue primera |
+| 2 | Principal | Rótulo «Plano / Acciones» (`HOME-P2`; margen superior `paso 1.5` desde el corte, alineado arriba con la tarjeta de materia: `REV-5`) y las seis acciones (a.3), en su orden | Una columna; la descripción de cada acción en una línea | 2 columnas, `paso 4` entre celdas: 1 2 / 3 4 / 5 6; la primaria (`border-2`) sigue primera |
 | 3 | Principal, al pie | Nota de privacidad (solo web), a `paso 6` | Centrada en la región principal | Igual |
 
 ### Medidas
@@ -234,6 +234,7 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 | Tarjeta de materia | Ancho `lateral`: el nombre y los conteos saltan de línea, como a 320 px (a.4); la celda de ilustración conserva `paso 24` |
 | Banner de banco reducido | Ancho `lateral`; el botón de contacto conserva `paso 11` de alto y su correo entra en una línea |
 | Acción | Llena su celda. Cuadro de glifo `paso 10`, chevron y relleno `paso 3.5` sin cambio (a.3) |
+| Rótulo «Plano / Acciones» (`REV-5`) | Margen superior `paso 1.5` desde el corte `escritorio` (bajo el corte sigue `paso 4`, a.1 bloque 4): la caja de texto del rótulo (`rotulo`, 16 px de alto) arranca en la misma ordenada que el marco superior de la tarjeta de materia, que está a `paso 1.5` de HeaderMarca (a.1 bloque 2); las dos regiones quedan alineadas arriba como pide `comun.md` §7.2. La primera acción sigue a `paso 2` del rótulo. Con el header de 74 px de `NOTAS-MAQUETA.md` §0, tarjeta y rótulo arrancan en y = 80 (hasta la 5.0b el rótulo arrancaba en y = 90: `evidencia/despues/3.11c/home-1366-claro.png`). ≈ 20 B (`escritorio:mt-1.5`). Sin pares nuevos |
 | «Cambiar materia» | Siempre con texto: el corte supera los 360 px de `comun.md` §1.1 |
 
 ### Revisado
@@ -257,3 +258,4 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 | Id | Qué cambia | Motivo | Tipo | Estado |
 |---|---|---|---|---|
 | `ESC-P2` | Desde el corte `escritorio`, la tarjeta de materia y el banner pasan a una región lateral; las acciones, a la principal, en una columna (2 desde `amplio`) | Las acciones conservan su orden y su ancho de lectura, y la identidad de la materia queda a la vista sin empujarlas hacia abajo | visual | aprobada (usuario, 2026-10-11) |
+| `REV-5` (revisión 5.0b, `tasks.md` 5.0b.5) | Desde el corte `escritorio`, el margen superior del rótulo «Plano / Acciones» pasa de `paso 4` a `paso 1.5` (el de la tarjeta de materia): las dos regiones arrancan alineadas arriba; la primera acción sigue a `paso 2` del rótulo. Bajo el corte no cambia nada. Sin el cambio: el rótulo arranca 10 px más abajo que la tarjeta (y = 90 contra y = 80 a 1366 px), como hasta la 5.0b | Deuda de 3.11: las regiones «alineadas arriba» de `comun.md` §7.2 arrancaban en ordenadas distintas | visual | aprobada (usuario, 2026-10-12) |
