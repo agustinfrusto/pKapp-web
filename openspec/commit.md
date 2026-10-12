@@ -66,7 +66,7 @@ explícita en el mismo pedido.
 ## Prohibido
 
 Reescribir historia (amend, rebase, reset); mergear ramas, salvo `rediseno` → `main` con
-orden del operador y la sincronización `main` → `rediseno` (abajo); cambiar de rama sin
+orden del operador y la sincronización `main` → `rediseno` y sus ramas derivadas (abajo); cambiar de rama sin
 orden; mover o borrar tags; `push --force`.
 
 ## Sincronización de `rediseno`
@@ -84,6 +84,24 @@ conflictos:
    `src/theme/**`, `tailwind.config.js`, `App.js`, `public/` de íconos y manifest). Si un
    arreglo la necesita, se sincroniza a `rediseno` en el mismo momento.
 4. `rediseno` no bumpea ni tagea (paso 4).
+
+### Ramas derivadas de `rediseno`
+
+Convención del operador (2026-10-12): `rediseno-revision-ux` (worktree
+`../pKapp-worktrees/revision-ux`, propuestas de la revisión 5.0b) va siempre por delante de
+`main`, porque en algún momento puede mergearse. Le aplican los puntos 1, 2 y 4 de arriba
+con `rediseno-revision-ux` en lugar de `rediseno`:
+
+1. Después de cada push a `main`, también se mergea `main` en `rediseno-revision-ux`, en su
+   worktree y en el mismo momento que en `rediseno`.
+2. Antes de cada commit en la rama, `git merge-tree --write-tree --name-only main
+   rediseno-revision-ux`.
+3. Invariante verificable: `git merge-base --is-ancestor main rediseno-revision-ux` sale con 0.
+   Si falla, la sincronización está pendiente y va antes de cualquier otro commit en la rama.
+4. Su merge (a `rediseno` o a `main`) requiere orden del operador, como el de `rediseno`, y
+   antes la auditoría visual y estética del código por el Diseñador senior (agente Fable,
+   última versión) con veredicto APROBADO, o con observaciones que el operador acepte
+   (`tasks.md` 5.0b.14; orden del operador, 2026-10-12).
 
 ## Salida
 
