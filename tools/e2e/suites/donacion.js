@@ -16,7 +16,7 @@ const { execFileSync } = require('child_process');
 const { conectarNavegador, abrirPagina } = require('../cdp');
 const { servirEstatico } = require('../entorno');
 const { plancha } = require('../../../src/theme/colores');
-const { LADO_TACTIL, PASO } = require('./comunes');
+const { LADO_TACTIL, PASO, cerrarNota, entrarAMateria } = require('./comunes');
 
 const RAIZ = path.resolve(__dirname, '..', '..', '..');
 const DIST = process.env.PKAPP_DIST || 'dist';
@@ -314,9 +314,9 @@ async function toques(pagina, t, tema) {
     await pagina.esperarA(() => pagina.evaluar(`window.__eventos.length === ${i + 1}`), { limite: 3000 });
   }
   const eventos = await pagina.evaluar('window.__eventos');
-  t.ok(`${tema} · donacion_click por monto, con origen y monto`,
-    JSON.stringify(eventos),
-    JSON.stringify(MONTOS_VALOR.map((v) => ['donacion_click', { origen: 'prueba-normal', monto: v }])));
+  t.ok(`${tema} · donacion_click por monto, con origen, variante y uso`,
+    JSON.stringify(eventos.map(([e, d]) => [e, d.origen, d.monto, d.variante, d.uso, 'tramo' in d])),
+    JSON.stringify(MONTOS_VALOR.map((v) => ['donacion_click', 'prueba-normal', v, 'normal', '0', false])));
   await pagina.esperarA(() => pagina.evaluar('window.__abiertos.length === 4'), { limite: 3000 });
   t.ok(`${tema} · cada monto abre su enlace de Mercado Pago`,
     (await pagina.evaluar('window.__abiertos')).every((u) => /^https:\/\/mpago\.la\//.test(u)), true);
@@ -330,7 +330,9 @@ async function descartar(pagina, t, tema) {
   const oculto = await pagina.esperarA(() => pagina.evaluar(
     `!document.querySelector(${JSON.stringify(sel('don-descartable'))})`), { limite: 3000 });
   t.ok(`${tema} · tocar descartar oculta el pedido`, oculto, true);
-  t.ok(`${tema} · descartar no emite eventos`, await pagina.evaluar('window.__eventos.length'), 0);
+  t.ok(`${tema} · descartar emite solo donacion_cerrada, con origen y variante, sin tramo`,
+    JSON.stringify(await pagina.evaluar('window.__eventos.map(([e, d]) => [e, d.origen, d.variante, "tramo" in d])')),
+    JSON.stringify([['donacion_cerrada', 'prueba-descartable', 'normal', false]]));
   t.ok(`${tema} · los otros pedidos siguen visibles`,
     await pagina.evaluar(`!!document.querySelector(${JSON.stringify(sel('don-celebratoria'))})`), true);
 }
@@ -436,9 +438,11 @@ async function enMateriaSelect(pagina, base, t) {
   const p = centro(m);
   await pagina.clicEn(p.x, p.y);
   await pagina.esperarA(() => pagina.evaluar('window.__eventos.length === 1'), { limite: 3000 });
-  t.ok('MateriaSelect: donacion_click con origen «materias»',
-    JSON.stringify(await pagina.evaluar('window.__eventos')),
-    JSON.stringify([['donacion_click', { origen: 'materias', monto: 200 }]]));
+  const [[nombre, datos]] = await pagina.evaluar('window.__eventos');
+  t.ok('MateriaSelect: donacion_click con origen «materias», variante y uso',
+    JSON.stringify([nombre, datos.origen, datos.monto, datos.variante, /^(0|1|2-5|6-20|21\+)$/.test(datos.uso),
+      'tramo' in datos]),
+    JSON.stringify(['donacion_click', 'materias', 200, 'normal', true, false]));
 }
 
 // Cero literales visuales en el componente (aceptación común, C6): el foco inyectado
@@ -460,8 +464,288 @@ function sinLiterales(_pagina, _base, t) {
   t.ok('DonationBox.js: sin literales visuales', hallados.join(' | '), '');
 }
 
+// ---------------------------------------------------------------------------
+// Embudo de donación (Umami): vista, click y cierre. Contrato idéntico al de main 1.9.0.
+// `window.umami` se reemplaza por un stub antes de que cargue la app; `window.open` se anula
+// para que los montos no salgan a Mercado Pago. Los pageviews (track con función) no se guardan.
+// ---------------------------------------------------------------------------
+const STUB_UMAMI =
+  "window.__eventos = [];" +
+  "window.umami = { track: function (e, d) { if (typeof e === 'string') window.__eventos.push({ e: e, d: d || {} }); } };" +
+  "window.open = function () { return null; };";
+
+const conUmami = (pagina) =>
+  pagina.enviar('Page.addScriptToEvaluateOnNewDocument', { source: STUB_UMAMI });
+
+const eventosDe = (pagina, nombre) =>
+  pagina.evaluar(`window.__eventos.filter((x) => x.e === ${JSON.stringify(nombre)}).map((x) => x.d)`);
+
+const BLOQUE = sel('donacion');
+
+// Con Results encima, el selector de materias sigue montado (oculto) y comparte los testID:
+// toda búsqueda toma el elemento con caja, no el primero del documento.
+const VISIBLE = (s) => `(Array.from(document.querySelectorAll(${JSON.stringify(s)})).find((n) => {
+  const r = n.getBoundingClientRect();
+  return r.width > 0 && r.height > 0;
+}) || null)`;
+
+const hayBloque = (pagina, opts) => pagina.esperarA(
+  () => pagina.evaluar(`!!${VISIBLE(BLOQUE)}`), opts);
+
+// Desplaza el bloque dentro de su contenedor con scroll (o la ventana) hasta que quede
+// `visible` (0..1) en pantalla; sin argumento, centrado. Devuelve la fracción visible o null.
+const MOSTRAR_BLOQUE = (visible) => `(function () {
+  const b = ${VISIBLE(BLOQUE)};
+  if (!b) return null;
+  const r0 = b.getBoundingClientRect();
+  let s = b.parentElement;
+  while (s && !(s.scrollHeight > s.clientHeight + 1 && /auto|scroll/.test(getComputedStyle(s).overflowY))) s = s.parentElement;
+  const mover = (d) => { if (s) s.scrollTop += d; else window.scrollBy(0, d); };
+  if (${visible === undefined ? 'true' : 'false'}) {
+    mover(r0.top + r0.height / 2 - window.innerHeight / 2);
+  } else {
+    mover(r0.top - (window.innerHeight - ${visible || 0} * r0.height));
+  }
+  const q = b.getBoundingClientRect();
+  return (Math.min(q.bottom, window.innerHeight) - Math.max(q.top, 0)) / q.height;
+})()`;
+
+const ARRIBA = `(function () {
+  document.querySelectorAll('div').forEach((d) => { d.scrollTop = 0; });
+  window.scrollTo(0, 0);
+})()`;
+
+// Toca el control visible `id`: lo trae a la vista, lo mide y hace el clic por coordenadas.
+async function tocarId(pagina, id) {
+  await pagina.evaluar(`(function () {
+    const n = ${VISIBLE(sel(id))};
+    if (n) n.scrollIntoView({ block: 'center' });
+  })()`);
+  await pausa(300);
+  const p = await pagina.evaluar(`(function () {
+    const n = ${VISIBLE(sel(id))};
+    if (!n) return null;
+    const r = n.getBoundingClientRect();
+    return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+  })()`);
+  if (!p) return false;
+  await pagina.clicEn(p.x, p.y);
+  return true;
+}
+
+async function entrarAlSelector(pagina, base, uso) {
+  await pagina.ir(base + '/');
+  await pagina.esperarTexto('Tus materias');
+  if (uso !== undefined) {
+    await pagina.evaluar(uso === null
+      ? `localStorage.removeItem('pkapp_simulacros')`
+      : `localStorage.setItem('pkapp_simulacros', '${uso}')`);
+    await pagina.ir(base + '/');
+    await pagina.esperarTexto('Tus materias');
+  }
+  await cerrarNota(pagina);
+}
+
+async function embudoEnMaterias(pagina, base, t) {
+  await conUmami(pagina);
+  // Ventana baja: el bloque queda debajo de las tarjetas.
+  await pagina.enviar('Emulation.setDeviceMetricsOverride',
+    { width: 900, height: 500, deviceScaleFactor: 1, mobile: false });
+  await entrarAlSelector(pagina, base, '3');
+  t.ok('materias: el bloque de donación está montado', await hayBloque(pagina, { limite: 10000 }), true);
+
+  await pausa(1500);
+  t.ok('materias: fuera de pantalla no se manda donacion_vista', (await eventosDe(pagina, 'donacion_vista')).length, 0);
+
+  // Entra y sale antes de 1 s: no cuenta y el reloj se reinicia.
+  await pagina.evaluar(MOSTRAR_BLOQUE());
+  await pausa(400);
+  await pagina.evaluar(ARRIBA);
+  await pausa(1500);
+  t.ok('materias: menos de 1 s en vista no cuenta', (await eventosDe(pagina, 'donacion_vista')).length, 0);
+
+  // ~30 % visible durante más de 1 s: bajo el umbral del 50 %, no cuenta.
+  const ratio = await pagina.evaluar(MOSTRAR_BLOQUE(0.3));
+  t.ok('materias: el bloque quedó cerca del 30 % visible', ratio > 0.2 && ratio < 0.45, true);
+  await pausa(1800);
+  t.ok('materias: con menos del 50 % visible no cuenta', (await eventosDe(pagina, 'donacion_vista')).length, 0);
+
+  // ~5 % visible: asomando apenas por el borde, tampoco cuenta.
+  const asoma = await pagina.evaluar(MOSTRAR_BLOQUE(0.05));
+  t.ok('materias: el bloque quedó cerca del 5 % visible', asoma > 0 && asoma < 0.15, true);
+  await pausa(1800);
+  t.ok('materias: con 5 % visible no cuenta', (await eventosDe(pagina, 'donacion_vista')).length, 0);
+  await pagina.evaluar(ARRIBA);
+  await pausa(300);
+
+  await pagina.evaluar(MOSTRAR_BLOQUE());
+  t.ok('materias: tras 1 s en vista se manda donacion_vista',
+    await pagina.esperarA(async () => (await eventosDe(pagina, 'donacion_vista')).length === 1, { limite: 4000 }), true);
+  const vista = (await eventosDe(pagina, 'donacion_vista'))[0] || {};
+  t.ok('materias: vista con origen', vista.origen, 'materias');
+  t.ok('materias: vista con variante normal', vista.variante, 'normal');
+  t.ok('materias: vista con uso', vista.uso, '2-5');
+  t.ok('materias: vista sin tramo', 'tramo' in vista, false);
+
+  await pagina.evaluar(ARRIBA);
+  await pausa(300);
+  await pagina.evaluar(MOSTRAR_BLOQUE());
+  await pausa(1500);
+  t.ok('materias: una sola vez por montaje', (await eventosDe(pagina, 'donacion_vista')).length, 1);
+
+  for (const monto of MONTOS_VALOR) {
+    await tocarId(pagina, `donacion-monto-${monto}`);
+    await pausa(150);
+  }
+  const clicks = await eventosDe(pagina, 'donacion_click');
+  t.ok('materias: 4 donacion_click', clicks.length, 4);
+  t.ok('materias: montos en orden', clicks.map((c) => c.monto).join(','), '50,100,200,500');
+  t.ok('materias: click con origen, variante y uso',
+    clicks.every((c) => c.origen === 'materias' && c.variante === 'normal' && c.uso === '2-5' && !('tramo' in c)), true);
+}
+
+// Rangos de `uso` con 0, 1, 3, 6, 20, 21 y 25 simulacros previos, vistos desde el selector.
+async function embudoRangosDeUso(pagina, base, t) {
+  await conUmami(pagina);
+  const casos = [[null, '0'], ['0', '0'], ['1', '1'], ['3', '2-5'], ['6', '6-20'], ['20', '6-20'], ['21', '21+'], ['25', '21+']];
+  for (const [semilla, rango] of casos) {
+    await entrarAlSelector(pagina, base, semilla);
+    await hayBloque(pagina, { limite: 10000 });
+    await pagina.evaluar(MOSTRAR_BLOQUE());
+    await pagina.esperarA(async () => (await eventosDe(pagina, 'donacion_vista')).length === 1, { limite: 4000 });
+    const v = (await eventosDe(pagina, 'donacion_vista'))[0] || {};
+    t.ok(`uso con ${semilla === null ? 'contador ausente' : semilla + ' previos'}: ${rango}`, v.uso, rango);
+  }
+}
+
+// Respuestas de prueba (mismo formato que la suite «resultados»): `aciertos` de `total`.
+function respuestasDe(total, aciertos) {
+  return Array.from({ length: total }, (_, i) => ({
+    question: {
+      id: `e2e-${i + 1}`, question: `Enunciado de prueba ${i + 1}`,
+      options: ['Opción uno', 'Opción dos', 'Opción tres', 'Opción cuatro'],
+      correctIndex: 1, explanation: '', topic: 'e2e',
+    },
+    selectedIndex: i < aciertos ? 1 : 0,
+    isCorrect: i < aciertos,
+  }));
+}
+
+// Toma el `navigation` de la pantalla montada desde el árbol de React y abre Results.
+const IR_A_RESULTADOS = (params) => `(function () {
+  for (const n of Array.from(document.querySelectorAll('*'))) {
+    const k = Object.keys(n).find((x) => x.startsWith('__reactFiber$'));
+    if (!k) continue;
+    for (let f = n[k]; f; f = f.return) {
+      const nav = f.memoizedProps && f.memoizedProps.navigation;
+      if (nav && typeof nav.navigate === 'function') {
+        nav.navigate('Results', ${JSON.stringify(params)});
+        return true;
+      }
+    }
+  }
+  return false;
+})()`;
+
+// Termina un simulacro con `aciertos` de 10: siembra el contador del pedido en 0 (en turno) y
+// los simulacros previos, y abre Results desde Inicio.
+async function terminarSimulacro(pagina, base, { previos, aciertos }) {
+  await pagina.ir(base + '/');
+  await pagina.esperarTexto('Tus materias');
+  await pagina.evaluar(`localStorage.setItem('pkapp_donation_count', '0');
+    localStorage.setItem('pkapp_simulacros', '${previos}')`);
+  if (!await entrarAMateria(pagina, base)) return false;
+  await pagina.evaluar(IR_A_RESULTADOS({ answers: respuestasDe(10, aciertos), topic: 'e2e', mode: 'practice' }));
+  return pagina.esperarUrl('/resultados', { limite: 5000 });
+}
+
+async function embudoEnResultados(pagina, base, t) {
+  await conUmami(pagina);
+  const vistas = () => eventosDe(pagina, 'donacion_vista');
+  const hayPedido = () => hayBloque(pagina, { limite: 5000 });
+  const unaVista = () => pagina.esperarA(async () => (await vistas()).length === 1, { limite: 4000 });
+
+  // ≥ 80 %: celebratoria. 1 previo + el terminado = 2 → '2-5'.
+  t.ok('resultados ≥80: abrir Results', await terminarSimulacro(pagina, base, { previos: 1, aciertos: 8 }), true);
+  t.ok('resultados ≥80: sale el pedido', await hayPedido(), true);
+  t.ok('resultados ≥80: vista tras 1 s', await unaVista(), true);
+  let v = (await vistas())[0] || {};
+  t.ok('resultados ≥80: origen', v.origen, 'resultados');
+  t.ok('resultados ≥80: variante', v.variante, 'celebratoria');
+  t.ok('resultados ≥80: tramo', v.tramo, '80-100');
+  t.ok('resultados ≥80: uso con 1 previo incluye el terminado', v.uso, '2-5');
+
+  // Revisar → Volver remonta el pedido pero es el mismo simulacro: sin vista ni conteo nuevos.
+  t.ok('resultados: abre la revisión', await tocarId(pagina, 'resultados-revisar'), true);
+  t.ok('resultados: vuelve de la revisión',
+    await pagina.esperarA(() => tocarId(pagina, 'revision-volver'), { limite: 4000 }), true);
+  t.ok('resultados: el pedido sigue ahí tras Volver', await hayPedido(), true);
+  await pausa(2200);
+  t.ok('resultados: Revisar → Volver no repite donacion_vista', (await vistas()).length, 1);
+  t.ok('resultados: Revisar → Volver no cuenta otro simulacro',
+    await pagina.evaluar(`localStorage.getItem('pkapp_simulacros')`), '2');
+
+  for (const monto of MONTOS_VALOR) {
+    await tocarId(pagina, `donacion-monto-${monto}`);
+    await pausa(150);
+  }
+  const clicks = await eventosDe(pagina, 'donacion_click');
+  t.ok('resultados: 4 donacion_click', clicks.length, 4);
+  t.ok('resultados: montos en orden', clicks.map((c) => c.monto).join(','), '50,100,200,500');
+  t.ok('resultados: click con origen, variante, tramo y uso',
+    clicks.every((c) => c.origen === 'resultados' && c.variante === 'celebratoria' &&
+      c.tramo === '80-100' && c.uso === '2-5'), true);
+
+  // Misma sesión, sin recargar: Results → Inicio → Cambiar materia. El selector sigue montado
+  // bajo el stack; el click debe llevar el rango actual (el simulacro ya contado), no el del montaje.
+  t.ok('resultados → inicio', await tocarId(pagina, 'resultados-inicio'), true);
+  t.ok('inicio: aparece «Cambiar materia»', await pagina.esperarTexto('Cambiar materia', { limite: 4000 }), true);
+  t.ok('inicio → materias', !!await pagina.clic('Cambiar materia'), true);
+  t.ok('materias: aparece el pedido', await hayPedido(), true);
+  await tocarId(pagina, 'donacion-monto-50');
+  await pausa(200);
+  const ultimos = await eventosDe(pagina, 'donacion_click');
+  const ultimo = ultimos[ultimos.length - 1] || {};
+  t.ok('materias en la misma sesión: origen del click', ultimo.origen, 'materias');
+  t.ok('resultados y materias en la misma sesión: mismo rango', ultimo.uso, v.uso);
+  t.ok('materias en la misma sesión: sin tramo', 'tramo' in ultimo, false);
+
+  // 60-79 %: normal. 3 previos + el terminado = 4 → '2-5'. Se cierra el pedido.
+  await pagina.enviar('Page.addScriptToEvaluateOnNewDocument', { source: STUB_UMAMI });
+  t.ok('resultados 60-79: abrir Results', await terminarSimulacro(pagina, base, { previos: 3, aciertos: 7 }), true);
+  t.ok('resultados 60-79: sale el pedido', await hayPedido(), true);
+  t.ok('resultados 60-79: vista tras 1 s', await unaVista(), true);
+  v = (await vistas())[0] || {};
+  t.ok('resultados 60-79: variante', v.variante, 'normal');
+  t.ok('resultados 60-79: tramo', v.tramo, '60-79');
+  t.ok('resultados 60-79: uso con 3 previos', v.uso, '2-5');
+  t.ok('resultados 60-79: sin cerrar no hay donacion_cerrada', (await eventosDe(pagina, 'donacion_cerrada')).length, 0);
+
+  t.ok('resultados: toca cerrar', await tocarId(pagina, 'donacion-descartar'), true);
+  t.ok('resultados: cerrar manda donacion_cerrada',
+    await pagina.esperarA(async () => (await eventosDe(pagina, 'donacion_cerrada')).length === 1, { limite: 3000 }), true);
+  const cerr = (await eventosDe(pagina, 'donacion_cerrada'))[0] || {};
+  t.ok('resultados: cerrada con origen, variante y tramo',
+    JSON.stringify([cerr.origen, cerr.variante, cerr.tramo]), JSON.stringify(['resultados', 'normal', '60-79']));
+  t.ok('resultados: el pedido desaparece',
+    await pagina.evaluar(`!${VISIBLE(BLOQUE)}`), true);
+
+  // Rango máximo y conteo: 25 previos + el terminado = 26 → 21+, y el contador sube una sola vez.
+  await pagina.enviar('Page.addScriptToEvaluateOnNewDocument', { source: STUB_UMAMI });
+  t.ok('resultados 21+: abrir Results', await terminarSimulacro(pagina, base, { previos: 25, aciertos: 8 }), true);
+  t.ok('resultados 21+: vista', await unaVista(), true);
+  v = (await vistas())[0] || {};
+  t.ok('resultados: uso con 25 previos', v.uso, '21+');
+  t.ok('resultados: el contador de simulacros sube a 26',
+    await pagina.evaluar(`localStorage.getItem('pkapp_simulacros')`), '26');
+  t.ok('resultados: un solo simulacro_terminado', (await eventosDe(pagina, 'simulacro_terminado')).length, 1);
+}
+
 module.exports = [
   { nombre: 'donacion · DonationBox.js sin literales visuales', correr: sinLiterales },
+  { nombre: 'donacion · embudo: vista, click y uso en el selector de materias', correr: embudoEnMaterias },
+  { nombre: 'donacion · embudo: rangos de uso', correr: embudoRangosDeUso },
+  { nombre: 'donacion · embudo: vista, click y cierre en resultados', correr: embudoEnResultados },
   {
     nombre: 'donacion · pedido de MateriaSelect en la app real',
     correr: enMateriaSelect,

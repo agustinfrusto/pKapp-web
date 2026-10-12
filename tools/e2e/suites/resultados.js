@@ -774,6 +774,8 @@ async function eventosDeAnalitica(pagina, base, t) {
   const abrir = async (answers, mode, donacion) => {
     await abrirMarco(pagina, base, 390);
     await irAHomeEnMarco(pagina);
+    // Sin simulacros previos: el «uso» de Results (rango tras terminar este) es «1».
+    await pagina.evaluar(EN_MARCO("w.localStorage.removeItem('pkapp_simulacros'); return true;"));
     await pagina.evaluar(ESPIAR);
     return navegarA(pagina, { answers, topic: TEMA.clave, mode }, donacion);
   };
@@ -798,9 +800,11 @@ async function eventosDeAnalitica(pagina, base, t) {
   if (montos && montos.montos.length > 0) {
     const monto = montos.montos[0];
     t.ok(`tocar el monto $${monto}`, await tocar(pagina, `donacion-monto-${monto}`), true);
-    t.ok('«donacion_click» con origen «resultados» y el monto',
+    t.ok('«donacion_click» con origen «resultados», variante, tramo, uso y el monto',
       await pagina.esperarA(async () => (await salidos()) ===
-        JSON.stringify([terminado, aprobado, ['donacion_click', { origen: 'resultados', monto: Number(monto) }]])), true);
+        JSON.stringify([terminado, aprobado, ['donacion_click', {
+          origen: 'resultados', variante: 'celebratoria', tramo: '80-100', uso: '1', monto: Number(monto),
+        }]])), true);
   }
 
   // Cortes de «aprobado»: 60 sí; 59 y 50 no. El pedido no mide nada por sí solo.

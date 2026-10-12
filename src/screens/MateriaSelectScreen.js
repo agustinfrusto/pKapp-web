@@ -18,6 +18,7 @@ import {
   FilaLista, Hoja, Lamina, Regiones, RotuloSeccion, TarjetaNavegable,
 } from '../components/plancha';
 import { track } from '../utils/track';
+import { usoActual } from '../utils/donacion';
 import { avisar } from '../utils/confirm';
 
 // Escala de 4 px por paso (tokens.md c.3, comun.md §8).
@@ -169,7 +170,7 @@ function DonationCard() {
   return (
     <View className="mt-6">
       <View className={`mb-4 w-2/5 self-center border-b ${FILETE}`} />
-      <DonationBox origen="materias" />
+      <DonationBox origen="materias" uso={usoActual} />
     </View>
   );
 }

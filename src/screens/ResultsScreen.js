@@ -2,13 +2,14 @@
 // Fichas: diseno/pantallas/Results.md (resumen) y Revision.md (vista de revisión).
 // Escritorio (ESC-P5, ESC-P6): resumen y revisión comparten la hoja; la región lateral va
 // primero en el DOM, así que queda a la izquierda y el orden de foco es el visual.
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { track } from '../utils/track';
 import { reportQuestion } from '../utils/report';
 import { useMateria } from '../materia/MateriaContext';
 import DonationBox from '../components/DonationBox';
+import { usoTrasTerminar, contarSimulacro } from '../utils/donacion';
 import Glifo from '../components/Glifo';
 import {
   BotonMarco, BotonRelleno, FilaLista, Hoja, Lamina, MarcaEstado, Regiones, RotuloSeccion, Segmento,
@@ -67,6 +68,11 @@ export default function ResultsScreen({ route, navigation }) {
   // Mensaje y marca según el porcentaje (50% suele ser el de aprobación)
   const { message, estado } = getResultFeedback(percentage);
   const [showDonation] = useState(() => shouldShowDonation(percentage));
+  // Simulacros terminados incluyendo este: se lee antes de que el efecto lo cuente.
+  const [uso] = useState(() => usoTrasTerminar());
+  const contado = useRef(false);
+  // Una vista por simulacro terminado: sobrevive a Revisar → Volver, que remonta el pedido.
+  const vistaEnviada = useRef(false);
 
   useEffect(() => {
     // Una entrada en frio a /resultados no es un simulacro terminado: no se mide.
@@ -75,6 +81,10 @@ export default function ResultsScreen({ route, navigation }) {
       return;
     }
     track('simulacro_terminado', { mode, score: percentage, total });
+    if (!contado.current) {
+      contado.current = true;
+      contarSimulacro();
+    }
     if (percentage >= APROBADO_MIN_SCORE) {
       track('simulacro_aprobado', { mode, score: percentage });
     }
@@ -329,6 +339,9 @@ export default function ResultsScreen({ route, navigation }) {
                     origen="resultados"
                     descartable
                     celebratoria={percentage >= DONATION_WARM_SCORE}
+                    tramo={percentage >= DONATION_WARM_SCORE ? '80-100' : '60-79'}
+                    uso={uso}
+                    vistaEnviada={vistaEnviada}
                   />
                 </View>
               )}

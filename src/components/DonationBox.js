@@ -2,15 +2,19 @@
 // Un solo aspecto para los dos usos: MateriaSelect lo monta persistente y Results lo monta
 // `descartable`, con `celebratoria` desde DONATION_WARM_SCORE (el corte lo decide la pantalla).
 //
-// Props: `origen` (payload de `donacion_click`), `celebratoria`, `descartable`, `testID`
-// (por defecto `donacion`; las partes llevan su sufijo), `className` (layout) y `style`.
+// Props: `origen`, `celebratoria`, `descartable`, `testID` (por defecto `donacion`; las partes
+// llevan su sufijo), `className` (layout) y `style`. Embudo de Umami (`utils/donacion`):
+// `tramo` (solo resultados), `uso` (rango, o función que lo da al momento del evento; sin él
+// se lee `usoActual()`) y `vistaEnviada` (ref del padre: una vista por simulacro, no por montaje).
+// Eventos: `donacion_vista`, `donacion_click` y, en `descartable`, `donacion_cerrada`.
 //
 // Se arma sobre `Control`, la base de K1 a K7: la ficha pide en los montos el paso `dato` y en
 // descartar la inversión sobre la banda, y ni K2 ni K7 los admiten por props.
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Linking, Platform } from 'react-native';
 import { track } from '../utils/track';
 import { MP_LINKS, DONATION_AMOUNTS } from '../utils/mercadopago';
+import { usoActual, useDonacionVista } from '../utils/donacion';
 import Glifo from './Glifo';
 import Control, { Contenido, CONTORNO, GLIFO_CHICO, GLIFO_GRANDE, useTokens } from './plancha/Control';
 import MarcasEsquina from './plancha/MarcasEsquina';
@@ -76,22 +80,42 @@ function useFocoSobreBanda(color) {
   }, [color]);
 }
 
-export default function DonationBox({
-  origen, celebratoria = false, descartable = false, testID = 'donacion', className = '', style,
-}) {
+// Aparte de `Pedido` para que, al cerrarlo, se desmonte y cancele el observador de vista.
+export default function DonationBox(props) {
   const [visible, setVisible] = useState(true);
+  if (!visible) return null;
+  return <Pedido {...props} onCerrar={() => setVisible(false)} />;
+}
+
+function Pedido({
+  origen, tramo, uso, vistaEnviada, celebratoria = false, descartable = false, testID = 'donacion',
+  className = '', style, onCerrar,
+}) {
   const tema = useTokens();
   useFocoSobreBanda(tema.fondo);
+  const ref = useRef(null);
+
+  const datos = () => ({
+    origen,
+    variante: celebratoria ? 'celebratoria' : 'normal',
+    ...(tramo ? { tramo } : {}),
+    uso: (typeof uso === 'function' ? uso() : uso) ?? usoActual(),
+  });
+  useDonacionVista(ref, datos, vistaEnviada);
 
   function handleDonate(amt) {
-    track('donacion_click', { origen, monto: amt });
+    track('donacion_click', { ...datos(), monto: amt });
     requestAnimationFrame(() => Linking.openURL(MP_LINKS[amt]).catch(() => {}));
   }
 
-  if (!visible) return null;
+  function handleCerrar() {
+    const { uso: _uso, ...cierre } = datos();
+    track('donacion_cerrada', cierre);
+    onCerrar();
+  }
 
   return (
-    <View testID={testID} className={`relative ${className}`} style={style}>
+    <View ref={ref} testID={testID} className={`relative ${className}`} style={style}>
       <View className="border-2 border-acento bg-acentoFondo dark:border-acentoD dark:bg-acentoFondoD">
         <View
           testID={`${testID}-banda`}
@@ -117,7 +141,7 @@ export default function DonationBox({
               baseExterior="absolute right-0 top-0"
               testID={`${testID}-descartar`}
               accessibilityLabel="Cerrar"
-              onPress={() => setVisible(false)}
+              onPress={handleCerrar}
             >
               <Contenido glifo="glifo-cerrar" tamanoGlifo={GLIFO_GRANDE} />
             </Control>
