@@ -24,6 +24,7 @@ Los lugares los fijaron las fichas de 1.2; esta ficha da el interior.
 | Home | Banner de banco reducido (bloque 3 de `Home.md` a.1) | `paso 3` | `paso 5` | — | Solo si `materia.bancoReducido`; sigue visible (D6) |
 | MateriaSelect | Nota del creador (bloque 3 de `MateriaSelect.md` a.1) | — | `paso 5` | `paso 3` | Condicional; debajo de la lámina y encima de la lista |
 | Home | Nota de privacidad (bloque 6 de `Home.md` a.1) | `paso 6` | `paso 6` | — | Solo web; centrada |
+| Toda la app, fuera de React (web) | (5.0b, sin documentar) Aviso «Abrí pKapp en tu navegador» (`scripts/inject-pwa.js`, bloque `AVISO` y `SALIR_SCRIPT`) | — | 0: hoja a sangre | — | Solo dentro del navegador interno de Instagram o Facebook (por `userAgent`), 1,5 s después de cargar y si la salida automática (`intent://` en Android, `instagram://extbrowser` en iOS) no funcionó; no vuelve en la sesión tras cerrarlo (`sessionStorage`). Hoy es el marcador de posición, no el diseño Plancha: hoja fija al pie, a sangre, fondo `fondo` con filete superior `tinta`, fuente del sistema de 16 px, título en negrita, botones de 44 px con texto y borde `acento` («Abrir en tu navegador» relleno `acento`), «Link copiado» como texto, un «✕» de texto como cerrar, y sigue a `prefers-color-scheme` y no al tema de la app. Diseño Plancha pendiente de aplicar: `.orca/reports/aviso-navegador-diseno.md` (propuesta `REV-6` de `.orca/reports/rediseno-5.0b-revision.md`) |
 
 ### a.2 Interior de la nota (banco reducido y nota del creador)
 

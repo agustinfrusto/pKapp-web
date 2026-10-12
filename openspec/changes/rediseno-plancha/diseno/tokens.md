@@ -40,7 +40,7 @@ Nombre = clave en `plancha.claro` y `plancha.oscuro`. En Tailwind: `bg-fondo` y 
 | `filamento` | `#14181d` | `#8fb4c9` | Trazo del campo de filamentos y de las ilustraciones de materia | Valor del boceto (`--fil`): tinta en claro, acero en oscuro |
 | `manifestTema` | `#0b0d10` | `#0b0d10` | `theme_color` de `public/manifest.json`; `themeColor` de `app.json` | D8: tinta del ícono. No depende del tema |
 | `manifestFondo` | `#0b0d10` | `#0b0d10` | `background_color` del manifest; `backgroundColor` de `app.json`; splash nativo de `App.js` | Splash continuo con el ícono, sin franja de otro color |
-| `iconoFondo` | `#0b0d10` | `#0b0d10` | `android.adaptiveIcon.backgroundColor` de `app.json` | Reemplaza `#6366f1` por la tinta del ícono |
+| `iconoFondo` | `#0b0d10` | `#0b0d10` | Fondo de los íconos PWA de `public/` (`icon-192`, `icon-512`, `icon-maskable-512` y `apple-touch-icon`) y del favicon, generados desde `diseno/favicon/` (tarea 4.2, `NOTAS-FAVICON.md`); `tools/e2e/suites/pwa.js` afirma que no depende del tema. Sin lector en `app.json` desde la 5.0c (fuente corregida en la 5.0b) | Reemplaza `#6366f1` por la tinta del ícono |
 
 ### a.2 Reglas de uso
 

@@ -117,6 +117,7 @@ Las filas de esta pantalla no son controles: no hay hover, presionado, foco, sel
 |---|---|---|---|---|---|---|
 | Botón volver de la barra | `comun.md` §3 | `comun.md` §3 | `comun.md` §3 | `comun.md` §3 | — | — |
 | Tirar para actualizar | Nativo, sin estilo propio | — | — | — | — | — |
+| (5.0b, sin documentar) Tirar para actualizar en web | Sin efecto: el `RefreshControl` de react-native-web renderiza un `View` sin gesto ni indicador, así que en la única plataforma vigente (web, D10 y retiro de nativo 5.0) el gesto no existe y la pantalla se recarga solo al enfocar (`useFocusEffect`, d.2). Vale igual para V1 de `Vacios.md` (`VAC-C3`). Sin cambio en esta tarea | — | — | — | — | — |
 
 Origen de la pregunta, banco reducido y acierto o error de una opción no aplican (—).
 
