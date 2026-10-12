@@ -65,9 +65,9 @@ explícita en el mismo pedido.
 
 ## Prohibido
 
-Reescribir historia (amend, rebase, reset); mergear ramas, salvo `rediseno` → `main` y una
-rama derivada → `rediseno`, ambos con orden del operador, y la sincronización `main` → `rediseno` y sus ramas
-derivadas (abajo); cambiar de rama sin
+Reescribir historia (amend, rebase, reset); mergear ramas, salvo `rediseno` o una rama
+derivada → `main`, con orden del operador, y la sincronización `main` → `rediseno` y sus ramas derivadas
+(abajo); cambiar de rama sin
 orden; mover o borrar tags; `push --force`.
 
 ## Sincronización de `rediseno`
@@ -99,8 +99,9 @@ con `rediseno-revision-ux` en lugar de `rediseno`:
    rediseno-revision-ux`.
 3. Invariante verificable: `git merge-base --is-ancestor main rediseno-revision-ux` sale con 0.
    Si falla, la sincronización está pendiente y va antes de cualquier otro commit en la rama.
-4. Se mergea a `rediseno`, nunca directo a `main`; después `rediseno` va a `main` con el
-   procedimiento de siempre. Su merge requiere orden del operador, como el de `rediseno`, y
+4. Se mergea directo a `main` (operador, 2026-10-12). Como contiene todo `rediseno`, ese merge
+   lleva también el rediseño y reemplaza al de `rediseno` → `main`; la versión se resuelve igual,
+   una sola vez, en el commit de `main` que sigue al merge (paso 4). Su merge requiere orden del operador, y
    antes la auditoría visual y estética del código por el Diseñador senior (agente Fable,
    última versión) con veredicto APROBADO, o con observaciones que el operador acepte
    (`tasks.md` 5.0b.14; orden del operador, 2026-10-12).

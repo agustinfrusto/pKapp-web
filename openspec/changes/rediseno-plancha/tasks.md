@@ -93,10 +93,10 @@ Fuente: `diseno/revision-5.0b.md` (§3 propuestas, §6 fuera de spec). Ninguna s
 - [ ] 5.0b.12 `CC-1` · CAMBIO DE CRITERIO · PENDIENTE. Sobre `REV-3`: «Reportar pregunta» y su glifo en `tintaSec` en vez de `tinta`; enmienda E2 y CD-14 (pares T3/T4, N19/N20). Requiere `REV-3`
 - [ ] 5.0b.13 Documentación y comentario pendientes de la revisión (sin aprobación: no cambian la app): comentario de `src/theme/colores.js:35` («fondo del ícono adaptativo», deuda N3 de 5.0c) para un Programador; paréntesis histórico de la fila `StatusBar` de `tokens.md` a.2 (H4) para el Diseñador
 - [ ] 5.0b.14 Compuerta antes del merge de `rediseno-revision-ux` (orden del usuario, 2026-10-12): auditoría visual y estética del código por el Diseñador senior (agente Fable, siempre la última versión; hoy `claude-fable-5-1`), una vez implementadas las 5.0b.n aprobadas. Revisa el diff de la rama contra `rediseno` y las capturas en claro y oscuro de cada superficie tocada (320, 390, 768, 1366 y 1920 px) contra las fichas, el criterio estético (`CONVENCIONES.md` E1–E5) y `diseno/revision-5.0b.md`: tokens, pares de contraste, jerarquía, estados y movimiento. No edita código: cada hallazgo va al Ingeniero (archivo:línea, captura, corrección sugerida), que lo devuelve al Programador. Veredicto APROBADO, CON OBSERVACIONES o RECHAZADO; sin APROBADO (u observaciones que el usuario acepte) no hay merge, y el merge además requiere orden del usuario
-- [ ] 5.1 Medir el bundle contra 0.1: ≤ +35 KB gzip (D5). Fuentes ≤ 100 KB (D4). Registrar en `evidencia/cierre.md`
-- [ ] 5.2 Recorrer las 10 superficies en ambos temas contra sus fichas; verificar contraste, estados sin color y sin emojis
-- [ ] 5.3 `openspec validate rediseno-plancha --strict`
-- [ ] 5.4 Con orden del operador: merge de `rediseno` a `main`, versión minor en el commit siguiente (`openspec/commit.md`, paso 4) y archivo del change
+- [ ] 5.1 (en `rediseno-revision-ux`, con la 5.0b implementada) Medir el bundle contra 0.1: ≤ +35 KB gzip (D5). Fuentes ≤ 100 KB (D4). Registrar en `evidencia/cierre.md`
+- [ ] 5.2 (en `rediseno-revision-ux`) Recorrer las 10 superficies en ambos temas contra sus fichas; verificar contraste, estados sin color y sin emojis
+- [ ] 5.3 (en `rediseno-revision-ux`) `openspec validate rediseno-plancha --strict`
+- [ ] 5.4 Con orden del operador y la auditoría 5.0b.14 aprobada: merge de `rediseno-revision-ux` a `main`, que lleva todo `rediseno` y reemplaza al merge de `rediseno` (cambio del operador 2026-10-12; `openspec/commit.md` «Ramas derivadas», punto 4); lo que se commitee solo en `rediseno` se mergea antes en la rama. Versión minor en el commit siguiente (`openspec/commit.md`, paso 4) y archivo del change
 - [ ] 5.5 Recordatorio del usuario (2026-10-11): después del merge de 5.4, recordarle cambiar los mensajes de los banners (nota del creador y los que sume el sistema de la 3.14). El texto lo da el usuario
 
 ## 6. Después del merge (fuera de este change)
