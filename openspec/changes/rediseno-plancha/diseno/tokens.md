@@ -443,7 +443,7 @@ node -e "const {plancha:p}=require('./src/theme/colores');const l=h=>{const c=[1
 
 | # | Par | Umbral | Uso | Razón | Cumple |
 |---|---|---|---|---|---|
-| A1 | `oscuro.tintaSec` sobre `iconoFondo` | 4,50:1 | Tagline del splash nativo (`App.js`) sobre el fondo de app | 7,51 | sí |
+| A1 | `oscuro.tintaSec` sobre `iconoFondo` | 4,50:1 | Sin uso tras `REV-2` (retira el splash de `App.js` con su tagline: a.2, fila «Splash de `App.js`»). Se conserva como informativo | 7,51 | sí |
 | A2 | `oscuro.tinta` sobre `iconoFondo` | 3,00:1 | Trazo de la "pK" del ícono sobre su fondo (logotipo: informativo) | 15,97 | sí |
 | A3 | `oscuro.acento` sobre `iconoFondo` | 3,00:1 | Punto teal del ícono sobre su fondo (informativo) | 9,48 | sí |
 

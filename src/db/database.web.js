@@ -138,9 +138,14 @@ export async function resetStats(materiaId) {
 
 // ── Settings: globales, no namespaceados ──────────────────────────────────
 
-export async function getSetting(key, defaultValue = null) {
+// Lectura síncrona: el tema guardado tiene que estar en el primer render, sin un await.
+export function getSettingSync(key, defaultValue = null) {
   const settings = load(SETTINGS_KEY) || {};
   return key in settings ? settings[key] : defaultValue;
+}
+
+export async function getSetting(key, defaultValue = null) {
+  return getSettingSync(key, defaultValue);
 }
 
 export async function saveSetting(key, value) {

@@ -3,10 +3,10 @@
 // Binario a propósito: el usuario prefiere activarlo con un switch y no que la
 // app siga al sistema por su cuenta. El default es claro, así que nadie se
 // encuentra la app oscura sin haberlo pedido.
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import { useColorScheme } from 'nativewind';
-import { getSetting, saveSetting } from '../db/database';
+import { getSettingSync, saveSetting } from '../db/database';
 
 const POR_DEFECTO = 'claro';
 
@@ -20,24 +20,28 @@ function aplicar(esOscuro, setColorScheme) {
   document.documentElement.classList.toggle('dark', esOscuro);
 }
 
+// El tema guardado se lee de forma síncrona: el primer cuadro que React pinta ya es el
+// tema elegido. Una clave ausente cae en el default; también cae acá 'sistema', que fue
+// un valor válido en una versión anterior de este change.
+function temaGuardadoOscuro() {
+  return getSettingSync('tema', POR_DEFECTO) === 'oscuro';
+}
+
+// En web, SafeAreaProvider monta su contenedor en un commit anterior al de este proveedor:
+// la clase `dark` tiene que estar puesta antes de cualquier commit, no solo antes de este.
+if (Platform.OS === 'web' && typeof document !== 'undefined') {
+  document.documentElement.classList.toggle('dark', temaGuardadoOscuro());
+}
+
 export function TemaProvider({ children }) {
   const { setColorScheme } = useColorScheme();
-  const [oscuro, setOscuroState] = useState(false);
+  const [oscuro, setOscuroState] = useState(temaGuardadoOscuro);
   const [cargado, setCargado] = useState(false);
 
-  useEffect(() => {
-    let vivo = true;
-    (async () => {
-      // Una clave ausente cae en el default. También cae acá 'sistema', que fue
-      // un valor válido en una versión anterior de este change.
-      const guardado = await getSetting('tema', POR_DEFECTO);
-      const esOscuro = guardado === 'oscuro';
-      if (!vivo) return;
-      setOscuroState(esOscuro);
-      aplicar(esOscuro, setColorScheme);
-      setCargado(true);
-    })();
-    return () => { vivo = false; };
+  // Antes del primer cuadro pintado: la clase `dark` de html y el esquema de NativeWind.
+  useLayoutEffect(() => {
+    aplicar(oscuro, setColorScheme);
+    setCargado(true);
   }, []);
 
   async function setOscuro(valor) {

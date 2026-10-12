@@ -42,6 +42,7 @@ if ((html.match(/<link[^>]*href="\/favicon\.ico"[^>]*>/g) || []).some(esLinkAjen
 const pwaTags = `
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="${plancha.claro.fondo}">
+    <style>html{background-color:${plancha.claro.fondo};color-scheme:light}html.dark{background-color:${plancha.oscuro.fondo};color-scheme:dark}</style>
     <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">

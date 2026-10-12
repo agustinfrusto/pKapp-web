@@ -5,7 +5,7 @@ const fs = require('fs');
 const zlib = require('zlib');
 const path = require('path');
 const { plancha } = require('../../../src/theme/colores');
-const { abrirMarco, clicEnMarco, EN_MARCO } = require('./comunes');
+const { abrirMarco, clicEnMarco, EN_MARCO, esperarSelector } = require('./comunes');
 
 const RAIZ = path.resolve(__dirname, '..', '..', '..');
 const MAESTRO_ICO = path.join(RAIZ, 'openspec', 'changes', 'rediseno-plancha', 'diseno', 'favicon', 'FAV-1X-P1.ico');
@@ -219,6 +219,8 @@ async function inyeccionIdempotente(pagina, base, t) {
       html.match(/<link[^>]*href="\/favicon\.ico"[^>]*>/g)?.length || 0, 1);
     t.ok('el link que queda es el nuestro, con sizes="16x16 32x32 48x48"',
       /<link[^>]*href="\/favicon\.ico"[^>]*sizes="16x16 32x32 48x48"/.test(html), true);
+    t.ok('tras dos corridas queda exactamente un <style> con color-scheme',
+      [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].filter((m) => /color-scheme/.test(m[1])).length, 1);
   } finally {
     fs.rmSync(copia, { recursive: true, force: true });
   }
@@ -271,6 +273,180 @@ async function jsonContraTokens(pagina, base, t) {
     esPng ? dimensionesPng(cuerpoFavicon) : 'ausente o no es PNG', '48x48');
 }
 
+// REV-2 (5.0b.2), aceptación (1): ningún elemento agregado bajo #root pinta `manifestFondo` al
+// cargar con el tema claro. Versión determinista de la secuencia de cuadros: un MutationObserver
+// instalado antes del documento mira cada elemento que entra (y sus descendientes) apenas se agrega.
+const FONDO_DEL_SPLASH = 'rgb(11, 13, 16)';   // plancha.oscuro.manifestFondo
+const OBSERVAR_CUADROS = `(function () {
+  window.__cuadrosOscuros = [];
+  const raiz = () => document.getElementById('root');
+  const revisar = (el) => {
+    if (el.nodeType !== 1) return;
+    const r = raiz();
+    if (!r || !r.contains(el)) return;
+    for (const n of [el, ...el.querySelectorAll('*')]) {
+      if (getComputedStyle(n).backgroundColor === ${JSON.stringify(FONDO_DEL_SPLASH)}) {
+        window.__cuadrosOscuros.push(n.tagName + ':' + (n.className || '').toString().slice(0, 40));
+      }
+    }
+  };
+  new MutationObserver((lista) => {
+    for (const m of lista) m.addedNodes.forEach(revisar);
+  }).observe(document, { childList: true, subtree: true });
+})()`;
+
+async function sinCuadroOscuroAlCargar(pagina, base, t) {
+  t.ok('el fondo del splash retirado es el de plancha.oscuro.manifestFondo',
+    FONDO_DEL_SPLASH, aRgb(plancha.oscuro.manifestFondo));
+  // Perfil en claro: se parte de una página del mismo origen sin la app.
+  await pagina.ir(base + '/favicon.png');
+  await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
+  await pagina.evaluar(`(function () {
+    const ajustes = JSON.parse(localStorage.getItem('pkapp_settings') || '{}');
+    delete ajustes.tema;
+    localStorage.setItem('pkapp_settings', JSON.stringify(ajustes));
+  })()`);
+  const { identifier } = await pagina.enviar('Page.addScriptToEvaluateOnNewDocument', { source: OBSERVAR_CUADROS });
+  try {
+    await pagina.ir(base + '/');
+    t.ok('llegó al selector de materia', await esperarSelector(pagina), true);
+    t.ok('ningún elemento bajo #root pintó manifestFondo al cargar con el tema claro',
+      await pagina.evaluar('JSON.stringify(window.__cuadrosOscuros)'), '[]');
+  } finally {
+    await pagina.enviar('Page.removeScriptToEvaluateOnNewDocument', { identifier });
+  }
+}
+
+// REV-2 (5.0b.2), hallazgo 1: «el primer cuadro que React pinta es la app, en el tema guardado»
+// (tokens.md a.2, Vacios.md V19) también en oscuro. Registra cada elemento agregado bajo #root
+// cuando `html` todavía no lleva la clase `dark`; con el tema oscuro guardado debe quedar vacío.
+const OBSERVAR_CLARO_EN_OSCURO = `(function () {
+  window.__cuadrosClaros = [];
+  const revisar = (el) => {
+    if (el.nodeType !== 1) return;
+    const r = document.getElementById('root');
+    if (!r || el === r || !r.contains(el)) return;
+    if (document.documentElement.classList.contains('dark')) return;
+    for (const n of [el, ...el.querySelectorAll('*')]) {
+      window.__cuadrosClaros.push(n.tagName + ':' + (n.className || '').toString().slice(0, 40));
+    }
+  };
+  new MutationObserver((lista) => {
+    for (const m of lista) m.addedNodes.forEach(revisar);
+  }).observe(document, { childList: true, subtree: true });
+})()`;
+
+async function primerCuadroEnElTemaGuardado(pagina, base, t) {
+  const sembrar = (valor) => pagina.evaluar(`(function () {
+    const ajustes = JSON.parse(localStorage.getItem('pkapp_settings') || '{}');
+    ${valor === null ? 'delete ajustes.tema;' : `ajustes.tema = ${JSON.stringify(valor)};`}
+    localStorage.setItem('pkapp_settings', JSON.stringify(ajustes));
+  })()`);
+  await pagina.ir(base + '/favicon.png');
+  await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
+  await sembrar('oscuro');
+  const { identifier } = await pagina.enviar('Page.addScriptToEvaluateOnNewDocument', { source: OBSERVAR_CLARO_EN_OSCURO });
+  try {
+    await pagina.ir(base + '/');
+    t.ok('llegó al selector de materia', await esperarSelector(pagina), true);
+    t.ok('con el tema oscuro guardado, ningún elemento bajo #root se agregó sin la clase dark en html',
+      await pagina.evaluar('JSON.stringify(window.__cuadrosClaros.slice(0, 3))'), '[]');
+  } finally {
+    await pagina.enviar('Page.removeScriptToEvaluateOnNewDocument', { identifier });
+    await sembrar(null);
+  }
+}
+
+// inject-preload.js sobre un dist/ mínimo en el directorio temporal; no toca el dist servido.
+async function preloadDeMaterias(pagina, base, t) {
+  const os = require('os');
+  const { spawnSync } = require('child_process');
+  const correr = (dist) => spawnSync(process.execPath, [path.join(RAIZ, 'scripts', 'inject-preload.js')],
+    { env: { ...process.env, PKAPP_DIST: dist }, encoding: 'utf8' });
+  const crear = (head, materias) => {
+    const dist = fs.mkdtempSync(path.join(os.tmpdir(), 'pkapp-preload-'));
+    fs.writeFileSync(path.join(dist, 'index.html'), `<html><head>${head}</head><body></body></html>`);
+    if (materias.length) {
+      const dir = path.join(dist, 'assets', 'src', 'assets', 'materias');
+      fs.mkdirSync(dir, { recursive: true });
+      for (const f of materias) fs.writeFileSync(path.join(dir, f), '');
+    }
+    return dist;
+  };
+  const cuenta = (html) => html.match(/<link rel="preload" as="image" href="\/assets\/src\/assets\/materias\/[^"]+">/g)?.length || 0;
+  const dirs = [crear('', []), crear('<link rel="preload" as="image" href="/ajeno.png">', ['a.png', 'b.png'])];
+  try {
+    const sinImagenes = correr(dirs[0]);
+    t.ok('sin imágenes de materia, inject-preload.js termina con exit distinto de 0', sinImagenes.status !== 0, true);
+
+    const conAjeno = correr(dirs[1]);
+    t.ok('con un preload as="image" ajeno ya presente, inject-preload.js termina en exit 0', conAjeno.status, 0);
+    const html = fs.readFileSync(path.join(dirs[1], 'index.html'), 'utf8');
+    t.ok('con un preload as="image" ajeno, igual inyecta el de cada imagen de materia', cuenta(html), 2);
+    const segunda = correr(dirs[1]);
+    t.ok('una segunda corrida termina en exit 0', segunda.status, 0);
+    t.ok('tras dos corridas quedan exactamente los preloads de materia, sin duplicar',
+      cuenta(fs.readFileSync(path.join(dirs[1], 'index.html'), 'utf8')), 2);
+  } finally {
+    for (const d of dirs) fs.rmSync(d, { recursive: true, force: true });
+  }
+}
+
+const FONDO_Y_ESQUEMA = EN_MARCO(`
+  const e = w.getComputedStyle(d.documentElement);
+  return JSON.stringify([e.colorScheme, e.backgroundColor]);
+`);
+
+const aRgb = (hex) => {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgb(${n >> 16}, ${(n >> 8) & 255}, ${n & 255})`;
+};
+
+async function fondoYColorSchemeDelDocumento(pagina, base, t) {
+  t.ok('abrió la app en el marco', await abrirMarco(pagina, base, 390), true);
+  t.ok('en claro: color-scheme light y fondo claro.fondo',
+    JSON.parse(await pagina.evaluar(FONDO_Y_ESQUEMA)).join('|'), `light|${aRgb(plancha.claro.fondo)}`);
+
+  await clicEnMarco(pagina, 'oscuro');
+  t.ok('en oscuro: color-scheme dark y fondo oscuro.fondo',
+    await pagina.esperarA(async () =>
+      JSON.parse(await pagina.evaluar(FONDO_Y_ESQUEMA)).join('|') === `dark|${aRgb(plancha.oscuro.fondo)}`), true);
+
+  await clicEnMarco(pagina, 'claro');
+  t.ok('al volver a Claro, color-scheme light y fondo claro.fondo',
+    await pagina.esperarA(async () =>
+      JSON.parse(await pagina.evaluar(FONDO_Y_ESQUEMA)).join('|') === `light|${aRgb(plancha.claro.fondo)}`), true);
+}
+
+async function styleDelHeadServido(pagina, base, t) {
+  const html = await fetch(base + '/').then((r) => r.text());
+  const estilos = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)]
+    .map((m) => m[1]).filter((css) => /color-scheme/.test(css));
+  t.ok('el HTML servido trae un único <style> con color-scheme', estilos.length, 1);
+  const css = estilos[0] || '';
+  t.ok('html: background-color = claro.fondo y color-scheme light',
+    css.includes(`html{background-color:${plancha.claro.fondo};color-scheme:light}`), true);
+  t.ok('html.dark: background-color = oscuro.fondo y color-scheme dark',
+    css.includes(`html.dark{background-color:${plancha.oscuro.fondo};color-scheme:dark}`), true);
+}
+
+// Aceptación (4): sin `Animated` en src ni en App.js (el splash se retiró entero).
+async function sinAnimatedEnLaApp(pagina, base, t) {
+  const hallazgos = [];
+  const recorrer = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const ruta = path.join(dir, e.name);
+      if (e.isDirectory()) recorrer(ruta);
+      else if (/\.(js|jsx|ts|tsx)$/.test(e.name) && /\bAnimated\b/.test(fs.readFileSync(ruta, 'utf8'))) {
+        hallazgos.push(path.relative(RAIZ, ruta));
+      }
+    }
+  };
+  recorrer(path.join(RAIZ, 'src'));
+  if (/\bAnimated\b/.test(fs.readFileSync(path.join(RAIZ, 'App.js'), 'utf8'))) hallazgos.push('App.js');
+  t.ok('ni src ni App.js mencionan Animated', hallazgos.join(','), '');
+}
+
 module.exports = [
   { nombre: 'PWA: apple-touch-icon de 180 px', correr: iconoDeIos },
   { nombre: 'PWA: manifest con propósitos any y maskable y colores de los tokens', correr: manifestDeLaApp },
@@ -278,4 +454,10 @@ module.exports = [
   { nombre: 'PWA: inject-pwa.js es idempotente', correr: inyeccionIdempotente },
   { nombre: 'PWA: theme-color sigue al tema activo', correr: themeColorSigueAlTema },
   { nombre: 'PWA: manifest.json y app.json coinciden con los tokens', correr: jsonContraTokens },
+  { nombre: 'PWA: sin cuadro oscuro al cargar con el tema claro', correr: sinCuadroOscuroAlCargar },
+  { nombre: 'PWA: el primer cuadro de React ya está en el tema oscuro guardado', correr: primerCuadroEnElTemaGuardado },
+  { nombre: 'PWA: inject-preload.js inyecta las imágenes de materia y falla sin ellas', correr: preloadDeMaterias },
+  { nombre: 'PWA: html lleva fondo y color-scheme del tema activo', correr: fondoYColorSchemeDelDocumento },
+  { nombre: 'PWA: el index.html servido trae el <style> del fondo', correr: styleDelHeadServido },
+  { nombre: 'PWA: la app no usa Animated (splash retirado)', correr: sinAnimatedEnLaApp },
 ];
