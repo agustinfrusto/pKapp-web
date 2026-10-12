@@ -74,6 +74,7 @@ Motivo: Umami muestra una parte grande de visitas desde Windows 10/11 de escrito
 - [ ] 5.2 Recorrer las 10 superficies en ambos temas contra sus fichas; verificar contraste, estados sin color y sin emojis
 - [ ] 5.3 `openspec validate rediseno-plancha --strict`
 - [ ] 5.4 Con orden del operador: merge de `rediseno` a `main`, versión minor en el commit siguiente (`openspec/commit.md`, paso 4) y archivo del change
+- [ ] 5.5 Recordatorio del usuario (2026-10-11): después del merge de 5.4, recordarle cambiar los mensajes de los banners (nota del creador y los que sume el sistema de la 3.14). El texto lo da el usuario
 
 ## 6. Después del merge (fuera de este change)
 
