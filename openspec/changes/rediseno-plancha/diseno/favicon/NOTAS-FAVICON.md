@@ -15,6 +15,7 @@
 | Ícono maskable | `icon-maskable.svg` | `icon-maskable-512.png` | `generar.py` | 2026-10-10 |
 | Lámina de los íconos PWA | `prueba.html` | `favicon-prueba.png` (nombre histórico) | `generar.py` | 2026-10-10; sin los paneles de pestaña desde la 4.2d |
 | Prueba del favicon | `prueba-42.html` | `prueba-42-claro.png`, `prueba-42-oscuro.png`; medidas en `FAV-metricas.json` | `generar-42.py` | 2026-10-11 |
+| Favicon a 1×: **FAV-1X-P1 vigente** (usuario, 2026-10-12) | `FAV-P2-16/32/48.png` | `FAV-1X-P1.ico`, `FAV-1X-P2-32.png`; medidas en `FAV-1X-metricas.json` y `FAV-1X-chrome.json` | `generar-42e.py` | 2026-10-11; § «4.2e» |
 
 Una sola fuente por pieza: el favicon de la pestaña sale únicamente de `FAV-P2*.svg`; `favicon.svg` es la maestra de los íconos PWA y ya no tiene versión «chica». Los PNG están ignorados por `.gitignore` y se regeneran; los publicados viven en `public/` y `src/assets/`.
 
@@ -78,7 +79,7 @@ Es la tinta del ícono: el splash de la PWA queda continuo. Los tokens `manifest
 | `FAV-P2-32.png` | `public/favicon-32.png` (`<link rel="icon" sizes="32x32">`) | 4.2c |
 | `FAV-P2-48.png` | `public/favicon.png` y `src/assets/favicon.png` (`app.json`, `web.favicon`) | 4.2c |
 
-El cableado de la 4.1 no cambia con la 4.2: solo se reemplazan tres archivos, con los mismos nombres. No usar `FAV-P2.svg` como `<link rel="icon">`: a 16 px el maestro vectorial vuelve a tener medios tonos; los PNG con `sizes` explícito son los que llevan el maestro de píxel.
+El cableado de la 4.1 no cambia con la 4.2: solo se reemplazan tres archivos, con los mismos nombres. No usar `FAV-P2.svg` como `<link rel="icon">`: Chrome lo rasteriza a 32 px y lo reduce, y a 1× el maestro vectorial vuelve a tener medios tonos (13 de 95, medido en la 4.2e). Los PNG con `sizes` explícito llevan el maestro de píxel en el archivo, pero Chrome baja solo el de 32 px y deriva el de 16 por reducción: a 1× no llega (§ «4.2e»).
 
 ---
 
@@ -146,7 +147,7 @@ Lectura: sobre pestaña clara es un bloque de tinta; sobre oscura el cuadrado ca
 | Escala | Qué pasa |
 |---|---|
 | 2× | Chrome pinta el PNG de 32 px a 1:1: diferencia media 0,24 de 255 con la fuente (el teal sale desplazado en la captura porque queda en el perfil de la pantalla; convertido a sRGB vuelve al original). La maqueta es fiel |
-| 1× (`--force-device-scale-factor=1`) | Chrome **no usa el PNG de 16 px**: dibuja el de 32 px reducido a 16 px. El maestro de píxel no llega a esa pantalla y FAV-P2 queda con 38 de 107 px de trazo en medio tono (36 %), como el favicon anterior |
+| 1× (`--force-device-scale-factor=1`) | Chrome **no usa el PNG de 16 px**: dibuja el de 32 px reducido a 16 px. El maestro de píxel no llega a esa pantalla y FAV-P2 queda con 38 de 107 px de trazo en medio tono (36 %), como el favicon anterior. La 4.2e lo midió sobre la base `Favicons` de Chrome: 40 de 107 (37 %), y Chrome **ni siquiera pide** `favicon-16.png` |
 
 ### Descartadas
 
@@ -170,5 +171,80 @@ Cada una, en una línea. El análisis completo está en el reporte de la 4.2 (`.
 
 | Tema | Detalle |
 |---|---|
-| Maestro de 32 px que se reduzca limpio a 16 | A 1× Chrome/macOS reduce el PNG de 32 px y no usa el de 16 (4.2b). Un maestro de 32 px diseñado para reducirse limpio a 16 sería otra tarea, sin fecha. Costo medido sobre FAV-P2: con el maestro de 16 duplicado píxel a píxel como PNG de 32, la reducción deja 14 % de medios tonos (contra 36 %), pero el favicon de 2× perdería el contorno de Plex |
-| Safari, Windows y Linux | No se probaron: el pedido de la 4.2b era Chrome |
+| Maestro de 32 px que se reduzca limpio a 16 | Resuelto en § «4.2e»: el usuario eligió **FAV-1X-P1** (2026-10-12). Con el maestro de 16 duplicado como PNG de 32 la reducción deja 13 de 95 px en medio tono (14 %, contra 37 %) y el 2× pierde el contorno de Plex; el `.ico` de la P1 da 0 y no pierde nada |
+| Safari, Windows y Linux | Windows y Linux: por el código de Chrome 155, la misma derivación a 1× (§ «4.2e»); no medidos ahí. Safari: no se probó |
+
+---
+
+## 4.2e · Favicon nítido a 1× (FAV-1X-P1 elegida)
+
+| Campo | Valor |
+|---|---|
+| Pedido | Usuario, 2026-10-11: adelantar el «maestro de 32 px que se reduzca limpio a 16» que dejó pendiente la 4.2d. Objetivo: FAV-P2 nítido en una pantalla de 1× sin empeorar el 2× |
+| Decisión | **FAV-1X-P1**, el usuario, **2026-10-12**: «vamos con FAV-1X-P1». FAV-1X-P2 y P3 quedan como registro, no vigentes |
+| Estado | Vigente. Integración: 4.2f (`public/favicon.ico` y el link con `sizes` primero en `inject-pwa.js`) y 4.2g (guarda idempotente) |
+| Recomendación | **FAV-1X-P1** (`.ico` de tres fotogramas): 0 medios tonos a 1× y bitmaps de 2× idénticos byte a byte a los de hoy |
+| Reproducir | `python3 -I generar-42e.py` (réplica del filtro de Chrome, sin Chrome) y `python3 -I generar-42e.py --chrome` (prueba seis cableados en un Chrome real, a 1× y a 2×, unos 30 s). Dos corridas dan los mismos bytes y un archivo solo se escribe si cambia |
+| Evidencia | `.orca/reports/rediseno-4.2e-favicon-1x.md` y la carpeta `.orca/reports/rediseno-4.2e-favicon-1x/`: capturas reales de la ventana (1× y 2×, claro y oscuro) y las herramientas. No versionadas |
+
+### Qué hace Chrome
+
+Medido sobre la base `Favicons` del perfil y los pedidos al servidor. Idéntico con `--force-device-scale-factor=1` y con `=2`.
+
+| Hecho | Medida |
+|---|---|
+| Baja **un solo** `<link rel="icon">` y deriva de él los dos bitmaps de la pestaña: 16 px para 1× y 32 px para 2× | Con el cableado de la 4.1 pide `favicon-32.png` y **nunca** `favicon-16.png`; invertir el orden de los `<link>` no cambia nada |
+| A 1× reduce el de 32 px con **Lanczos3 de Skia**, en punto fijo 16.14 | Réplica propia (`generar-42e.py`): los 768 valores del bitmap de 16 px que guardó Chrome, sin una diferencia |
+| Con un PNG de 16 px como único ícono, usa ese a 1× y lo **duplica por vecino más cercano** a 2× | Bitmap de 32 px = maestro de 16 ×2, byte a byte |
+| Con un `.ico` de fotogramas de 16 y 32 px toma el fotograma exacto de cada escala | 1× = FAV-P2-16 y 2× = FAV-P2-32, byte a byte |
+| Elige el `.ico` si entre sus `sizes` figura 16 (o `any`, o ninguno), esté antes o después de los PNG | Con `sizes="32x32"` empata con el PNG de 32 y **gana el PNG**: el `.ico` no se usa |
+| Un SVG se rasteriza una vez a 32 px y se reduce igual: no cabe un diseño por tamaño | 13 de 95 medios tonos a 1×; con `@media` por ancho, 42 de 107 |
+| Código de Chrome (tag 155.0.8059.40, leído vía WebFetch; extractos) | `GetFaviconScales`: 1× más cada escala soportada. `ResourceBundle::InitSharedInstance`: en escritorio soporta 1× y 2× sin mirar la pantalla (`ENABLE_HIDPI`). `FaviconHandler`: pide 16 y 32 px y baja el candidato de mayor puntaje; el siguiente solo si puntúa más. `GetResizedBitmap`: si el tamaño pedido es múltiplo entero, vecino más cercano; si no, `RESIZE_LANCZOS3` |
+
+### Propuestas
+
+Lo medido es lo que Chrome guarda y dibuja, frente a los maestros FAV-P2-16 y FAV-P2-32. «Medios tonos»: píxeles a más de 24/255 de todo color de la paleta (la vara de la 4.2b). La ficha describe la vigente y las tres con el mismo detalle (C2).
+
+| Id | Qué es | Archivos | Cableado | 1× (16 px) | 2× (32 px) |
+|---|---|---|---|---|---|
+| FAV-1X-P0 · vigente | PNG de 32 y PNG de 16 | `public/favicon-32.png`, `public/favicon-16.png` | los dos `<link>` de `scripts/inject-pwa.js` l. 42 y 43 | 40 de 107 (37 %); dif. media 22,5/255 con el maestro de 16 | contorno de Plex |
+| **FAV-1X-P1** · `.ico` de tres fotogramas | Fotogramas de 16 (maestro de píxel), 32 (contorno de Plex) y 48 px | `FAV-1X-P1.ico` (1,9 KB) → `public/favicon.ico` | `<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">` antes de los dos PNG, que quedan de respaldo | **0 de 92**; igual al maestro de 16 | **idéntico a P0** (mismo SHA-256) |
+| FAV-1X-P2 · solo el maestro de 16 | Un único PNG, el de 16 px | ninguno nuevo; `FAV-1X-P2-32.png` es la vista previa del 2× | se quita el `<link>` de 32x32 | **0 de 92** | maestro de 16 duplicado: dif. 17,0/255 con Plex y 123 de 1024 px a >24; aro y K de píxel |
+| FAV-1X-P3 · maestro de 32 duplicado | `favicon-32.png` pasa a ser el de 16 duplicado | `FAV-1X-P2-32.png` → `public/favicon-32.png` | ninguno | 13 de 95 (14 %); dif. 9,5/255 | igual que P2 |
+
+| Lectura | |
+|---|---|
+| P1 | Única que mejora el 1× sin costo en el 2×. Cuesta un archivo nuevo, una línea en `inject-pwa.js` y dos aserciones de e2e |
+| P2 | El mejor 1× posible con un PNG, pero el favicon de 2× deja de tener el contorno de Plex: se ve como el de 16 px ampliado, que es lo que preveía la 4.2b |
+| P3 | No toca el cableado. Peor que P2 a 1× (13 contra 0 medios tonos) y con el mismo costo en 2× |
+
+### Descartadas con medida
+
+| Opción | Medida | Motivo |
+|---|---|---|
+| Maestro de 32 «exacto»: el más cercano a Plex tal que Chrome devuelva el de 16 | 1×: 0 de 92. 2×: dif. 31/255 con Plex, 376 px a >24 y 308 de 409 en medio tono | Ruido en toda la imagen: peor que duplicar |
+| Mezcla de Plex con la corrección (peso λ de 0,02 a 3,2) | 1×: de 3 a 39 medios tonos de ~100. 2×: dif. de 24,8 a 1,7/255 | Ningún punto supera al duplicado: con λ = 0,1 (2×: 17,6/255, como duplicar) quedan 32 medios tonos contra 13; con λ = 0,02 quedan 3, pero el 2× cuesta 24,8/255 |
+| Duplicado con corrección del «ringing» de Lanczos | 1×: 0 de 92. 2×: dif. de 13 a 17/255 con el duplicado | El ruido aparece en todo el fondo |
+| SVG de 16 px (`sizes="any"`) | 1×: 13 de 95. 2×: duplicado | No mejora a P3 |
+| SVG con `@media` por ancho | 1×: 42 de 107 | Chrome rasteriza a 32 px y reduce: no hay dos diseños |
+| `.ico` con `sizes="32x32"` junto a los PNG | 1×: 40 de 107 | Gana el PNG de 32: el `.ico` no se usa |
+| `.ico` que genera Expo hoy (`dist/favicon.ico`, reducido del PNG de 48) | 1×: 26 de 98. 2×: dif. 18/255 con Plex | Más blando que FAV-P2; el build lo pisa con `public/favicon.ico` si existe |
+
+### Si el usuario aprueba una (no aplicado)
+
+| Id | Cambio | Dueño |
+|---|---|---|
+| P1 | `public/favicon.ico` ← `FAV-1X-P1.ico`. `scripts/inject-pwa.js` l. 42 y 43: el `<link>` del `.ico` primero, los dos PNG a continuación. El build ya copia `public/` sobre `dist/` después de `expo export`, así que pisa el `.ico` de Expo. `tools/e2e/suites/pwa.js` l. 135 a 138 exige hoy que el `<head>` y el HTML **no** declaren `/favicon.ico` (guarda contra el link de Expo): pasa a exigirlo una sola vez, con `sizes`, y a verificar que `/favicon.ico` responde 200 con fotogramas de 16, 32 y 48 px y el de 16 con la paleta exacta | Ingeniero (spec) y Programador |
+| P2 | Quitar el `<link>` de 32x32 (`inject-pwa.js` l. 42) y las aserciones de `favicon-32.png` en `pwa.js` (l. 140, 141 a 147 y 153) | Ingeniero y Programador |
+| P3 | Copiar `FAV-1X-P2-32.png` a `public/favicon-32.png`. El e2e sigue en verde (pide acento en ese archivo y el duplicado lo tiene) | Programador |
+| Resuelta | Registrar id, decisión y fecha, dejar solo la vigente y borrar las otras de esta carpeta (C2) | Ingeniero |
+
+### Límites
+
+| Límite | Detalle |
+|---|---|
+| Una máquina | Un Mac con pantalla Retina. El 1× es Chrome rasterizando a 1× y macOS ampliando ×2: la captura «1× cruda» está suavizada por macOS. El bitmap exacto es el de la base `Favicons`; la captura a resolución nominal (ScreenCaptureKit) sale remuestreada y no se usa para medir |
+| Windows y Linux | El código de Chrome pide 16 y 32 px también ahí, así que a 1× hereda la misma reducción (P0 queda blando). No medido en esas plataformas |
+| 125 % y 150 % de Windows | No medido |
+| Safari y Firefox | No probados: Safari no admite un perfil descartable sin tocar el del usuario y Firefox no está instalado. El `.ico` es el formato más antiguo y universal; los PNG quedan de respaldo en P1 |
+| Actualización en navegadores con caché | P1 declara una URL nueva (`/favicon.ico`): Chrome debería refrescar el ícono en la próxima visita. P3 cambia el contenido de la misma URL y podría tardar. No medido |

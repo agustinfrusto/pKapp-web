@@ -8,10 +8,13 @@ const { plancha } = require('../../../src/theme/colores');
 const { abrirMarco, clicEnMarco, EN_MARCO } = require('./comunes');
 
 const RAIZ = path.resolve(__dirname, '..', '..', '..');
+const MAESTRO_ICO = path.join(RAIZ, 'openspec', 'changes', 'rediseno-plancha', 'diseno', 'favicon', 'FAV-1X-P1.ico');
 const leerJson = (...partes) => JSON.parse(fs.readFileSync(path.join(RAIZ, ...partes), 'utf8'));
 
 // Ancho y alto de un PNG: los 8 bytes de firma, el chunk IHDR y luego dos enteros de 32 bits.
-const dimensionesPng = (buffer) => `${buffer.readUInt32BE(16)}x${buffer.readUInt32BE(20)}`;
+// Un buffer de menos de 24 bytes (truncado) no tiene IHDR: se informa en vez de lanzar.
+const dimensionesPng = (buffer) =>
+  buffer.length < 24 ? 'truncado' : `${buffer.readUInt32BE(16)}x${buffer.readUInt32BE(20)}`;
 
 // Colores distintos de un PNG RGB/RGBA de 8 bits sin entrelazado (los favicon): set de «#RRGGBB».
 // Los píxeles con alfa 0 no cuentan; un alfa parcial se informa como «#RRGGBB/aa».
@@ -65,6 +68,25 @@ function decodificarColores(buffer) {
     colores.add(alfa === 255 ? hex : `${hex}/${alfa.toString(16)}`);
   }
   return colores;
+}
+
+// Directorio de un .ico: 6 bytes de cabecera y 16 por entrada (ancho, alto con 0 = 256, ..., tamaño
+// y desplazamiento de 32 bits). Devuelve [{ ancho, alto, datos }] o null si no es un ICO íntegro.
+function fotogramasDeIco(buffer) {
+  if (buffer.length < 6 || buffer.readUInt16LE(0) !== 0 || buffer.readUInt16LE(2) !== 1) return null;
+  const cantidad = buffer.readUInt16LE(4);
+  const fotogramas = [];
+  for (let i = 0; i < cantidad; i++) {
+    const e = 6 + i * 16;
+    if (e + 16 > buffer.length) return null;
+    const tam = buffer.readUInt32LE(e + 8);
+    const desde = buffer.readUInt32LE(e + 12);
+    if (desde + tam > buffer.length) return null;
+    fotogramas.push({
+      ancho: buffer[e] || 256, alto: buffer[e + 1] || 256, datos: buffer.subarray(desde, desde + tam),
+    });
+  }
+  return fotogramas;
 }
 
 // Paleta del favicon FAV-P2 (4.2c): fondo, tinta y acento, sin medios tonos.
@@ -130,12 +152,33 @@ async function faviconDelHead(pagina, base, t) {
   await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
   const enlaces = await pagina.evaluar(
     `JSON.stringify(Array.from(document.querySelectorAll('link[rel~="icon"]'))
-      .map((n) => [n.getAttribute('href'), n.getAttribute('sizes')]))`);
+      .map((n) => [n.getAttribute('href'), n.getAttribute('sizes'), n.getAttribute('rel')]))`);
   const lista = JSON.parse(enlaces);
-  t.ok('el <head> no declara /favicon.ico (el link de Expo está quitado)',
-    lista.some(([h]) => h === '/favicon.ico'), false);
-  t.ok('el HTML servido no declara /favicon.ico',
-    /href="\/favicon\.ico"/.test(await fetch(base + '/').then((r) => r.text())), false);
+  // Marca FAV-1X-P1 (4.2f): el .ico de 16/32/48 px, declarado primero, antes de los PNG.
+  const iconos = lista.filter(([, , rel]) => /\bicon\b/.test(rel || ''));
+  const declaraIco = iconos.filter(([h]) => h === '/favicon.ico');
+  t.ok('el <head> declara exactamente un link a /favicon.ico', declaraIco.length, 1);
+  t.ok('el link a /favicon.ico declara sizes="16x16 32x32 48x48"', (declaraIco[0] || [])[1], '16x16 32x32 48x48');
+  t.ok('el link a /favicon.ico es el primero entre los rel="icon"', (iconos[0] || [])[0], '/favicon.ico');
+  t.ok('el HTML servido declara /favicon.ico una sola vez',
+    (await fetch(base + '/').then((r) => r.text())).match(/href="\/favicon\.ico"/g)?.length || 0, 1);
+  const respIco = await fetch(base + '/favicon.ico');
+  const ico = Buffer.from(await respIco.arrayBuffer());
+  t.ok('/favicon.ico responde 200', respIco.status, 200);
+  const fotogramas = fotogramasDeIco(ico);
+  t.ok('/favicon.ico trae tres fotogramas de 16, 32 y 48 px',
+    fotogramas ? fotogramas.map((f) => `${f.ancho}x${f.alto}`).join(',') : 'no es un ICO', '16x16,32x32,48x48');
+  t.ok('los fotogramas del .ico son PNG RGBA de su tamaño',
+    fotogramas ? fotogramas.map((f) => dimensionesPng(f.datos) === `${f.ancho}x${f.alto}` && f.datos[25] === 6).join(',') : 'no es un ICO',
+    'true,true,true');
+  const f16 = fotogramas && fotogramas.find((f) => f.ancho === 16);
+  t.ok('el fotograma de 16 px usa los tres colores de la paleta FAV-P2 y ninguno más (sin medios tonos)',
+    f16 ? problemaFavicon16(coloresDePng(f16.datos)) : 'sin fotograma de 16 px', '');
+  t.ok('el .ico servido es el de public/ y no el de Expo',
+    fs.existsSync(path.join(RAIZ, 'public', 'favicon.ico'))
+      && ico.equals(fs.readFileSync(path.join(RAIZ, 'public', 'favicon.ico'))), true);
+  t.ok('el .ico servido es el maestro FAV-1X-P1.ico byte a byte',
+    fs.existsSync(MAESTRO_ICO) && ico.equals(fs.readFileSync(MAESTRO_ICO)), true);
   t.ok('el <head> declara el favicon de 16 px', lista.some(([h, s]) => h === '/favicon-16.png' && s === '16x16'), true);
   t.ok('el <head> declara el favicon de 32 px', lista.some(([h, s]) => h === '/favicon-32.png' && s === '32x32'), true);
   for (const archivo of ['favicon-16.png', 'favicon-32.png', 'favicon.png']) {
@@ -153,6 +196,31 @@ async function faviconDelHead(pagina, base, t) {
   for (const archivo of ['favicon-32.png', 'favicon.png']) {
     const colores = await coloresServidos(archivo);
     t.ok(`/${archivo} tiene píxeles del acento #5CC3D6`, colores ? colores.has('#5CC3D6') : false, true);
+  }
+}
+
+// inject-pwa.js corrido por segunda vez sobre un dist/ ya procesado: exit 0 y un solo link al .ico.
+// Trabaja sobre una copia del index.html en el directorio temporal; no toca el dist servido.
+async function inyeccionIdempotente(pagina, base, t) {
+  const os = require('os');
+  const { spawnSync } = require('child_process');
+  const origen = path.resolve(RAIZ, process.env.PKAPP_DIST || 'dist', 'index.html');
+  const copia = fs.mkdtempSync(path.join(os.tmpdir(), 'pkapp-inject-'));
+  try {
+    fs.copyFileSync(origen, path.join(copia, 'index.html'));
+    const correr = () => spawnSync(process.execPath, [path.join(RAIZ, 'scripts', 'inject-pwa.js')],
+      { env: { ...process.env, PKAPP_DIST: copia, CF_PAGES_BRANCH: '' }, encoding: 'utf8' });
+    const primera = correr();
+    const segunda = correr();
+    t.ok('inject-pwa.js termina en exit 0 sobre un index.html ya procesado', primera.status, 0);
+    t.ok('inject-pwa.js termina en exit 0 en una segunda corrida', segunda.status, 0);
+    const html = fs.readFileSync(path.join(copia, 'index.html'), 'utf8');
+    t.ok('tras dos corridas queda exactamente un link a /favicon.ico',
+      html.match(/<link[^>]*href="\/favicon\.ico"[^>]*>/g)?.length || 0, 1);
+    t.ok('el link que queda es el nuestro, con sizes="16x16 32x32 48x48"',
+      /<link[^>]*href="\/favicon\.ico"[^>]*sizes="16x16 32x32 48x48"/.test(html), true);
+  } finally {
+    fs.rmSync(copia, { recursive: true, force: true });
   }
 }
 
@@ -209,6 +277,7 @@ module.exports = [
   { nombre: 'PWA: apple-touch-icon de 180 px', correr: iconoDeIos },
   { nombre: 'PWA: manifest con propósitos any y maskable y colores de los tokens', correr: manifestDeLaApp },
   { nombre: 'PWA: favicon del head', correr: faviconDelHead },
+  { nombre: 'PWA: inject-pwa.js es idempotente', correr: inyeccionIdempotente },
   { nombre: 'PWA: theme-color sigue al tema activo', correr: themeColorSigueAlTema },
   { nombre: 'PWA: manifest.json y app.json coinciden con los tokens', correr: jsonContraTokens },
 ];

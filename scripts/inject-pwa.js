@@ -28,17 +28,21 @@ if (fs.existsSync(PUBLIC)) {
 // 2. Inyectar tags PWA en index.html
 let html = fs.readFileSync(indexHtml, 'utf8');
 
-// Expo declara <link rel="icon" href="/favicon.ico">: el navegador usaría ese .ico y no los PNG
-// de abajo. Se quita, y el build falla si el marcado de Expo cambió y el link sigue.
+// Con public/favicon.ico presente, Expo no declara link al .ico y copia el nuestro a dist/. Si
+// Expo volviera a declarar <link rel="icon" href="/favicon.ico"> (sin sizes), se quita aquí: es
+// defensa. El nuestro lleva sizes="16x16 32x32 48x48" detrás del href, no lo toca la regex y no
+// cuenta como link ajeno, así que una segunda corrida sobre el mismo dist/ es idempotente.
 html = html.replace(/<link\s+rel="icon"\s+href="\/favicon\.ico"\s*\/?>/g, '');
-if (/href="\/favicon\.ico"/.test(html)) {
-  console.error('inject-pwa: el index.html de Expo sigue declarando /favicon.ico; actualizá la regex.');
+const esLinkAjeno = (tag) => !/sizes="16x16 32x32 48x48"/.test(tag);
+if ((html.match(/<link[^>]*href="\/favicon\.ico"[^>]*>/g) || []).some(esLinkAjeno)) {
+  console.error('inject-pwa: el index.html de Expo declara /favicon.ico de otra forma; actualizá la regex.');
   process.exit(1);
 }
 
 const pwaTags = `
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="${plancha.claro.fondo}">
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
