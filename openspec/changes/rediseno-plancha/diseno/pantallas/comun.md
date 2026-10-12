@@ -8,7 +8,7 @@
 | Lo usan | `MateriaSelect.md`, `Home.md`, `TopicSelect.md`, `Quiz.md`, `Results.md`, `Stats.md` |
 | Resuelto en 1.3 | `AddQuestion.md`, `Revision.md`, `ExamenEnCurso.md`, `Settings.md`, `DonationBox.md`, `Vacios.md` y `Banners.md`; la distinción de parciales está en §12. Las referencias de las fichas de 1.2 apuntan a archivo y sección |
 | Glifos | Se nombran en §9, con su función y el porqué de su color; se dibujan en 1.4 |
-| Propuestas | §11 (`COMUN-P1`, `COMUN-P2`) y sección f de cada ficha. Aprobadas por el usuario el 2026-10-10 (D10). Lo conservado de `main` va en la sección h de cada ficha. Aprobadas el 2026-10-11: el escritorio de la tarea 3.10, en §7.2 (`ESC-P0`) y en la sección «Escritorio» de cada ficha (`ESC-P1` a `ESC-P8` y `ESC-P10` a `ESC-P12`; `ESC-P9`, rechazada), el selector de tema desplegable `ADD-P3` (§5.3 y `AddQuestion.md`; `ADD-P1`, rechazada), el grupo «Fuente» de TopicSelect, `TOPIC-P6` (`TopicSelect.md` f.1), y el relevamiento de «generada»: `HOME-P4` y `HOME-P5` (`Home.md`), `SET-P3` (`Settings.md`), `MATERIA-P4` (`MateriaSelect.md`; reemplaza a `MATERIA-P2`) y `VAC-P5` (`Vacios.md`) |
+| Propuestas | §11 (`COMUN-P1`, `COMUN-P2`) y sección f de cada ficha. Aprobadas por el usuario el 2026-10-10 (D10). Lo conservado de `main` va en la sección h de cada ficha. Aprobadas el 2026-10-11: el escritorio de la tarea 3.10, en §7.2 (`ESC-P0`) y en la sección «Escritorio» de cada ficha (`ESC-P1` a `ESC-P8` y `ESC-P10` a `ESC-P12`; `ESC-P9`, rechazada), el selector de tema desplegable `ADD-P3` (§5.3 y `AddQuestion.md`; `ADD-P1`, rechazada), el grupo «Fuente» de TopicSelect, `TOPIC-P6` (`TopicSelect.md` f.1), y el relevamiento de «generada»: `HOME-P4` y `HOME-P5` (`Home.md`), `SET-P3` (`Settings.md`), `MATERIA-P4` (`MateriaSelect.md`; reemplaza a `MATERIA-P2`) y `VAC-P5` (`Vacios.md`), y el carrusel de avisos `BAN-P2` (`Banners.md` §3.14; `BAN-P3` y `BAN-P4`, no elegidas) |
 | Orden de lectura | Primero este archivo; cada ficha lo cita por sección (§N) y por clase de control (K1 a K7) |
 
 ---
@@ -467,7 +467,7 @@ Los valores del boceto se trasladan al paso más cercano de la escala (`tokens.m
 
 ## 9. Inventario de glifos
 
-Un id por glifo; se dibujan en 1.4 (y `glifo-eliminar` en 1.4b), sin relleno, en `currentColor`, en un único `viewBox 0 0 16 16` (grande, chico y vacío son el mismo archivo) y con el trazo de c.2 compensado por el componente (`svg/glifos/NOTAS-GLIFOS.md` §1 y §3). Cada emoji o símbolo de texto que la interfaz muestra hoy tiene su glifo: ninguno se retira solo con texto (spec `design-system`, «Interfaz sin emojis»). El texto puede acompañar al glifo, no lo reemplaza. La fuente del inventario es `rg` de emojis y símbolos en `src/screens`, `src/components` y `App.js`. La columna «Reemplaza» es la única de las fichas que nombra emojis.
+Un id por glifo; se dibujan en 1.4 (`glifo-eliminar` en 1.4b; `glifo-pausar` y `glifo-reanudar`, de `BAN-P2`, en 3.14b), sin relleno, en `currentColor`, en un único `viewBox 0 0 16 16` (grande, chico y vacío son el mismo archivo) y con el trazo de c.2 compensado por el componente (`svg/glifos/NOTAS-GLIFOS.md` §1 y §3). Cada emoji o símbolo de texto que la interfaz muestra hoy tiene su glifo: ninguno se retira solo con texto (spec `design-system`, «Interfaz sin emojis»). El texto puede acompañar al glifo, no lo reemplaza. La fuente del inventario es `rg` de emojis y símbolos en `src/screens`, `src/components` y `App.js`. La columna «Reemplaza» es la única de las fichas que nombra emojis.
 
 | Criterio de color | Detalle |
 |---|---|
@@ -513,6 +513,8 @@ Un id por glifo; se dibujan en 1.4 (y `glifo-eliminar` en 1.4b), sin relleno, en
 | `glifo-correo` | ✉️ (`SettingsScreen.js:223`) | Settings («Reportar un error», `Settings.md` b); Banners, contacto del banner de banco reducido, solo con `BAN-P1` (`Banners.md` a.2) | chico | Acción: abrir un correo | `acento` sobre `fondo` (N17) o `superficie` (N18) | El enlace era de acento en `main`: el glifo conserva esa función de enlace de contacto con el mismo token que su texto |
 | `glifo-externo` | `↗` (`SettingsScreen.js:230`) | Settings («Código fuente») (`Settings.md` b) | chico | Aviso: el enlace sale de la app | `acento` sobre `fondo` (N17) o `superficie` (N18) | Marca que el enlace abre otro sitio: va del color del enlace para leerse como parte de él |
 | `glifo-eliminar` | `×` (`SettingsScreen.js:131`) | Settings, «Mis preguntas»: eliminar una pregunta propia (`Settings.md` b) | grande, objetivo `paso 11` | Acción: eliminar un dato guardado, con confirmación del sistema | `tintaSec` sobre `superficie` (N20); presionado, `fondo` sobre `tinta` (T7) | Es la única acción que borra un dato del usuario desde una tarjeta. Va en el mismo tono que descartar o quitar (`glifo-cerrar`) para no competir con el enunciado de la tarjeta, y se separa de él por silueta: borrar un dato guardado y descartar una nota no pueden leerse como la misma acción. No usa `error`, reservado a respuesta incorrecta, banda baja y validación (a.1); la confirmación del sistema ya advierte que no se puede deshacer |
+| `glifo-pausar` | Ninguno: control nuevo de `BAN-P2` (`Banners.md` §3.14) | Banners, botón «Pausar» del pie de la región de avisos (`Banners.md` §3.14.2 y §3.14.7); bajo 360 px, único contenido del botón | chico | Acción: detener el avance automático de las notas | El del texto de su botón: K2 `tinta` sobre `superficie` (T2, N6); presionado, `fondo` sobre `tinta` (T7) | Es una acción neutra dentro de un botón de marco `linea`: el glifo toma el color del texto y no suma matiz. La palabra «Pausar» y la forma (dos verticales) llevan el significado; el glifo no usa color propio |
+| `glifo-reanudar` | Ninguno: control nuevo de `BAN-P2` (`Banners.md` §3.14) | Banners, el mismo botón con el avance detenido: «Reanudar» | chico | Acción: retomar el avance automático | Igual que `glifo-pausar` | Igual que `glifo-pausar`: el botón conserva su lugar y su marco y cambian el glifo y el texto |
 
 ### Indicaciones de forma para 1.4
 
@@ -547,6 +549,8 @@ El dibujo lo decidió 1.4 dentro de estas reglas (`svg/glifos/NOTAS-GLIFOS.md`):
 | `glifo-correo` | Sobre rectangular con solapa en V |
 | `glifo-externo` | Cuadrado abierto en su esquina superior derecha y flecha diagonal que sale por ella |
 | `glifo-eliminar` | Papelera de trazo recto: cuerpo trapezoidal con dos trazos verticales interiores, tapa horizontal más ancha que el cuerpo y asa corta sobre la tapa; sin aspa, para no confundirse con `glifo-cerrar` |
+| `glifo-pausar` | Dos trazos verticales paralelos e iguales, de 11 u; no se confunde con `glifo-intermedia` (dos horizontales) |
+| `glifo-reanudar` | Triángulo de trazo: lado vertical a la izquierda y punta a la derecha, diagonales a 45°; no se confunde con `glifo-siguiente` (flecha con asta) |
 
 ### Excepciones: sin glifo propio
 

@@ -15,6 +15,7 @@ import Glifo from '../../Glifo';
 import DonationBox from '../../DonationBox';
 import HeaderMarca from '../../HeaderMarca';
 import BarraInterna from '../../BarraInterna';
+import PaginaAvisos from './PaginaAvisos';
 
 // Propiedades mínimas de navegación para las barras de prueba (sin volver, título fijo).
 const BARRA = { options: { title: 'Barra' }, route: { name: 'Barra' }, navigation: {} };
@@ -130,7 +131,14 @@ function PruebaEscritorio() {
   );
 }
 
+// `/?avisos` abre la página de la región de avisos (tarea 3.14c), aparte de la de componentes:
+// así sus temporizadores no se mezclan con el recorrido por Tab de las demás pruebas.
 export default function PaginaComponentes() {
+  const avisos = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('avisos');
+  return avisos ? <PaginaAvisos /> : <PaginaBase />;
+}
+
+function PaginaBase() {
   const [filtro, setFiltro] = useState('todas');
   const [tema, setTema] = useState('claro');
   const [toques, setToques] = useState({});

@@ -219,6 +219,13 @@ export const GLIFOS = {
       { tipo: 'path', props: { d: 'M13.5 8.5A5.5 5.5 0 1 1 7.5 2.5A4.25 4.25 0 0 0 13.5 8.5Z' } },
     ],
   },
+  'glifo-pausar': {
+    viewBox: '0 0 16 16',
+    trazo: { ancho: 1.5, union: 'miter', extremo: 'square', limiteInglete: 2 },
+    elementos: [
+      { tipo: 'path', props: { d: 'M5.5 2.5V13.5M10.5 2.5V13.5' } },
+    ],
+  },
   'glifo-practicar': {
     viewBox: '0 0 16 16',
     trazo: { ancho: 1.5, union: 'miter', extremo: 'square', limiteInglete: 2 },
@@ -227,6 +234,13 @@ export const GLIFOS = {
       { tipo: 'rect', props: { x: 2.5, y: 7.5, width: 2, height: 2 } },
       { tipo: 'rect', props: { x: 2.5, y: 12.5, width: 2, height: 2 } },
       { tipo: 'path', props: { d: 'M7.5 3.5H13.5M7.5 8.5H13.5M7.5 13.5H11.5' } },
+    ],
+  },
+  'glifo-reanudar': {
+    viewBox: '0 0 16 16',
+    trazo: { ancho: 1.5, union: 'miter', extremo: 'square', limiteInglete: 2 },
+    elementos: [
+      { tipo: 'path', props: { d: 'M5.5 2.5V13.5L11 8Z' } },
     ],
   },
   'glifo-reintentar': {

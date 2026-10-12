@@ -5,7 +5,7 @@
 | Change | `openspec/changes/rediseno-plancha` (D9, D10; spec `design-system`, «Interfaz sin emojis») |
 | Rama | `rediseno` |
 | Insumos | `pantallas/comun.md` §8 y §9; `tokens.md` a.1, c.2 y e; `hibrido.html` (flechas, chevron, aspa, tilde, más, menos, practicar, examen, repasar, estadísticas); `REFERENCIAS.md`; `svg/<materia>.svg` |
-| Entrega | 35 archivos `<id>.svg` en esta carpeta (34 de 1.4 y `glifo-eliminar` de 1.4b); `glifos-prueba.html` y `glifos-prueba.png`; este archivo |
+| Entrega | 37 archivos `<id>.svg` en esta carpeta (34 de 1.4, `glifo-eliminar` de 1.4b y `glifo-pausar` y `glifo-reanudar` de 3.14b, `BAN-P2`); `glifos-prueba.html` y `glifos-prueba.png` (los 35 de 1.4 y 1.4b); este archivo |
 | Fuera de alcance | Ninguno. `glifo-eliminar` (fila de 1.3 en §9) se dibujó en 1.4b con las reglas de este archivo |
 | Reglas del coordinador (C5) | `viewBox` común; `stroke-width` una sola vez en la raíz, en unidades del `viewBox`; un archivo por glifo, sin variantes grande o vacío; sin `g`, `use`, `defs` ni `transform`; puntos como círculo con trazo de radio ≥ 0,75; `glifo-reportar` en `tinta` |
 
@@ -15,7 +15,7 @@
 
 | Atributo | Valor | Por qué |
 |---|---|---|
-| `viewBox` | `0 0 16 16`, el mismo en los 35 | Grilla del glifo chico (`paso 4`): 1 u = 1 px. §8 pide «grilla propia» para el chico y es la más dura; grande y vacío son la misma figura ampliada (§3) |
+| `viewBox` | `0 0 16 16`, el mismo en los 37 | Grilla del glifo chico (`paso 4`): 1 u = 1 px. §8 pide «grilla propia» para el chico y es la más dura; grande y vacío son la misma figura ampliada (§3) |
 | `fill` | `none` | §9: sin relleno |
 | `stroke` | `currentColor` | §9: el color lo pone el contenedor con un token de a.1; el SVG no lleva color propio |
 | `stroke-width` | `1.5`, solo en la raíz | c.2: trazo de glifo 1,5 px. Un solo grosor: ningún elemento lo sobrescribe |
@@ -46,7 +46,7 @@
 
 | Uso | Lado | Escala | `strokeWidth` (u) | Trazo en pantalla | Glifos |
 |---|---|---|---|---|---|
-| Chico | 16 px (`paso 4`) | ×1 | 1,5 | 1,5 px | 24: los de §9 con tamaño «chico» |
+| Chico | 16 px (`paso 4`) | ×1 | 1,5 | 1,5 px | 26: los de §9 con tamaño «chico» |
 | Grande | 24 px (`paso 6`) | ×1,5 | 1 | 1,5 px | 11: `volver`, `cerrar`, `siguiente`, `practicar`, `examen`, `repasar`, `estadisticas`, `agregar`, `ajustes`, `aleatorio`, `eliminar` |
 | Vacío | 48 px (`paso 12`) | ×3 | 0,5 | 1,5 px | `repasar` y `estadisticas` en estado vacío (1.3) |
 
@@ -97,6 +97,8 @@ Orden de §9. «Color» es el de §9; el SVG no lo lleva.
 | `glifo-correo` | chico | Sobre de 13 × 9 u con solapa en V | `acento` (N17, N18) | — |
 | `glifo-externo` | chico | Cuadrado abierto arriba a la derecha y flecha diagonal que sale | `acento` (N17, N18) | `siguiente`: flecha horizontal |
 | `glifo-eliminar` | grande | Papelera: tapa de 13 u con asa de 3 u, cuerpo trapezoidal de 11 u arriba y 7 u abajo, y dos trazos interiores de 4 u | `tintaSec` (N20); presionado `fondo` sobre `tinta` (T7) | `cerrar`: sin aspa. `guardar`: sin ventana ni esquina cortada |
+| `glifo-pausar` | chico | Dos verticales de 11 u, ejes a 5 u (x = 5,5 y 10,5) | El del botón K2: `tinta` (T2, N6); presionado `fondo` sobre `tinta` (T7) | `intermedia`: sus dos trazos son horizontales |
+| `glifo-reanudar` | chico | Triángulo: lado vertical de 11 u en x = 5,5 y punta en (11, 8), diagonales a 45° | Igual que `pausar` | `siguiente`: flecha con asta. `chevron`: ángulo abierto |
 
 ## 5. Distinción a 16 px
 
@@ -107,20 +109,22 @@ Orden de §9. «Color» es el de §9; el SVG no lo lleva.
 | `examen`, `origen-examen`, `revisar` | Dos renglones, sello, pinza con tres renglones | — |
 | `cerrar`, `error` | Misma figura por §9; difieren en extensión (11 u y 9 u), tamaño de uso y color | Único par idéntico por indicación de §9 |
 | `cerrar`, `eliminar` | Aspa frente a papelera: tapa más ancha que el cuerpo, asa y dos trazos interiores | Ninguna aspa en `eliminar`: borrar un dato guardado y descartar una nota no se leen como la misma acción (§9) |
+| `pausar`, `intermedia` | Dos verticales frente a dos horizontales | Distintos por orientación y por lugar de uso: botón del carrusel frente a banda de rendimiento |
+| `reanudar`, `siguiente`, `chevron` | Triángulo cerrado frente a flecha con asta y a ángulo abierto | Silueta cerrada; acompaña siempre a la palabra «Reanudar» |
 
 ## 6. Verificación
 
 | Chequeo | Comando o método | Resultado |
 |---|---|---|
-| 35 archivos | `fd -e svg . openspec/changes/rediseno-plancha/diseno/svg/glifos \| wc -l` | 35 |
-| Nombres contra §9 | Ids de la tabla de §9 contra los nombres de archivo | 35 de 35 coinciden (`glifo-eliminar`, fila de 1.3, dibujado en 1.4b) |
+| 37 archivos | `fd -e svg . openspec/changes/rediseno-plancha/diseno/svg/glifos \| wc -l` | 37 |
+| Nombres contra §9 | Ids de la tabla de §9 contra los nombres de archivo | 37 de 37 coinciden (`glifo-eliminar`, fila de 1.3, dibujado en 1.4b; `glifo-pausar` y `glifo-reanudar`, de 3.14b) |
 | Prohibidos | `rg -l --pcre2 '<text\|<style\|#[0-9a-fA-F]{3,6}\|fill="(?!none)' *.svg` | Vacío |
 | Estructura (C5) | `rg -il '<g[ >]\|<use\|<defs\|transform\|gradient\|filter\|mask' *.svg` | Vacío |
 | `currentColor`, `viewBox`, `fill` | `rg --files-without-match` de cada atributo | Vacío en los tres; un solo `viewBox` (`0 0 16 16`) y un solo `stroke-width` (`1.5`, en la raíz) |
-| Elementos | `rg -o '<(path\|rect\|circle)'` | 57 `path`, 9 `rect`, 11 `circle`; radio mínimo 0,75 |
+| Elementos | `rg -o '<(path\|rect\|circle)'` | 59 `path`, 9 `rect`, 11 `circle`; radio mínimo 0,75 |
 | Caja de tinta | Render con `rsvg-convert` a 32 px por unidad y cálculo de la caja | Margen mínimo 0,72 u; ninguna figura toca el borde |
-| Lámina | `glifos-prueba.html` capturado con Chrome headless a 2× | 35 glifos a 16 y 24 px, claro y oscuro, en el color de §9, con razón de contraste |
-| Lectura a 1× | Captura de la lámina a 1×, 35 glifos a 16 px | Legibles en ambos temas |
+| Lámina | `glifos-prueba.html` capturado con Chrome headless a 2× | 35 glifos a 16 y 24 px, claro y oscuro, en el color de §9, con razón de contraste. La lámina no se regeneró en 3.14b: `glifo-pausar` y `glifo-reanudar` se ven en `diseno/banners/banners.html` (lámina de estados), claro y oscuro |
+| Lectura a 1× | Captura de la lámina a 1×, 35 glifos a 16 px; los dos de 3.14b, en la lámina de estados del prototipo | Legibles en ambos temas |
 
 ## 7. Decisiones y desvíos
 
@@ -135,6 +139,7 @@ Orden de §9. «Color» es el de §9; el SVG no lo lleva.
 | 7 | `reportar` en `tinta` | C5 cierra la alternativa roja | Sin cambio en el SVG |
 | 8 | Color por glifo: el de §9 | Fija función y token de a.1; el SVG no lleva color | Ver «Color» de §4 |
 | 9 | `eliminar` con cuerpo trapezoidal a 11° de la vertical | §9 pide cuerpo trapezoidal: a 45° sería un cono y vertical, un rectángulo. Con 2 u de inclinación en 10 u los trazos interiores (de 7,5 a 11,5 en y) quedan a 1 u o más de aire de las paredes | Segunda excepción de ángulos, con `trofeo` (§2). Margen de tinta 0,75 u, medido por render |
+| 10 | `pausar` y `reanudar` (3.14b, `BAN-P2` aprobada el 2026-10-11) | Controles del carrusel de avisos: el inventario de 1.4 no tenía glifo de pausa ni de reanudar | Dos verticales de 11 u (la misma extensión que `cerrar`) y un triángulo de lado vertical de 11 u con diagonales a 45°, sobre la retícula de §2. Entran en `comun.md` §9. Caja de tinta calculada: margen mínimo de 1,75 u |
 
 ## 8. Para la implementación (3.x)
 
@@ -145,4 +150,4 @@ Orden de §9. «Color» es el de §9; el SVG no lo lleva.
 | Trazo | `strokeWidth = 24 / lado` |
 | Giro | `glifo-chevron` con `rotate(90)` o `rotate(270)` sobre el centro |
 | Accesibilidad | `aria-hidden` y `accessibilityElementsHidden`: el texto acompaña al glifo |
-| Pendiente | Ninguno. `glifo-eliminar` se dibujó en 1.4b con las reglas de §1 a §3; el componente aplica `24 / lado` como a los demás |
+| Pendiente | Ninguno. `glifo-eliminar` se dibujó en 1.4b con las reglas de §1 a §3; el componente aplica `24 / lado` como a los demás. `glifo-pausar` y `glifo-reanudar` entran a `src/assets/glifos.js` con la tarea de `BAN-P2` |

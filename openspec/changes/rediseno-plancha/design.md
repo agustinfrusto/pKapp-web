@@ -191,6 +191,48 @@ tablet, PC, Mac, iPhone y Android.
 - **Plataforma**: áreas seguras de iOS y Android (`react-native-safe-area-context`, ya en
   uso); nada depende de una fuente o gesto de un solo sistema.
 
+### D11. Avisos: lista declarativa y carrusel `BAN-P2` (tarea 3.14)
+
+Decisión del usuario (2026-10-11): `BAN-P2`, carrusel automático con botón de pausa
+(`diseno/pantallas/Banners.md` §3.14). Los mensajes salen de una lista de datos; agregar o
+cambiar un aviso no toca componentes.
+
+- **Lista**: `src/avisos/avisos.js` exporta `AVISOS`, un arreglo ordenado (el orden es el de
+  la región). Cada aviso:
+
+  | Campo | Tipo | Regla |
+  |---|---|---|
+  | `id` | cadena | Única, estable, `[a-z0-9-]+`; es el `testID` del aviso. La nota del creador es `nota-del-creador` |
+  | `clave` | cadena, opcional | Clave de `localStorage` del descarte. Por defecto `pkapp_aviso_<id>_visto`. La nota del creador usa `pkapp_about_seen_at_v2` (D10: quien la descartó no la vuelve a ver al estrenar el sistema) |
+  | `rotulo` | cadena | Una línea a 360 px |
+  | `glifo` | `'glifo-mensaje'` \| `'glifo-explicacion'` | Cerrado al inventario |
+  | `parrafos` | cadena[] | Al menos uno; texto plano, sin enlaces en línea |
+  | `contacto` | cadena, opcional | Un correo; botón de `BAN-P1` |
+  | `pantallas` | (`'materias'` \| `'home'`)[] | Al menos una; cerrado a esas dos |
+  | `desde`, `hasta` | `'AAAA-MM-DD'`, opcionales | Vigencia en hora local, ambos inclusive (`desde` 00:00, `hasta` 23:59:59.999); sin `desde` rige desde siempre, sin `hasta` no vence; `desde ≤ hasta` |
+  | `descartable` | booleano | Con o sin × |
+  | `reaparece` | entero ≥ 1 (días), opcional | Solo con `descartable`. Sin él, el descarte es para siempre. La nota del creador: 7 |
+
+- **Validación**: una función pura `validarAvisos(lista)` devuelve la lista de errores
+  (tipos, valores cerrados, ids únicos, fechas, y como máximo 3 avisos vigentes a la vez por
+  pantalla, evaluado en cada fecha de borde; además rechaza campos desconocidos, `pantallas` o `clave`
+  repetidas y enlaces en `rotulo` o `parrafos`). Corre en el build: una lista inválida rompe
+  `npm run build:web`. La interfaz no recorta ni valida.
+- **Resolución**: `avisosVigentes(lista, pantalla, ahora, storage)` es pura y síncrona; la
+  pantalla la llama en el inicializador de `useState`, antes del primer pintado (como
+  `notaVisible` hoy). Descartado = hay marca en `clave` y (`reaparece` ausente o no pasaron
+  `reaparece` días). Sin `localStorage`, nada está descartado. Se evalúa al montar.
+- **Descartar** guarda `Date.now()` en `clave`. Los no descartables nunca escriben.
+- **Lugar**: MateriaSelect y Home según `Banners.md` §3.14.9. El banner de banco reducido
+  queda fuera del sistema (D6).
+- **Respuestas a `BAN-Q1`…`BAN-Q5`**: Q1 sí (`polite` solo cuando el avance lo gobierna el
+  usuario; `off` mientras avanza solo). Q2 sí (pausa persistente con el foco de teclado). Q3 sí
+  (un `setTimeout` por nota que solo cambia la activa; el fundido es CSS). Q4: ningún gancho en
+  producción; la espera es una función con la fórmula de la ficha que el componente recibe por
+  prop con ese valor por defecto, y solo la página de prueba de componentes
+  (`EXPO_PUBLIC_PKAPP_PRUEBA=componentes`, que no se publica) pasa una más corta. Q5: no, sin
+  eventos nuevos de analítica.
+
 ## Risks / Trade-offs
 
 | Riesgo | Mitigación |

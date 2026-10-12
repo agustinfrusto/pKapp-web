@@ -7,6 +7,7 @@ import { MATERIA_LIST } from '../materias';
 import HeaderMarca from '../components/HeaderMarca';
 import Glifo from '../components/Glifo';
 import Ilustracion from '../components/Ilustracion';
+import RegionAvisos from '../components/RegionAvisos';
 import {
   BotonMarco, ControlMarco, Lamina, RotuloSeccion, Hoja, Regiones, useEstadoControl,
 } from '../components/plancha';
@@ -109,6 +110,8 @@ export default function HomeScreen({ navigation }) {
             </View>
 
             {materia.bancoReducido ? <BancoReducidoBanner tema={tema} /> : null}
+            {/* Avisos para Home (D11, tarea 3.14c): hoy ninguno; la región no ocupa lugar sin avisos. */}
+            <RegionAvisos pantalla="home" className="mt-3" />
           </Regiones.Lateral>
 
           <Regiones.Principal>

@@ -15,6 +15,7 @@ const { conectarNavegador, abrirPagina } = require('../cdp');
 const { servirEstatico } = require('../entorno');
 const { plancha } = require('../../../src/theme/colores');
 const { LADO_TACTIL, PASO } = require('./comunes');
+const { regionDeAvisos } = require('./avisos-region');
 
 const RAIZ = path.resolve(__dirname, '..', '..', '..');
 const DIST = process.env.PKAPP_DIST || 'dist';
@@ -1249,6 +1250,7 @@ module.exports = [
         await probarTema(navegador, base, t, 'oscuro');
         await columna(navegador, base, t);
         await escritorio(navegador, base, t);
+        await regionDeAvisos(navegador, base, t);
       } finally {
         navegador.cerrar();
         await servidor.cerrar();

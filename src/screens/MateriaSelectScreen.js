@@ -2,7 +2,8 @@
 // Se presenta SIEMPRE al abrir la app (no se persiste la última).
 // Ficha: openspec/changes/rediseno-plancha/diseno/pantallas/MateriaSelect.md (a, y «Escritorio»
 // `ESC-P1` desde el corte `escritorio`: lámina y nota en la región lateral, rejilla de 2
-// columnas, 3 desde `amplio`, y el pedido de donación al pie de la principal).
+// columnas, 3 desde `amplio`, y el pedido de donación al pie de la principal). Los avisos
+// (la nota del creador y los que se sumen) salen de `src/avisos/avisos.js`: D11, tarea 3.14c.
 import React, { useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { MATERIA_LIST } from '../materias';
@@ -12,10 +13,10 @@ import { plancha } from '../theme/colores';
 import { ilustracion as campoDeFilamentos, regla } from '../assets/filamentos';
 import DonationBox from '../components/DonationBox';
 import HeaderMarca from '../components/HeaderMarca';
-import Glifo from '../components/Glifo';
 import Ilustracion from '../components/Ilustracion';
+import RegionAvisos from '../components/RegionAvisos';
 import {
-  FilaLista, Hoja, Lamina, Regiones, RotuloSeccion, TarjetaNavegable,
+  Hoja, Lamina, Regiones, RotuloSeccion, TarjetaNavegable,
 } from '../components/plancha';
 import { track } from '../utils/track';
 import { usoActual } from '../utils/donacion';
@@ -26,7 +27,6 @@ const PX_POR_PASO = 4;
 const ALTO_CAMPO = 28 * PX_POR_PASO;
 const ALTO_REGLA = 2.5 * PX_POR_PASO;
 const LADO_ILUSTRACION = 12 * PX_POR_PASO;
-const GLIFO_CHICO = 4 * PX_POR_PASO;
 
 const DETALLE = 'font-plex-mono text-rotulo uppercase';
 const TINTA_SEC = 'text-tintaSec dark:text-tintaSecD';
@@ -70,7 +70,7 @@ export default function MateriaSelectScreen({ navigation }) {
               <LaminaDeFilamentos tema={tema} />
             </View>
 
-            <AboutBanner tema={tema} />
+            <RegionAvisos pantalla="materias" />
           </Regiones.Lateral>
 
           <Regiones.Principal>
@@ -120,49 +120,6 @@ function LaminaDeFilamentos({ tema }) {
         </View>
       </View>
     </Lamina>
-  );
-}
-
-const ABOUT_KEY = 'pkapp_about_seen_at_v2';
-const ABOUT_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000; // reaparece una vez por semana
-
-// Visible si no hay `localStorage` (nativo), no hay marca o venció el intervalo. Se lee
-// al montar, antes del primer pintado: decidirlo en un efecto dejaba la nota oculta un
-// cuadro y la lista saltaba hacia abajo cuando aparecía.
-function notaVisible() {
-  if (typeof localStorage === 'undefined') return true;
-  const seenAt = Number(localStorage.getItem(ABOUT_KEY));
-  return !seenAt || Date.now() - seenAt >= ABOUT_INTERVAL_MS;
-}
-
-function AboutBanner({ tema }) {
-  const [visible, setVisible] = useState(notaVisible);
-
-  function dismiss() {
-    if (typeof localStorage !== 'undefined') localStorage.setItem(ABOUT_KEY, String(Date.now()));
-    setVisible(false);
-  }
-
-  if (!visible) return null;
-
-  // Nota de Banners.md a.2: borde izquierdo de acento, rótulo con glifo y descartar a ras
-  // del marco. El rótulo deja libre `paso 11` a la derecha y la fila reserva `paso 8`.
-  return (
-    <View
-      testID="nota-del-creador"
-      className="relative mb-3 border border-l-3 border-filete border-l-acento bg-superficie p-3.5 dark:border-fileteD dark:border-l-acentoD dark:bg-superficieD"
-    >
-      <View className="mb-2 min-h-8 flex-row items-center gap-1.5 pr-11">
-        <Glifo id="glifo-mensaje" size={GLIFO_CHICO} color={tema.acento} />
-        <RotuloSeccion color="acento">Una nota del creador</RotuloSeccion>
-      </View>
-      <Text className="font-plex-sans text-cuerpo text-tinta dark:text-tintaD">
-        ¡Hola! Ya están las seis materias. Ahora estoy trabajando en la estética de la página, así que en las próximas semanas vas a ir viendo cambios en el diseño. ¡Gracias por la paciencia!
-      </Text>
-      <View className="absolute right-0 top-0">
-        <FilaLista tono="sec" glifo="glifo-cerrar" accessibilityLabel="Cerrar nota" onPress={dismiss} />
-      </View>
-    </View>
   );
 }
 
