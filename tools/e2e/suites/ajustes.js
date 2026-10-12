@@ -630,6 +630,20 @@ async function escritorio(_pagina, base, t) {
           await pagina.evaluar(DESPLAZAR_AJUSTES(0));
           await pausa(100);
 
+          // Desde el inicio del documento, sin foco forzado: la barra va primero (DOM = visual).
+          // El punto de partida de Tab es el último foco o clic: se lo lleva al `body`.
+          await pagina.evaluar(EN_MARCO(`
+            m.contentWindow.focus();
+            d.body.setAttribute('tabindex', '-1');
+            d.body.focus();
+            d.body.removeAttribute('tabindex');
+            return true;
+          `));
+          await pagina.tecla('Tab');
+          const primera = await pagina.evaluar(ORDEN_DE_FOCO);
+          t.ok(c('Tab: la primera parada desde el documento es «Volver» de la barra'),
+            primera && primera.nombre, 'Volver');
+
           // Tab recorre el DOM y debe coincidir con el orden VISUAL medido en la página
           await pagina.evaluar(EN_MARCO(`
             const g = visibles('[role="radio"]')[0];

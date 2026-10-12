@@ -1035,7 +1035,8 @@ async function escritorioAnclaFocoYOrden(pagina, base, t) {
       // Tab real: las paradas dentro de la pantalla no saltan hacia atrás en la página.
       const paradas = await recorrerTab(pagina);
       const enRaiz = paradas.filter((p) => p.enRaiz);
-      t.ok(`${cuando}: Tab alcanza «volver» de la barra interna`, paradas.some((p) => p.id === 'barra-volver'), true);
+      t.ok(`${cuando}: la primera parada de Tab es «volver» de la barra interna (DOM = visual)`,
+        paradas[0] && paradas[0].id, 'barra-volver');
       t.ok(`${cuando}: Tab dentro de la pantalla sigue el orden visual medido`, retrocesos(enRaiz).join(' ; '), '');
     }
   }
@@ -1058,6 +1059,8 @@ async function escritorioVacioFocoYOrden(pagina, base, t) {
             && x.caja.arriba - borde >= 0 && x.caja.abajo + borde <= c.alto + 0.5), true);
       }
       const paradas = await recorrerTab(pagina);
+      t.ok(`${cuando}: la primera parada de Tab es «volver» de la barra interna (DOM = visual)`,
+        paradas[0] && paradas[0].id, 'barra-volver');
       t.ok(`${cuando}: Tab alcanza «Practicar»`, paradas.some((p) => p.id === 'stats-practicar'), true);
       t.ok(`${cuando}: Tab dentro de la pantalla sigue el orden visual medido`,
         retrocesos(paradas.filter((p) => p.enRaiz)).join(' ; '), '');

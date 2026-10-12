@@ -23,7 +23,7 @@ import { linking } from './src/navigation/linking';
 import { injectWebStyles } from './src/utils/webStyles';
 import { TemaProvider } from './src/theme/TemaContext';
 import { plancha } from './src/theme/colores';
-import BarraInterna from './src/components/BarraInterna';
+import { conBarraInterna } from './src/components/BarraInterna';
 import { trackPageview } from './src/utils/track';
 import { cargarFuentes } from './src/theme/fuentes';
 
@@ -53,15 +53,23 @@ const splashStyles = StyleSheet.create({
 
 const logo = require('./src/assets/logo.png');
 
-// Ancho de la hoja de cada superficie para la barra interna (comun.md §7.2, tabla de
-// superficies). Una ruta que no figura mantiene `columna`. Un solo lugar.
-const ANCHO_BARRA = {
-  TopicSelect: 'hoja-amplia',
-  Stats: 'hoja-amplia',
-  Results: 'hoja',
-  Settings: 'hoja',
-  AddQuestion: 'lectura',
+// Las rutas con barra interna, en un solo lugar: su título y el ancho de la hoja de su
+// superficie (comun.md §7.2, tabla de superficies). La barra va dentro de la pantalla y
+// antes del contenido (tarea 3.12): no se usa el `header` del native-stack, que en web
+// queda después del contenido en el DOM. Quiz y MateriaSelect/Home no llevan barra.
+const BARRA = {
+  TopicSelect: { titulo: 'pKapp · Elegir tema', ancho: 'hoja-amplia' },
+  Results: { titulo: 'pKapp · Resultados', ancho: 'hoja', sinVolver: true },
+  AddQuestion: { titulo: 'pKapp · Agregar pregunta', ancho: 'lectura' },
+  Stats: { titulo: 'pKapp · Estadísticas', ancho: 'hoja-amplia' },
+  Settings: { titulo: 'pKapp · Ajustes', ancho: 'hoja' },
 };
+
+const TopicSelectConBarra = conBarraInterna(TopicSelectScreen, BARRA.TopicSelect);
+const ResultsConBarra = conBarraInterna(ResultsScreen, BARRA.Results);
+const AddQuestionConBarra = conBarraInterna(AddQuestionScreen, BARRA.AddQuestion);
+const StatsConBarra = conBarraInterna(StatsScreen, BARRA.Stats);
+const SettingsConBarra = conBarraInterna(SettingsScreen, BARRA.Settings);
 
 export default function App() {
   return (
@@ -172,7 +180,7 @@ function AppContent() {
       <Stack.Navigator
         initialRouteName="MateriaSelect"
         screenOptions={{
-          header: (props) => <BarraInterna {...props} ancho={ANCHO_BARRA[props.route.name]} />,
+          headerShown: false,
           contentStyle: { backgroundColor: tema.fondo },
           // En web la transición animada de native-stack agrega ~200ms al INP
           // sin aportar mucho visualmente. En nativo se mantiene la default.
@@ -191,8 +199,8 @@ function AppContent() {
         />
         <Stack.Screen
           name="TopicSelect"
-          component={TopicSelectScreen}
-          options={{ title: 'pKapp · Elegir tema' }}
+          component={TopicSelectConBarra}
+          options={{ title: BARRA.TopicSelect.titulo }}
         />
         <Stack.Screen
           name="Quiz"
@@ -201,23 +209,23 @@ function AppContent() {
         />
         <Stack.Screen
           name="Results"
-          component={ResultsScreen}
-          options={{ title: 'pKapp · Resultados', headerBackVisible: false }}
+          component={ResultsConBarra}
+          options={{ title: BARRA.Results.titulo }}
         />
         <Stack.Screen
           name="AddQuestion"
-          component={AddQuestionScreen}
-          options={{ title: 'pKapp · Agregar pregunta' }}
+          component={AddQuestionConBarra}
+          options={{ title: BARRA.AddQuestion.titulo }}
         />
         <Stack.Screen
           name="Stats"
-          component={StatsScreen}
-          options={{ title: 'pKapp · Estadísticas' }}
+          component={StatsConBarra}
+          options={{ title: BARRA.Stats.titulo }}
         />
         <Stack.Screen
           name="Settings"
-          component={SettingsScreen}
-          options={{ title: 'pKapp · Ajustes' }}
+          component={SettingsConBarra}
+          options={{ title: BARRA.Settings.titulo }}
         />
       </Stack.Navigator>
     </NavigationContainer>

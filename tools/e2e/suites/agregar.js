@@ -1492,28 +1492,46 @@ const NOMBRE_ACTIVO = EN_MARCO(`
   return a && a !== d.body ? (a.getAttribute('aria-label') || a.getAttribute('placeholder') || a.textContent || '').trim() : null;
 `);
 
-// Tab real desde «Volver» (el primer control de la pantalla) hasta «Guardar pregunta»: los
-// nombres, en orden. Se parte de un foco explícito: tras un clic el punto de partida de Tab
-// es el del clic, no el inicio del documento.
+// Tab real desde el inicio del documento, sin foco forzado: la barra tiene que ser la
+// primera parada porque va primero en el DOM (3.12), no porque se la enfoque. Devuelve los
+// nombres de las paradas, en orden, hasta «Guardar pregunta», y por cada una los ancestros
+// que recortarían su contorno de foco (W1: todos los enfocables, no solo tres).
 async function recorrerConTab(pagina) {
   await pagina.evaluar(EN_MARCO(`
     m.contentWindow.focus();
-    visibles('[data-testid="barra-volver"]')[0].focus();
+    if (d.activeElement && d.activeElement.blur) d.activeElement.blur();
   `));
   await pausa(100);
-  const vistos = [await pagina.evaluar(NOMBRE_ACTIVO)];
+  const vistos = [];
+  const recortes = [];
   for (let i = 0; i < 40; i++) {
     await pagina.tecla('Tab');
     const n = await pagina.evaluar(NOMBRE_ACTIVO);
     // `null` es el foco sobre el documento (el primer Tab tras abrir la página en frío), no una parada.
     if (n === null) continue;
     vistos.push(n);
+    const r = await pagina.evaluar(CONTORNO_RECORTADO);
+    if (!r) recortes.push(`${n}: sin medida`);
+    else if (r.recortan.length) recortes.push(`${n}: ${r.recortan.join(',')}`);
     if (n.toLowerCase() === 'guardar pregunta') break;
   }
-  return vistos;
+  return { vistos, recortes };
 }
 
+// El arnés abre una página por suite, pero `abrirAgregar` deja el override a >900 px: se
+// restaura siempre, también si la suite falla a la mitad (N1).
+const restaurarViewport = (pagina) => pagina.enviar('Emulation.setDeviceMetricsOverride',
+  { width: 900, height: 1400, deviceScaleFactor: 1, mobile: false });
+
 async function escritorio(pagina, base, t) {
+  try {
+    await escritorioEnVentanas(pagina, base, t);
+  } finally {
+    await restaurarViewport(pagina);
+  }
+}
+
+async function escritorioEnVentanas(pagina, base, t) {
   const medidas = {};
   for (const oscuro of [false, true]) {
     const tema = oscuro ? 'oscuro' : 'claro';
@@ -1525,9 +1543,9 @@ async function escritorio(pagina, base, t) {
         continue;
       }
       const m = await pagina.evaluar(MEDIR_ESCRITORIO);
-      t.ok(c('hay disparador, enunciado, «Guardar pregunta» y barra'),
-        !!m.disp && !!m.enun && !!m.guardar && !!m.barra && !!m.volver, true);
-      if (!m.disp || !m.enun || !m.guardar || !m.barra || !m.volver) continue;
+      t.ok(c('hay disparador, enunciado, rótulo «Tema», «Guardar pregunta» y barra'),
+        !!m.disp && !!m.enun && !!m.guardar && !!m.barra && !!m.volver && !!m.rotulo, true);
+      if (!m.disp || !m.enun || !m.guardar || !m.barra || !m.volver || !m.rotulo) continue;
       t.ok(c('sin scroll horizontal'), m.desborda, false);
       const esc = ancho >= CORTE;
       if (ancho === 768 || ancho === 1023) medidas[ancho] = m.enun.ancho;
@@ -1567,14 +1585,23 @@ async function escritorio(pagina, base, t) {
       const visual = m.controles.filter((n) => n.tab)
         .sort((a, b) => Math.round(a.pagina) - Math.round(b.pagina) || a.izq - b.izq)
         .map((n) => n.nombre);
-      const real = await recorrerConTab(pagina);
+      const { vistos: real, recortes } = await recorrerConTab(pagina);
+      t.ok(c('Tab arranca en «Volver» (la barra va primero en el DOM)'), real[0], 'Volver');
       t.ok(c('Tab recorre el orden visual'), JSON.stringify(real),
         JSON.stringify(visual.slice(0, real.length)));
       t.ok(c('Tab llega hasta «Guardar pregunta»'), (real[real.length - 1] || '').toLowerCase(), 'guardar pregunta');
+      // W1: el contorno de foco de TODA parada (tema, enunciado, celdas, campos de opción,
+      // «Quitar», «Agregar opción», explicación y «Guardar») sin recorte por overflow.
+      const necesarias = [PH_ENUNCIADO, phOpcion('A'), quitar('A'), 'Agregar opción', PH_EXPLICACION]
+        .filter((nom) => !real.some((v) => v.toLowerCase().includes(nom.toLowerCase())));
+      t.ok(c('Tab pasa por enunciado, opciones, «Quitar», «Agregar opción» y explicación'),
+        JSON.stringify(necesarias), '[]');
+      t.ok(c('el contorno de ninguna parada de Tab lo recorta un overflow'), JSON.stringify(recortes), '[]');
       const rg = await pagina.evaluar(CONTORNO_RECORTADO);
       t.ok(c('el contorno de «Guardar pregunta» no lo recorta ningún overflow'), rg && JSON.stringify(rg.recortan), '[]');
 
-      // Ninguna región queda fija al desplazar (sin sticky): al bajar, todas suben lo mismo.
+      // Ninguna región queda fija al desplazar (sin sticky): al bajar, TODO sube lo mismo (W2:
+      // cada control y cada texto, no solo tres; con un desplazamiento chico y con el máximo).
       // A 1920 × 1080 todo entra en la ventana (0,9): se baja el marco para que haya recorrido.
       await pagina.evaluar(EN_MARCO(`
         m.style.height = '480px';
@@ -1582,28 +1609,35 @@ async function escritorio(pagina, base, t) {
         return true;`));
       await pausa(200);
       const m0 = await pagina.evaluar(MEDIR_ESCRITORIO);
-      if (m0.scroll && m0.scroll.alta) {
-        const bajar = Math.min(120, m0.scroll.max);
-        await pagina.evaluar(EN_MARCO(`
-          const n = visibles('[placeholder]')[0];
-          for (let a = n.parentElement; a; a = a.parentElement) {
-            const o = w.getComputedStyle(a).overflowY;
-            if (o === 'auto' || o === 'scroll') { a.scrollTop = ${bajar}; break; }
+      t.ok(c('hay desplazamiento para medir sticky'), !!(m0.scroll && m0.scroll.alta && m0.scroll.max > 120), true);
+      if (m0.scroll && m0.scroll.alta && m0.scroll.max > 120) {
+        for (const bajar of [120, Math.min(400, m0.scroll.max)]) {
+          await pagina.evaluar(EN_MARCO(`
+            const n = visibles('[placeholder]')[0];
+            for (let a = n.parentElement; a; a = a.parentElement) {
+              const o = w.getComputedStyle(a).overflowY;
+              if (o === 'auto' || o === 'scroll') { a.scrollTop = ${bajar}; break; }
+            }
+            return true;`));
+          await pausa(120);
+          const d2 = await pagina.evaluar(MEDIR_ESCRITORIO);
+          const k = `desplazado ${bajar} px`;
+          t.ok(c(`${k}, la barra interna está en su lugar`),
+            !!d2.barra && !!m0.barra && Math.round(d2.barra.arriba) === Math.round(m0.barra.arriba), true);
+          const mismo = m0.controles.length === d2.controles.length && m0.textos.length === d2.textos.length;
+          t.ok(c(`${k}, los mismos controles y textos a la vista`), mismo, true);
+          if (mismo) {
+            // «Volver» es de la barra, que no se desplaza: se mide aparte (arriba).
+            const fijos = m0.controles.map((n, i) => ({ n: n.nombre, d: Math.round(n.arriba - d2.controles[i].arriba) }))
+              .filter((x) => x.n !== 'Volver')
+              .concat(m0.textos.map((n, i) => ({ n: n.texto, d: Math.round(n.arriba - d2.textos[i].arriba) })))
+              .filter((x) => x.d !== bajar).map((x) => `${x.n}:${x.d}`);
+            t.ok(c(`${k}, todo el contenido sube ${bajar} px (sin sticky)`), JSON.stringify(fijos), '[]');
           }
-          return true;`));
-        await pausa(120);
-        const d2 = await pagina.evaluar(MEDIR_ESCRITORIO);
-        const mov = (a, b) => Math.round(a - b);
-        t.ok(c('al desplazar, el tema se mueve con el contenido'), mov(m0.disp.arriba, d2.disp ? d2.disp.arriba : NaN), bajar);
-        t.ok(c('al desplazar, el enunciado se mueve con el contenido'), mov(m0.enun.arriba, d2.enun ? d2.enun.arriba : NaN), bajar);
-        t.ok(c('al desplazar, «Guardar pregunta» se mueve con el contenido'),
-          mov(m0.guardar.arriba, d2.guardar ? d2.guardar.arriba : NaN), bajar);
-        t.ok(c('al desplazar, la barra interna no se mueve'), Math.round(d2.barra.arriba), Math.round(m0.barra.arriba));
+        }
         await pagina.evaluar(EN_MARCO(`
           for (const n of d.querySelectorAll('*')) if (n.scrollTop) n.scrollTop = 0;
           return true;`));
-      } else {
-        t.ok(c('hay desplazamiento para medir sticky'), false, true);
       }
       await pagina.evaluar(EN_MARCO(`m.style.height = '${alto}px'; return true;`));
       await pausa(150);
@@ -1617,6 +1651,7 @@ async function escritorio(pagina, base, t) {
         await pausa(150);
         const ab = await leerDesp(pagina);
         t.ok(c('abierto, hay una lista'), ab.nListasEnDom, 1);
+        if (esc) t.ok(c('abierto, la lámina tiene caja visible'), !!ab.lista, true);
         if (esc && ab.lista) {
           t.ok(c('abierto, la lámina mide el ancho del disparador y de la columna'),
             Math.abs(ab.lista.ancho_marco - ab.disp.ancho) < 1 && Math.abs(ab.disp.ancho - LECTURA) < 1, true);
@@ -1632,11 +1667,20 @@ async function escritorio(pagina, base, t) {
       }
     }
   }
-  await pagina.enviar('Emulation.setDeviceMetricsOverride',
-    { width: 900, height: 1400, deviceScaleFactor: 1, mobile: false });
+  await restaurarViewport(pagina);
   t.ok('a 1023 px la columna mide lo mismo que a 768 px',
     !!medidas[1023] && Math.abs(medidas[1023] - medidas[768]) < 1, true);
 }
+
+// `abrirAgregar` deja el override de ventana a >900 px: lo restaura siempre, también si la
+// suite falla a la mitad.
+const conViewportRestaurado = (correr) => async (pagina, base, t) => {
+  try {
+    await correr(pagina, base, t);
+  } finally {
+    await restaurarViewport(pagina);
+  }
+};
 
 module.exports = [
   { nombre: 'Agregar: rótulos, ayuda y campos en claro', correr: (p, b, t) => rotulosYAyuda(p, b, t, 'claro') },
@@ -1651,7 +1695,7 @@ module.exports = [
   { nombre: 'Agregar: tema, estados y foco sin recorte en claro', correr: (p, b, t) => desplegableEstados(p, b, t, 'claro') },
   { nombre: 'Agregar: tema, estados y foco sin recorte en oscuro', correr: (p, b, t) => desplegableEstados(p, b, t, 'oscuro') },
   { nombre: 'Agregar: tema, guardando y «Agregar otra»', correr: desplegableGuardar },
-  { nombre: 'Agregar: tema a 320, 390 y 1280, cerrado y abierto, claro y oscuro', correr: desplegableAnchos },
+  { nombre: 'Agregar: tema a 320, 390 y 1280, cerrado y abierto, claro y oscuro', correr: conViewportRestaurado(desplegableAnchos) },
   { nombre: 'Agregar: celdas, quitar, agregar y guardar en claro', correr: (p, b, t) => estructuraDeOpciones(p, b, t, 'claro') },
   { nombre: 'Agregar: celdas, quitar, agregar y guardar en oscuro', correr: (p, b, t) => estructuraDeOpciones(p, b, t, 'oscuro') },
   { nombre: 'Agregar: los campos crecen con el contenido a 320', correr: camposCrecen },
@@ -1661,6 +1705,6 @@ module.exports = [
   { nombre: 'Agregar: nombres de tema largos a 320 en las cinco materias', correr: temasLargosA320 },
   { nombre: 'Agregar: validación de campos vacíos, en orden', correr: validaciones },
   { nombre: 'Agregar: guardado, «Agregar otra» y aparición en «Mis preguntas»', correr: guardarYVerEnMisPreguntas },
-  { nombre: 'Agregar: sin desborde y 44 × 44 a 320, 360, 390, 768 y 1280 en claro y oscuro', correr: anchos },
+  { nombre: 'Agregar: sin desborde y 44 × 44 a 320, 360, 390, 768 y 1280 en claro y oscuro', correr: conViewportRestaurado(anchos) },
   { nombre: 'Agregar: escritorio, columna `lectura` a 1024, 1366 y 1920 en claro y oscuro', correr: escritorio },
 ];

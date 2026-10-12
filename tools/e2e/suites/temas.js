@@ -702,6 +702,10 @@ async function estadosDeControl(pagina, base, t) {
     m.contentWindow.focus();
     if (d.activeElement && d.activeElement.blur) d.activeElement.blur();
   `));
+  // La barra va primero en el DOM: su «Volver» es la primera parada, sin foco forzado.
+  await pagina.tecla('Tab');
+  t.ok('Tab: la primera parada es «Volver» de la barra (DOM = visual)',
+    await pagina.evaluar(EN_MARCO(`return d.activeElement.getAttribute('data-testid');`)), 'barra-volver');
   let foco = '';
   for (let i = 0; i < 12 && !foco.startsWith('radio:todas'); i++) {
     await pagina.tecla('Tab');
@@ -1152,8 +1156,12 @@ async function escritorioPractice(pagina, base, t) {
         .sort((a, b) => a.izq - b.izq);
       const celdaDe = (v) => celdas.findIndex((c) => v.izq >= c.izq - 1 && v.izq <= c.der + 1);
       const nombreDe = (v) => v.texto.split('\n')[0] || '(control)';
+      // La primera parada es «Volver», de la barra: arriba de todo el contenido (3.12).
+      t.ok(`${pre}: la primera parada de Tab es «Volver», sobre todo el contenido (la barra va primero en el DOM)`,
+        visitados.length > 1 && visitados[0].texto === ''
+          && visitados[0].arriba < Math.min(...visitados.slice(1).map((v) => v.arriba)), true);
       const retrocesos = [];
-      for (let i = 1; i < visitados.length; i++) {
+      for (let i = 2; i < visitados.length; i++) {
         const a = visitados[i - 1], b = visitados[i];
         if (i - 1 < posicionDeMezcla && i < posicionDeMezcla) {
           const ca = celdaDe(a), cb = celdaDe(b);
