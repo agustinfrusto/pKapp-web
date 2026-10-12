@@ -66,7 +66,7 @@ explícita en el mismo pedido.
 ## Prohibido
 
 Reescribir historia (amend, rebase, reset); mergear ramas, salvo `rediseno` o una rama
-derivada → `main`, con orden del operador, y la sincronización `main` → `rediseno` y sus ramas derivadas
+derivada → `main`, con orden del operador, y la sincronización `main` → `rediseno` → ramas derivadas
 (abajo); cambiar de rama sin
 orden; mover o borrar tags; `push --force`.
 
@@ -90,15 +90,19 @@ conflictos:
 
 Convención del operador (2026-10-12): `rediseno-revision-ux` (worktree
 `../pKapp-worktrees/revision-ux`, propuestas de la revisión 5.0b) va siempre por delante de
-`main`, porque en algún momento puede mergearse. Le aplican los puntos 1, 2 y 4 de arriba
-con `rediseno-revision-ux` en lugar de `rediseno`:
+`rediseno`, y `rediseno` por delante de `main`: `main` ⊆ `rediseno` ⊆ `rediseno-revision-ux`
+(operador, 2026-10-12). Le aplican los puntos 2 y 4 de arriba con `rediseno-revision-ux` en
+lugar de `rediseno`, y además:
 
-1. Después de cada push a `main`, también se mergea `main` en `rediseno-revision-ux`, en su
-   worktree y en el mismo momento que en `rediseno`.
+1. Después de cada push a `main`, se mergea `main` en `rediseno` (punto 1 de arriba) y, en el
+   mismo momento, `rediseno` en `rediseno-revision-ux`, en su worktree y en ese orden; `main`
+   no se mergea directo en la rama. Después de cada commit en `rediseno`, también se mergea
+   `rediseno` en `rediseno-revision-ux`.
 2. Antes de cada commit en la rama, `git merge-tree --write-tree --name-only main
    rediseno-revision-ux`.
-3. Invariante verificable: `git merge-base --is-ancestor main rediseno-revision-ux` sale con 0.
-   Si falla, la sincronización está pendiente y va antes de cualquier otro commit en la rama.
+3. Invariantes verificables: `git merge-base --is-ancestor main rediseno` y
+   `git merge-base --is-ancestor rediseno rediseno-revision-ux` salen con 0. Si alguno falla,
+   la sincronización está pendiente y va antes de cualquier otro commit en la rama.
 4. Se mergea directo a `main` (operador, 2026-10-12). Como contiene todo `rediseno`, ese merge
    lleva también el rediseño y reemplaza al de `rediseno` → `main`; la versión se resuelve igual,
    una sola vez, en el commit de `main` que sigue al merge (paso 4). Su merge requiere orden del operador, y
