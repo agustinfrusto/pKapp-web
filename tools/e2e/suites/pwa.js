@@ -264,8 +264,6 @@ async function jsonContraTokens(pagina, base, t) {
   t.ok('app.json: web.themeColor = manifestTema', expo.web.themeColor, claro.manifestTema);
   t.ok('app.json: web.backgroundColor = manifestFondo', expo.web.backgroundColor, claro.manifestFondo);
   t.ok('app.json: splash.backgroundColor = manifestFondo', expo.splash.backgroundColor, claro.manifestFondo);
-  t.ok('app.json: android.adaptiveIcon.backgroundColor = iconoFondo',
-    expo.android.adaptiveIcon.backgroundColor, claro.iconoFondo);
   const favicon = path.join(RAIZ, expo.web.favicon);
   const cuerpoFavicon = fs.existsSync(favicon) ? fs.readFileSync(favicon) : Buffer.alloc(0);
   const esPng = cuerpoFavicon.length > 24 && cuerpoFavicon.subarray(1, 4).toString() === 'PNG';

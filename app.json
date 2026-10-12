@@ -10,19 +10,6 @@
       "resizeMode": "contain",
       "backgroundColor": "#0b0d10"
     },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.agustinfrusto.pkapp",
-      "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
-    },
-    "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#0b0d10"
-      },
-      "package": "com.agustinfrusto.pkapp"
-    },
     "web": {
       "favicon": "./src/assets/favicon.png",
       "bundler": "metro",
@@ -36,12 +23,6 @@
       "orientation": "portrait",
       "startUrl": "/"
     },
-    "icon": "./src/assets/icon.png",
-    "extra": {
-      "eas": {
-        "projectId": "d21e263c-476a-45bf-b355-52d5df4e6005"
-      }
-    },
-    "owner": "agustinfrusto"
+    "icon": "./src/assets/icon.png"
   }
 }

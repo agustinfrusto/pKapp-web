@@ -11,7 +11,10 @@
 //     legadas y los fontSize xxs…display-lg de tailwind.config.js, src/theme/sombras.js;
 //   - restos del navy y el violeta legados fuera de openspec/ y referencias-diseno/, el
 //     campo `color` de src/materias/*/metadata.js y los pares de contraste del tema legado;
-//   - símbolos de ícono (flechas, ×, ✕…) dentro de comentarios de src/, App.js y scripts/.
+//   - símbolos de ícono (flechas, ×, ✕…) dentro de comentarios de src/, App.js y scripts/,
+//     también en los comentarios de bloque de varias líneas sin `*` al inicio de línea;
+//   - claves de app.json que solo sirven a builds nativos: expo.ios, expo.android,
+//     expo.extra.eas y expo.owner.
 //
 // Uso: node tools/ui/legado.mjs
 import fs from 'fs';
@@ -87,6 +90,10 @@ for (const p of app.plugins || []) {
   const nombre = Array.isArray(p) ? p[0] : p;
   if (nombre === 'expo-sqlite') fallo('app.json plugins: expo-sqlite');
 }
+for (const clave of ['ios', 'android', 'owner']) {
+  if (clave in app) fallo(`app.json expo.${clave} (solo sirve a builds nativos)`);
+}
+if (app.extra && 'eas' in app.extra) fallo('app.json expo.extra.eas (solo sirve a builds nativos)');
 
 if (/sqlite/i.test(fs.readFileSync(abs('metro.config.js'), 'utf8'))) {
   fallo('metro.config.js nombra sqlite (exclusión de expo-sqlite)');
@@ -144,12 +151,32 @@ function comentarios(linea) {
   const bloque = /\/\*.*?\*\//.exec(linea);
   return [cola && cola[1], bloque && bloque[0]].filter(Boolean).join(' ');
 }
+// Texto de comentario de cada línea. Lleva el estado de un comentario de bloque que sigue
+// abierto, para que sus líneas de continuación cuenten aunque no empiecen con `*`.
+function comentariosPorLinea(texto) {
+  let abierto = false;
+  return texto.split('\n').map((linea) => {
+    if (abierto) {
+      const fin = linea.indexOf('*/');
+      if (fin < 0) return linea;
+      abierto = false;
+      return linea.slice(0, fin + 2) + ' ' + comentarios(linea.slice(fin + 2));
+    }
+    const c = comentarios(linea);
+    const apertura = /\/\*(?:(?!\*\/).)*$/.exec(linea);
+    // Un `/*` detrás de una cola `// …` ya es parte de ese comentario de línea.
+    if (apertura && !/(?:^|\s)\/\//.test(linea.slice(0, apertura.index))) {
+      abierto = true;
+      return [c, apertura[0]].filter(Boolean).join(' ');
+    }
+    return c;
+  });
+}
 const DATOS = /(?:questions|ilustracion|glifos)\.js$/;
 const CON_COMENTARIOS = [...dentro('src'), ...dentro('scripts'), abs('App.js')]
   .filter((f) => /\.(m?js|cjs)$/.test(f) && !DATOS.test(f));
 for (const f of CON_COMENTARIOS) {
-  fs.readFileSync(f, 'utf8').split('\n').forEach((linea, i) => {
-    const c = comentarios(linea);
+  comentariosPorLinea(fs.readFileSync(f, 'utf8')).forEach((c, i) => {
     if (c && SIMBOLOS.test(c)) fallo(`${rel(f)}:${i + 1} símbolo de ícono en un comentario`);
   });
 }

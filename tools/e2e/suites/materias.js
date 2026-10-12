@@ -72,7 +72,7 @@ const LEER_SVGS = `Array.from(document.querySelectorAll('svg')).filter((s) => {
 })`;
 
 async function svgDelDom(pagina, base, t) {
-  // Valores de la build con react-native-svg, tomados antes del cambio.
+  // Valores de la build anterior del SVG, tomados antes del cambio.
   const GLIFO_16 = { width: '16', height: '16', viewBox: '0 0 16 16',
     par: 'xMidYMid meet', trazo: '1.5', oculto: 'true' };
   const GLIFO_24 = { ...GLIFO_16, width: '24', height: '24', trazo: '1' };

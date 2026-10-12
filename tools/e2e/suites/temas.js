@@ -1920,7 +1920,7 @@ async function capturasDeLaTrece(pagina, base, t) {
 }
 
 // ===========================================================================
-// GRUPO B · tarea 2.10, plan B de D2 (Ilustracion.web.js: <svg> del DOM)
+// GRUPO B · tarea 2.10, plan B de D2 (Ilustracion.js: <svg> del DOM)
 // ===========================================================================
 
 module.exports = [
