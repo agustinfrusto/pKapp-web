@@ -37,9 +37,6 @@
       "startUrl": "/"
     },
     "icon": "./src/assets/icon.png",
-    "plugins": [
-      "expo-sqlite"
-    ],
     "extra": {
       "eas": {
         "projectId": "d21e263c-476a-45bf-b355-52d5df4e6005"

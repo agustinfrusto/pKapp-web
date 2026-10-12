@@ -1,5 +1,5 @@
-// Chequeo del plan B de D2 (tarea 2.10): `src/components/Ilustracion.web.js` dibuja con
-// <svg> del DOM y `react-native-svg` no entra al bundle web.
+// Chequeo del plan B de D2 (tarea 2.10): `src/components/Ilustracion.js` dibuja con
+// <svg> del DOM y `react-native-svg` ya no es una dependencia (tarea 5.0).
 //
 //   node tools/ui/svg-web.mjs        (sale con código ≠ 0 si algo falla; requiere dist/)
 //
@@ -7,8 +7,8 @@
 //       propios de `react-native-svg` de MARCADORES;
 //   (b) el shell gzip, con el método de evidencia/base.md (`gzip -c` por defecto, JS + CSS
 //       sumados), no supera BASE + PRESUPUESTO (D5);
-//   (c) `Ilustracion.web.js`, renderizado con react-dom/server, cumple el contrato de
-//       `Ilustracion.js`: medidas, encuadre, trazo, tono `acento`, `relleno`,
+//   (c) `Ilustracion.js`, renderizado con react-dom/server, cumple el contrato de
+//       datos de `Ilustracion` (design.md D2): medidas, encuadre, trazo, tono `acento`, `relleno`,
 //       `limiteInglete`, `style` plano y `aria-hidden="true"`.
 import fs from 'fs';
 import os from 'os';
@@ -78,7 +78,7 @@ function chequearShell() {
     total <= LIMITE_SHELL, true);
 }
 
-// --- (c): el contrato de Ilustracion.web.js --------------------------------
+// --- (c): el contrato de Ilustracion.js --------------------------------
 
 // Carga un módulo ESM del árbol como CommonJS, sin tocarlo: sucrase lo transpila a un
 // directorio temporal y `react`, `react-dom` y `react-native` (= react-native-web, como
@@ -117,10 +117,10 @@ function leerSvg(html) {
 }
 
 function chequearContrato() {
-  console.log('\nIlustracion.web.js');
-  const archivo = path.join(RAIZ, 'src', 'components', 'Ilustracion.web.js');
+  console.log('\nIlustracion.js');
+  const archivo = path.join(RAIZ, 'src', 'components', 'Ilustracion.js');
   if (!fs.existsSync(archivo)) {
-    ok('existe src/components/Ilustracion.web.js', false, true);
+    ok('existe src/components/Ilustracion.js', false, true);
     return;
   }
   const restaurar = renderizador();

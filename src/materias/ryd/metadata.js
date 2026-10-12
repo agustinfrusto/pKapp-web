@@ -6,6 +6,5 @@ export const metadata = {
   description: 'Preparación para el examen.',
   icon:        '🤰',
   image:       require('../../assets/materias/ryd.png'),
-  color:       '#1a3f6f',
   available:   true,
 };

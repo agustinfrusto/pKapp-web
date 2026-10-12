@@ -94,10 +94,10 @@ function chequearComponente(falla) {
     falla('componente', 'Glifo no distingue decorativo (sin label) de imagen con label');
   }
   if (!/role: 'img'/.test(codigo) || !/accessibilityRole: 'image'/.test(codigo)) {
-    falla('componente', 'Glifo con label no declara rol de imagen (web y nativo)');
+    falla('componente', 'Glifo con label no declara rol de imagen (role y accessibilityRole)');
   }
   const ilus = fs.readFileSync(path.join(RAIZ, 'src', 'components', 'Ilustracion.js'), 'utf8');
-  if (!/strokeWidth=\{anchoTrazo \?\? trazo\.ancho\}/.test(ilus)) {
+  if (!/strokeWidth:\s*anchoTrazo \?\? trazo\.ancho/.test(ilus)) {
     falla('componente', 'Ilustracion no aplica `anchoTrazo` a strokeWidth');
   }
 }

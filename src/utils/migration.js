@@ -1,5 +1,5 @@
 // Utilidades para exportar/importar el progreso del usuario.
-// Soporta migración entre dominios (ej. pkapp-web.vercel.app → pkapp.uy).
+// Soporta migración entre dominios (ej. de pkapp-web.vercel.app a pkapp.uy).
 //
 // Solo funciona en web (en nativo no hay un caso de uso para migrar).
 

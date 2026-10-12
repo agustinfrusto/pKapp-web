@@ -1,20 +1,17 @@
-// Configuración de Metro para excluir expo-sqlite del bundle web.
+// Configuración de Metro para el build web de pKapp.
 const { getDefaultConfig } = require('expo/metro-config');
 const { withNativeWind } = require('nativewind/metro');
 const path = require('path');
 
 // El orden importa: withNativeWind devuelve una config con su propio resolver.
-// Si se envolviera al final, pisaría el resolveRequest de abajo y el stub de
-// expo-sqlite dejaría de aplicarse en web — un fallo que solo se ve al exportar.
+// Si se envolviera al final, pisaría el resolveRequest de abajo y el shim de
+// decode-uri-component dejaría de aplicarse — un fallo que solo se ve al exportar.
 const config = withNativeWind(getDefaultConfig(__dirname), {
   input: './global.css',
 });
 
 // Fuentes web de D4: Metro no trae woff2 entre sus assetExts.
 config.resolver.assetExts.push('woff2');
-
-// Stub vacío al que redirigir expo-sqlite y sus internals en web
-const emptyShim = path.resolve(__dirname, 'src/db/sqlite-stub.js');
 
 // query-string@7 (dependencia de @react-navigation/core) hace require() de
 // decode-uri-component, que desde la 0.5.0 es ESM puro. Se mantiene la 0.5.0
@@ -24,16 +21,6 @@ const decodeUriComponentShim = path.resolve(__dirname, 'src/shims/decode-uri-com
 const originalResolveRequest = config.resolver.resolveRequest;
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {
-  if (platform === 'web') {
-    // Cualquier cosa que toque expo-sqlite (incluyendo workers internos) → stub vacío
-    if (
-      moduleName === 'expo-sqlite' ||
-      moduleName.startsWith('expo-sqlite/') ||
-      moduleName.includes('wa-sqlite')
-    ) {
-      return { type: 'sourceFile', filePath: emptyShim };
-    }
-  }
   // Solo este módulo: el resto de las resoluciones no se toca.
   if (moduleName === 'decode-uri-component') {
     return { type: 'sourceFile', filePath: decodeUriComponentShim };

@@ -1,7 +1,5 @@
 // Tokens visuales de pKapp. Fuente única de verdad: ningún archivo de pantalla
 // debe volver a llevar un color, radio o tamaño literal.
-// Los neutros no se declaran: la escala `slate` por defecto de Tailwind coincide
-// exacto con los nueve grises que la app ya venía usando.
 /** @type {import('tailwindcss').Config} */
 const { CORTE_ESCRITORIO, CORTE_AMPLIO, ANCHOS } = require('./src/components/plancha/cortes');
 
@@ -12,18 +10,12 @@ module.exports = {
   theme: {
     extend: {
       colors: (() => {
-        const { colores, oscuro, plancha } = require('./src/theme/colores');
-        // Las contrapartes oscuras entran como familias `*D`, consumidas con la
-        // variante `dark:` de Tailwind. Un mismo nombre no puede tener dos valores.
+        const { plancha } = require('./src/theme/colores');
         // Plancha entra plano (`bg-fondo`); su contraparte oscura lleva sufijo D
-        // (`dark:bg-fondoD`).
+        // (`dark:bg-fondoD`). Un mismo nombre no puede tener dos valores.
         const planchaD = Object.fromEntries(
           Object.entries(plancha.oscuro).map(([k, v]) => [`${k}D`, v]));
-        return { ...colores, ...plancha.claro, ...planchaD,
-                 brandD: oscuro.brand, accentD: oscuro.accent,
-                 mutedD: oscuro.muted, successD: oscuro.success,
-                 dangerD: oscuro.danger, warningD: oscuro.warning,
-                 parcialD: oscuro.parcial };
+        return { ...plancha.claro, ...planchaD };
       })(),
       fontFamily: {
         'plex-sans':          ['PlexSans-Regular', 'system-ui', 'sans-serif'],
@@ -32,17 +24,6 @@ module.exports = {
         'plex-mono-medium':   ['PlexMono-Medium', 'ui-monospace', 'monospace'],
       },
       fontSize: {
-        xxs: '11px',
-        xs: '12px',
-        sm: '13px',
-        base: '14px',
-        md: '16px',
-        lg: '20px',
-        xl: '24px',
-        // Cifras de resultado, no texto.
-        'display-sm': '36px',
-        'display-md': '56px',
-        'display-lg': '64px',
         // Escala Plancha (tokens.md b.2): se escribe siempre con un `font-plex-*`.
         marca:   ['28px', { lineHeight: '28px', letterSpacing: '-0.28px' }],
         titulo:  ['18px', { lineHeight: '24px' }],

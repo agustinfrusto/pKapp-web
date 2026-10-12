@@ -1,5 +1,5 @@
 // Config de Digestivo, Renal y Endócrino. Materia SIN parciales: un único examen.
-// parciales: null → la UI omite el filtro de parcial.
+// parciales: null significa que la UI omite el filtro de parcial.
 export const config = {
   examSize: 50, // examen de 50 preguntas
   parciales: null,

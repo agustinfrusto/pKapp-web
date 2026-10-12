@@ -340,8 +340,8 @@ export default function RegionAvisos({
   );
 }
 
-// Una nota (Banners.md §3.14.2): × a ras del marco, rótulo con glifo, párrafos y contacto.
-// En DOM el × va primero (en pantalla está arriba a la derecha: orden de foco = visual).
+// Una nota (Banners.md §3.14.2): el botón de cerrar a ras del marco, rótulo con glifo, párrafos y contacto.
+// En DOM el botón de cerrar va primero (en pantalla está arriba a la derecha: orden de foco = visual).
 function Nota({
   aviso, tema, solo, posicion, total, activa, contorno, registrar, alContornear, alDescartar,
 }) {
@@ -357,7 +357,7 @@ function Nota({
     if (e.target === e.currentTarget && esFocoVisible(e.target, false)) alContornear(true);
   }
 
-  // El × va primero en el DOM y con `zIndex`: sin él, el encabezado (que le sigue) lo tapa.
+  // El botón de cerrar va primero en el DOM y con `zIndex`: sin él, el encabezado (que le sigue) lo tapa.
   return (
     <View
       ref={registrar}

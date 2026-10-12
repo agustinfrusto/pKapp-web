@@ -5,8 +5,8 @@
 //   - cada regla @font-face que inyecta fuentes.web.js (se evalúa el módulo y se parsea
 //     el CSS generado) tiene un font-family igual a uno de los 4 nombres registrados,
 //     `font-display: swap` y apunta a su propio woff2; los 4 nombres, sin duplicados;
-//   - las claves de fuentes.js y el fontFamily de tailwind.config.js son los mismos 4;
-//   - los 4 ttf y la licencia OFL acompañan a los woff2.
+//   - el fontFamily de tailwind.config.js declara esos mismos 4;
+//   - la licencia OFL acompaña a los woff2 (los ttf nativos se retiraron en la 5.0).
 //
 // Uso: node tools/ui/fuentes.mjs
 import fs from 'fs';
@@ -19,7 +19,6 @@ import { fileURLToPath } from 'url';
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const DIR = path.join(RAIZ, 'src', 'assets', 'fuentes');
 const WEB = path.join(RAIZ, 'src', 'theme', 'fuentes.web.js');
-const NATIVO = path.join(RAIZ, 'src', 'theme', 'fuentes.js');
 
 const FUENTES = ['PlexSans-Regular', 'PlexSans-SemiBold', 'PlexMono-Regular', 'PlexMono-Medium'];
 const PRESUPUESTO = 102400;
@@ -135,7 +134,6 @@ for (const nombre of FUENTES) {
       fallo(`${nombre}.woff2 ilegible: ${e.message}`);
     }
   }
-  if (!existe(path.join(DIR, `${nombre}.ttf`))) fallo(`falta ${nombre}.ttf (nativo)`);
 }
 if (total > PRESUPUESTO) fallo(`los woff2 suman ${total} B, el presupuesto es ${PRESUPUESTO} B`);
 if (!existe(path.join(DIR, 'OFL.txt'))) fallo('falta src/assets/fuentes/OFL.txt');
@@ -189,17 +187,6 @@ if (!existe(WEB)) {
     exigirNombres('fuentes.web.js', familias);
   } catch (e) {
     fallo(`fuentes.web.js no se pudo evaluar: ${e.message}`);
-  }
-}
-
-if (!existe(NATIVO)) {
-  fallo('falta src/theme/fuentes.js');
-} else {
-  const nativo = sinComentarios(fs.readFileSync(NATIVO, 'utf8'));
-  const claves = [...nativo.matchAll(/['"]([^'"]+)['"]\s*:\s*require\(\s*['"]([^'"]+)['"]\s*\)/g)];
-  exigirNombres('fuentes.js', claves.map((m) => m[1]));
-  for (const [, nombre, archivo] of claves) {
-    if (path.basename(archivo) !== `${nombre}.ttf`) fallo(`fuentes.js: ${nombre} apunta a ${path.basename(archivo)}`);
   }
 }
 

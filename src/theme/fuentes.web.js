@@ -1,6 +1,5 @@
 // Carga de las fuentes IBM Plex en web (design.md D4): @font-face con
-// `font-display: swap` sobre los woff2 con subset latin. Selección por plataforma
-// como src/db/database.web.js; en nativo resuelve src/theme/fuentes.js.
+// `font-display: swap` sobre los woff2 con subset latin.
 //
 // No bloquea: inyectar la hoja es síncrono y barato, y el navegador descarga
 // cada woff2 solo cuando algún texto usa su familia. Con swap, ese texto se

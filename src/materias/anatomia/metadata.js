@@ -6,6 +6,5 @@ export const metadata = {
   description: 'Preparación para parciales de Anatomía.',
   icon:        '🩻',
   image:       require('../../assets/materias/anatomia.png'),
-  color:       '#1a3f6f',
   available:   true,
 };

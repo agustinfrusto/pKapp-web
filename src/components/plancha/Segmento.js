@@ -64,7 +64,7 @@ export default function Segmento({
   const f = elegir(FORMAS, forma, 'filtro', 'forma');
 
   function alTeclear(e, indice) {
-    // Con Alt, Ctrl o Meta no se actúa: Alt+← y Cmd+← son «atrás» del navegador.
+    // Con Alt, Ctrl o Meta no se actúa: Alt+flecha izquierda y Cmd+flecha izquierda son «atrás» del navegador.
     if (e.altKey || e.ctrlKey || e.metaKey) return;
     const paso = PASO_POR_TECLA[e.key];
     if (e.key !== ESPACIO && paso === undefined) return;

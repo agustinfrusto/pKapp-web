@@ -21,7 +21,7 @@ const APROBADO_MIN_SCORE = 60;
 
 // Donación post-simulacro (solo web, Mercado Pago).
 const DONATION_MIN_SCORE = 60;          // solo aparece en buenos resultados (≥60%)
-const DONATION_WARM_SCORE = 80;         // ≥80% → pedido más celebratorio
+const DONATION_WARM_SCORE = 80;         // con 80% o más, pedido más celebratorio
 const DONATION_COUNT_KEY = 'pkapp_donation_count';
 const DONATION_EVERY = 3;               // muestra el pedido en 1 de cada 3 aprobados
 
@@ -71,7 +71,7 @@ export default function ResultsScreen({ route, navigation }) {
   // Simulacros terminados incluyendo este: se lee antes de que el efecto lo cuente.
   const [uso] = useState(() => usoTrasTerminar());
   const contado = useRef(false);
-  // Una vista por simulacro terminado: sobrevive a Revisar → Volver, que remonta el pedido.
+  // Una vista por simulacro terminado: sobrevive a Revisar y luego Volver, que remonta el pedido.
   const vistaEnviada = useRef(false);
 
   useEffect(() => {

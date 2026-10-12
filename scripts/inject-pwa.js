@@ -155,7 +155,7 @@ if (!esProduccion) {
   console.log(`  analítica omitida: ${rama ? `rama ${rama}` : 'build local'}`);
 } else {
   // 3. (Opcional) Cloudflare Web Analytics
-  // Para activarlo en Cloudflare Pages: settings → environment variables →
+  // Para activarlo en Cloudflare Pages: Settings, Environment variables,
   // agregar CF_ANALYTICS_TOKEN con el token del beacon.
   const cfToken = process.env.CF_ANALYTICS_TOKEN;
   if (cfToken && !html.includes('static.cloudflareinsights.com')) {
