@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Genera las piezas del favicon y del ícono de pKapp ("pK") a partir de la geometría de este archivo.
+"""Genera los íconos de la app instalada de pKapp ("pK", PWA) a partir de la geometría de este archivo.
+
+Piezas: favicon.svg (maestra: íconos `any` y apple-touch), icon-maskable.svg y sus PNG, más la lámina de prueba.
+El favicon de la pestaña del navegador ya no sale de aquí: es FAV-P2 y lo genera generar-42.py (tarea 4.2).
 
 Uso (desde cualquier carpeta):  python3 -I generar.py
 Requiere rsvg-convert (brew install librsvg) y Google Chrome (solo para la lámina).
@@ -25,7 +28,7 @@ def n(v):
 
 def pk(c, ox, oy, ancho_p, punto=None):
     """Marca pK. `c`: celda en unidades del lienzo de 512; (ox, oy): esquina superior izquierda de la
-    caja; `ancho_p`: ancho del aro en celdas (8 = círculo, 7 = óvalo de la versión chica);
+    caja; `ancho_p`: ancho del aro en celdas (8 = círculo; otro valor da un óvalo);
     `punto`: radio en celdas del punto teal (None = sin punto). Devuelve (svg, puntos_extremos)."""
     X = lambda v: ox + v * c
     Y = lambda v: oy + v * c
@@ -68,9 +71,6 @@ def svg(cuerpo):
             f'<rect width="512" height="512" fill="{TINTA}"/>{cuerpo}</svg>\n')
 
 
-# Chica (16 a 48 px): celda de 32 u sobre retícula de 16; los bordes rectos caen en píxel a 16, 32 y 48 px.
-# Aro óvalo de 7 x 8: la caja queda de 14 x 14 con 1 celda de margen y el hueco del aro mide 3 x 4 px a 16 px.
-CHICA, _ = pk(32, 32, 32, 7)
 # Maestra (>= 192 px) y maskable: aro circular, el mismo de la versión con "p".
 MAESTRA, _ = pk(20, 106, 116, 8, punto=0.6)
 MASCARA, EXTREMOS_MASCARA = pk(19, 113.5, 123, 8, punto=0.6)
@@ -81,13 +81,10 @@ COTA = (f'<path d="M106 424 H406 M106 414 V434 M406 414 V434" fill="none" stroke
 
 PIEZAS_SVG = {
     'favicon.svg': svg(ESQUINAS + MAESTRA + COTA),   # marca + esquinas y cota (gramática de la Plancha)
-    'favicon-small.svg': svg(CHICA),                 # solo p y K, sin punto, esquinas ni cota
     'icon-maskable.svg': svg(MASCARA),               # marca + punto, dentro del círculo del 80 %
 }
 
 RASTER = [  # (svg, salida, px)
-    ('favicon-small.svg', 'favicon-16.png', 16), ('favicon-small.svg', 'favicon-32.png', 32),
-    ('favicon-small.svg', 'favicon.png', 48),
     ('favicon.svg', 'apple-touch-icon.png', 180),
     ('favicon.svg', 'icon-192.png', 192), ('favicon.svg', 'icon-512.png', 512),
     ('favicon.svg', 'icon.png', 1024), ('icon-maskable.svg', 'icon-maskable-512.png', 512),
@@ -109,7 +106,7 @@ def main():
     if '--sin-lamina' not in sys.argv:
         chrome = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
         subprocess.run([chrome, '--headless=new', '--disable-gpu', '--hide-scrollbars', '--force-device-scale-factor=1',
-                        '--window-size=1340,680', '--virtual-time-budget=6000',
+                        '--window-size=500,680', '--virtual-time-budget=6000',
                         f'--screenshot={AQUI / "favicon-prueba.png"}', f'file://{AQUI / "prueba.html"}'],
                        check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     print(f'ok · maskable: radio máximo {radio:.1f} de {R_SEGURO}')

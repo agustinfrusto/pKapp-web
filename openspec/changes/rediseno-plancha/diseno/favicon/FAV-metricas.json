@@ -1,0 +1,56 @@
+{
+  "id": "FAV-P2",
+  "nombre": "Letras y punto",
+  "fondo": "#0B0D10",
+  "letras": "#E6E9ED",
+  "punto": "#5CC3D6",
+  "letras_sobre_fondo": 15.97,
+  "punto_sobre_fondo": 9.48,
+  "pestanas_de_chrome_155": {
+    "claro_activa": "#FFFFFF",
+    "claro_franja": "#D6E2FB",
+    "oscuro_activa": "#3C3C3C",
+    "oscuro_franja": "#1F2020"
+  },
+  "cuadrado_contra_pestana": {
+    "claro_activa": 19.45,
+    "claro_franja": 14.94,
+    "oscuro_activa": 1.76,
+    "oscuro_franja": 1.19
+  },
+  "medidas": {
+    "16": {
+      "px": 16,
+      "medios_tonos": 0,
+      "pixeles_de_trazo": 92,
+      "caja": [
+        1,
+        1,
+        14,
+        14
+      ]
+    },
+    "32": {
+      "px": 32,
+      "medios_tonos": 127,
+      "pixeles_de_trazo": 410,
+      "caja": [
+        2,
+        2,
+        30,
+        29
+      ]
+    },
+    "48": {
+      "px": 48,
+      "medios_tonos": 201,
+      "pixeles_de_trazo": 890,
+      "caja": [
+        3,
+        3,
+        45,
+        44
+      ]
+    }
+  }
+}

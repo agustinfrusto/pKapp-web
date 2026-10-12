@@ -1,0 +1,123 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>pKapp · prueba del favicon vigente (FAV-P2)</title>
+<style>
+@font-face{font-family:'Plex Sans';font-weight:400;src:url('../../../../../src/assets/fuentes/PlexSans-Regular.woff2') format('woff2')}
+@font-face{font-family:'Plex Sans';font-weight:600;src:url('../../../../../src/assets/fuentes/PlexSans-SemiBold.woff2') format('woff2')}
+@font-face{font-family:'Plex Mono';font-weight:400;src:url('../../../../../src/assets/fuentes/PlexMono-Regular.woff2') format('woff2')}
+@font-face{font-family:'Plex Mono';font-weight:500;src:url('../../../../../src/assets/fuentes/PlexMono-Medium.woff2') format('woff2')}
+*{box-sizing:border-box;margin:0;padding:0;border-radius:0}
+html{background:#f4f5f6}
+body{width:1100px;font-family:'Plex Sans',system-ui,sans-serif;color:#14181d}
+img{display:block}
+.mundo{--bg:#f4f5f6;--sup:#fff;--tinta:#14181d;--sec:#4a525c;--linea:#14181d;--filete:#b9bfc6;padding:28px 36px 30px;background:var(--bg);color:var(--tinta)}
+.mundo.oscuro{--bg:#0b0d10;--sup:#12161b;--tinta:#e6e9ed;--sec:#98a2ae;--linea:#c9d0d8;--filete:#2b323a}
+body.solo-claro .mundo.oscuro,body.solo-oscuro .mundo.claro{display:none}
+h1{font:500 13px 'Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.sub{font:400 11px/16px 'Plex Mono',monospace;letter-spacing:.05em;text-transform:uppercase;color:var(--sec);max-width:1020px}
+h2{font:500 11px 'Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;margin:22px 0 10px;padding-top:10px;border-top:1px solid var(--linea)}
+.ley{display:grid;grid-template-columns:1fr;gap:0 14px;margin-top:14px;font:400 11px/16px 'Plex Sans',sans-serif}
+.ley b{font:500 11px 'Plex Mono',monospace;letter-spacing:.06em;display:block;margin-bottom:2px}
+.cab{display:grid;grid-template-columns:200px 330px 330px 170px;gap:0 14px;font:400 11px 'Plex Mono',monospace;letter-spacing:.07em;text-transform:uppercase;color:var(--sec);padding-bottom:6px}
+.fila{display:grid;grid-template-columns:200px 330px 330px 170px;gap:0 14px;padding:12px 0;border-top:1px solid var(--filete);align-items:start}
+.rot{font:500 12px 'Plex Mono',monospace;letter-spacing:.06em}
+.nom{font:600 14px 'Plex Sans',sans-serif;margin:3px 0 10px;line-height:18px}
+.lupa{display:flex;gap:10px;align-items:flex-end}
+.lupa img{image-rendering:pixelated;outline:1px solid var(--filete);outline-offset:0}
+.reales{display:flex;gap:10px;align-items:flex-end;margin-top:8px}
+.pie{font:400 10px/14px 'Plex Mono',monospace;letter-spacing:.05em;text-transform:uppercase;color:var(--sec);margin-top:4px}
+/* navegadores simulados */
+.win{width:330px;overflow:hidden;font:12px/1 system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif}
+.dos{width:330px;height:140px;overflow:hidden;margin-top:6px}
+.dos .z{zoom:2;width:330px}
+.win .fav{width:16px;height:16px;flex:none}
+.win .t{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.win .x{width:10px;height:10px;flex:none;position:relative;opacity:.8}
+.win .x:before,.win .x:after{content:'';position:absolute;left:4px;top:-1px;width:1.2px;height:12px;background:currentColor;transform:rotate(45deg)}
+.win .x:after{transform:rotate(-45deg)}
+.gen{width:16px;height:16px;flex:none}
+/* Chrome */
+.chrome .strip{height:38px;display:flex;align-items:flex-end;padding:0 8px;background:var(--cs)}
+.chrome .tab{height:32px;width:104px;display:flex;align-items:center;gap:8px;padding:0 10px;border-radius:8px 8px 0 0;color:var(--ci)}
+.chrome .tab.on{background:var(--ca);color:var(--ct)}
+.chrome .bar{height:30px;display:flex;align-items:center;gap:16px;padding:0 12px;background:var(--ca);color:var(--cb);border-bottom:1px solid var(--cl);font-size:12px}
+.chrome .bar span{display:flex;align-items:center;gap:6px}
+.chrome.claro{--cs:#d6e2fb;--ca:#fff;--ct:#202124;--ci:#5f6368;--cb:#3c4043;--cl:#e1e3e1}
+.chrome.oscuro{--cs:#1f2020;--ca:#3c3c3c;--ct:#e8eaed;--ci:#9aa0a6;--cb:#e8eaed;--cl:#4f4f4f}
+/* Safari (colores aproximados) */
+.safari .strip{height:32px;display:flex;background:var(--ss)}
+.safari .tab{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 8px;font-size:11px;color:var(--si);border-left:1px solid var(--sl);min-width:0}
+.safari .tab:first-child{border-left:0}
+.safari .tab.on{background:var(--sa);color:var(--st)}
+.safari .bar{height:28px;display:flex;align-items:center;gap:14px;padding:0 12px;background:var(--sb);color:var(--st);border-bottom:1px solid var(--sl);font-size:11px}
+.safari .bar span{display:flex;align-items:center;gap:6px}
+.safari.claro{--ss:#dcdcdf;--sa:#f9f9fa;--st:#1d1d1f;--si:#6e6e73;--sl:#c8c8cc;--sb:#ececee}
+.safari.oscuro{--ss:#2b2b2d;--sa:#434345;--st:#f5f5f7;--si:#98989d;--sl:#1f1f21;--sb:#363638}
+/* encabezado real */
+.enc{display:grid;grid-template-columns:372px 1fr;gap:0 28px;align-items:start}
+.lam{width:372px;height:196px;overflow:hidden;border:1px solid var(--filete);background-repeat:no-repeat;background-size:390px auto;background-position:-9px -73px}
+.wm{display:grid;grid-template-columns:34px 150px 1fr;gap:0 14px;align-items:center;padding:8px 0;border-top:1px solid var(--filete)}
+.wm .p{font:600 32px/32px 'Plex Sans',sans-serif;letter-spacing:-.32px}
+.wm .g{font:600 95px/96px 'Plex Sans',sans-serif;letter-spacing:-.95px}
+.wm .lab{font:500 11px 'Plex Mono',monospace;letter-spacing:.06em}
+.tres{display:flex;gap:10px;align-items:center}
+.pwa{display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap;background:#aeb6bf;padding:18px;color:#14181d}
+.pwa figure{font:400 10px/14px 'Plex Mono',monospace;letter-spacing:.05em;text-transform:uppercase;color:#14181d}
+.pwa figcaption{margin-top:6px}
+.ios{width:90px;height:90px;border-radius:22.37%;overflow:hidden}
+.circ{width:96px;height:96px;border-radius:50%;overflow:hidden}
+</style></head><body>
+<script>
+const P=[
+ {id:'FAV-P2',nom:'Letras y punto',f16:'FAV-P2-16.png',f32:'FAV-P2-32.png',f48:'FAV-P2-48.png',svg:'FAV-P2.svg',txt:'Vigente desde 2026-10-11 (decisión del usuario, CONVENCIONES.md C2). «p» y «K» de Plex Sans SemiBold ajustadas a la retícula, cuadrado de tinta, letras de papel y el punto teal del isologo en el aro.'}
+];
+const q=new URLSearchParams(location.search).get('tema');
+if(q==='claro'||q==='oscuro'){document.body.classList.add('solo-'+q);document.documentElement.style.background=q==='oscuro'?'#0b0d10':'#f4f5f6';}
+const gen=['#8a9099','#b3a27a','#7a9aa8'];
+const genIco=i=>`<svg class="gen" viewBox="0 0 16 16"><rect width="16" height="16" fill="${gen[i%3]}"/><rect x="4" y="4" width="8" height="8" fill="none" stroke="#fff" stroke-width="1.5"/></svg>`;
+const chrome=(t,p,src)=>`<div class="win chrome ${t}"><div class="strip">
+ <div class="tab on"><img class="fav" src="${src}" alt=""><span class="t">pKapp · Materias</span><i class="x"></i></div>
+ <div class="tab"><img class="fav" src="${src}" alt=""><span class="t">pKapp · Materias</span></div>
+ <div class="tab">${genIco(0)}<span class="t">Apuntes</span></div></div>
+ <div class="bar"><span><img class="fav" src="${src}" alt="">pKapp</span><span>${genIco(1)}Apuntes</span><span>${genIco(2)}Correo</span></div></div>`;
+const safari=(t,p,src)=>`<div class="win safari ${t}"><div class="strip">
+ <div class="tab on"><img class="fav" src="${src}" alt=""><span class="t">pKapp · Materias</span></div>
+ <div class="tab">${genIco(0)}<span class="t">Apuntes</span></div>
+ <div class="tab">${genIco(2)}<span class="t">Correo</span></div></div>
+ <div class="bar"><span><img class="fav" src="${src}" alt="">pKapp</span><span>${genIco(1)}Apuntes</span><span>${genIco(2)}Correo</span></div></div>`;
+const mundo=t=>{
+ const filas=P.map(p=>`<div class="fila">
+  <div><div class="rot">${p.id}</div><div class="nom">${p.nom}</div>
+   <div class="lupa"><img src="${p.f16}" width="128" height="128" alt=""></div>
+   <div class="reales"><img src="${p.f16}" width="16" height="16" alt=""><img src="${p.f32}" width="32" height="32" alt=""><img src="${p.f48}" width="48" height="48" alt=""></div>
+   <div class="pie">16 ×8 · reales 16, 32, 48 px</div></div>
+  <div>${chrome(t,p,p.f16)}<div class="dos"><div class="z">${chrome(t,p,p.f32)}</div></div></div>
+  <div>${safari(t,p,p.f16)}<div class="dos"><div class="z">${safari(t,p,p.f32)}</div></div></div>
+  <div><div class="lupa"><img src="${p.f32}" width="128" height="128" alt=""></div><div class="pie">32 ×4</div></div>
+ </div>`).join('');
+ const wm=P.map(p=>`<div class="wm"><div class="lab">${p.id.slice(4)}</div>
+  <div class="tres"><img src="${p.svg}" width="32" height="32" alt=""><span class="p">pKapp</span></div>
+  <div class="tres"><img src="${p.svg}" width="96" height="96" alt=""><span class="g">pKapp</span></div></div>`).join('');
+ const pwa=`<div class="pwa">
+  <figure><img src="icon-192.png" width="96" height="96" alt=""><figcaption>icon-192 · any</figcaption></figure>
+  <figure><div class="ios"><img src="apple-touch-icon.png" width="90" height="90" alt=""></div><figcaption>apple-touch · iOS</figcaption></figure>
+  <figure><div class="circ"><img src="icon-maskable-512.png" width="96" height="96" alt=""></div><figcaption>maskable · círculo</figcaption></figure>
+  ${P.map(p=>`<figure><img src="${p.svg}" width="96" height="96" alt=""><figcaption>${p.id} · 96 px</figcaption></figure>`).join('')}</div>`;
+ return `<section class="mundo ${t}">
+  <h1>pKapp · favicon vigente FAV-P2 · prueba de legibilidad · ${t}</h1>
+  <div class="sub">Tamaños reales: la fila «1×» usa el PNG de 16 px; la fila «2×» usa el PNG de 32 px a 16 pt, como una pantalla Retina (la pestaña activa y la vecina). Chrome con los colores medidos en Chrome 155 (4.2b); Safari con colores aproximados. Son maquetas, no capturas de los navegadores. A 1× en Chrome/macOS el navegador reduce el PNG de 32 px y no usa el de 16 (4.2b): la fila «1×» vale para los navegadores que sí eligen el de 16.</div>
+  <div class="ley">${P.map(p=>`<div><b>${p.id}</b>${p.txt}</div>`).join('')}</div>
+  <h2>Pestaña activa, pestaña vecina y barra de favoritos · ${t}</h2>
+  <div class="cab"><div>Favicon</div><div>Chrome (1× arriba, 2× abajo)</div><div>Safari (1× arriba, 2× abajo)</div><div>32 px ampliado</div></div>
+  ${filas}
+  <h2>Junto al encabezado real de la app · ${t}</h2>
+  <div class="enc">
+   <div><div class="lam" style="background-image:url('../../evidencia/despues/marca-v5/materias-390-${t}.png')"></div>
+    <div class="pie" style="margin-top:8px">Lámina de MateriaSelect (captura 3.x, 390 px, ${t}). «pKapp»: Plex Sans SemiBold 28 px</div></div>
+   <div>${wm}<div class="pie" style="margin-top:6px">Cada favicon junto al wordmark «pKapp» (Plex Sans SemiBold) con la misma altura de versal: 32 px con 32 px de cuerpo y 96 px con 95 px. En la app el wordmark mide 28 px</div></div>
+  </div>
+  <h2>Con los íconos de la PWA (sin cambio) · ${t}</h2>
+  ${pwa}
+ </section>`;
+};
+document.body.insertAdjacentHTML('beforeend',mundo('claro')+mundo('oscuro'));
+</script>
+</body></html>

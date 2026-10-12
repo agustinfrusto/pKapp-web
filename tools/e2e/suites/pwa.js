@@ -2,6 +2,7 @@
 // Íconos, manifest, `theme-color` y `app.json` contra los tokens `plancha` de src/theme.
 
 const fs = require('fs');
+const zlib = require('zlib');
 const path = require('path');
 const { plancha } = require('../../../src/theme/colores');
 const { abrirMarco, clicEnMarco, EN_MARCO } = require('./comunes');
@@ -11,6 +12,72 @@ const leerJson = (...partes) => JSON.parse(fs.readFileSync(path.join(RAIZ, ...pa
 
 // Ancho y alto de un PNG: los 8 bytes de firma, el chunk IHDR y luego dos enteros de 32 bits.
 const dimensionesPng = (buffer) => `${buffer.readUInt32BE(16)}x${buffer.readUInt32BE(20)}`;
+
+// Colores distintos de un PNG RGB/RGBA de 8 bits sin entrelazado (los favicon): set de «#RRGGBB».
+// Los píxeles con alfa 0 no cuentan; un alfa parcial se informa como «#RRGGBB/aa».
+// Devuelve null si el buffer no es un PNG soportado, está truncado o trae un filtro inválido.
+function coloresDePng(buffer) {
+  try {
+    return decodificarColores(buffer);
+  } catch (e) {
+    return null;
+  }
+}
+
+function decodificarColores(buffer) {
+  if (buffer.length < 29 || buffer.toString('latin1', 1, 4) !== 'PNG') return null;
+  const ancho = buffer.readUInt32BE(16);
+  const alto = buffer.readUInt32BE(20);
+  const canales = { 2: 3, 6: 4 }[buffer[25]];
+  if (buffer[24] !== 8 || !canales || buffer[28] !== 0) return null;
+  const datos = [];
+  for (let i = 8; i < buffer.length;) {
+    const largo = buffer.readUInt32BE(i);
+    if (buffer.toString('latin1', i + 4, i + 8) === 'IDAT') datos.push(buffer.subarray(i + 8, i + 8 + largo));
+    i += 12 + largo;
+  }
+  const crudo = zlib.inflateSync(Buffer.concat(datos));
+  if (crudo.length < (ancho * canales + 1) * alto) return null;
+  const fila = ancho * canales;
+  const px = Buffer.alloc(fila * alto);
+  for (let y = 0; y < alto; y++) {
+    const filtro = crudo[y * (fila + 1)];
+    if (!(filtro >= 0 && filtro <= 4)) return null;
+    for (let x = 0; x < fila; x++) {
+      const v = crudo[y * (fila + 1) + 1 + x];
+      const a = x >= canales ? px[y * fila + x - canales] : 0;
+      const b = y ? px[(y - 1) * fila + x] : 0;
+      const c = y && x >= canales ? px[(y - 1) * fila + x - canales] : 0;
+      const paeth = () => {
+        const p = a + b - c;
+        const pa = Math.abs(p - a); const pb = Math.abs(p - b); const pc = Math.abs(p - c);
+        return pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
+      };
+      const base = [0, a, b, (a + b) >> 1, paeth()][filtro];
+      px[y * fila + x] = (v + base) & 255;
+    }
+  }
+  const colores = new Set();
+  for (let i = 0; i < px.length; i += canales) {
+    const alfa = canales === 4 ? px[i + 3] : 255;
+    if (alfa === 0) continue;
+    const hex = '#' + [px[i], px[i + 1], px[i + 2]].map((n) => n.toString(16).padStart(2, '0')).join('').toUpperCase();
+    colores.add(alfa === 255 ? hex : `${hex}/${alfa.toString(16)}`);
+  }
+  return colores;
+}
+
+// Paleta del favicon FAV-P2 (4.2c): fondo, tinta y acento, sin medios tonos.
+const PALETA_FAVICON = ['#0B0D10', '#E6E9ED', '#5CC3D6'];
+
+// Vacío si los colores son exactamente los de la paleta (los tres presentes, ninguno ajeno).
+function problemaFavicon16(colores) {
+  if (!colores) return 'formato no soportado';
+  const ajenos = [...colores].filter((c) => !PALETA_FAVICON.includes(c));
+  if (ajenos.length) return `colores fuera de la paleta: ${ajenos.join(',')}`;
+  const faltan = PALETA_FAVICON.filter((c) => !colores.has(c));
+  return faltan.length ? `faltan colores de la paleta: ${faltan.join(',')}` : '';
+}
 
 // Metas theme-color de un HTML (el servido, sin ejecutar la app): contenido de cada una.
 const metasDelHtml = (html) =>
@@ -77,6 +144,15 @@ async function faviconDelHead(pagina, base, t) {
     t.ok(`/${archivo} responde 200 como PNG`,
       resp.status === 200 && cuerpo.length > 24 ? dimensionesPng(cuerpo) : `HTTP ${resp.status}`,
       { 'favicon-16.png': '16x16', 'favicon-32.png': '32x32', 'favicon.png': '48x48' }[archivo]);
+  }
+  // Marca FAV-P2 (4.2c): el de 16 px es píxel exacto, con los tres colores de la paleta y ninguno más.
+  const coloresServidos = async (archivo) =>
+    coloresDePng(Buffer.from(await fetch(`${base}/${archivo}`).then((r) => r.arrayBuffer())));
+  t.ok('/favicon-16.png usa los tres colores de la paleta FAV-P2 y ninguno más (sin medios tonos)',
+    problemaFavicon16(await coloresServidos('favicon-16.png')), '');
+  for (const archivo of ['favicon-32.png', 'favicon.png']) {
+    const colores = await coloresServidos(archivo);
+    t.ok(`/${archivo} tiene píxeles del acento #5CC3D6`, colores ? colores.has('#5CC3D6') : false, true);
   }
 }
 

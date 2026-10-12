@@ -147,7 +147,7 @@ botones sueltos.
   ≈ l. 110). El manifest fija el splash y el meta sigue el tema: no se contradicen.
 - `scripts/inject-pwa.js` y `app.json` (`backgroundColor`, el fondo del ícono adaptativo)
   dejan de referir `#1a3f6f` y `#6366f1`.
-- Favicon del `<head>`: la versión chica (`favicon-small.svg` o `favicon.png`).
+- Favicon del `<head>`: los PNG de FAV-P2 con `sizes` (16, 32 y 48 px; tarea 4.2, `diseno/favicon/NOTAS-FAVICON.md`).
 
 ### D9. Radios y sombras
 
