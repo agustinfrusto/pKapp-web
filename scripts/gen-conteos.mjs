@@ -21,14 +21,12 @@ const ids = fs
   .sort();
 
 const conteos = {};
-const generadas = {};
 for (const id of ids) {
   const archivo = path.join(materiasDir, id, 'questions.js');
   if (!fs.existsSync(archivo)) continue;
   const mod = await import(pathToFileURL(archivo).href);
   const preguntas = mod.QUESTIONS || [];
   conteos[id] = preguntas.length;
-  generadas[id] = preguntas.filter((q) => q.source === 'generated').length;
 }
 
 const bloque = (obj) =>
@@ -39,9 +37,7 @@ const bloque = (obj) =>
 const contenido =
   `// GENERADO por scripts/gen-conteos.mjs — no editar a mano.\n` +
   `// Cantidad de preguntas por materia, para poder mostrarla sin cargar el banco.\n` +
-  `export const CONTEOS = {\n${bloque(conteos)}\n};\n\n` +
-  `// Cuántas de esas preguntas son source: 'generated' (hoy ninguna en los bancos publicados).\n` +
-  `export const GENERADAS = {\n${bloque(generadas)}\n};\n`;
+  `export const CONTEOS = {\n${bloque(conteos)}\n};\n`;
 
 // Con builds en paralelo, otro Metro puede estar leyendo este archivo: solo se
 // reescribe si cambia y, cuando cambia, con temporal + rename (atómico).
@@ -52,4 +48,4 @@ if (actual !== contenido) {
   fs.renameSync(temporal, salida);
 }
 
-console.log(`conteos.js actualizado: ${JSON.stringify(conteos)} generadas: ${JSON.stringify(generadas)}`);
+console.log(`conteos.js actualizado: ${JSON.stringify(conteos)}`);

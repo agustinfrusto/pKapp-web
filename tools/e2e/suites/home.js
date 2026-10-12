@@ -216,7 +216,7 @@ const fs = require('fs');
 const path = require('path');
 const { plancha } = require('../../../src/theme/colores');
 const { GLIFOS } = require('../../../src/assets/glifos');
-const { CONTEOS, GENERADAS } = require('../../../src/materias/conteos');
+const { CONTEOS } = require('../../../src/materias/conteos');
 
 const RAIZ = path.resolve(__dirname, '..', '..', '..');
 const ORDEN_MATERIAS = ['bcyt', 'anatomia', 'neuro', 'cyr', 'dre', 'ryd'];
@@ -236,12 +236,18 @@ const MATERIAS = ORDEN_MATERIAS.map((id, i) => {
 });
 
 const ACCIONES = [
-  { clave: 'practicar', titulo: 'Entrena Temas/Parciales', glifo: 'glifo-practicar', ruta: '/temas/practice', primaria: true },
-  { clave: 'examen', titulo: 'Modo examen', glifo: 'glifo-examen', ruta: '/temas/exam' },
-  { clave: 'repasar', titulo: 'Repasar fallos', glifo: 'glifo-repasar', ruta: '/temas/failed' },
-  { clave: 'estadisticas', titulo: 'Mis estadísticas', glifo: 'glifo-estadisticas', ruta: '/estadisticas' },
-  { clave: 'agregar', titulo: 'Agregar pregunta', glifo: 'glifo-agregar', ruta: '/agregar' },
-  { clave: 'ajustes', titulo: 'Ajustes', glifo: 'glifo-ajustes', ruta: '/ajustes' },
+  { clave: 'practicar', titulo: 'Entrena Temas/Parciales', glifo: 'glifo-practicar', ruta: '/temas/practice', primaria: true,
+    descripcion: 'Crea tu propio test eligiendo temas o practica para los parciales' },
+  { clave: 'examen', titulo: 'Modo examen', glifo: 'glifo-examen', ruta: '/temas/exam',
+    descripcion: /^\d+ preguntas al azar como en el parcial real$/ },
+  { clave: 'repasar', titulo: 'Repasar fallos', glifo: 'glifo-repasar', ruta: '/temas/failed',
+    descripcion: 'Preguntas que te costaron antes' },
+  { clave: 'estadisticas', titulo: 'Mis estadísticas', glifo: 'glifo-estadisticas', ruta: '/estadisticas',
+    descripcion: '% de aciertos por tema, preguntas falladas' },
+  { clave: 'agregar', titulo: 'Agregar pregunta', glifo: 'glifo-agregar', ruta: '/agregar',
+    descripcion: 'Agregá tus propias preguntas al banco' },
+  { clave: 'ajustes', titulo: 'Ajustes', glifo: 'glifo-ajustes', ruta: '/ajustes',
+    descripcion: 'Ocultar resultado, resetear estadísticas' },
 ];
 
 const rgb = (hex) => {
@@ -288,6 +294,14 @@ const LEER_HOME = EN_MARCO(`
     const o = w.getComputedStyle(n).overflowY;
     if ((o === 'auto' || o === 'scroll') && n.scrollHeight > 0) { scroller = n; break; }
   }
+  // Líneas de un texto: alto de la caja entre su line-height (el texto de una hoja no tiene hijos).
+  const lineasDe = (n) => {
+    if (!n) return null;
+    const lh = parseFloat(w.getComputedStyle(n).lineHeight);
+    return lh > 0 ? Math.round(n.getBoundingClientRect().height / lh) : null;
+  };
+  const conteoEl = tarjeta ? Array.from(tarjeta.querySelectorAll('div')).find((n) =>
+    n.children.length === 0 && /preguntas reales/.test(n.textContent)) : null;
   const acciones = ${JSON.stringify(ACCIONES.map((a) => a.clave))}.map((clave) => {
     const el = uno('home-accion-' + clave);
     if (!el) return { clave, existe: false };
@@ -312,7 +326,8 @@ const LEER_HOME = EN_MARCO(`
       chevron: svgs[1] ? svgDe(svgs[1]) : null,
       titulo: hojas[0] ? { texto: hojas[0].textContent.trim(), caja: caja(hojas[0]), color: estilo(hojas[0], 'color') } : null,
       descripcion: hojas[1] ? { texto: hojas[1].textContent.trim(), caja: caja(hojas[1]), color: estilo(hojas[1], 'color'),
-        tamano: estilo(hojas[1], 'fontSize') } : null,
+        tamano: estilo(hojas[1], 'fontSize'), lineas: lineasDe(hojas[1]),
+        desborda: hojas[1].scrollWidth > hojas[1].clientWidth + 1 } : null,
     };
   });
   return {
@@ -325,6 +340,7 @@ const LEER_HOME = EN_MARCO(`
       fondo: estilo(tarjeta.firstElementChild, 'backgroundColor'),
       marcas: visibles('[data-testid="marca-esquina"]').filter((m) => tarjeta.contains(m)).length,
     } : null,
+    conteoLineas: lineasDe(conteoEl),
     ilustracion: svgDe(svgTarjeta),
     celda: svgTarjeta ? {
       caja: caja(svgTarjeta.parentElement),
@@ -440,13 +456,11 @@ async function homeTarjetaDeMateria(pagina, base, t) {
     t.ok(`${m.id}: id «${m.corto} · ${m.numero}»`, h.tarjeta.texto.includes(`${m.corto} · ${m.numero}`), true);
     t.ok(`${m.id}: nombre de la materia`, h.tarjeta.texto.includes(m.nombre), true);
 
-    // Origen visible: preguntas reales y extra por separado, no un número fundido.
-    const conteo = h.tarjeta.texto.match(/(\d+) preguntas reales · (\d+) preguntas extra/);
-    t.ok(`${m.id}: «N preguntas reales · M preguntas extra»`, !!conteo, true);
-    if (conteo) {
-      t.ok(`${m.id}: preguntas extra = generadas del banco`, Number(conteo[2]), GENERADAS[m.id]);
-      t.ok(`${m.id}: reales + extra = total del banco`, Number(conteo[1]) + Number(conteo[2]), CONTEOS[m.id]);
-    }
+    // HOME-P4 (H1): «N preguntas reales» con N = CONTEOS; «preguntas extra» solo si el banco
+    // trae preguntas generadas (H3, sin camino e2e con los datos de hoy).
+    t.ok(`${m.id}: «${CONTEOS[m.id]} preguntas reales»`,
+      Number((h.tarjeta.texto.match(/(\d+) preguntas reales/) || [])[1]), CONTEOS[m.id]);
+    t.ok(`${m.id}: sin «preguntas extra»`, /preguntas extra/i.test(h.tarjeta.texto), false);
     t.ok(`${m.id}: sin imágenes PNG en la pantalla`, h.imagenes, 0);
   }
   t.ok('las seis materias dibujan una ilustración distinta', vistos.size, 6);
@@ -485,6 +499,8 @@ async function homeBancoReducido(pagina, base, t) {
 async function homeRotuloYAcciones(pagina, base, t) {
   const T = plancha.claro;
   t.ok('elegir la materia lleva a /inicio', await entrarAHome(pagina, base, 390, BCYT), true);
+  // El puntero queda donde se tocó la materia; con la tarjeta de una línea cae sobre una acción.
+  await pagina.moverA(1, 1);
   const h = await leerHome(pagina);
   t.ok('hay rótulo «Plano / Acciones»', !!h.rotulo && h.rotulo.texto === 'Plano / Acciones', true);
   if (h.rotulo && h.tarjeta) {
@@ -504,6 +520,11 @@ async function homeRotuloYAcciones(pagina, base, t) {
     t.ok(`acción ${i + 1} «${a.titulo}»: título`, r.titulo && r.titulo.texto, a.titulo);
     t.ok(`acción ${i + 1}: botón con nombre accesible que contiene «${a.titulo}»`,
       r.rol === 'button' && r.nombre.includes(a.titulo), true);
+    // H4 y H6 (HOME-P5): la descripción de cada acción; «Ajustes» ya no dice «Filtrar fuente».
+    const textoDesc = r.descripcion ? r.descripcion.texto : null;
+    t.ok(`acción ${i + 1}: descripción`,
+      a.descripcion instanceof RegExp ? a.descripcion.test(textoDesc || '') : textoDesc,
+      a.descripcion instanceof RegExp ? true : a.descripcion);
     if (previa !== null) {
       t.ok(`acción ${i + 1}: ${i === 0 ? 'paso 2 debajo del rótulo' : 'paso 2.5 debajo de la anterior'}`,
         r.caja.arriba - previa, (i === 0 ? 2 : 2.5) * PASO);
@@ -702,12 +723,32 @@ async function homeOscuro(pagina, base, t) {
   t.ok('oscuro: sin imágenes PNG', h.imagenes, 0);
 }
 
+// HOME-P4: el sufijo de «preguntas extra» concuerda en número. Sin camino e2e (el banco de hoy no
+// trae preguntas generadas): se evalúa el fragmento literal de HomeScreen.js con M = 0, 1 y 2.
+async function homeSingularExtra(pagina, base, t) {
+  const fuente = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'src', 'screens', 'HomeScreen.js'), 'utf8');
+  const m = fuente.match(/\{generatedCount > 0 \? (`[^`]*`) : ''\}/);
+  t.ok('HomeScreen.js: el sufijo de preguntas extra es un fragmento evaluable', !!m, true);
+  if (!m) return;
+  const sufijo = (generatedCount) => new Function('generatedCount', `return ${m[1]};`)(generatedCount);
+  t.ok('M = 1: « · 1 pregunta extra»', sufijo(1), ' · 1 pregunta extra');
+  t.ok('M = 2: « · 2 preguntas extra»', sufijo(2), ' · 2 preguntas extra');
+  t.ok('M = 0: sin sufijo', fuente.includes('generatedCount > 0 ?'), true);
+}
+
 // Corte de 360 px (comun.md §1.1) y desborde a 320, 360, 390, 768 y 1023 (bajo el corte `escritorio`).
 async function homeAnchos(pagina, base, t) {
   for (const ancho of [320, 359, 360, 390, 768, 1023]) {
     t.ok(`${ancho} px: entra a Home`, await entrarAHome(pagina, base, ancho, MATERIAS[2]), true);
     const h = await leerHome(pagina);
     t.ok(`${ancho} px: sin scroll horizontal`, h.desborda, false);
+    // HOME-P4 (H2): con M = 0 el conteo entra en una línea; HOME-P5 (H5): «Ajustes» no desborda
+    // (a 360 y 320 puede partir en dos líneas).
+    t.ok(`${ancho} px: «${CONTEOS[MATERIAS[2].id]} preguntas reales» en una línea`, h.conteoLineas, 1);
+    const ajustes = h.acciones.find((a) => a.clave === 'ajustes');
+    t.ok(`${ancho} px: descripción de «Ajustes» sin desborde y en una o dos líneas`,
+      !!ajustes && !!ajustes.descripcion && !ajustes.descripcion.desborda
+        && ajustes.descripcion.lineas >= 1 && ajustes.descripcion.lineas <= 2, true);
     t.ok(`${ancho} px: hay botón «Cambiar materia»`, h.cambiar !== null, true);
     if (h.cambiar) {
       const conTexto = ancho >= 360;
@@ -1007,6 +1048,41 @@ async function homeEscritorio(pagina, base, t) {
   }
 }
 
+// Capturas de evidencia de la 3.13d (solo con PKAPP_CAPTURAS): Home a 390 y 1366, claro y oscuro.
+// No afirma nada: deja los PNG para revisión.
+async function capturasDeLaTrece(pagina, base, t) {
+  if (!process.env.PKAPP_CAPTURAS) return;
+  const dir = path.resolve(__dirname, '..', '..', '..', 'openspec', 'changes', 'rediseno-plancha',
+    'evidencia', 'despues', '3.13');
+  fs.mkdirSync(dir, { recursive: true });
+  const foto = async (ancho, alto, nombre) => {
+    await pagina.enviar('Emulation.setDeviceMetricsOverride',
+      { width: Math.max(ancho, 900), height: Math.max(alto, 900), deviceScaleFactor: 1, mobile: false });
+    await new Promise((r) => setTimeout(r, 400));
+    const r = await pagina.enviar('Page.captureScreenshot',
+      { format: 'png', clip: { x: 0, y: 0, width: ancho, height: alto, scale: 1 } });
+    fs.writeFileSync(path.join(dir, nombre), Buffer.from(r.data, 'base64'));
+    t.nota(`captura ${nombre}`);
+  };
+  const ALTO = { 390: 900, 1366: 768 };
+  for (const ancho of [390, 1366]) {
+    for (const tema of ['claro', 'oscuro']) {
+      const ok = await entrarAHome(pagina, base, ancho, MATERIAS[0], ALTO[ancho]);
+      t.ok(`captura ${ancho} ${tema}: entró a Home`, ok, true);
+      if (!ok) continue;
+      if (tema === 'oscuro') {
+        await clicEnMarco(pagina, 'oscuro');
+        await pagina.esperarA(async () => {
+          const h = await leerHome(pagina);
+          return !!h.tarjeta && h.tarjeta.fondo === rgb(plancha.oscuro.superficie);
+        });
+      }
+      await foto(ancho, ALTO[ancho], `home-${ancho}-${tema}.png`);
+      if (tema === 'oscuro') await clicEnMarco(pagina, 'claro');
+    }
+  }
+}
+
 module.exports = [
   { nombre: 'Home: tarjeta de materia con ilustración, id y conteos separados', correr: homeTarjetaDeMateria },
   { nombre: 'Home: banner de banco reducido solo en cyr y neuro', correr: homeBancoReducido },
@@ -1015,9 +1091,11 @@ module.exports = [
   { nombre: 'Home: estados K de las acciones', correr: homeEstadosK },
   { nombre: 'Home: tema oscuro sin baldosa clara', correr: homeOscuro },
   { nombre: 'Home: corte de 360 px y sin scroll horizontal', correr: homeAnchos },
+  { nombre: 'Home: «1 pregunta extra» en singular', correr: homeSingularExtra },
   { nombre: 'Home: escritorio, regiones, columnas y foco (ESC-P2, ESC-P11)', correr: homeEscritorio },
   { nombre: 'atrás y adelante del navegador', correr: atrasDelNavegador },
   { nombre: 'HeaderMarca: mismo alto en MateriaSelect y Home', correr: altoDeHeaderIgual },
   { nombre: 'Barra interna: mismo alto con y sin volver, quiz sin barra', correr: barraInternaConYSinVolver },
   { nombre: 'Barra interna: el volver hace goBack', correr: volverDeLaBarra },
+  { nombre: 'Home: capturas de la 3.13d (solo con PKAPP_CAPTURAS)', correr: capturasDeLaTrece },
 ];

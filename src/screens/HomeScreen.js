@@ -101,7 +101,7 @@ export default function HomeScreen({ navigation }) {
                       {materia.name}
                     </Text>
                     <Text className="mt-1.5 font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
-                      {examCount} preguntas reales · {generatedCount} preguntas extra
+                      {examCount} preguntas reales{generatedCount > 0 ? ` · ${generatedCount} ${generatedCount === 1 ? 'pregunta extra' : 'preguntas extra'}` : ''}
                     </Text>
                   </View>
                 </View>
@@ -157,7 +157,7 @@ export default function HomeScreen({ navigation }) {
                 clave="ajustes"
                 glifo="glifo-ajustes"
                 titulo="Ajustes"
-                descripcion="Filtrar fuente, resetear estadísticas"
+                descripcion="Ocultar resultado, resetear estadísticas"
                 onPress={() => requestAnimationFrame(() => navigation.navigate('Settings'))}
               />
             </View>

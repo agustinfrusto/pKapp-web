@@ -1,5 +1,5 @@
 // Chequeo de D3: `cargarMateria(id)` devuelve la materia con la misma forma que su
-// elemento de MATERIA_LIST (metadata, `preguntas`, `generadas` e `ilustracion`) más el banco.
+// elemento de MATERIA_LIST (metadata, `preguntas` e `ilustracion`) más el banco.
 //   node tools/ui/materia-cargada.mjs
 import path from 'path';
 import { pathToFileURL, fileURLToPath } from 'url';

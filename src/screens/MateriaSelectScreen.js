@@ -178,9 +178,6 @@ function DonationCard() {
 function MateriaCard({ materia, numero, tema, onPress, cargando, bloqueada }) {
   // Precalculado en conteos.js: mostrarlo no debe costar cargar el banco entero.
   const totalQs = materia.preguntas || 0;
-  // «Banco real» (MATERIA-P2, C8): materia disponible sin preguntas generadas. Se conserva
-  // en «Cargando…» y no aparece en «Próximamente».
-  const bancoReal = materia.available && !materia.generadas;
   const id = `${materia.shortName} · ${String(numero).padStart(2, '0')}`;
 
   // El cargando no deshabilita la tarjeta (apagaría marco y fondo): `handlePick` ignora
@@ -232,11 +229,6 @@ function MateriaCard({ materia, numero, tema, onPress, cargando, bloqueada }) {
                     </Text>
                   )}
                 </View>
-                {bancoReal ? (
-                  <View className={`min-w-0 flex-1 justify-center border-l px-3 py-1.5 ${FILETE}`}>
-                    <Text className={`${DETALLE} ${colorLeyenda}`}>Banco real</Text>
-                  </View>
-                ) : null}
               </View>
             </>
           );

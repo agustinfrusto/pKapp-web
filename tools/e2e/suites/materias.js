@@ -143,7 +143,7 @@ const leer = (...ruta) => fs.readFileSync(path.join(RAIZ, ...ruta), 'utf8');
 const IDS = [...leer('src', 'materias', 'index.js')
   .match(/MATERIA_LIST = \[([\s\S]*?)\]\.map/)[1].matchAll(/\[(\w+), \w+\]/g)].map((m) => m[1]);
 const CONTEOS = Object.fromEntries([...leer('src', 'materias', 'conteos.js')
-  .split('GENERADAS')[0].matchAll(/(\w+):\s*(\d+)/g)].map((m) => [m[1], Number(m[2])]));
+  .match(/CONTEOS = \{([\s\S]*?)\}/)[1].matchAll(/(\w+):\s*(\d+)/g)].map((m) => [m[1], Number(m[2])]));
 const MATERIAS = IDS.map((id, i) => {
   const meta = leer('src', 'materias', id, 'metadata.js');
   const ilu = leer('src', 'materias', id, 'ilustracion.js');
@@ -219,9 +219,11 @@ const LEER_SELECTOR = (materias) => EN_MARCO(`
     if (!el) return { id: m.id, falta: true };
     const texto = el.innerText.replace(/\\s+/g, ' ').trim().toLowerCase();
     const banco = hoja(el, 'Banco real');
-    let celda = banco;
-    while (celda && celda !== el && getComputedStyle(celda).borderLeftWidth !== '1px') celda = celda.parentElement;
     const cifra = hoja(el, String(m.preguntas));
+    // Cajetín: la fila con filete superior que contiene el conteo (o «Cargando…»).
+    let cajetin = cifra || hojas(el).find((n) => /^cargando/i.test(n.textContent.trim()));
+    while (cajetin && cajetin !== el && getComputedStyle(cajetin).borderTopWidth !== '1px') cajetin = cajetin.parentElement;
+    if (cajetin === el) cajetin = null;
     const palabra = hojas(el).find((n) => n.textContent.trim().toLowerCase() === 'preguntas');
     const id = hojas(el).find((n) => n.textContent.includes(m.corto));
     const nombre = hoja(el, m.nombre);
@@ -237,7 +239,13 @@ const LEER_SELECTOR = (materias) => EN_MARCO(`
       borde: getComputedStyle(el.firstElementChild).borderTopColor,
       bordeAncho: getComputedStyle(el.firstElementChild).borderTopWidth,
       banco: !!banco,
-      bancoCelda: celda && celda !== el ? { caja: caja(celda), bordeColor: getComputedStyle(celda).borderLeftColor } : null,
+      cajetin: cajetin ? {
+        caja: caja(cajetin),
+        celdas: cajetin.children.length,
+        celda: cajetin.firstElementChild ? caja(cajetin.firstElementChild) : null,
+        filetesVerticales: Array.from(cajetin.querySelectorAll('*'))
+          .filter((n) => getComputedStyle(n).borderLeftWidth === '1px').length,
+      } : null,
       cifra: cifra ? { ...estilo(cifra), caja: caja(cifra) } : null,
       palabra: palabra ? { ...estilo(palabra), caja: caja(palabra) } : null,
       idEstilo: id ? { ...estilo(id), texto: id.textContent.trim().toLowerCase() } : null,
@@ -341,17 +349,20 @@ async function laminaYTarjetas(pagina, base, t) {
     t.ok(`${cuando}: cuatro marcas de esquina`, x.marcas, 4);
     t.ok(`${cuando}: 44 × 44 como mínimo`, x.caja.ancho >= LADO_TACTIL && x.caja.alto >= LADO_TACTIL, true);
     t.ok(`${cuando}: ocupa la columna (350 px a 390)`, Math.round(x.caja.ancho), 350);
+    // MATERIA-P4 (M3): el alto no cambia con la celda que sale; lo medido en HEAD y ahora (±1 px).
+    t.ok(`${cuando}: cajetín de 29 px de alto a 390`,
+      !!x.cajetin && Math.abs(x.cajetin.caja.alto - 29) <= 1, true);
+    t.ok(`${cuando}: tarjeta de 89 px de alto a 390`, Math.abs(x.caja.alto - 89) <= 1, true);
 
-    // C8 y MATERIA-P2: dos celdas, «Banco real» a la derecha y separada por un filete.
-    t.ok(`${cuando}: «Banco real» presente`, x.banco, true);
-    t.ok(`${cuando}: «Banco real» en celda aparte con filete vertical`,
-      !!x.bancoCelda && x.bancoCelda.bordeColor === rgb(T.filete), true);
-    if (x.bancoCelda && x.cifra) {
-      t.ok(`${cuando}: el conteo queda a la izquierda de «Banco real»`, x.cifra.caja.der <= x.bancoCelda.caja.izq + 1, true);
-      t.ok(`${cuando}: las dos celdas en la misma fila`,
-        Math.abs((x.cifra.caja.arriba + x.cifra.caja.abajo) / 2 - (x.bancoCelda.caja.arriba + x.bancoCelda.caja.abajo) / 2) < 4, true);
-      t.ok(`${cuando}: «Banco real» llega al borde derecho de la tarjeta`,
-        Math.abs(x.bancoCelda.caja.der - x.caja.der) <= 2, true);
+    // MATERIA-P4 (M1, M2): una sola celda de ancho completo con el conteo; «Banco real» no existe.
+    t.ok(`${cuando}: «Banco real» no está en el DOM`, x.banco || x.texto.includes('banco real'), false);
+    t.ok(`${cuando}: cajetín de una celda, sin filete vertical`,
+      !!x.cajetin && `${x.cajetin.celdas}|${x.cajetin.filetesVerticales}`, '1|0');
+    if (x.cajetin && x.cajetin.celda && x.cifra) {
+      t.ok(`${cuando}: la celda ocupa el ancho del cajetín`,
+        Math.abs(x.cajetin.celda.ancho - x.cajetin.caja.ancho) <= 1, true);
+      t.ok(`${cuando}: el conteo a paso 3 del borde izquierdo`,
+        Math.round(x.cifra.caja.izq - x.cajetin.celda.izq), 3 * PASO);
     }
 
     // Ilustración de materia: paso 12 de lado, en celda de paso 16, color filamento.
@@ -379,8 +390,10 @@ async function sinScrollHorizontal(pagina, base, t) {
     t.ok(`${ancho} px: las seis tarjetas entran en la ventana`, adentro, true);
     t.ok(`${ancho} px: ninguna tarjeta baja de 44 × 44`,
       s.tarjetas.every((x) => !x.falta && x.caja.ancho >= LADO_TACTIL && x.caja.alto >= LADO_TACTIL), true);
-    t.ok(`${ancho} px: cada tarjeta conserva sus dos celdas`,
-      s.tarjetas.every((x) => !x.falta && x.banco && !!x.bancoCelda && x.bancoCelda.caja.der <= x.caja.der + 0.5), true);
+    t.ok(`${ancho} px: cada tarjeta conserva una celda de ancho completo`,
+      s.tarjetas.every((x) => !x.falta && !x.banco && x.cajetin && x.cajetin.celdas === 1 &&
+        x.cajetin.celda && Math.abs(x.cajetin.celda.ancho - x.cajetin.caja.ancho) <= 1 &&
+        x.cajetin.caja.der <= x.caja.der + 0.5), true);
     t.ok(`${ancho} px: celda de ilustración de paso 16`,
       s.tarjetas.every((x) => x.celdaIlustracion && Math.round(x.celdaIlustracion.ancho) === 16 * PASO), true);
     const completas = s.tarjetas.every((x) => !x.falta);
@@ -678,11 +691,12 @@ async function escritorioDeMateriaSelect(pagina, base, t) {
       if (ancho === CORTE_ESCRITORIO) {
         t.ok(`${cuando}: celdas no menores que las de un teléfono de 320 (280 px)`, c[0].ancho >= 280 - 0.5, true);
       }
-      t.ok(`${cuando}: cada tarjeta conserva sus dos celdas y la ilustración de paso 16`,
-        s.tarjetas.every((x) => x.banco && !!x.bancoCelda && x.bancoCelda.caja.der <= x.caja.der + 0.5 &&
+      t.ok(`${cuando}: cada tarjeta conserva una celda de ancho completo y la ilustración de paso 16`,
+        s.tarjetas.every((x) => !x.banco && x.cajetin && x.cajetin.celdas === 1 && x.cajetin.filetesVerticales === 0 &&
+          x.cajetin.celda && cerca(x.cajetin.celda.ancho, x.cajetin.caja.ancho, 1) &&
           x.celdaIlustracion && Math.round(x.celdaIlustracion.ancho) === 16 * PASO), true);
       t.ok(`${cuando}: el cajetín queda abajo en cada tarjeta`,
-        s.tarjetas.every((x) => x.bancoCelda && cerca(x.bancoCelda.caja.abajo, x.caja.abajo, 2)), true);
+        s.tarjetas.every((x) => x.cajetin && cerca(x.cajetin.caja.abajo, x.caja.abajo, 2)), true);
 
       // Pedido de donación al pie de la región principal.
       t.ok(`${cuando}: el pedido llena la región principal`,
@@ -850,8 +864,8 @@ async function notaSinSaltoDeLayout(pagina, base, t) {
 }
 
 // «Cargando…»: el banco baja como chunk aparte. Se frena su descarga para observar el
-// estado: la celda del conteo dice «Cargando…», «Banco real» se conserva y el marco y la
-// ilustración quedan como en reposo (MateriaSelect.md c, C8).
+// estado: la celda del conteo dice «Cargando…» y el marco y la
+// ilustración quedan como en reposo (MateriaSelect.md c, MATERIA-P4).
 // Toque sostenido sin soltar: `mousedown` sobre lo que hay bajo el punto (la misma
 // prueba de impacto que hace el navegador, así respeta `pointer-events`) y `mouseup` en
 // el documento, sin `click`, para no disparar `onPress`.
@@ -918,7 +932,8 @@ async function estadosDeLaTarjeta(pagina, base, t) {
     (await pagina.evaluar(LEER_SELECTOR([m]))).tarjetas[0].texto.includes('cargando'), { limite: 3000 });
   t.ok('al tocar, la celda del conteo dice «Cargando…»', cargando, true);
   const c = (await pagina.evaluar(LEER_SELECTOR([m]))).tarjetas[0];
-  t.ok('cargando: «Banco real» se conserva y el cajetín mantiene sus dos celdas', c.banco && !!c.bancoCelda, true);
+  t.ok('cargando: la misma celda única, sin «Banco real»',
+    !c.banco && !!c.cajetin && c.cajetin.celdas === 1 && c.cajetin.filetesVerticales === 0, true);
   t.ok('cargando: marco y fondo como en reposo',
     `${c.borde}|${c.fondo}|${c.ilustracion && c.ilustracion.stroke}`,
     `${rgb(T.linea)}|${rgb(T.superficie)}|${hex(T.filamento)}`);
@@ -982,6 +997,34 @@ async function marcaV5EnAnchos(pagina, base, t) {
   }
 }
 
+// Capturas de evidencia de la 3.13d (solo con PKAPP_CAPTURAS): MateriaSelect a 390 y 1366, claro y
+// oscuro. No afirma nada: deja los PNG para revisión.
+async function capturasDeLaTrece(pagina, base, t) {
+  if (!process.env.PKAPP_CAPTURAS) return;
+  const dir = path.resolve(__dirname, '..', '..', '..', 'openspec', 'changes', 'rediseno-plancha',
+    'evidencia', 'despues', '3.13');
+  fs.mkdirSync(dir, { recursive: true });
+  const foto = async (ancho, alto, nombre) => {
+    await pagina.enviar('Emulation.setDeviceMetricsOverride',
+      { width: Math.max(ancho, 900), height: Math.max(alto, 900), deviceScaleFactor: 1, mobile: false });
+    await new Promise((r) => setTimeout(r, 400));
+    const r = await pagina.enviar('Page.captureScreenshot',
+      { format: 'png', clip: { x: 0, y: 0, width: ancho, height: alto, scale: 1 } });
+    fs.writeFileSync(path.join(dir, nombre), Buffer.from(r.data, 'base64'));
+    t.nota(`captura ${nombre}`);
+  };
+  const ALTO = { 390: 1100, 1366: 768 };
+  for (const ancho of [390, 1366]) {
+    t.ok(`captura ${ancho}: abrió la app en el marco`, await abrirMarco(pagina, base, ancho, ALTO[ancho]), true);
+    for (const tema of ['claro', 'oscuro']) {
+      if (tema === 'oscuro') await elegirTema(pagina, 'oscuro');
+      await new Promise((r) => setTimeout(r, 300));
+      await foto(ancho, ALTO[ancho], `materias-${ancho}-${tema}.png`);
+    }
+    await elegirTema(pagina, 'claro');
+  }
+}
+
 module.exports = [
   { nombre: 'elegir materia sin rebotar al selector', correr: elegirMateria },
   { nombre: 'el selector muestra seis materias', correr: seisMaterias },
@@ -999,4 +1042,5 @@ module.exports = [
   { nombre: 'MateriaSelect: la nota del creador no desplaza la lista', correr: notaSinSaltoDeLayout },
   { nombre: 'MateriaSelect: estados de la tarjeta (reposo, hover, cargando)', correr: estadosDeLaTarjeta },
   { nombre: 'MateriaSelect: tema oscuro', correr: selectorEnOscuro },
+  { nombre: 'MateriaSelect: capturas de la 3.13d (solo con PKAPP_CAPTURAS)', correr: capturasDeLaTrece },
 ];

@@ -282,7 +282,9 @@ export default function SettingsScreen() {
                     </Text>
                   </View>
                   <Text className="mt-1 font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
-                    {examCount} de exámenes · {generatedCount} generadas · {userQuestions.length} tuyas
+                    {examCount} de exámenes
+                    {generatedCount > 0 ? ` · ${generatedCount} ${generatedCount === 1 ? 'generada' : 'generadas'}` : ''}
+                    {` · ${userQuestions.length} ${userQuestions.length === 1 ? 'tuya' : 'tuyas'}`}
                   </Text>
                 </View>
 

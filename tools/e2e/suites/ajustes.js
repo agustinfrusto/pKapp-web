@@ -10,6 +10,7 @@ const path = require('path');
 const { plancha } = require('../../../src/theme/colores');
 const { conectarNavegador, abrirPagina } = require('../cdp');
 const { CORTE_ESCRITORIO, ANCHOS } = require('../../../src/components/plancha/cortes');
+const { CONTEOS } = require('../../../src/materias/conteos');
 const { EN_MARCO, LADO_TACTIL, MATERIA, PASO, abrirMarco, clicEnMarco, esperarEnMarco } = require('./comunes');
 
 const rgb = (hex) => {
@@ -342,6 +343,12 @@ async function pantalla(pagina, base, t, tema) {
   t.ok(c('«Preparación para ESFUNO» en tintaSec, detalle'),
     identidad && `${identidad.color}|${identidad.tamano}`, `${rgb(T.tintaSec)}|13px`);
   t.ok(c('versión visible'), /v\d+\.\d+\.\d+/i.test(await pagina.evaluar(TEXTO_PANTALLA)), true);
+
+  // SET-P3 (S2, S4): sin propias el desglose omite «generadas» (el banco no tiene ninguna).
+  const sinPropias = await pagina.evaluar(TEXTO_PANTALLA);
+  t.ok(c('S2: «Acerca de» sin propias: «{n} de exámenes · 0 tuyas»'),
+    !!(await pagina.evaluar(LEER_TEXTO(`${CONTEOS.bcyt} de exámenes · 0 tuyas`))), true);
+  t.ok(c('S2: sin «generadas» en la pantalla'), /generadas/i.test(sinPropias), false);
 
   t.ok(c('sin scroll horizontal a 390'), await pagina.evaluar(HAY_DESBORDE), false);
 
@@ -710,11 +717,31 @@ const IDS_PROPIAS = `JSON.stringify((JSON.parse(
   localStorage.getItem('pkapp_user_questions:bcyt') || '[]')).map((q) => q.id))`;
 const HAY_STATS = `localStorage.getItem('pkapp_question_stats:bcyt') !== null`;
 
+// SET-P3: «generadas» concuerda en número. Sin camino e2e (el banco de hoy no trae generadas):
+// se evalúa el fragmento literal de SettingsScreen.js con g = 0, 1 y 2.
+async function singularGeneradas(pagina, base, t) {
+  const fuente = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'src', 'screens', 'SettingsScreen.js'), 'utf8');
+  const m = fuente.match(/\{generatedCount > 0 \? (`[^`]*`) : ''\}/);
+  t.ok('SettingsScreen.js: el sufijo de generadas es un fragmento evaluable', !!m, true);
+  if (!m) return;
+  const sufijo = (generatedCount) => new Function('generatedCount', `return ${m[1]};`)(generatedCount);
+  t.ok('g = 1: « · 1 generada»', sufijo(1), ' · 1 generada');
+  t.ok('g = 2: « · 2 generadas»', sufijo(2), ' · 2 generadas');
+}
+
 async function conDatos(pagina, base, t, tema) {
   const T = plancha[tema];
   const c = (s) => `${tema} · Ajustes con datos · ${s}`;
   try {
     t.ok(c('llega a /ajustes'), await irAAjustes(pagina, base, 390, tema, SEMBRADO), true);
+
+    // SET-P3 (S1, S4): con 2 propias, «{n} de exámenes · 2 tuyas»; el total suma las propias.
+    t.ok(c('S1: «Acerca de» con 2 propias: «{n} de exámenes · 2 tuyas»'),
+      !!(await pagina.evaluar(LEER_TEXTO(`${CONTEOS.bcyt} de exámenes · 2 tuyas`))), true);
+    const conPropias = await pagina.evaluar(TEXTO_PANTALLA);
+    t.ok(c('S1: sin «generadas» en la pantalla'), /generadas/i.test(conPropias), false);
+    t.ok(c('S4: total del banco = exámenes + propias'),
+      conPropias.includes(String(CONTEOS.bcyt + 2)), true);
 
     // Contador en plural y tarjetas
     const nombre = '2 preguntas propias';
@@ -762,6 +789,9 @@ async function conDatos(pagina, base, t, tema) {
         await pagina.evaluar(IDS_PROPIAS) === JSON.stringify(['USER-e2e-2'])), true);
     t.ok(c('plegable «1 pregunta propia» (singular)'),
       await pagina.esperarA(async () => !!(await pagina.evaluar(LEER_TEXTO('1 pregunta propia')))), true);
+    t.ok(c('SET-P3: «{n} de exámenes · 1 tuya» en singular'),
+      await pagina.esperarA(async () =>
+        !!(await pagina.evaluar(LEER_TEXTO(`${CONTEOS.bcyt} de exámenes · 1 tuya`)))), true);
     pagina.respuestaDialogo = 'cancelar';
 
     // Resetear estadísticas: cancelar conserva, aceptar borra y avisa
@@ -807,6 +837,47 @@ function sinLiterales(_pagina, _base, t) {
   t.ok('SettingsScreen.js: sin literales visuales', hallados.join(' | '), '');
 }
 
+// Capturas de evidencia de la 3.13d (solo con PKAPP_CAPTURAS): Ajustes con «Acerca de» a la vista, a 390
+// y 1366, claro y oscuro, sin y con propias. No afirma nada: deja los PNG para revisión.
+async function capturasDeLaTrece(pagina, base, t) {
+  if (!process.env.PKAPP_CAPTURAS) return;
+  const dir = path.resolve(__dirname, '..', '..', '..', 'openspec', 'changes', 'rediseno-plancha',
+    'evidencia', 'despues', '3.13');
+  fs.mkdirSync(dir, { recursive: true });
+  const foto = async (ancho, alto, nombre) => {
+    await pagina.enviar('Emulation.setDeviceMetricsOverride',
+      { width: Math.max(ancho, 900), height: Math.max(alto, 900), deviceScaleFactor: 1, mobile: false });
+    await new Promise((r) => setTimeout(r, 400));
+    const r = await pagina.enviar('Page.captureScreenshot',
+      { format: 'png', clip: { x: 0, y: 0, width: ancho, height: alto, scale: 1 } });
+    fs.writeFileSync(path.join(dir, nombre), Buffer.from(r.data, 'base64'));
+    t.nota(`captura ${nombre}`);
+  };
+  const ALTO = { 390: 1100, 1366: 768 };
+  try {
+    for (const ancho of [390, 1366]) {
+      for (const tema of ['claro', 'oscuro']) {
+        for (const propias of [false, true]) {
+          const ok = await irAAjustes(pagina, base, ancho, tema, propias ? SEMBRADO : null, ALTO[ancho]);
+          t.ok(`captura ${ancho} ${tema} ${propias ? 'con' : 'sin'} propias: llegó a /ajustes`, ok, true);
+          if (ok) {
+            await pagina.evaluar(EN_MARCO(`
+              const h = visibles('*').find((n) => n.children.length === 0 && n.textContent.trim() === 'Acerca de');
+              if (h) h.scrollIntoView({ block: 'center' });
+            `));
+            await foto(ancho, ALTO[ancho], `ajustes-${ancho}-${tema}-${propias ? 'con' : 'sin'}-propias.png`);
+          }
+          await pagina.evaluar(LIMPIAR);
+        }
+        if (tema === 'oscuro') await volverAClaro(pagina);
+      }
+    }
+  } finally {
+    await pagina.evaluar(LIMPIAR);
+    await volverAClaro(pagina);
+  }
+}
+
 module.exports = [
   { nombre: 'Ajustes: la pantalla en claro contra su ficha', correr: (p, b, t) => pantalla(p, b, t, 'claro') },
   { nombre: 'Ajustes: la pantalla en oscuro contra su ficha', correr: (p, b, t) => pantalla(p, b, t, 'oscuro') },
@@ -814,5 +885,7 @@ module.exports = [
   { nombre: 'Ajustes: layout de escritorio (1023, 1024, 1366 y 1920, claro y oscuro)', correr: escritorio },
   { nombre: 'Ajustes: con preguntas propias, eliminar y resetear en claro', correr: (p, b, t) => conDatos(p, b, t, 'claro') },
   { nombre: 'Ajustes: con preguntas propias, eliminar y resetear en oscuro', correr: (p, b, t) => conDatos(p, b, t, 'oscuro') },
+  { nombre: 'Ajustes: «1 generada» en singular', correr: singularGeneradas },
   { nombre: 'Ajustes: SettingsScreen.js sin literales visuales', correr: sinLiterales },
+  { nombre: 'Ajustes: capturas de la 3.13d (solo con PKAPP_CAPTURAS)', correr: capturasDeLaTrece },
 ];
