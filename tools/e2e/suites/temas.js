@@ -275,8 +275,9 @@ async function hoverSinHalo(pagina, base, t) {
 // Misma técnica que las suites de arriba: la app corre en un iframe de ancho fijo y se
 // mide su DOM. Los modos se alcanzan desde Home, como el usuario: «Entrena Temas/Parciales»
 // (practice), «Modo examen» (exam) y «Repasar fallos» (failed). Un perfil nuevo no tiene
-// fallos: failed muestra V2. «Solo generadas» deja cero preguntas en las seis materias
-// (conteos.js, GENERADAS): ese filtro lleva a V4.
+// fallos: failed muestra V2, y tampoco tiene preguntas propias: el grupo «Fuente» no existe
+// (TOPIC-P6). Las propias se siembran en localStorage antes de abrir la pantalla; con
+// «Solo mías» y un parcial quedan cero preguntas (las propias no traen `parcial`): V4.
 
 const { MATERIA } = require('./comunes');
 const { plancha } = require('../../../src/theme/colores');
@@ -290,6 +291,38 @@ const SEÑAL_DE_MODO = {
 const MATERIA_SIN_PARCIALES = 'Reproductor y Desarrollo';
 const MARGEN_LATERAL_TEMAS = 5 * PASO;   // paso 5
 const COLUMNA = 448;                       // max-w-columna (tokens.md c.3)
+
+// Panel de filtros, en el marco: el padre de la celda «Temporizador» (la que contiene los dos
+// cuadrados y el rótulo). Una sola definición para T19 y para la lectura con la página desplazada.
+const BUSCAR_PANEL = `
+  const menos = visibles('[aria-label]').find((n) => n.getAttribute('aria-label').toLowerCase() === 'reducir tiempo');
+  const mas = visibles('[aria-label]').find((n) => n.getAttribute('aria-label').toLowerCase() === 'aumentar tiempo');
+  let panel = null;
+  if (menos && mas) {
+    for (let a = menos.parentElement; a; a = a.parentElement) {
+      if (a.contains(mas) && a.innerText.toLowerCase().includes('temporizador')) { panel = a.parentElement; break; }
+    }
+  }
+`;
+
+// Nombres de las etiquetas que dibujan algo que la ficha no admite: sombra, esquina redondeada,
+// opacidad o un color con transparencia parcial (un `rgba` con alfa entre 0 y 1).
+const MALOS_DE_PRESENTACION = `
+  const traslucido = (c) => {
+    const k = /^rgba\\(.*,\\s*([\\d.]+)\\)$/.exec(c);
+    return !!k && parseFloat(k[1]) > 0 && parseFloat(k[1]) < 1;
+  };
+  const COLORES = ['color', 'backgroundColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor'];
+  const malosDe = (raiz) => {
+    const malos = [];
+    for (const n of [raiz, ...raiz.querySelectorAll('*')]) {
+      const e = w.getComputedStyle(n);
+      if (e.boxShadow !== 'none' || e.opacity !== '1' || parseFloat(e.borderTopLeftRadius) > 0
+        || COLORES.some((p) => traslucido(e[p]))) malos.push(n.tagName.toLowerCase());
+    }
+    return malos;
+  };
+`;
 
 const MEDIR_TEMAS = EN_MARCO(`
   const caja = (n) => {
@@ -341,7 +374,9 @@ const MEDIR_TEMAS = EN_MARCO(`
   const valor = visibles('*').find((n) => n.children.length === 0 && /^(sin límite|\\d+ min)$/i.test(n.textContent.trim()));
   const comenzar = botones.find((n) => n.innerText.toLowerCase().includes('comenzar examen'));
   const practicar = botones.find((n) => n.innerText.trim().toLowerCase() === 'practicar');
-  const panel = grupo('fuente') ? grupo('fuente').parentElement.parentElement : null;
+  // El panel se ancla en «Temporizador», que siempre existe: «Fuente» solo con propias (TOPIC-P6).
+  const celdaT = celdaTemporizador();
+  const panel = celdaT ? celdaT.parentElement : null;
   return {
     vista: w.innerWidth,
     ruta: w.location.pathname,
@@ -364,7 +399,15 @@ const MEDIR_TEMAS = EN_MARCO(`
     grupoParcial: caja(grupo('parcial')),
     celdaFuente: caja(grupo('fuente') && grupo('fuente').parentElement),
     celdaParcial: caja(grupo('parcial') && grupo('parcial').parentElement),
-    celdaTemporizador: caja(celdaTemporizador()),
+    celdaTemporizador: caja(celdaT),
+    // Divisor horizontal: hijo del panel sin texto, visible y de pocos px de alto (bajo el corte escritorio).
+    divisoresHorizontales: panel ? Array.from(panel.children).filter((n) => {
+      const r = n.getBoundingClientRect();
+      return !(n.innerText || '').trim() && r.height > 0 && r.height < 40 && r.width > 0
+        && n.getAttribute('data-testid') !== 'panel-divisor-vertical';
+    }).length : 0,
+    gruposDelPanel: panel ? Array.from(panel.children).map((n) => (n.innerText || '').trim().split('\\n')[0].toLowerCase())
+      .filter((x) => ['fuente', 'parcial', 'temporizador'].includes(x)) : [],
     divisoresVerticales: visibles('[data-testid="panel-divisor-vertical"]').map((n) => caja(n)),
     laminaExamen: caja(visibles('[data-testid="lamina-examen"]')[0]),
     mezcla: mezcla ? { lineas: lineas(mezcla), caja: caja(mezcla), svg: mezcla.querySelectorAll('svg').length,
@@ -383,10 +426,52 @@ const LIMPIAR_DATOS = `Object.keys(localStorage)
   .filter((k) => /^pkapp_(question_stats|user_questions)/.test(k))
   .forEach((k) => localStorage.removeItem(k))`;
 
-async function abrirTemas(pagina, base, { ancho = 390, alto = 900, modo = 'practice', oscuro = false, materia = MATERIA } = {}) {
+// Materias del arnés: nombre en la tarjeta, id de almacenamiento, un fallo del banco y los
+// temas de las propias. Las dos propias van en orden inverso al de `TOPICS` (la segunda es
+// del tema anterior) y una tercera repite a la primera: prueban el orden de `TOPICS` y
+// `dedupeQuestions`.
+const MATERIA_CYR = 'Cardiovascular y Respiratorio';
+const MATERIA_ANATOMIA = 'Anatomía';
+const DATOS_DE_MATERIA = {
+  [MATERIA]: { id: 'bcyt', fallo: '2024-T1-Q1', temas: ['enzimas', 'quimica-agua'] },
+  [MATERIA_SIN_PARCIALES]: { id: 'ryd', fallo: 'RYD-PRIMER-PERIODO-2024-Q101',
+    temas: ['histologia-femenina', 'histologia-masculina'] },
+  [MATERIA_CYR]: { id: 'cyr', fallo: 'CYR-PROTOTIPO-1-Q25', temas: ['hemodinamia', 'fisiologia-cardiaca'] },
+  [MATERIA_ANATOMIA]: { id: 'anatomia', fallo: null, temas: ['nervios', 'snc'] },
+};
+const PROPIAS_UNICAS = 2;   // tras `dedupeQuestions`
+
+// Siembra `pkapp_user_questions:<id>` con tres filas (dos únicas y una repetida) y, según
+// `propiaFallada` y `falloDelBanco`, estadísticas con una propia fallada y/o una pregunta
+// fallada del banco. Con `soloEstadisticas` no siembra filas propias (fallo del banco sin propias).
+// Se borran con LIMPIAR_DATOS al abrir la pantalla siguiente y con `limpiando` al terminar cada prueba.
+function sembrarPropias(materia, { propiaFallada = false, falloDelBanco = false, soloEstadisticas = false } = {}) {
+  const { id, fallo, temas } = DATOS_DE_MATERIA[materia];
+  const fila = (n, tema, enunciado, opciones, correcta) => ({
+    id: `USER-e2e-${n}`, topic: tema, question: enunciado, options: JSON.stringify(opciones),
+    correct_index: correcta, explanation: '', created_at: 1700000000000 + n,
+  });
+  const filas = [
+    fila(1, temas[0], 'Primera pregunta propia de prueba', ['Opción A', 'Opción B', 'Opción C'], 1),
+    fila(2, temas[1], 'Segunda pregunta propia de prueba', ['Opción D', 'Opción E'], 0),
+    fila(3, temas[0], 'Primera pregunta propia de prueba', ['Opción A', 'Opción B', 'Opción C'], 1),
+  ];
+  const stats = {};
+  if (propiaFallada) stats['USER-e2e-2'] = { times_answered: 1, times_correct: 0, last_answered_at: 1700000000000 };
+  if (falloDelBanco) stats[fallo] = { times_answered: 1, times_correct: 0, last_answered_at: 1700000000000 };
+  return `(function () {
+    ${soloEstadisticas ? '' : `localStorage.setItem('pkapp_user_questions:${id}', ${JSON.stringify(JSON.stringify(filas))});`}
+    ${Object.keys(stats).length ? `localStorage.setItem('pkapp_question_stats:${id}', ${JSON.stringify(JSON.stringify(stats))});` : ''}
+  })()`;
+}
+
+async function abrirTemas(pagina, base, { ancho = 390, alto = 900, modo = 'practice', oscuro = false, materia = MATERIA,
+  propias = false, propiaFallada = false, falloDelBanco = false } = {}) {
   await pagina.ir(base + '/favicon.png');
   await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
   await pagina.evaluar(LIMPIAR_DATOS);
+  if (propias) await pagina.evaluar(sembrarPropias(materia, { propiaFallada, falloDelBanco }));
+  else if (falloDelBanco) await pagina.evaluar(sembrarPropias(materia, { falloDelBanco, soloEstadisticas: true }));
   // La ventana de la página mide 900: un marco más ancho queda fuera de ella y sus clics no llegan.
   await pagina.enviar('Emulation.setDeviceMetricsOverride',
     { width: Math.max(ancho, 900), height: 1400, deviceScaleFactor: 1, mobile: false });
@@ -402,7 +487,9 @@ async function abrirTemas(pagina, base, { ancho = 390, alto = 900, modo = 'pract
   await clicEnMarco(pagina, ENTRADA_DE_MODO[modo]);
   if (!await pagina.esperarA(async () =>
     await pagina.evaluar(EN_MARCO('return w.location.pathname;')) === `/temas/${modo}`)) return false;
-  return esperarEnMarco(pagina, SEÑAL_DE_MODO[modo]);
+  // `failed` con fallos no es V2: muestra la mezcla, como `practice`.
+  const conFallos = modo === 'failed' && (propiaFallada || falloDelBanco);
+  return esperarEnMarco(pagina, SEÑAL_DE_MODO[conFallos ? 'practice' : modo]);
 }
 
 const medirTemas = (pagina) => pagina.evaluar(MEDIR_TEMAS);
@@ -424,38 +511,56 @@ const numeroDe = (linea) => Number(String(linea).split(' ')[0]);
 const conteoDeMezcla = (m) => (m.mezcla ? numeroDe(m.mezcla.lineas[m.mezcla.lineas.length - 1]) : NaN);
 const sumaDeFilas = (m) => m.filas.reduce((suma, f) => suma + numeroDe(f.lineas[2]), 0);
 
+// Cadenas que ya no existen (TOPIC-P6, f.2 filas 1 y 18) y los dos mensajes de V4 (VAC-P3, VAC-P5).
+const CADENAS_VIEJAS = ['solo generadas', 'solo preguntas reales', 'generadas'];
+const sinCadenasViejas = (texto) => CADENAS_VIEJAS.every((c) => !texto.toLowerCase().includes(c));
+const MENSAJE_VAC_P5 = 'Tus preguntas no tienen parcial. Elegí "Examen" para verlas.';
+const MENSAJE_VAC_P3 = 'No hay preguntas disponibles con los filtros actuales.';
+const TEMAS_DE_PROPIAS_BCYT = ['Química del agua, pH y tampones', 'Enzimas y cinética enzimática'];   // orden de TOPICS
+
+// Las propias sembradas se borran al terminar: las suites siguientes corren en el mismo Chrome.
+async function limpiando(pagina, correr) {
+  try { await correr(); } finally { await pagina.evaluar(LIMPIAR_DATOS); }
+}
+
+const marcadasDeFuente = async (pagina) =>
+  ((await medirTemas(pagina)).fuente || []).map((o) => o.marcada).join('|');
+
 async function filtrosYSeparacion(pagina, base, t) {
+  // T1: sin propias el grupo «Fuente» no existe.
   t.ok('practice: abrió Elegir tema', await abrirTemas(pagina, base, { ancho: 390 }), true);
   const m = await medirTemas(pagina);
   const rotulos = m.texto.toLowerCase();
 
   t.ok('rótulos de grupo sin dos puntos (TOPIC-P3)',
-    ['fuente', 'parcial', 'temporizador'].every((r) => rotulos.includes(r) && !rotulos.includes(r + ':')), true);
+    ['parcial', 'temporizador'].every((r) => rotulos.includes(r) && !rotulos.includes(r + ':')), true);
   t.ok('«O elegí un tema específico:» se conserva', rotulos.includes('o elegí un tema específico:'), true);
-  t.ok('fuente: Todas, Solo preguntas reales y Solo generadas, en ese orden',
-    m.fuente && m.fuente.map((o) => o.texto).join('|'), 'Todas|Solo preguntas reales|Solo generadas');
-  t.ok('fuente: «Todas» llega marcada', m.fuente && m.fuente.map((o) => o.marcada).join('|'), 'true|false|false');
+  t.ok('T1 sin propias: ningún radiogroup «Fuente» ni rótulo «Fuente»',
+    m.fuente === null && !rotulos.includes('fuente'), true);
+  t.ok('T1 sin propias: ni «Solo mías» ni cadenas de fuente viejas',
+    !rotulos.includes('solo mías') && sinCadenasViejas(m.texto), true);
+  t.ok('T1 sin propias: grupos Parcial y Temporizador, en ese orden de DOM',
+    m.gruposDelPanel.join('|'), 'parcial|temporizador');
+  t.ok('T1 sin propias: un divisor horizontal entre los dos grupos', m.divisoresHorizontales, 1);
   t.ok('parcial: la materia con parciales muestra el grupo, «Examen» primero y marcado',
     !!m.parcial && m.parcial[0].texto === 'Examen' && m.parcial[0].marcada === 'true', true);
   t.ok('temporizador: arranca en «Sin límite»', m.valor, 'Sin límite');
   t.ok('sin emojis en la pantalla', EMOJI.test(m.texto), false);
 
   // TOPIC-P1: cada filtro es un objetivo propio, separado por paso 2 en horizontal y vertical.
-  for (const [nombre, ops] of [['fuente', m.fuente], ['parcial', m.parcial]]) {
-    if (!ops) continue;
-    let separados = true;
-    for (let i = 1; i < ops.length; i++) {
-      const a = ops[i - 1].caja, b = ops[i].caja;
-      const mismaFila = Math.abs(a.arriba - b.arriba) < 1;
-      const hueco = mismaFila ? b.izq - a.der : b.arriba - a.abajo;
-      if (hueco < SEPARACION_MINIMA - 0.5) separados = false;
-    }
-    t.ok(`${nombre}: los filtros quedan a paso 2 como mínimo entre sí (TOPIC-P1)`, separados, true);
-    t.ok(`${nombre}: cada filtro mide 44 de alto y 44 de ancho como mínimo`,
-      ops.every((o) => o.caja.alto >= LADO_TACTIL && o.caja.ancho >= LADO_TACTIL), true);
+  const ops = m.parcial || [];
+  let separados = true;
+  for (let i = 1; i < ops.length; i++) {
+    const a = ops[i - 1].caja, b = ops[i].caja;
+    const mismaFila = Math.abs(a.arriba - b.arriba) < 1;
+    const hueco = mismaFila ? b.izq - a.der : b.arriba - a.abajo;
+    if (hueco < SEPARACION_MINIMA - 0.5) separados = false;
   }
-  t.ok('el grupo Parcial va debajo del grupo Fuente',
-    !!m.grupoParcial && m.grupoParcial.arriba > m.grupoFuente.abajo, true);
+  t.ok('parcial: los filtros quedan a paso 2 como mínimo entre sí (TOPIC-P1)', separados, true);
+  t.ok('parcial: cada filtro mide 44 de alto y 44 de ancho como mínimo',
+    ops.every((o) => o.caja.alto >= LADO_TACTIL && o.caja.ancho >= LADO_TACTIL), true);
+  t.ok('el grupo Temporizador va debajo del grupo Parcial',
+    !!m.grupoParcial && !!m.celdaTemporizador && m.celdaTemporizador.arriba > m.grupoParcial.abajo, true);
 
   // Panel: marco `linea` y margen lateral paso 5 a 390.
   t.ok('el panel de filtros respeta el margen lateral paso 5',
@@ -484,20 +589,427 @@ async function filtrosYSeparacion(pagina, base, t) {
     await pagina.esperarA(async () => (await medirTemas(pagina)).valor === 'Sin límite'), true);
 
   // El conteo de la mezcla sigue a los filtros: es la suma de las filas, y un parcial lo baja.
-  await clicEnMarco(pagina, 'solo preguntas reales');
-  t.ok('«Solo preguntas reales» queda marcado',
-    await pagina.esperarA(async () => ((await medirTemas(pagina)).fuente || []).map((o) => o.marcada).join('|') === 'false|true|false'), true);
-  const reales = await medirTemas(pagina);
-  t.ok('con «Solo preguntas reales» el conteo de la mezcla es la suma de las filas',
-    conteoDeMezcla(reales) > 0 && conteoDeMezcla(reales) === sumaDeFilas(reales), true);
+  t.ok('sin filtro de parcial el conteo de la mezcla es la suma de las filas',
+    conteoDeMezcla(m) > 0 && conteoDeMezcla(m) === sumaDeFilas(m), true);
   if (m.parcial && m.parcial.length > 1) {
     await clicEnMarco(pagina, m.parcial[1].texto);
     await pagina.esperarA(async () => ((await medirTemas(pagina)).parcial || []).map((o) => o.marcada).join('|').startsWith('false|true'));
     const conParcial = await medirTemas(pagina);
     t.ok('con un parcial elegido la mezcla baja y sigue siendo la suma de las filas',
-      conteoDeMezcla(conParcial) > 0 && conteoDeMezcla(conParcial) < conteoDeMezcla(reales)
+      conteoDeMezcla(conParcial) > 0 && conteoDeMezcla(conParcial) < conteoDeMezcla(m)
         && conteoDeMezcla(conParcial) === sumaDeFilas(conParcial), true);
   }
+}
+
+// T2, T3, T4, T13, T19 · TOPIC-P6 f.1 tabla 1: qué grupos tiene el panel según las propias.
+async function panelSegunPropias(pagina, base, t) {
+  await limpiando(pagina, async () => {
+    // T2: sin propias, materia sin parciales: solo Temporizador, panel de 98 px, mezcla a paso 3.
+    t.ok('RyD sin propias: abrió Elegir tema',
+      await abrirTemas(pagina, base, { ancho: 390, materia: MATERIA_SIN_PARCIALES }), true);
+    let m = await medirTemas(pagina);
+    t.ok('T2 sin propias, sin parciales: un solo grupo, Temporizador', m.gruposDelPanel.join('|'), 'temporizador');
+    t.ok('T2: ningún divisor', m.divisoresHorizontales, 0);
+    t.ok('T2: el panel mide 98 px', !!m.panel && Math.abs(m.panel.alto - 98) <= 1, true);
+    t.ok('T2: la mezcla queda a paso 3 del panel',
+      !!m.panel && !!m.mezcla && Math.abs(m.mezcla.caja.arriba - m.panel.abajo - 3 * PASO) < 1, true);
+    t.ok('T2: sin cadenas de fuente', m.fuente === null && sinCadenasViejas(m.texto), true);
+
+    // T3: con propias, BCYT: tres grupos, dos divisores y «Todas | Solo mías» en una fila.
+    t.ok('BCYT con propias: abrió Elegir tema', await abrirTemas(pagina, base, { ancho: 390, propias: true }), true);
+    m = await medirTemas(pagina);
+    t.ok('T3 con propias, BCYT: Fuente, Parcial y Temporizador, en ese orden',
+      m.gruposDelPanel.join('|'), 'fuente|parcial|temporizador');
+    t.ok('T3: dos divisores horizontales', m.divisoresHorizontales, 2);
+    const fuente = m.fuente || [];
+    t.ok('T3: «Fuente» es un radiogroup con «Todas» y «Solo mías»',
+      !!m.fuente && fuente.map((o) => o.texto).join('|'), 'Todas|Solo mías');
+    t.ok('T3: «Todas» marcada y «Solo mías» no', fuente.map((o) => o.marcada).join('|'), 'true|false');
+    const [a, b] = fuente.map((o) => o.caja);
+    t.ok('T3: los dos filtros van en una sola fila', !!a && !!b && Math.abs(a.arriba - b.arriba) < 1, true);
+    t.ok('T3: paso 2 entre «Todas» y «Solo mías»', !!a && !!b && Math.abs(b.izq - a.der - SEPARACION_MINIMA) < 1, true);
+    t.ok('T3: sin cadenas viejas ni «generadas»', sinCadenasViejas(m.texto), true);
+
+    // T19: el panel (el mismo ancestro que mide `MEDIR_TEMAS`) y todo lo que contiene, sin
+    // sombras, esquinas redondeadas, opacidad ni colores con transparencia, en claro y en oscuro.
+    for (const oscuro of [false, true]) {
+      if (oscuro && !await abrirTemas(pagina, base, { ancho: 390, propias: true, oscuro })) {
+        t.ok('T19 oscuro: abrió Elegir tema', false, true);
+        continue;
+      }
+      const transparencia = await pagina.evaluar(EN_MARCO(`
+        ${BUSCAR_PANEL}
+        ${MALOS_DE_PRESENTACION}
+        if (!panel) return null;
+        const divisores = visibles('[data-testid="lamina-divisor"]').filter((n) => panel.contains(n))
+          .map((n) => { const e = w.getComputedStyle(n); return e.borderTopWidth + ' ' + e.borderTopColor; });
+        return { hijos: panel.children.length, malos: malosDe(panel), divisores };
+      `));
+      const tema = oscuro ? 'oscuro' : 'claro';
+      t.ok(`T19 ${tema}: el panel existe y trae sus grupos y divisores`, !!transparencia && transparencia.hijos >= 5, true);
+      t.ok(`T19 ${tema}: el panel no usa box-shadow, border-radius, opacity ni rgba`,
+        transparencia ? transparencia.malos.join(',') : null, '');
+      // T17 a 390: los dos divisores horizontales, de 1 px en `filete`.
+      const filete = plancha[tema].filete;
+      t.ok(`T17 ${tema} 390: los dos divisores horizontales de 1 px en filete`,
+        transparencia ? transparencia.divisores.join('|') : null, [`1px ${rgb(filete)}`, `1px ${rgb(filete)}`].join('|'));
+    }
+
+    // T4: con propias, materia sin parciales: Fuente y Temporizador, un divisor.
+    t.ok('RyD con propias: abrió Elegir tema',
+      await abrirTemas(pagina, base, { ancho: 390, materia: MATERIA_SIN_PARCIALES, propias: true }), true);
+    m = await medirTemas(pagina);
+    t.ok('T4 con propias, sin parciales: Fuente y Temporizador', m.gruposDelPanel.join('|'), 'fuente|temporizador');
+    t.ok('T4: un divisor', m.divisoresHorizontales, 1);
+
+    // T13: a 320, «Todas» y «Solo mías» son objetivos de 44 × 44, en una línea cada uno.
+    t.ok('BCYT con propias a 320: abrió Elegir tema', await abrirTemas(pagina, base, { ancho: 320, propias: true }), true);
+    m = await medirTemas(pagina);
+    t.ok('T13 a 320: «Todas» y «Solo mías» miden 44 × 44 como mínimo',
+      !!m.fuente && m.fuente.length === 2 && m.fuente.every((o) => o.caja.alto >= LADO_TACTIL && o.caja.ancho >= LADO_TACTIL), true);
+    t.ok('T13 a 320: sin salto de línea (un solo renglón por filtro) y en la misma fila',
+      !!m.fuente && m.fuente.every((o) => o.caja.alto < 52) && Math.abs(m.fuente[0].caja.arriba - m.fuente[1].caja.arriba) < 1, true);
+    t.ok('T13 a 320: «Solo mías» entra en la ventana', !!m.fuente && m.fuente[1].caja.der <= m.vista, true);
+  });
+}
+
+// V8 y V10 del mensaje de VAC-P5 ya en pantalla: `cuerpo` en `tintaSec` sobre `fondo`, a la
+// izquierda, `paso 2` bajo el rótulo, `paso 5` lateral, sin región viva, salto de línea sin
+// desborde y sin sombra, esquina redondeada, opacidad ni `rgba`.
+async function presentacionDeVacP5(pagina, t, T, cuando) {
+  const p = await pagina.evaluar(EN_MARCO(`
+    ${MALOS_DE_PRESENTACION}
+    const n = visibles('*').find((x) => x.children.length === 0 && x.textContent.trim() === ${JSON.stringify(MENSAJE_VAC_P5)});
+    if (!n) return null;
+    const rot = visibles('*').find((x) => x.children.length === 0 && x.textContent.trim().toLowerCase() === 'o elegí un tema específico:');
+    const e = w.getComputedStyle(n), r = n.getBoundingClientRect();
+    let fondo = null;
+    for (let a = n; a && !fondo; a = a.parentElement) {
+      const c = w.getComputedStyle(a).backgroundColor;
+      if (c !== 'rgba(0, 0, 0, 0)' && c !== 'transparent') fondo = c;
+    }
+    return { color: e.color, alinear: e.textAlign, izq: r.left, der: r.right, alto: r.height,
+      regionViva: !!n.closest('[aria-live]'), bajoRotulo: rot ? r.top - rot.getBoundingClientRect().bottom : null, fuente: e.fontFamily,
+      tamano: e.fontSize, interlineado: e.lineHeight, fondo, vista: w.innerWidth,
+      desborda: desbordes().length > 0, malos: malosDe(n) };
+  `));
+  t.ok(`V8 ${cuando}: el mensaje existe`, !!p, true);
+  if (!p) return null;
+  t.ok(`V8 ${cuando}: color tintaSec, a la izquierda y sin región viva`,
+    p.color === rgb(T.tintaSec) && p.alinear !== 'center' && p.regionViva === false, true);
+  t.ok(`V8 ${cuando}: tipografía cuerpo (PlexSans, 15 / 22) sobre fondo`,
+    p.fuente.includes('PlexSans-Regular') && p.tamano === '15px' && p.interlineado === '22px'
+      && p.fondo === rgb(T.fondo), true);
+  t.ok(`V8 ${cuando}: paso 2 en total entre el rótulo y el mensaje, y margen lateral paso 5`,
+    p.bajoRotulo !== null && Math.abs(p.bajoRotulo - 2 * PASO) < 0.5 && Math.abs(p.izq - MARGEN_LATERAL_TEMAS) < 1, true);
+  t.ok(`V8 ${cuando}: sin desborde (el mensaje entra en la ventana)`,
+    p.desborda === false && p.der <= p.vista, true);
+  t.ok(`V10 ${cuando}: sin box-shadow, border-radius, opacity ni rgba en el mensaje`, p.malos.join(','), '');
+  return p;
+}
+
+// T5, T6, T7 y VAC-P5 (V1 a V7, V9) en practice: «Solo mías» y su vacío específico.
+async function soloMiasYVacioDeVacP5(pagina, base, t) {
+  await limpiando(pagina, async () => {
+    // Referencia: el banco solo, sin propias (A2: «Todas» = banco + propias, no solo «más que las propias»).
+    t.ok('practice sin propias: abrió Elegir tema', await abrirTemas(pagina, base, { ancho: 390 }), true);
+    const conteoBanco = conteoDeMezcla(await medirTemas(pagina));
+    t.ok('el banco solo tiene preguntas', conteoBanco > 0, true);
+
+    t.ok('practice con propias: abrió Elegir tema', await abrirTemas(pagina, base, { ancho: 390, propias: true }), true);
+    const todas = await medirTemas(pagina);
+    const conteoTodas = conteoDeMezcla(todas);
+    t.ok('«Todas»: la mezcla es la suma de las filas',
+      conteoTodas > PROPIAS_UNICAS && conteoTodas === sumaDeFilas(todas), true);
+    t.ok('A2 practice: «Todas» = banco + propias únicas (no excluye las propias)',
+      conteoTodas, conteoBanco + PROPIAS_UNICAS);
+
+    // T5
+    await clicEnMarco(pagina, 'solo mías');
+    t.ok('T5: «Solo mías» queda marcado',
+      await pagina.esperarA(async () => await marcadasDeFuente(pagina) === 'false|true'), true);
+    const mias = await medirTemas(pagina);
+    t.ok('T5: la mezcla cuenta las propias tras dedupeQuestions', conteoDeMezcla(mias), PROPIAS_UNICAS);
+    t.ok('T5: las filas son los temas con propias, en el orden de TOPICS',
+      mias.filas.map((f) => f.lineas[1]).join('|'), TEMAS_DE_PROPIAS_BCYT.join('|'));
+    t.ok('T5: las filas suman la mezcla', sumaDeFilas(mias), conteoDeMezcla(mias));
+    await clicEnMarco(pagina, 'todas');
+    t.ok('T5: volver a «Todas» devuelve banco más propias',
+      await pagina.esperarA(async () => conteoDeMezcla(await medirTemas(pagina)) === conteoTodas), true);
+
+    // T6 / V1: «Solo mías» y «1er Parcial».
+    await clicEnMarco(pagina, 'solo mías');
+    await pagina.esperarA(async () => await marcadasDeFuente(pagina) === 'false|true');
+    await clicEnMarco(pagina, todas.parcial[1].texto);
+    t.ok('V1: aparece el mensaje de VAC-P5 bajo el rótulo',
+      await esperarEnMarco(pagina, MENSAJE_VAC_P5), true);
+    const v1 = await medirTemas(pagina);
+    t.ok('V1: la mezcla dice «0 preguntas», sin filas, y el panel sigue visible',
+      conteoDeMezcla(v1), 0);
+    t.ok('V1: sin filas de tema y con el panel completo', v1.filas.length === 0 && !!v1.fuente && !!v1.parcial, true);
+    t.ok('V9: la cadena exacta de VAC-P5, una sola vez, y no la de VAC-P3',
+      v1.texto.split(MENSAJE_VAC_P5).length === 2 && !v1.texto.includes(MENSAJE_VAC_P3), true);
+    t.ok('V1: el rótulo «O elegí un tema específico:» se conserva',
+      v1.texto.toLowerCase().includes('o elegí un tema específico:'), true);
+
+    // V8 y V10 (claro, 390): presentación del mensaje.
+    await presentacionDeVacP5(pagina, t, plancha.claro, 'claro 390');
+
+    // V7: tocar la mezcla muestra el aviso V5 de siempre.
+    pagina.dialogos.length = 0;
+    await clicEnMarco(pagina, 'todos los temas mezclados');
+    t.ok('V7: tocar la mezcla muestra el aviso del sistema',
+      await pagina.esperarA(() => pagina.dialogos.length >= 1), true);
+    t.ok('V7: el aviso conserva el texto de VAC-P3',
+      pagina.dialogos.some((d) => d.includes(MENSAJE_VAC_P3)), true);
+    t.ok('V7: la pantalla sigue en Elegir tema',
+      await pagina.evaluar(EN_MARCO('return w.location.pathname;')), '/temas/practice');
+
+    // V2: con «2do Parcial», el mismo mensaje.
+    await clicEnMarco(pagina, todas.parcial[2].texto);
+    await pagina.esperarA(async () => ((await medirTemas(pagina)).parcial || []).map((o) => o.marcada).join('|') === 'false|false|true');
+    t.ok('V2: con «2do Parcial» el mismo mensaje', (await medirTemas(pagina)).texto.includes(MENSAJE_VAC_P5), true);
+
+    // V3 / V6: volver a «Examen» devuelve las filas y quita el mensaje.
+    await clicEnMarco(pagina, todas.parcial[0].texto);
+    t.ok('V3: «Examen» devuelve las filas con propias',
+      await pagina.esperarA(async () => (await medirTemas(pagina)).filas.length === TEMAS_DE_PROPIAS_BCYT.length), true);
+    const v3 = await medirTemas(pagina);
+    t.ok('V3/V6: sin mensaje de V4 cuando hay temas',
+      !v3.texto.includes(MENSAJE_VAC_P5) && !v3.texto.includes(MENSAJE_VAC_P3), true);
+  });
+
+  // V2 (segunda mitad): Anatomía tiene parciales y también muestra VAC-P5.
+  await limpiando(pagina, async () => {
+    t.ok('Anatomía con propias: abrió Elegir tema',
+      await abrirTemas(pagina, base, { ancho: 390, materia: MATERIA_ANATOMIA, propias: true }), true);
+    await clicEnMarco(pagina, 'solo mías');
+    await pagina.esperarA(async () => await marcadasDeFuente(pagina) === 'false|true');
+    const p = (await medirTemas(pagina)).parcial || [];
+    t.ok('V2: Anatomía tiene filtros de parcial', p.length > 1, true);
+    if (p.length < 2) return;
+    await clicEnMarco(pagina, p[1].texto);
+    t.ok('V2: Anatomía con «Solo mías» y un parcial: el mismo mensaje de VAC-P5',
+      await esperarEnMarco(pagina, MENSAJE_VAC_P5), true);
+  });
+
+  // V8 y V10 en oscuro (`tintaSec` de oscuro) y a 320: el mensaje salta de línea sin desbordar.
+  for (const oscuro of [true, false]) {
+    await limpiando(pagina, async () => {
+      const cuando = `${oscuro ? 'oscuro' : 'claro'} 320`;
+      t.ok(`V8 ${cuando}: abrió Elegir tema`,
+        await abrirTemas(pagina, base, { ancho: 320, propias: true, oscuro }), true);
+      await clicEnMarco(pagina, 'solo mías');
+      await pagina.esperarA(async () => await marcadasDeFuente(pagina) === 'false|true');
+      const p = (await medirTemas(pagina)).parcial || [];
+      if (p.length < 2) { t.ok(`V8 ${cuando}: hay filtros de parcial`, false, true); return; }
+      await clicEnMarco(pagina, p[1].texto);
+      t.ok(`V8 ${cuando}: aparece el mensaje de VAC-P5`, await esperarEnMarco(pagina, MENSAJE_VAC_P5), true);
+      const r = await presentacionDeVacP5(pagina, t, plancha[oscuro ? 'oscuro' : 'claro'], cuando);
+      t.ok(`V8 ${cuando}: el mensaje salta de línea (más de un renglón de 22 px)`,
+        !!r && r.alto > 22 * 1.5, true);
+    });
+  }
+}
+
+// T12: teclado del grupo «Fuente».
+async function tecladoDelFiltroDeFuente(pagina, base, t) {
+  await limpiando(pagina, async () => {
+    t.ok('practice con propias: abrió Elegir tema',
+      await abrirTemas(pagina, base, { ancho: 1280, alto: 900, propias: true }), true);
+    await pagina.evaluar(SOLTAR_FOCO);
+    await pagina.tecla('Tab');
+    t.ok('Tab: la primera parada es «Volver» de la barra',
+      await pagina.evaluar(EN_MARCO(`return d.activeElement.getAttribute('data-testid');`)), 'barra-volver');
+    await pagina.tecla('Tab');
+    t.ok('T12: Tab llega a «Todas»', await pagina.evaluar(FOCO_EN_MARCO), 'radio:todas');
+    await pagina.tecla('Tab');
+    t.ok('T12: el siguiente Tab llega a «Solo mías» (una parada por filtro)',
+      await pagina.evaluar(FOCO_EN_MARCO), 'radio:solo mías');
+    await pagina.tecla('Tab');
+    t.ok('T12: después van los filtros de parcial', await pagina.evaluar(FOCO_EN_MARCO), 'radio:examen');
+
+    // Flechas: mueven foco y selección, con vuelta. Pantalla nueva: el punto de partida de Tab
+    // del navegador sigue donde quedó el foco anterior.
+    t.ok('practice con propias (flechas): abrió Elegir tema',
+      await abrirTemas(pagina, base, { ancho: 1280, alto: 900, propias: true }), true);
+    await pagina.evaluar(SOLTAR_FOCO);
+    for (let i = 0, foco = ''; i < 8 && foco !== 'radio:todas'; i++) {
+      await pagina.tecla('Tab');
+      foco = await pagina.evaluar(FOCO_EN_MARCO);
+    }
+    await pagina.tecla('ArrowRight');
+    t.ok('T12: Flecha derecha en «Todas» marca «Solo mías» y mueve el foco',
+      await pagina.esperarA(async () => await pagina.evaluar(FOCO_EN_MARCO) === 'radio:solo mías'
+        && await marcadasDeFuente(pagina) === 'false|true', { limite: 2000 }), true);
+    await pagina.tecla('ArrowRight');
+    t.ok('T12: otra vez, vuelve a «Todas»',
+      await pagina.esperarA(async () => await pagina.evaluar(FOCO_EN_MARCO) === 'radio:todas'
+        && await marcadasDeFuente(pagina) === 'true|false', { limite: 2000 }), true);
+  });
+}
+
+// T7 y T8: `exam` y `failed` con «Solo mías».
+async function modosExamYFailedConSoloMias(pagina, base, t) {
+  await limpiando(pagina, async () => {
+    // Referencia de A2: el banco solo en `exam`, sin propias.
+    const disponibles = (m) => Number((/disponibles: (\d+) preguntas/.exec(m.texto.toLowerCase()) || [])[1]);
+    t.ok('exam sin propias: abrió Elegir tema', await abrirTemas(pagina, base, { ancho: 390, modo: 'exam' }), true);
+    const disponiblesBanco = disponibles(await medirTemas(pagina));
+    t.ok('exam sin propias: el banco tiene preguntas disponibles', disponiblesBanco > 0, true);
+
+    // T7: exam con «Solo mías».
+    t.ok('exam con propias: abrió Elegir tema',
+      await abrirTemas(pagina, base, { ancho: 390, modo: 'exam', propias: true }), true);
+    const todas = await medirTemas(pagina);
+    t.ok('A2 exam: «Todas» = banco + propias únicas (no excluye las propias)',
+      disponibles(todas), disponiblesBanco + PROPIAS_UNICAS);
+    t.ok('T7: el panel de exam trae «Fuente», «Parcial» y «Temporizador»',
+      todas.gruposDelPanel.join('|'), 'fuente|parcial|temporizador');
+    await clicEnMarco(pagina, 'solo mías');
+    await pagina.esperarA(async () => await marcadasDeFuente(pagina) === 'false|true');
+    const x = (await medirTemas(pagina)).texto.toLowerCase();
+    t.ok(`T7: «Disponibles: ${PROPIAS_UNICAS} preguntas»`, x.includes(`disponibles: ${PROPIAS_UNICAS} preguntas`), true);
+    t.ok(`T7: el sorteo nombra Math.min(examSize, ${PROPIAS_UNICAS})`,
+      x.includes(`se sortean ${PROPIAS_UNICAS} preguntas al azar de todos los temas`), true);
+
+    // T8: failed con propias y sin fallos: V2, sin panel.
+    t.ok('failed con propias y sin fallos: abrió Elegir tema',
+      await abrirTemas(pagina, base, { ancho: 390, modo: 'failed', propias: true }), true);
+    const v2 = await medirTemas(pagina);
+    t.ok('T8: V2 sin panel, mezcla ni lista (VAC-C1)',
+      v2.fuente === null && v2.valor === null && v2.mezcla === null && v2.filas.length === 0
+        && v2.texto.toLowerCase().includes('sin preguntas falladas'), true);
+
+    // T8: con una propia fallada y un fallo del banco, «Solo mías» deja solo la propia.
+    t.ok('failed con propia fallada y fallo del banco: abrió Elegir tema',
+      await abrirTemas(pagina, base, { ancho: 390, modo: 'failed', propias: true, propiaFallada: true, falloDelBanco: true }), true);
+    const f = await medirTemas(pagina);
+    t.ok('T8: «Todas» trae el fallo del banco y la propia fallada', conteoDeMezcla(f), 2);
+    await clicEnMarco(pagina, 'solo mías');
+    await pagina.esperarA(async () => await marcadasDeFuente(pagina) === 'false|true');
+    const fm = await medirTemas(pagina);
+    t.ok('T8: «Solo mías» deja solo la propia fallada', conteoDeMezcla(fm) === 1 && fm.filas.length === 1, true);
+
+    // V4: failed con fallos, «Solo mías» y «1er Parcial».
+    await clicEnMarco(pagina, f.parcial[1].texto);
+    t.ok('V4: failed con «Solo mías» y «1er Parcial» muestra el mensaje de VAC-P5',
+      await esperarEnMarco(pagina, MENSAJE_VAC_P5), true);
+
+    // V5: CyR, fallos del banco y ninguna propia fallada, «Solo mías»: el mensaje general.
+    t.ok('CyR failed con fallo del banco y propias: abrió Elegir tema',
+      await abrirTemas(pagina, base, { ancho: 390, modo: 'failed', materia: MATERIA_CYR, propias: true, falloDelBanco: true }), true);
+    await clicEnMarco(pagina, 'solo mías');
+    t.ok('V5: «Solo mías» sin propia fallada muestra el mensaje general (VAC-P3)',
+      await esperarEnMarco(pagina, MENSAJE_VAC_P3), true);
+    const v5 = await medirTemas(pagina);
+    t.ok('V5: no el de VAC-P5', !v5.texto.includes(MENSAJE_VAC_P5), true);
+    t.ok('V5: la mezcla dice «0 preguntas» y no hay filas', conteoDeMezcla(v5) === 0 && v5.filas.length === 0, true);
+    t.ok('V5: el panel sigue visible, con Fuente, Temporizador y «Solo mías» marcada',
+      !!v5.fuente && v5.valor !== null && v5.fuente.map((o) => o.marcada).join('|') === 'false|true', true);
+    t.ok('V5: se conserva el rótulo «O elegí un tema específico:»',
+      v5.texto.toLowerCase().includes('o elegí un tema específico:'), true);
+  });
+}
+
+// T9: la carga de las propias no mueve la pantalla (R1), en los tres modos.
+async function cargaSinSaltos(pagina, base, t) {
+  const entradas = { practice: 'entrena temas', exam: 'modo examen', failed: 'repasar fallos' };
+  const contenido = ['fuente', 'parcial', 'temporizador', 'todos los temas mezclados', 'comenzar examen', 'disponibles'];
+  for (const modo of ['practice', 'exam', 'failed']) {
+    await limpiando(pagina, async () => {
+      await pagina.ir(base + '/favicon.png');
+      await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
+      await pagina.evaluar(LIMPIAR_DATOS);
+      await pagina.evaluar(sembrarPropias(MATERIA, { propiaFallada: modo === 'failed' }));
+      t.ok(`${modo}: abrió la app en el marco`, await abrirMarco(pagina, base, 390), true);
+      await clicEnMarco(pagina, MATERIA);
+      await esperarEnMarco(pagina, 'repasar fallos');
+      await pagina.evaluar(EN_MARCO(`
+        w.__instantanea = null;
+        w.__aparicion = null;
+        const original = w.Storage.prototype.getItem;
+        w.Storage.prototype.getItem = function (clave) {
+          if (w.__instantanea === null && String(clave).startsWith('pkapp_user_questions:')) {
+            w.__instantanea = d.body.innerText.toLowerCase();
+            w.Storage.prototype.getItem = original;
+          }
+          return original.apply(this, arguments);
+        };
+        // Primer instante en que hay contenido: ¿ya está el grupo «Fuente» y dónde está la mezcla?
+        const buscar = () => visibles('[tabindex]').find((n) => /todos los temas mezclados|comenzar examen/i.test(n.innerText));
+        const obs = new w.MutationObserver(() => {
+          if (w.__aparicion) return;
+          const ref = buscar();
+          if (!ref) return;
+          w.__aparicion = {
+            fuente: visibles('[role="radiogroup"]').some((g) => (g.getAttribute('aria-label') || '').toLowerCase() === 'fuente'),
+            arriba: ref.getBoundingClientRect().top + w.scrollY,
+          };
+        });
+        obs.observe(d.body, { childList: true, subtree: true, characterData: true });
+        w.__ubicar = () => { const r = buscar(); return r ? r.getBoundingClientRect().top + w.scrollY : null; };
+      `));
+      await clicEnMarco(pagina, entradas[modo]);
+      t.ok(`${modo}: la carga de las propias corrió`,
+        await pagina.esperarA(async () => (await pagina.evaluar(EN_MARCO('return w.__instantanea;'))) !== null), true);
+      const primera = await pagina.evaluar(EN_MARCO('return w.__instantanea;'));
+      t.ok(`${modo}: en la primera lectura ya está la barra interna`, primera.includes('elegir tema'), true);
+      t.ok(`${modo}: en la primera lectura no hay panel, mezcla, filas ni tarjeta de examen (R1)`,
+        contenido.every((s) => !primera.includes(s)) && !/\d+ preguntas/.test(primera)
+          && TEMAS_DE_PROPIAS_BCYT.every((n) => !primera.includes(n.toLowerCase())), true);
+      t.ok(`${modo}: al resolver aparece el contenido`,
+        await esperarEnMarco(pagina, modo === 'exam' ? 'comenzar examen' : 'todos los temas mezclados'), true);
+      const aparicion = await pagina.evaluar(EN_MARCO('return w.__aparicion;'));
+      t.ok(`${modo}: el panel aparece completo, con «Fuente», en el primer cuadro con contenido`,
+        !!aparicion && aparicion.fuente === true, true);
+      // Varias lecturas espaciadas (≈ 1 s en total): un salto tardío también se ve.
+      let quieto = !!aparicion;
+      for (let i = 0; i < 10 && quieto; i++) {
+        await new Promise((r) => setTimeout(r, 100));
+        const ahora = await pagina.evaluar(EN_MARCO('return w.__ubicar();'));
+        quieto = ahora !== null && Math.abs(ahora - aparicion.arriba) < 1;
+      }
+      t.ok(`${modo}: la mezcla o el botón no se mueve después de aparecer`, quieto, true);
+    });
+  }
+}
+
+// T10: si la carga de las propias falla, el panel no lleva «Fuente» y el filtro es «Todas».
+async function cargaQueFallaSinFuente(pagina, base, t) {
+  await pagina.ir(base + '/favicon.png');
+  await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
+  await pagina.evaluar(LIMPIAR_DATOS);
+  t.ok('abrió la app en el marco', await abrirMarco(pagina, base, 390), true);
+  await clicEnMarco(pagina, MATERIA);
+  await esperarEnMarco(pagina, 'repasar fallos');
+  await pagina.evaluar(EN_MARCO(`
+    const original = w.Storage.prototype.getItem;
+    w.Storage.prototype.getItem = function (clave) {
+      if (String(clave).startsWith('pkapp_user_questions:')) {
+        return JSON.stringify([{ id: 'corrupta', topic: 'x', question: 'q', options: '{no es json', correct_index: 0 }]);
+      }
+      return original.apply(this, arguments);
+    };
+  `));
+  await clicEnMarco(pagina, 'entrena temas');
+  t.ok('practice con carga que rechaza: aparece la mezcla en vez de quedar en blanco',
+    await esperarEnMarco(pagina, 'todos los temas mezclados'), true);
+  const m = await medirTemas(pagina);
+  t.ok('T10: el panel aparece sin «Fuente», con Parcial y Temporizador',
+    m.fuente === null && m.gruposDelPanel.join('|') === 'parcial|temporizador', true);
+  t.ok('T10: el filtro vale «Todas»: la mezcla es la suma de las filas del banco',
+    conteoDeMezcla(m) > PROPIAS_UNICAS && conteoDeMezcla(m) === sumaDeFilas(m), true);
+}
+
+// T18: el copy y el código de la pantalla ya no nombran las fuentes viejas.
+async function copySinGeneradas(pagina, base, t) {
+  const raiz = path.resolve(__dirname, '..', '..', '..');
+  const leer = (ruta) => fs.readFileSync(path.join(raiz, ruta), 'utf8');
+  t.ok('T18: TopicSelectScreen.js (cabecera incluida) no nombra «generadas» ni «Solo preguntas reales»',
+    /generad|solo preguntas reales/i.test(leer('src/screens/TopicSelectScreen.js')), false);
+  t.ok('T18: la opción de muestra de PaginaComponentes.js ya no se llama «Generadas»',
+    /generadas/i.test(leer('src/components/plancha/prueba/PaginaComponentes.js')), false);
 }
 
 async function mezclaYFilas(pagina, base, t) {
@@ -540,8 +1052,8 @@ async function varianteExam(pagina, base, t) {
   const m = await medirTemas(pagina);
   const x = m.texto.toLowerCase();
 
-  t.ok('exam: panel de filtros presente (fuente y temporizador)',
-    !!m.fuente && m.valor === 'Sin límite', true);
+  t.ok('exam: panel de filtros presente (parcial y temporizador; sin propias no hay «Fuente»)',
+    m.fuente === null && m.gruposDelPanel.join('|') === 'parcial|temporizador' && m.valor === 'Sin límite', true);
   t.ok('exam: tarjeta «Modo Examen» con su texto, disponibles y botón',
     ['modo examen', 'se sortean', 'disponibles:', 'comenzar examen'].every((s) => x.includes(s)), true);
   t.ok('exam: sin tarjeta de mezcla ni lista de temas (TOPIC-P5)', m.mezcla === null && m.filas.length === 0, true);
@@ -559,7 +1071,7 @@ async function varianteExam(pagina, base, t) {
     await pagina.esperarA(async () => await pagina.evaluar(EN_MARCO('return w.location.pathname;')) === '/quiz'), true);
 }
 
-async function vaciosV2yV4(pagina, base, t) {
+async function vaciosV2(pagina, base, t) {
   // V2: sin fallos, lámina vacía con «Practicar».
   t.ok('failed: abrió Elegir tema', await abrirTemas(pagina, base, { ancho: 390, modo: 'failed' }), true);
   const v2 = await medirTemas(pagina);
@@ -578,28 +1090,6 @@ async function vaciosV2yV4(pagina, base, t) {
     await pagina.esperarA(async () => await pagina.evaluar(EN_MARCO('return w.location.pathname;')) === '/temas/practice'), true);
   t.ok('V2: tras «Practicar» aparece la mezcla',
     await esperarEnMarco(pagina, 'todos los temas mezclados'), true);
-
-  // V4: filtros que dejan cero temas.
-  t.ok('practice: abrió Elegir tema', await abrirTemas(pagina, base, { ancho: 390 }), true);
-  await clicEnMarco(pagina, 'solo generadas');
-  t.ok('V4: aparece el mensaje bajo el rótulo (VAC-P3)',
-    await esperarEnMarco(pagina, 'no hay preguntas disponibles con los filtros actuales.'), true);
-  const v4 = await medirTemas(pagina);
-  t.ok('V4: la mezcla y los filtros siguen visibles, con «0 preguntas» (VAC-C4)',
-    !!v4.mezcla && v4.mezcla.lineas[v4.mezcla.lineas.length - 1] === '0 preguntas' && !!v4.fuente, true);
-  t.ok('V4: sin filas de tema', v4.filas.length, 0);
-  t.ok('V4: el rótulo «O elegí un tema específico:» se conserva',
-    v4.texto.toLowerCase().includes('o elegí un tema específico:'), true);
-
-  // V5: la mezcla con cero preguntas sigue activa y muestra el aviso del sistema.
-  pagina.dialogos.length = 0;
-  await clicEnMarco(pagina, 'todos los temas mezclados');
-  t.ok('V5: tocar la mezcla vacía muestra el aviso del sistema',
-    await pagina.esperarA(() => pagina.dialogos.length >= 1), true);
-  t.ok('V5: el aviso conserva su texto',
-    pagina.dialogos.some((d) => d.includes('No hay preguntas disponibles con los filtros actuales.')), true);
-  t.ok('V5: la pantalla sigue en Elegir tema',
-    await pagina.evaluar(EN_MARCO('return w.location.pathname;')), '/temas/practice');
 }
 
 async function vaciosCargaYSinParciales(pagina, base, t) {
@@ -637,7 +1127,8 @@ async function vaciosCargaYSinParciales(pagina, base, t) {
     await abrirTemas(pagina, base, { ancho: 390, materia: MATERIA_SIN_PARCIALES }), true);
   const m = await medirTemas(pagina);
   t.ok('V11: sin grupo Parcial', m.parcial === null && !m.texto.toLowerCase().includes('parcial'), true);
-  t.ok('V11: Fuente y Temporizador siguen presentes', !!m.fuente && m.valor === 'Sin límite', true);
+  t.ok('V11: sin propias queda solo Temporizador (TOPIC-P6)',
+    m.fuente === null && m.gruposDelPanel.join('|') === 'temporizador' && m.valor === 'Sin límite', true);
 }
 
 // Una carga que rechaza no deja la pantalla en blanco: `failed` resuelve igual y muestra V2.
@@ -678,12 +1169,13 @@ async function temasSinPreguntasNoSeListan(pagina, base, t) {
 }
 
 async function estadosDeControl(pagina, base, t) {
-  t.ok('practice: abrió Elegir tema', await abrirTemas(pagina, base, { ancho: 1280, alto: 900 }), true);
+  t.ok('practice con propias: abrió Elegir tema',
+    await abrirTemas(pagina, base, { ancho: 1280, alto: 900, propias: true }), true);
   const filtro = async (nombre) => {
     const m = await medirTemas(pagina);
     return (m.fuente || []).find((o) => o.texto.toLowerCase() === nombre) || { fondo: null, color: null, marcada: null, caja: { izq: 0, der: 0, arriba: 0, abajo: 0 } };
   };
-  const reposo = await filtro('solo generadas');
+  const reposo = await filtro('solo mías');
   const marcado = await filtro('todas');
   t.ok('K4: el seleccionado invierte (fondo = color del texto en reposo)',
     marcado.fondo !== reposo.fondo && marcado.fondo === reposo.color, true);
@@ -692,8 +1184,8 @@ async function estadosDeControl(pagina, base, t) {
   const c = reposo.caja;
   await pagina.moverA(Math.round((c.izq + c.der) / 2), Math.round((c.arriba + c.abajo) / 2));
   t.ok('K4: hover cambia el borde del filtro',
-    await pagina.esperarA(async () => (await filtro('solo generadas')).borde !== reposo.borde, { limite: 2000 }), true);
-  const luego = await filtro('solo generadas');
+    await pagina.esperarA(async () => (await filtro('solo mías')).borde !== reposo.borde, { limite: 2000 }), true);
+  const luego = await filtro('solo mías');
   t.ok('K4: el hover no mueve el filtro', luego.caja.izq === c.izq && luego.caja.arriba === c.arriba, true);
   await pagina.moverA(5, 5);
 
@@ -720,8 +1212,9 @@ async function estadosDeControl(pagina, base, t) {
 
   // Teclado del grupo: la flecha derecha selecciona el siguiente.
   await pagina.tecla('ArrowRight');
-  t.ok('K4: ArrowRight selecciona «Solo preguntas reales»',
-    await pagina.esperarA(async () => (await filtro('solo preguntas reales')).marcada === 'true', { limite: 2000 }), true);
+  t.ok('K4: ArrowRight selecciona «Solo mías»',
+    await pagina.esperarA(async () => (await filtro('solo mías')).marcada === 'true', { limite: 2000 }), true);
+  await pagina.evaluar(LIMPIAR_DATOS);
 }
 
 // Estados K de cada control de la pantalla (ficha c): hover real con el puntero,
@@ -790,6 +1283,11 @@ async function verEstados(pagina, t, T, nombre, buscar, esperado, { deshabilitad
       }
     }
   };
+  // Sin el control no hay estados que medir: ✗ y se sigue, en vez de tirar `TypeError` y abortar la corrida.
+  if (!await pagina.evaluar(EN_MARCO(`return !!(${buscar});`))) {
+    t.ok(`${cuando('reposo')}: existe`, false, true);
+    return;
+  }
   await pagina.evaluar(EN_MARCO(`(${buscar}).scrollIntoView({ block: 'center' });`));
 
   await pagina.moverA(1, 1);
@@ -841,15 +1339,44 @@ async function estadosDeTodosLosControles(pagina, base, t) {
     const invertido = { fondo: rgb(T.tinta), texto: rgb(T.fondo), borde: rgb(T.tinta) };
 
     // practice: K4 (fuente y parcial), K5, K6 y K7.
-    t.ok(`${pre}: practice abrió Elegir tema`, await abrirTemas(pagina, base, { ancho: 1280, alto: 900, oscuro }), true);
+    t.ok(`${pre}: practice abrió Elegir tema`,
+      await abrirTemas(pagina, base, { ancho: 1280, alto: 900, oscuro, propias: true }), true);
     const parciales = (await medirTemas(pagina)).parcial || [];
     const filtro = {
       reposo: { fondo: rgb(T.superficie), texto: rgb(T.tinta), borde: rgb(T.borde) },
       hover: { fondo: rgb(T.superficie), texto: rgb(T.tinta), borde: rgb(T.linea) },
       presionado: invertido,
     };
-    await K('K4 fuente', BUSCAR.filtro('solo generadas'), filtro);
+    await K('K4 fuente', BUSCAR.filtro('solo mías'), filtro);
+    // T17: rótulo «Fuente» en `tintaSec` y filetes verticales `filete`.
+    const rotuloYFiletes = await pagina.evaluar(EN_MARCO(`
+      const r = visibles('*').find((x) => x.children.length === 0 && x.textContent.trim().toLowerCase() === 'fuente');
+      const f = visibles('[data-testid="panel-divisor-vertical"]');
+      return { rotulo: r ? w.getComputedStyle(r).color : null,
+        filetes: f.map((n) => w.getComputedStyle(n).backgroundColor) };
+    `));
+    t.ok(`${pre}: T17 rótulo «Fuente» en tintaSec`, rotuloYFiletes.rotulo, rgb(T.tintaSec));
+    t.ok(`${pre}: T17 los dos filetes verticales en filete`,
+      rotuloYFiletes.filetes.join('|'), [rgb(T.filete), rgb(T.filete)].join('|'));
     if (parciales.length > 1) await K('K4 parcial', BUSCAR.filtro(parciales[1].texto.toLowerCase()), filtro);
+
+    // T17: «Solo mías» marcada: fondo `tinta`, texto `fondo` en `cuerpo-fuerte`.
+    await clicEnMarco(pagina, 'solo mías');
+    await pagina.moverA(1, 1);
+    await pagina.esperarA(async () => await marcadasDeFuente(pagina) === 'false|true');
+    const marcada = await pagina.evaluar(EN_MARCO(`
+      const el = ${BUSCAR.filtro('solo mías')};
+      if (!el) return null;
+      const k = w.getComputedStyle(el.firstElementChild || el);
+      const hoja = Array.from(el.querySelectorAll('*')).find((x) => x.children.length === 0 && x.textContent.trim());
+      const h = hoja ? w.getComputedStyle(hoja) : null;
+      return { fondo: k.backgroundColor, texto: h ? h.color : null, fuente: h ? h.fontFamily : null };
+    `));
+    t.ok(`${pre}: T17 «Solo mías» marcada: fondo tinta, texto fondo y cuerpo-fuerte`,
+      !!marcada && marcada.fondo === rgb(T.tinta) && marcada.texto === rgb(T.fondo)
+        && marcada.fuente.includes('PlexSans-SemiBold'), true);
+    await clicEnMarco(pagina, 'todas');
+    await pagina.esperarA(async () => await marcadasDeFuente(pagina) === 'true|false');
 
     const cuadrado = {
       reposo: { fondo: rgb(T.superficie), borde: rgb(T.linea), glifo: T.tinta },
@@ -902,22 +1429,26 @@ async function sinDesbordeNiCortes(pagina, base, t) {
       for (const modo of ['practice', 'exam', 'failed']) {
         // exam y failed alcanzan con los extremos: 320 y 1280.
         if (modo !== 'practice' && ancho !== 320 && ancho !== 1280) continue;
-        if (!await abrirTemas(pagina, base, { ancho, modo, oscuro })) {
-          t.ok(`${modo} ${ancho} px ${tema}: abrió Elegir tema`, false, true);
-          continue;
-        }
-        const m = await medirTemas(pagina);
-        t.ok(`${modo} ${ancho} px ${tema}: sin scroll horizontal`, m.desborda, false);
-        const chicos = m.interactivos.filter((c) => c.ancho > 0 && (c.alto < LADO_TACTIL || c.ancho < LADO_TACTIL));
-        t.ok(`${modo} ${ancho} px ${tema}: ningún control baja de 44 × 44`, chicos.length, 0);
-        if (ancho >= 768 && ancho < 1024) {
-          const ref = m.panel || m.practicar || m.comenzar || m.mezcla && m.mezcla.caja;
-          t.ok(`${modo} ${ancho} px ${tema}: una sola columna de a lo sumo ${COLUMNA} px`,
-            !!ref && ref.ancho <= COLUMNA + 1, true);
+        for (const propias of [false, true]) {
+          const pre = `${modo} ${ancho} px ${tema}${propias ? ' con propias' : ''}`;
+          if (!await abrirTemas(pagina, base, { ancho, modo, oscuro, propias })) {
+            t.ok(`${pre}: abrió Elegir tema`, false, true);
+            continue;
+          }
+          const m = await medirTemas(pagina);
+          t.ok(`${pre}: sin scroll horizontal (T14)`, m.desborda, false);
+          const chicos = m.interactivos.filter((c) => c.ancho > 0 && (c.alto < LADO_TACTIL || c.ancho < LADO_TACTIL));
+          t.ok(`${pre}: ningún control baja de 44 × 44`, chicos.length, 0);
+          if (ancho >= 768 && ancho < 1024) {
+            const ref = m.panel || m.practicar || m.comenzar || m.mezcla && m.mezcla.caja;
+            t.ok(`${pre}: una sola columna de a lo sumo ${COLUMNA} px`,
+              !!ref && ref.ancho <= COLUMNA + 1, true);
+          }
         }
       }
     }
   }
+  await pagina.evaluar(LIMPIAR_DATOS);
 }
 
 
@@ -947,6 +1478,14 @@ const TOPE_HOJA_AMPLIA = 1440;
 const TOPE_LECTURA = 600;
 const RELLENO_PANEL = 3.5 * PASO;
 const HUECO_COLUMNAS = 8 * PASO;           // lista de filas en flujo por columnas: paso 8 (TopicSelect.md)
+
+// T14 (A1): sin scroll horizontal y ningún control bajo 44 × 44. Con y sin propias: el panel
+// cambia de forma según las propias y el desborde de un hijo solo aparece en una de las dos.
+function sinDesbordeY44(t, pre, m) {
+  t.ok(`${pre}: T14 sin scroll horizontal`, m.desborda, false);
+  const chicos = m.interactivos.filter((c) => c.ancho > 0 && (c.alto < LADO_TACTIL || c.ancho < LADO_TACTIL));
+  t.ok(`${pre}: T14 ningún control baja de 44 × 44`, chicos.length, 0);
+}
 
 const topeDeHoja = (vista) => Math.min(vista >= 1440 ? TOPE_HOJA_AMPLIA : TOPE_HOJA, vista - 2 * MARGEN_HOJA);
 const casi = (a, b, tol = 1) => Math.abs(a - b) <= tol;
@@ -1008,9 +1547,10 @@ const ESTRUCTURA_DE_REGIONES = EN_MARCO(`
 
 // Con la página desplazada, cuánto se movió el panel respecto de lo que se desplazó el contenedor.
 const DESPLAZAR_Y_MEDIR_PANEL = EN_MARCO(`
-  const g = visibles('[role="radiogroup"]').find((x) => (x.getAttribute('aria-label') || '').toLowerCase() === 'fuente');
-  const panel = g.parentElement.parentElement;
+  // «Temporizador» siempre existe; «Fuente» solo con propias (TOPIC-P6).
+  ${BUSCAR_PANEL}
   const mezcla = visibles('[tabindex]').find((n) => n.innerText.toLowerCase().includes('todos los temas mezclados'));
+  if (!panel || !mezcla) return { desplazable: false };
   const sc = Array.from(d.querySelectorAll('*')).find((n) =>
     n.scrollHeight > n.clientHeight + 1 && /auto|scroll/.test(w.getComputedStyle(n).overflowY));
   if (!sc) return { desplazable: false };
@@ -1032,8 +1572,8 @@ async function escritorioPractice(pagina, base, t) {
   for (const oscuro of [false, true]) {
     const tema = oscuro ? 'oscuro' : 'claro';
     for (const ancho of [1023, 1024, 1366, 1920]) {
-      const pre = `practice ${ancho} px ${tema}`;
-      if (!await abrirTemas(pagina, base, { ancho, alto: 900, oscuro })) {
+      const pre = `practice ${ancho} px ${tema} con propias`;
+      if (!await abrirTemas(pagina, base, { ancho, alto: 900, oscuro, propias: true })) {
         t.ok(`${pre}: abrió Elegir tema`, false, true);
         continue;
       }
@@ -1042,6 +1582,11 @@ async function escritorioPractice(pagina, base, t) {
       t.ok(`${pre}: sin scroll horizontal`, m.desborda, false);
       const chicos = m.interactivos.filter((c) => c.ancho > 0 && (c.alto < LADO_TACTIL || c.ancho < LADO_TACTIL));
       t.ok(`${pre}: ningún control baja de 44 × 44`, chicos.length, 0);
+      // Sin «Fuente» o «Temporizador» las medidas de abajo no existen: un ✗ y no un TypeError.
+      const completo = !!m.panel && !!m.mezcla && !!m.grupoFuente && !!m.grupoParcial && !!m.celdaFuente
+        && !!m.celdaParcial && !!m.celdaTemporizador && !!m.menos && !!m.mas;
+      t.ok(`${pre}: el panel trae Fuente, Parcial y Temporizador, y la mezcla`, completo, true);
+      if (!completo) continue;
       const cols = columnasDe(m.filas);
 
       if (ancho < 1024) {
@@ -1093,8 +1638,19 @@ async function escritorioPractice(pagina, base, t) {
       t.ok(`${pre}: hay dos filetes verticales entre los tres grupos`, m.divisoresVerticales.length, 2);
       t.ok(`${pre}: paso 3.5 a cada lado del filete vertical`,
         !!m.celdaParcial && casi(m.celdaParcial.izq - m.celdaFuente.der, 2 * RELLENO_PANEL + 1), true);
-      t.ok(`${pre}: Fuente y Parcial reparten el ancho sobrante por igual`,
-        !!m.celdaParcial && casi(m.celdaFuente.ancho, m.celdaParcial.ancho), true);
+      // TOPIC-P6 (f.1, tabla 4): «Fuente» y «Temporizador» toman su contenido y «Parcial», el sobrante.
+      t.ok(`${pre}: T15 «Fuente» mide a lo sumo su contenido (unos 167 px)`,
+        !!m.celdaFuente && m.celdaFuente.ancho <= 168, true);
+      t.ok(`${pre}: T15 «Parcial» toma el sobrante (más ancho que «Fuente»)`,
+        !!m.celdaParcial && m.celdaParcial.ancho > m.celdaFuente.ancho, true);
+      t.ok(`${pre}: T15 los filtros de «Parcial» no saltan de línea`,
+        !!m.parcial && m.parcial.every((o) => casi(o.caja.arriba, m.parcial[0].caja.arriba)), true);
+      t.ok(`${pre}: T15 la celda de «Parcial» llega al filete del «Temporizador»`,
+        !!m.celdaParcial && !!m.celdaTemporizador
+          && casi(m.celdaTemporizador.izq - m.celdaParcial.der, 2 * RELLENO_PANEL + 1), true);
+      t.ok(`${pre}: T15 los tres grupos comparten el borde superior`,
+        !!m.celdaParcial && casi(m.celdaFuente.arriba, m.celdaParcial.arriba)
+          && casi(m.celdaFuente.arriba, m.celdaTemporizador.arriba), true);
       t.ok(`${pre}: la celda del Temporizador toma el ancho de sus controles (no más)`,
         !!m.menos && !!m.mas && !!m.celdaTemporizador
           && casi(m.celdaTemporizador.ancho, m.mas.caja.der - m.menos.caja.izq), true);
@@ -1193,19 +1749,51 @@ async function escritorioSinParcialesYDesplazado(pagina, base, t) {
     const tema = oscuro ? 'oscuro' : 'claro';
     for (const ancho of [1024, 1366, 1920]) {
       const pre = `practice ${ancho} px ${tema}`;
-      // V11: materia sin parciales; queda un solo filete y Fuente toma todo el sobrante.
-      if (!await abrirTemas(pagina, base, { ancho, alto: 900, oscuro, materia: MATERIA_SIN_PARCIALES })) {
-        t.ok(`${pre}: sin parciales abrió Elegir tema`, false, true);
+      const tope = topeDeHoja(ancho);
+      // V11 con propias: Fuente y Temporizador, un solo filete; cada uno toma su contenido y el
+      // sobrante queda vacío a la derecha (TOPIC-P6, tabla 4).
+      if (!await abrirTemas(pagina, base, { ancho, alto: 900, oscuro, materia: MATERIA_SIN_PARCIALES, propias: true })) {
+        t.ok(`${pre}: sin parciales con propias abrió Elegir tema`, false, true);
       } else {
         const m = await medirTemas(pagina);
-        t.ok(`${pre}: sin parciales, sin scroll horizontal`, m.desborda, false);
-        t.ok(`${pre}: sin parciales, no hay grupo Parcial y queda un solo filete vertical`,
-          !m.grupoParcial && m.divisoresVerticales.length === 1, true);
-        t.ok(`${pre}: sin parciales, Fuente toma el sobrante y el Temporizador queda al borde del panel`,
+        t.ok(`${pre}: sin parciales con propias, sin scroll horizontal`, m.desborda, false);
+        t.ok(`${pre}: sin parciales con propias, Fuente y Temporizador con un solo filete vertical`,
+          m.gruposDelPanel.join('|') === 'fuente|temporizador' && !m.grupoParcial && m.divisoresVerticales.length === 1, true);
+        t.ok(`${pre}: sin parciales con propias, el Temporizador sigue a Fuente y el sobrante queda a la derecha`,
           !!m.celdaFuente && !!m.celdaTemporizador
             && casi(m.celdaFuente.izq - m.panel.izq, RELLENO_PANEL)
-            && casi(m.celdaTemporizador.der, m.panel.der - RELLENO_PANEL)
-            && casi(m.celdaTemporizador.izq - m.celdaFuente.der, 2 * RELLENO_PANEL + 1), true);
+            && casi(m.celdaTemporizador.izq - m.celdaFuente.der, 2 * RELLENO_PANEL + 1)
+            && m.panel.der - RELLENO_PANEL - m.celdaTemporizador.der > 100, true);
+        t.ok(`${pre}: sin parciales con propias, el panel mide la hoja (${tope} px)`,
+          !!m.panel && casi(m.panel.ancho, tope), true);
+      }
+
+      // T16 sin propias, materia sin parciales: «Temporizador» solo, a la izquierda y sin filete.
+      if (!await abrirTemas(pagina, base, { ancho, alto: 900, oscuro, materia: MATERIA_SIN_PARCIALES })) {
+        t.ok(`${pre}: sin parciales ni propias abrió Elegir tema`, false, true);
+      } else {
+        const m = await medirTemas(pagina);
+        t.ok(`${pre}: T16 sin parciales ni propias, solo Temporizador y sin filete`,
+          m.gruposDelPanel.join('|') === 'temporizador' && m.divisoresVerticales.length === 0
+            && !m.grupoFuente && !m.grupoParcial, true);
+        t.ok(`${pre}: T16 el Temporizador va a la izquierda del panel (paso 3.5)`,
+          !!m.celdaTemporizador && casi(m.celdaTemporizador.izq - m.panel.izq, RELLENO_PANEL), true);
+        t.ok(`${pre}: T16 el panel sigue midiendo la hoja (${tope} px)`, !!m.panel && casi(m.panel.ancho, tope), true);
+        sinDesbordeY44(t, `${pre} sin parciales ni propias`, m);
+      }
+
+      // T16 sin propias, materia con parciales: Parcial y Temporizador, un filete.
+      if (!await abrirTemas(pagina, base, { ancho, alto: 900, oscuro })) {
+        t.ok(`${pre}: BCYT sin propias abrió Elegir tema`, false, true);
+      } else {
+        const m = await medirTemas(pagina);
+        t.ok(`${pre}: T16 BCYT sin propias, Parcial y Temporizador con un filete vertical`,
+          m.gruposDelPanel.join('|') === 'parcial|temporizador' && m.divisoresVerticales.length === 1
+            && !m.grupoFuente, true);
+        t.ok(`${pre}: T16 BCYT sin propias, Temporizador al borde derecho del panel y el panel mide la hoja`,
+          !!m.celdaTemporizador && casi(m.celdaTemporizador.der, m.panel.der - RELLENO_PANEL)
+            && casi(m.panel.ancho, tope), true);
+        sinDesbordeY44(t, `${pre} BCYT sin propias`, m);
       }
 
       // Página desplazada: ninguna región queda fija. Ventana baja para que haya scroll.
@@ -1229,7 +1817,7 @@ async function escritorioExamYVacios(pagina, base, t) {
     for (const ancho of [1023, 1024, 1366, 1920]) {
       const pre = `${ancho} px ${tema}`;
       // Modo examen: panel a ancho de hoja; tarjeta centrada con tope `lectura`.
-      if (!await abrirTemas(pagina, base, { ancho, alto: 900, modo: 'exam', oscuro })) {
+      if (!await abrirTemas(pagina, base, { ancho, alto: 900, modo: 'exam', oscuro, propias: true })) {
         t.ok(`exam ${pre}: abrió Elegir tema`, false, true);
       } else {
         const m = await medirTemas(pagina);
@@ -1244,7 +1832,8 @@ async function escritorioExamYVacios(pagina, base, t) {
           const tope = topeDeHoja(ancho);
           t.ok(`exam ${pre}: el panel mide la hoja (${tope} px)`, !!m.panel && casi(m.panel.ancho, tope), true);
           t.ok(`exam ${pre}: los tres grupos van en una fila`,
-            !!m.celdaParcial && casi(m.celdaFuente.arriba, m.celdaParcial.arriba) && m.divisoresVerticales.length === 2, true);
+            !!m.celdaFuente && !!m.celdaParcial && casi(m.celdaFuente.arriba, m.celdaParcial.arriba)
+              && m.divisoresVerticales.length === 2, true);
           t.ok(`exam ${pre}: la tarjeta «Modo Examen» mide ${TOPE_LECTURA} px (tope lectura)`,
             !!m.laminaExamen && casi(m.laminaExamen.ancho, TOPE_LECTURA), true);
           t.ok(`exam ${pre}: la tarjeta queda centrada en la ventana`,
@@ -1252,6 +1841,16 @@ async function escritorioExamYVacios(pagina, base, t) {
           t.ok(`exam ${pre}: «Comenzar examen» queda dentro de la tarjeta`,
             !!m.comenzar && !!m.laminaExamen && m.comenzar.izq >= m.laminaExamen.izq && m.comenzar.der <= m.laminaExamen.der, true);
         }
+      }
+
+      // T14 sin propias en exam: el panel pierde «Fuente» y sigue sin desbordar.
+      if (!await abrirTemas(pagina, base, { ancho, alto: 900, modo: 'exam', oscuro })) {
+        t.ok(`exam ${pre} sin propias: abrió Elegir tema`, false, true);
+      } else {
+        const m = await medirTemas(pagina);
+        sinDesbordeY44(t, `exam ${pre} sin propias`, m);
+        t.ok(`exam ${pre} sin propias: el panel trae Parcial y Temporizador, sin Fuente`,
+          m.gruposDelPanel.join('|'), 'parcial|temporizador');
       }
 
       // failed sin fallos (V2): lámina `lectura`, centrada y anclada arriba, margen paso 6.
@@ -1279,6 +1878,47 @@ async function escritorioExamYVacios(pagina, base, t) {
   }
 }
 
+// Capturas de evidencia de la 3.13c (solo con PKAPP_CAPTURAS): TopicSelect a 390 y 1366, en claro
+// y oscuro, con y sin propias, y el vacío de VAC-P5. No afirma nada: deja los PNG para revisión.
+async function capturasDeLaTrece(pagina, base, t) {
+  if (!process.env.PKAPP_CAPTURAS) return;
+  const dir = path.resolve(__dirname, '..', '..', '..', 'openspec', 'changes', 'rediseno-plancha',
+    'evidencia', 'despues', '3.13');
+  fs.mkdirSync(dir, { recursive: true });
+  const ALTO = { 390: 1000, 1366: 768 };
+  const foto = async (ancho, nombre) => {
+    await pagina.enviar('Emulation.setDeviceMetricsOverride',
+      { width: Math.max(ancho, 900), height: Math.max(ALTO[ancho], 900), deviceScaleFactor: 1, mobile: false });
+    await new Promise((r) => setTimeout(r, 400));
+    const r = await pagina.enviar('Page.captureScreenshot',
+      { format: 'png', clip: { x: 0, y: 0, width: ancho, height: ALTO[ancho], scale: 1 } });
+    fs.writeFileSync(path.join(dir, nombre), Buffer.from(r.data, 'base64'));
+    t.nota(`captura ${nombre}`);
+  };
+  await limpiando(pagina, async () => {
+    for (const ancho of [390, 1366]) {
+      for (const oscuro of [false, true]) {
+        const tema = oscuro ? 'oscuro' : 'claro';
+        for (const propias of [false, true]) {
+          const ok = await abrirTemas(pagina, base, { ancho, alto: ALTO[ancho], oscuro, propias });
+          t.ok(`captura ${ancho} ${tema} ${propias ? 'con' : 'sin'} propias: abrió Elegir tema`, ok, true);
+          if (ok) await foto(ancho, `temas-${ancho}-${tema}-${propias ? 'con' : 'sin'}-propias.png`);
+        }
+        // VAC-P5: «Solo mías» y «1er Parcial».
+        const abrio = await abrirTemas(pagina, base, { ancho, alto: ALTO[ancho], oscuro, propias: true });
+        t.ok(`captura ${ancho} ${tema} VAC-P5: abrió Elegir tema`, abrio, true);
+        if (!abrio) continue;
+        await clicEnMarco(pagina, 'solo mías');
+        await pagina.esperarA(async () => await marcadasDeFuente(pagina) === 'false|true');
+        const p = (await medirTemas(pagina)).parcial || [];
+        if (p.length > 1) await clicEnMarco(pagina, p[1].texto);
+        t.ok(`captura ${ancho} ${tema} VAC-P5: aparece el mensaje`, await esperarEnMarco(pagina, MENSAJE_VAC_P5), true);
+        await foto(ancho, `temas-${ancho}-${tema}-vac-p5.png`);
+      }
+    }
+  });
+}
+
 // ===========================================================================
 // GRUPO B · tarea 2.10, plan B de D2 (Ilustracion.web.js: <svg> del DOM)
 // ===========================================================================
@@ -1290,9 +1930,16 @@ module.exports = [
   { nombre: 'HeaderMarca: control negativo del desborde', correr: controlNegativoDeDesborde },
   { nombre: 'HeaderMarca: hover sin halo ni box-shadow', correr: hoverSinHalo },
   { nombre: 'TopicSelect: filtros, separación y temporizador', correr: filtrosYSeparacion },
+  { nombre: 'TopicSelect: grupos del panel según las propias (TOPIC-P6)', correr: panelSegunPropias },
+  { nombre: 'TopicSelect: «Solo mías» y VAC-P5', correr: soloMiasYVacioDeVacP5 },
+  { nombre: 'TopicSelect: teclado del filtro de fuente', correr: tecladoDelFiltroDeFuente },
+  { nombre: 'TopicSelect: exam y failed con «Solo mías»', correr: modosExamYFailedConSoloMias },
+  { nombre: 'TopicSelect: carga sin saltos en los tres modos (R1)', correr: cargaSinSaltos },
+  { nombre: 'TopicSelect: carga que falla, sin «Fuente»', correr: cargaQueFallaSinFuente },
+  { nombre: 'TopicSelect: copy sin «generadas» (T18)', correr: copySinGeneradas },
   { nombre: 'TopicSelect: mezcla y filas con conteo', correr: mezclaYFilas },
   { nombre: 'TopicSelect: variante exam', correr: varianteExam },
-  { nombre: 'TopicSelect: vacíos V2, V4 y V5', correr: vaciosV2yV4 },
+  { nombre: 'TopicSelect: vacío V2', correr: vaciosV2 },
   { nombre: 'TopicSelect: carga sin V2 (VAC-P4) y V11', correr: vaciosCargaYSinParciales },
   { nombre: 'TopicSelect: carga que rechaza (finally)', correr: cargaQueRechazaMuestraV2 },
   { nombre: 'TopicSelect: V9, temas sin preguntas fuera de la lista', correr: temasSinPreguntasNoSeListan },
@@ -1302,4 +1949,5 @@ module.exports = [
   { nombre: 'TopicSelect escritorio: practice, regiones, columnas y foco', correr: escritorioPractice },
   { nombre: 'TopicSelect escritorio: exam y vacíos en lectura', correr: escritorioExamYVacios },
   { nombre: 'TopicSelect escritorio: sin parciales y página desplazada', correr: escritorioSinParcialesYDesplazado },
+  { nombre: 'TopicSelect: capturas de la 3.13c (solo con PKAPP_CAPTURAS)', correr: capturasDeLaTrece },
 ];

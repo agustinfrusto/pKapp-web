@@ -22,7 +22,7 @@ const BARRA = { options: { title: 'Barra' }, route: { name: 'Barra' }, navigatio
 const FILTRO = [
   { valor: 'todas', etiqueta: 'Todas' },
   { valor: 'reales', etiqueta: 'Reales' },
-  { valor: 'generadas', etiqueta: 'Generadas', deshabilitado: true },
+  { valor: 'propias', etiqueta: 'Solo mías', deshabilitado: true },
 ];
 
 const TEMA = [

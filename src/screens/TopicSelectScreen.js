@@ -1,7 +1,7 @@
-// Pantalla de selección de tema, con toggle de filtro de fuente.
-// Acá es donde el usuario decide si practicar solo preguntas reales,
-// solo generadas, o ambas.
-import React, { useState, useEffect, useMemo } from 'react';
+// Pantalla de selección de tema, con filtros de fuente, parcial y temporizador.
+// Acá es donde el usuario decide si practicar todo el banco o solo sus
+// preguntas propias (el filtro de fuente existe solo si tiene alguna).
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { getUserQuestions, getFailedQuestions, getSetting } from '../db/database';
 import { useMateria } from '../materia/MateriaContext';
@@ -16,9 +16,12 @@ import {
 
 const SOURCE_FILTERS = {
   all: 'Todas',
-  exam: 'Solo preguntas reales',
-  generated: 'Solo generadas',
+  user: 'Solo mías',
 };
+
+// VAC-P5: con «Solo mías» y un parcial no hay preguntas (las propias no traen `parcial`).
+const SIN_TEMAS = 'No hay preguntas disponibles con los filtros actuales.';
+const SIN_TEMAS_PROPIAS_Y_PARCIAL = 'Tus preguntas no tienen parcial. Elegí "Examen" para verlas.';
 
 const TIMER_OPTIONS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]; // 0 = sin límite
 
@@ -69,16 +72,17 @@ export default function TopicSelectScreen({ route, navigation }) {
   const [timerMinutes, setTimerMinutes] = useState(0);
   const [userQuestions, setUserQuestions] = useState([]);
   const [failedIds, setFailedIds] = useState(new Set());
-  // VAC-P4: hasta que resuelve la primera carga de `failed`, `failedIds` vacío no es
-  // «sin falladas» todavía: no se pinta ni el estado vacío ni el contenido.
+  // VAC-P4 y R1 (TOPIC-P6): hasta que resuelve la primera carga, las propias y `failedIds`
+  // vacíos no son «sin propias» ni «sin falladas» todavía: en los tres modos no se pinta ni
+  // el panel ni el contenido, para que el panel no cambie de tamaño cuando llega el dato.
   const [cargado, setCargado] = useState(false);
   const { oscuro } = useTema();
   const tema = oscuro ? plancha.oscuro : plancha.claro;
 
   useEffect(() => {
     (async () => {
-      // `finally`: aunque la carga rechace, `failed` resuelve y muestra V2 en vez de
-      // quedar en blanco (VAC-P4 solo cubre la espera, no el fallo).
+      // `finally`: aunque la carga rechace, la pantalla resuelve (sin «Fuente»; `failed`, con V2)
+      // en vez de quedar en blanco (VAC-P4 solo cubre la espera, no el fallo).
       try {
         const userQs = await getUserQuestions(materiaId);
         setUserQuestions(userQs);
@@ -93,6 +97,14 @@ export default function TopicSelectScreen({ route, navigation }) {
     })();
   }, [mode, materiaId]);
 
+  // «Fuente» existe solo con preguntas propias. El valor efectivo se deriva del dato: ningún
+  // render deja `user` activo sin su grupo a la vista (R4); el estado se reinicia en el efecto.
+  const hayPropias = userQuestions.length > 0;
+  const fuenteEfectiva = hayPropias ? sourceFilter : 'all';
+  useEffect(() => {
+    if (!hayPropias && sourceFilter !== 'all') setSourceFilter('all');
+  }, [hayPropias, sourceFilter]);
+
   // Combinamos preguntas hardcodeadas con las del usuario (memoizado).
   const allQuestions = useMemo(
     () => [...(QUESTIONS || []), ...userQuestions],
@@ -102,10 +114,8 @@ export default function TopicSelectScreen({ route, navigation }) {
   // Base ya filtrada por source/parcial/modo, sin filtro de topic (una sola pasada).
   const filteredBase = useMemo(() => {
     let filtered = allQuestions;
-    if (sourceFilter === 'exam') {
-      filtered = filtered.filter(q => q.source === 'exam');
-    } else if (sourceFilter === 'generated') {
-      filtered = filtered.filter(q => q.source === 'generated' || q.source === 'user');
+    if (fuenteEfectiva === 'user') {
+      filtered = filtered.filter(q => q.source === 'user');
     }
     if (parcialFilter !== 'all') {
       filtered = filtered.filter(q => q.parcial === parcialFilter);
@@ -114,7 +124,7 @@ export default function TopicSelectScreen({ route, navigation }) {
       filtered = filtered.filter(q => failedIds.has(q.id));
     }
     return dedupeQuestions(filtered);
-  }, [allQuestions, sourceFilter, parcialFilter, mode, failedIds]);
+  }, [allQuestions, fuenteEfectiva, parcialFilter, mode, failedIds]);
 
   // Conteo por topic en una sola pasada — evita iterar las 842 preguntas N veces.
   const countByTopic = useMemo(() => {
@@ -134,7 +144,7 @@ export default function TopicSelectScreen({ route, navigation }) {
     let questions = getFilteredQuestions(topic);
 
     if (questions.length === 0) {
-      avisar('Sin preguntas', 'No hay preguntas disponibles con los filtros actuales.');
+      avisar('Sin preguntas', SIN_TEMAS);
       return;
     }
 
@@ -159,9 +169,15 @@ export default function TopicSelectScreen({ route, navigation }) {
 
   if (!materia) return null;
 
+  // Primera carga sin resolver (los tres modos): solo la barra interna sobre `fondo`.
+  if (!cargado) {
+    return <View className={`flex-1 ${FONDO}`} />;
+  }
+
   const filtros = (
     <Filters
-      sourceFilter={sourceFilter} setSourceFilter={setSourceFilter}
+      mostrarFuente={hayPropias}
+      sourceFilter={fuenteEfectiva} setSourceFilter={setSourceFilter}
       parcialFilter={parcialFilter} setParcialFilter={setParcialFilter}
       parcialFilters={PARCIAL_FILTERS}
       timerMinutes={timerMinutes} setTimerMinutes={setTimerMinutes}
@@ -202,11 +218,6 @@ export default function TopicSelectScreen({ route, navigation }) {
         </Hoja>
       </ScrollView>
     );
-  }
-
-  // Modo failed, primera carga sin resolver: solo la barra interna sobre `fondo`.
-  if (mode === 'failed' && !cargado) {
-    return <View className={`flex-1 ${FONDO}`} />;
   }
 
   // Modo failed: si no hay falladas, lo decimos (V2)
@@ -273,8 +284,8 @@ export default function TopicSelectScreen({ route, navigation }) {
         </View>
 
         {filteredBase.length === 0 ? (
-          <Text className={`mt-2 font-plex-sans text-cuerpo ${TINTA_SEC}`}>
-            No hay preguntas disponibles con los filtros actuales.
+          <Text className={`font-plex-sans text-cuerpo ${TINTA_SEC}`}>
+            {fuenteEfectiva === 'user' && parcialFilter !== 'all' ? SIN_TEMAS_PROPIAS_Y_PARCIAL : SIN_TEMAS}
           </Text>
         ) : (
           <View className="border-t border-linea dark:border-lineaD">
@@ -305,9 +316,29 @@ export default function TopicSelectScreen({ route, navigation }) {
   );
 }
 
-// Panel de filtros: fuente, parcial (si la materia tiene parciales) y temporizador.
-function Filters({ sourceFilter, setSourceFilter, parcialFilter, setParcialFilter, parcialFilters, timerMinutes, setTimerMinutes }) {
+// Panel de filtros: fuente (solo con propias), parcial (si la materia tiene parciales) y
+// temporizador. Los divisores van solo entre grupos presentes (TOPIC-P6).
+function Filters({ mostrarFuente, sourceFilter, setSourceFilter, parcialFilter, setParcialFilter, parcialFilters, timerMinutes, setTimerMinutes }) {
   const currentIdx = TIMER_OPTIONS.indexOf(timerMinutes);
+  const panelRef = useRef(null);
+  const teniaFuente = useRef(mostrarFuente);
+
+  // R5: si «Fuente» desaparece con el foco adentro, el navegador lo suelta en `body`: pasa al
+  // primer control habilitado del panel (el primer filtro de parcial o, sin parciales, el primer
+  // cuadrado del temporizador que no esté deshabilitado).
+  useEffect(() => {
+    if (teniaFuente.current && !mostrarFuente) {
+      const activo = typeof document !== 'undefined' ? document.activeElement : null;
+      const panel = panelRef.current;
+      if ((!activo || activo === document.body) && panel && typeof panel.querySelector === 'function') {
+        const primero = panel.querySelector(
+          '[tabindex="0"]:not([disabled]):not([aria-disabled="true"])'
+        );
+        if (primero && typeof primero.focus === 'function') primero.focus();
+      }
+    }
+    teniaFuente.current = mostrarFuente;
+  }, [mostrarFuente]);
 
   function decrement() {
     if (currentIdx > 0) setTimerMinutes(TIMER_OPTIONS[currentIdx - 1]);
@@ -316,9 +347,11 @@ function Filters({ sourceFilter, setSourceFilter, parcialFilter, setParcialFilte
     if (currentIdx < TIMER_OPTIONS.length - 1) setTimerMinutes(TIMER_OPTIONS[currentIdx + 1]);
   }
 
-  return (
-    <View className="mb-3 mt-4 border border-linea bg-superficie p-3.5 dark:border-lineaD dark:bg-superficieD escritorio:flex-row escritorio:items-start">
-      <GrupoDeFiltro nombre="Fuente" className="escritorio:min-w-0 escritorio:flex-1">
+  // «Fuente» y «Temporizador» toman el ancho de su contenido y «Parcial», el sobrante.
+  const grupos = [];
+  if (mostrarFuente) {
+    grupos.push(
+      <GrupoDeFiltro key="fuente" nombre="Fuente" className="escritorio:shrink-0">
         <Segmento
           accessibilityLabel="Fuente"
           opciones={Object.entries(SOURCE_FILTERS).map(([valor, etiqueta]) => ({ valor, etiqueta }))}
@@ -326,39 +359,53 @@ function Filters({ sourceFilter, setSourceFilter, parcialFilter, setParcialFilte
           alCambiar={setSourceFilter}
         />
       </GrupoDeFiltro>
-      <Divisor />
-      {parcialFilters && (
-        <>
-          <GrupoDeFiltro nombre="Parcial" className="escritorio:min-w-0 escritorio:flex-1">
-            <Segmento
-              accessibilityLabel="Parcial"
-              opciones={Object.entries(parcialFilters).map(([valor, etiqueta]) => ({ valor, etiqueta }))}
-              valor={parcialFilter}
-              alCambiar={setParcialFilter}
-            />
-          </GrupoDeFiltro>
-          <Divisor />
-        </>
-      )}
-      <GrupoDeFiltro nombre="Temporizador" className="escritorio:shrink-0">
-        <View className="flex-row items-center gap-4">
-          <CuadroPaso
-            glifo="glifo-menos"
-            accessibilityLabel="Reducir tiempo"
-            deshabilitado={currentIdx === 0}
-            onPress={decrement}
-          />
-          <Text className={`min-w-20 text-center font-plex-sans-semibold text-cuerpo ${TINTA}`}>
-            {timerMinutes === 0 ? 'Sin límite' : `${timerMinutes} min`}
-          </Text>
-          <CuadroPaso
-            glifo="glifo-mas"
-            accessibilityLabel="Aumentar tiempo"
-            deshabilitado={currentIdx === TIMER_OPTIONS.length - 1}
-            onPress={increment}
-          />
-        </View>
+    );
+  }
+  if (parcialFilters) {
+    grupos.push(
+      <GrupoDeFiltro key="parcial" nombre="Parcial" className="escritorio:min-w-0 escritorio:flex-1">
+        <Segmento
+          accessibilityLabel="Parcial"
+          opciones={Object.entries(parcialFilters).map(([valor, etiqueta]) => ({ valor, etiqueta }))}
+          valor={parcialFilter}
+          alCambiar={setParcialFilter}
+        />
       </GrupoDeFiltro>
+    );
+  }
+  grupos.push(
+    <GrupoDeFiltro key="temporizador" nombre="Temporizador" className="escritorio:shrink-0">
+      <View className="flex-row items-center gap-4">
+        <CuadroPaso
+          glifo="glifo-menos"
+          accessibilityLabel="Reducir tiempo"
+          deshabilitado={currentIdx === 0}
+          onPress={decrement}
+        />
+        <Text className={`min-w-20 text-center font-plex-sans-semibold text-cuerpo ${TINTA}`}>
+          {timerMinutes === 0 ? 'Sin límite' : `${timerMinutes} min`}
+        </Text>
+        <CuadroPaso
+          glifo="glifo-mas"
+          accessibilityLabel="Aumentar tiempo"
+          deshabilitado={currentIdx === TIMER_OPTIONS.length - 1}
+          onPress={increment}
+        />
+      </View>
+    </GrupoDeFiltro>
+  );
+
+  return (
+    <View
+      ref={panelRef}
+      className="mb-3 mt-4 border border-linea bg-superficie p-3.5 dark:border-lineaD dark:bg-superficieD escritorio:flex-row escritorio:items-start"
+    >
+      {grupos.map((grupo, i) => (
+        <React.Fragment key={grupo.key}>
+          {i > 0 && <Divisor />}
+          {grupo}
+        </React.Fragment>
+      ))}
     </View>
   );
 }

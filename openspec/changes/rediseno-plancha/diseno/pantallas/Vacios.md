@@ -83,7 +83,7 @@ Dentro del cuerpo de «Mis preguntas» (`Settings.md` a.1, bloque 3), a `paso 2.
 | # | Parte | Medidas | Contenido |
 |---|---|---|---|
 | 1 | Rótulo de sección | El de `TopicSelect.md` a.1, bloque 4 | «O elegí un tema específico:» |
-| 2 | Mensaje (`VAC-P3` y `VAC-P5`) | Margen superior `paso 2`; lateral `paso 5`; alineado a la izquierda; una o más líneas | Un solo mensaje de V4, según los filtros (tabla siguiente) |
+| 2 | Mensaje (`VAC-P3` y `VAC-P5`) | Sin margen superior propio: queda a `paso 2` bajo el rótulo, que es la «Separación inferior» del bloque 4 de `TopicSelect.md` a.1 (8 px en total, no 16); lateral `paso 5`; alineado a la izquierda; una o más líneas | Un solo mensaje de V4, según los filtros (tabla siguiente) |
 
 | Filtros marcados cuando la lista queda vacía | Mensaje |
 |---|---|
@@ -221,9 +221,21 @@ Para la tarea 3.x que implementa el cambio y para el e2e. Las propias se siembra
 | 5 | CyR con propias, `failed` con fallos del banco y ninguna propia fallada, «Solo mías» | V4 con «No hay preguntas disponibles con los filtros actuales.» (`VAC-P3`); no el de `VAC-P5` |
 | 6 | «Solo mías» en `practice` sin parcial, o un parcial sin «Solo mías» | Hay temas: ningún mensaje de V4 |
 | 7 | Tocar la mezcla durante la fila 1 | Aviso del sistema de V5, sin cambio: título «Sin preguntas» y texto «No hay preguntas disponibles con los filtros actuales.» |
-| 8 | Presentación | `cuerpo` en `tintaSec` sobre `fondo`; alineado a la izquierda; `paso 2` bajo el rótulo y `paso 5` lateral; sin región viva; a 320 el texto salta de línea y `scrollWidth <= clientWidth` |
+| 8 | Presentación | `cuerpo` en `tintaSec` sobre `fondo`; alineado a la izquierda; `paso 2` en total bajo el rótulo (8 px de la caja de texto del rótulo al borde superior del mensaje, que no lleva margen propio) y `paso 5` lateral; sin región viva; a 320 el texto salta de línea y `scrollWidth <= clientWidth` |
 | 9 | Copy | La cadena exacta, con comillas rectas como V3, y solo en V4. Ningún texto nuevo en V1, V2, V3 ni V5 |
 | 10 | Sin transparencia | Sin `box-shadow`, `rgba`, `border-radius` ni `opacity` nuevos |
+
+#### Aclaración de la fila 8: «`paso 2` bajo el rótulo» son 8 px en total (consulta 3.13c-c, 2026-10-11)
+
+| Aspecto | Detalle |
+|---|---|
+| Pregunta | `rediseno-3.13c-b.md` §3: el contenedor del rótulo trae `mb-2` y el mensaje `mt-2`, y el texto queda a 16 px del rótulo. ¿La ficha pedía 8 px en total? |
+| Respuesta | **Sí: 8 px en total (`paso 2`).** Se miden de la caja de texto del rótulo (`RotuloSeccion`, de 16 px de alto y sin relleno) al borde superior del mensaje |
+| Por qué | El `paso 2` es uno solo: la «Separación inferior `paso 2`» del bloque 4 de `TopicSelect.md` a.1. Con temas, separa el rótulo del filete superior de la lista; en V4, del mensaje. El «Margen superior `paso 2`» que a.4 daba al mensaje nombraba esa misma separación desde el otro lado y se leía como una segunda. La maqueta lo dibuja así: el rótulo con 8 px de relleno inferior y el mensaje sin margen (figuras 12d y 12e, medido a 390 px: 8 px y mensaje de dos líneas) |
+| Cifra | **8 px.** Hoy la pantalla da 16 (`mb-2` del contenedor del rótulo más `mt-2` del mensaje): el doble |
+| Pantalla | **Cambia, una clase:** quitar `mt-2` del `Text` del mensaje en `TopicSelectScreen.js` (el de la lista vacía, bajo el rótulo; hoy línea 287). Queda el `mb-2` del contenedor del rótulo (línea 282): es el `paso 2` de la ficha y vale igual con la lista y sin ella. Nada más cambia: ni el color, ni la tipografía, ni el margen lateral |
+| e2e | `V8 … paso 2` (`temas.js`, `presentacionDeVacP5`) hoy compara el `margin-top` propio del mensaje con `8px`; por eso pasa con 16 px a la vista. Debe medir la distancia: borde superior del mensaje menos borde inferior del texto del rótulo igual a 8 px (con margen de 1 px), y el `margin-top` del mensaje en `0px` |
+| Sin cambio | La lista con temas (V1 a V3 de `TopicSelect.md`) no cambia; escritorio tampoco (mismo código bajo el rótulo, a ancho de hoja) |
 
 ---
 

@@ -190,12 +190,14 @@ Para la tarea 3.x que lo implementa y para el e2e (`materias.js`). En la pantall
 |---|---|---|
 | 1 | Las seis tarjetas en reposo | El cajetín tiene una sola celda: el texto «Banco real» no está en el DOM de la pantalla y no hay filete vertical dentro del cajetín |
 | 2 | La celda | Mide el ancho del cajetín, de borde a borde dentro del marco; el conteo es «{N} preguntas», con N igual a `CONTEOS[materia.id]`, a `paso 3` del borde izquierdo; cifra en `rotulo-medio` y `tinta`, palabra en `rotulo` y `tintaSec` |
-| 3 | Alto | El cajetín y la tarjeta miden lo mismo que con dos celdas: cajetín de 35 px con su filete superior y tarjeta de 95 px a 390, con el nombre en una línea |
+| 3 | Alto | El cajetín y la tarjeta miden lo mismo que con dos celdas: cajetín de 29 px con su filete superior (`paso 1.5` dos veces, `rotulo` de 16 y `border` de 1) y tarjeta de 89 px a 390 (texto de 58, cajetín de 29 y `border` arriba y abajo), con el nombre en una línea |
 | 4 | «Cargando…», al tocar una tarjeta con el banco frenado | La misma celda dice «Cargando…» en `tintaSec`; la tarjeta no cambia de alto, conserva marco y fondo y no recibe toque. Una sola celda |
 | 5 | «Próximamente» (rama de código: sin camino con los datos de hoy, ninguna materia tiene `available` en falso) | La misma celda dice «Próximamente» en `inactivo`; borde `filete`; sin toque; mismo alto. Lo verifica la lectura del Analista |
 | 6 | Presionado, foco y hover | Sin cambio (K6): inversión total con la celda y su texto invertidos, contorno `foco`, borde `linea` |
 | 7 | 360 y 320; 1366 × 768 | Sin desborde; la celda conserva el ancho completo de la tarjeta, en el teléfono y en la rejilla de escritorio |
 | 8 | Código | `bancoReal` y su derivación (`materia.available && !materia.generadas`) dejan de existir en `MateriaSelectScreen.js`; `materia.generadas` no tiene otro lector en las pantallas |
+
+Corrección de 3.14b: esta fila decía «cajetín de 35 px y tarjeta de 95 px». Eran las medidas de la maqueta, cuyo `.celda` hereda del cuerpo un interlineado de 22 px y suma 6 px sobre el `rotulo` de 16. Los tokens (a.3) y la app medida en HEAD y con una celda dan 29 y 89.
 
 Puntos del arnés a reescribir en `tools/e2e/suites/materias.js`: `LEER_SELECTOR` (busca «Banco real» y su celda por el `borderLeft`: pasa a leer la celda que contiene la cifra); la aserción de «dos celdas, “Banco real” a la derecha y separada por un filete» (`C8 y MATERIA-P2`); «cada tarjeta conserva sus dos celdas» a 360 y 320 y en la rejilla de escritorio; «el cajetín queda abajo», que se mide con la celda del conteo y no con `bancoCelda`; y la comprobación de «Cargando…» que «conserva» «Banco real». Afirman en cambio las filas 1 a 4 y 7.
 
