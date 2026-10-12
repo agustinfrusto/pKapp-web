@@ -770,7 +770,9 @@ async function cadenciaDelPedido(pagina, base, t) {
 // D6 por comportamiento: los eventos que llegan a `window.umami.track` en el navegador,
 // con su payload y cuándo salen. Complementa la lectura de la fuente (que no ve cuándo corre).
 async function eventosDeAnalitica(pagina, base, t) {
-  const propios = (eventos) => eventos.filter(([e]) => /^(simulacro|donacion)_/.test(e));
+  // `donacion_vista` sale del temporizador de 1 s, no de la acción que se prueba: se excluye
+  // para que su llegada no cambie la lista exacta (la cubre la suite «donacion»).
+  const propios = (eventos) => eventos.filter(([e]) => /^(simulacro|donacion)_/.test(e) && e !== 'donacion_vista');
   const abrir = async (answers, mode, donacion) => {
     await abrirMarco(pagina, base, 390);
     await irAHomeEnMarco(pagina);

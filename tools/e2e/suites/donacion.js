@@ -297,12 +297,17 @@ async function estados(ctx, id, { descartable }) {
 }
 
 // Un toque emite `donacion_click` con { origen, monto } y abre el enlace del monto.
+// Las esperas y lecturas filtran por nombre de evento (`clicsDe`): el temporizador de 1 s de
+// `donacion_vista` puede caer en cualquier momento y no debe contarse como el evento buscado.
 const ESPIAR = `(function () {
   window.__eventos = [];
   window.__abiertos = [];
   window.umami = { track: (e, d) => window.__eventos.push([e, d]) };
   window.open = (u) => { window.__abiertos.push(u); return null; };
 })()`;
+
+const clicsDe = (pagina) => pagina.evaluar(
+  `window.__eventos.filter(([e]) => e === 'donacion_click')`);
 
 async function toques(pagina, t, tema) {
   await pagina.evaluar(ESPIAR);
@@ -311,9 +316,9 @@ async function toques(pagina, t, tema) {
     const l = await pagina.evaluar(LEER(sel(`${id}-monto-${v}`)));
     const p = centro(l);
     await pagina.clicEn(p.x, p.y);
-    await pagina.esperarA(() => pagina.evaluar(`window.__eventos.length === ${i + 1}`), { limite: 3000 });
+    await pagina.esperarA(async () => (await clicsDe(pagina)).length === i + 1, { limite: 3000 });
   }
-  const eventos = await pagina.evaluar('window.__eventos');
+  const eventos = await clicsDe(pagina);
   t.ok(`${tema} · donacion_click por monto, con origen, variante y uso`,
     JSON.stringify(eventos.map(([e, d]) => [e, d.origen, d.monto, d.variante, d.uso, 'tramo' in d])),
     JSON.stringify(MONTOS_VALOR.map((v) => ['donacion_click', 'prueba-normal', v, 'normal', '0', false])));
@@ -330,8 +335,10 @@ async function descartar(pagina, t, tema) {
   const oculto = await pagina.esperarA(() => pagina.evaluar(
     `!document.querySelector(${JSON.stringify(sel('don-descartable'))})`), { limite: 3000 });
   t.ok(`${tema} · tocar descartar oculta el pedido`, oculto, true);
+  // `donacion_vista` es del temporizador y no depende del toque: no cuenta como emitido por descartar.
   t.ok(`${tema} · descartar emite solo donacion_cerrada, con origen y variante, sin tramo`,
-    JSON.stringify(await pagina.evaluar('window.__eventos.map(([e, d]) => [e, d.origen, d.variante, "tramo" in d])')),
+    JSON.stringify(await pagina.evaluar(
+      'window.__eventos.filter(([e]) => e !== "donacion_vista").map(([e, d]) => [e, d.origen, d.variante, "tramo" in d])')),
     JSON.stringify([['donacion_cerrada', 'prueba-descartable', 'normal', false]]));
   t.ok(`${tema} · los otros pedidos siguen visibles`,
     await pagina.evaluar(`!!document.querySelector(${JSON.stringify(sel('don-celebratoria'))})`), true);
@@ -437,8 +444,8 @@ async function enMateriaSelect(pagina, base, t) {
   const m = await pagina.evaluar(LEER(sel('donacion-monto-200')));
   const p = centro(m);
   await pagina.clicEn(p.x, p.y);
-  await pagina.esperarA(() => pagina.evaluar('window.__eventos.length === 1'), { limite: 3000 });
-  const [[nombre, datos]] = await pagina.evaluar('window.__eventos');
+  await pagina.esperarA(async () => (await clicsDe(pagina)).length === 1, { limite: 3000 });
+  const [[nombre, datos]] = await clicsDe(pagina);
   t.ok('MateriaSelect: donacion_click con origen «materias», variante y uso',
     JSON.stringify([nombre, datos.origen, datos.monto, datos.variante, /^(0|1|2-5|6-20|21\+)$/.test(datos.uso),
       'tramo' in datos]),
@@ -661,7 +668,9 @@ async function terminarSimulacro(pagina, base, { previos, aciertos }) {
 
 async function embudoEnResultados(pagina, base, t) {
   await conUmami(pagina);
-  const vistas = () => eventosDe(pagina, 'donacion_vista');
+  // Con el selector de materias montado debajo, su `donacion_vista` (origen «materias», sin
+  // tramo) puede llegar antes: solo se mira la del origen «resultados».
+  const vistas = async () => (await eventosDe(pagina, 'donacion_vista')).filter((d) => d.origen === 'resultados');
   const hayPedido = () => hayBloque(pagina, { limite: 5000 });
   const unaVista = () => pagina.esperarA(async () => (await vistas()).length === 1, { limite: 4000 });
 
