@@ -8,7 +8,7 @@
 | `ADD-P1` | **Rechazada** (usuario, 2026-10-11). Con 27 temas (BCYT) los filtros K4 ponen el rótulo «Enunciado de la pregunta» a 1 174 px del borde superior a 390 px y a 1 382 px a 320 px (`evidencia/despues/3.9/agregar-390-claro.png`) |
 | Variante sin el cambio | Ninguna: `ADD-P1` está rechazada y `ADD-P3` es la vigente (`CONVENCIONES.md` C2) |
 | Cambia | Solo el selector de tema. Enunciado, opciones, explicación, guardado, validaciones y diálogos no cambian (D6) |
-| Anexo | Integrada el 2026-10-11 (Diseñador) en `AddQuestion.md` (a a f e i), `comun.md` (§5.2, §5.3, §8, §9 y §12.3) y `tokens.md` (c.3); sección k. Este archivo queda como **anexo** de `AddQuestion.md`: conserva las alternativas evaluadas, la interacción, el componente, el contraste, las medidas y las figuras. Ante una diferencia rigen la ficha y `comun.md`. Alto máximo de la lista corregido el 2026-10-13 (tarea 5.2, `E-01`): `paso 72` con la lista plana y `paso 80` con rótulos de grupo; ver `AddQuestion.md` j |
+| Anexo | Integrada el 2026-10-11 (Diseñador) en `AddQuestion.md` (a a f e i), `comun.md` (§5.2, §5.3, §8, §9 y §12.3) y `tokens.md` (c.3); sección k. Este archivo queda como **anexo** de `AddQuestion.md`: conserva las alternativas evaluadas, la interacción, el componente, el contraste, las medidas y las figuras. Ante una diferencia rigen la ficha y `comun.md`. Alto máximo de la lista corregido el 2026-10-13 (tarea 5.2, `E-01`): `paso 72` con la lista plana y `paso 80` con rótulos de grupo; ver `AddQuestion.md` j. Apertura con la elegida fuera de vista corregida el mismo día (`E-01b`, aprobado por el usuario): alineada a fila con la elegida tercera, en vez de centrada; ver `AddQuestion.md` d.4 y j |
 | Insumos | `comun.md` §5 (K3, K7), §6 (lámina), §9 (`glifo-chevron`), §12.2 (marca de parcial); `Settings.md` a.3 (plegable); `src/components/plancha/` |
 | Figuras y medidas | `.orca/reports/add-p3/` (sección i). `maqueta-add-p3.html` reúne las 18; `generar.mjs`, `capturar.mjs` y `contraste.mjs` las regeneran desde `colores.js`, `glifos.js` y `topics.js` |
 
@@ -174,7 +174,7 @@ Hover solo con puntero (estado `hovered` de `Pressable`), sin `box-shadow` ni `r
 | Orden | El de `Object.entries(TOPICS)`. Los grupos son tramos contiguos de ese orden: no reordenan, así el tema inicial sigue siendo el primero de `TOPICS` |
 | Grupos | Un rótulo por parcial de `materia.config.parciales`, solo si el dato existe (sección e). Sin dato o sin parciales: lista plana, sin rótulos |
 | Alto | El del contenido hasta `paso 72` con la lista plana y `paso 80` con rótulos de grupo; con más, scroll vertical dentro de la región. El tope deja una fila cortada al pie, con su línea de texto partida (5.2, `E-01`). Con 27 temas y rótulos: 1 262 px de contenido, el rótulo, seis filas y 19 px de la séptima; con la lista plana: 1 196 px, seis filas y 20 px de la séptima |
-| Al abrir | La región se desplaza hasta la fila elegida y la deja centrada si no está a la vista (F09). Con el tema por defecto queda arriba |
+| Al abrir | Si la fila elegida no está a la vista, la región se desplaza hasta alinear al borde superior la fila dos lugares antes de la elegida: la elegida queda tercera, con dos filas de contexto arriba (5.2, `E-01b`, aprobado por el usuario, 2026-10-13; hasta entonces la dejaba centrada, F09). Los rótulos de grupo no cuentan como fila. Con el tema por defecto queda arriba |
 | Rótulos de grupo | Se desplazan con la lista: sin posición pegajosa (`comun.md` §7.2, «Anclado») |
 | Nombres largos | Saltan de línea en filas y disparador; nunca se abrevian con puntos suspensivos (`Histología del tubo digestivo…` y `Histología renal…` serían ambiguos) |
 | Por qué sin buscador | El alta en serie conserva el tema: se elige una vez por tanda. El máximo es 27 filas en 2 grupos (12 y 15). El teclado físico busca por letras (d.3) |
@@ -387,7 +387,7 @@ Medidas con Chrome headless sobre `maqueta-add-p3.html` (BCYT, 27 temas, tema po
 | F06 | `add-p3-F06-320-claro-abierto.png` | 320 × 568, claro, abierto: entra completa |
 | F07 | `add-p3-F07-320-oscuro-cerrado.png` | 320 × 568, oscuro, cerrado |
 | F08 | `add-p3-F08-320-oscuro-abierto.png` | 320 × 568, oscuro, abierto |
-| F09 | `add-p3-F09-390-claro-abierto-elegido.png` | Abierto con «Genética y herencia» elegida: lista desplazada, rótulo del 2.do parcial a la vista |
+| F09 | `add-p3-F09-390-claro-abierto-elegido.png` | Abierto con «Genética y herencia» elegida: lista desplazada, rótulo del 2.do parcial a la vista. Muestra la apertura centrada, vigente hasta `E-01b` (2026-10-13): no se recaptura |
 | F10 | `add-p3-F10-390-oscuro-abierto-foco.png` | Oscuro, foco de teclado en una fila distinta de la elegida |
 | F11 | `add-p3-F11-320-claro-abierto-sin-parciales.png` | DRE: sin rótulos de grupo y nombres que saltan de línea |
 | F12, F13 | `add-p3-F12-estados-claro.png`, `add-p3-F13-estados-oscuro.png` | Matriz de estados del disparador, del rótulo de grupo y de la fila |
@@ -401,7 +401,7 @@ Medidas con Chrome headless sobre `maqueta-add-p3.html` (BCYT, 27 temas, tema po
 
 ## j. Aceptación observable (para la 3.x y el e2e)
 
-Ejercen el e2e `tools/e2e/suites/agregar.js`: `LEER_TEMAS`, `temasALaVista` y el bloque «K4 filtro de tema» codifican `ADD-P1` (`radiogroup` con todos los temas a la vista) y se reescriben. La versión vigente de esta lista es la de `AddQuestion.md` i: la escribe sin medidas sueltas y suma el escritorio (18), el orden de foco (19) y la fila cortada al pie (20, `E-01`).
+Ejercen el e2e `tools/e2e/suites/agregar.js`: `LEER_TEMAS`, `temasALaVista` y el bloque «K4 filtro de tema» codifican `ADD-P1` (`radiogroup` con todos los temas a la vista) y se reescriben. La versión vigente de esta lista es la de `AddQuestion.md` i: la escribe sin medidas sueltas y suma el escritorio (18), el orden de foco (19) y la fila cortada al pie (20, `E-01` y `E-01b`).
 
 | # | Comprobación | Esperado |
 |---|---|---|
