@@ -27,6 +27,7 @@
 // | Hoja              | —     | children, ancho, testID                                               |
 // | Regiones          | —     | children, testID; Regiones.Lateral y Regiones.Principal (children, testID) |
 // | FlujoColumnas     | —     | children, escritorio, amplio, testID                                  |
+// | useEntrada        | hook  | (ref, clave, { desplazar }): fundido de entrada de Quiz.md c.5        |
 //
 // Valores de las enumeraciones (el primero es el por defecto):
 //   glifoPosicion   delante | detras | extremo (texto al inicio y glifo en el borde opuesto;
@@ -84,3 +85,4 @@ export { default as Regiones } from './Regiones';
 export { default as FlujoColumnas } from './FlujoColumnas';
 export { CORTE_ESCRITORIO, CORTE_AMPLIO, ANCHOS } from './cortes';
 export { useEstadoControl } from './Control';
+export { default as useEntrada } from './useEntrada';
