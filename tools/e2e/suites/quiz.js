@@ -840,10 +840,11 @@ async function examenEnCurso(pagina, base, t) {
 // Anchos: 320 y 360 sin recorte ni scroll horizontal; 768 en columna (desde 1024 rige
 // `lectura`: lo cubren `escritorioDelQuiz` y `escritorioDelExamenEnCurso`).
 
-// La meta «{shortName} · {tema}» (QUIZ-P8) no pierde el tema (D10 manda sobre «hasta dos
-// líneas»): a la derecha del contexto si entra; si no, en su propia línea debajo, a todo el
-// ancho y sin límite de líneas. El tema más largo de los bancos (59 caracteres con el
-// prefijo) se inyecta en el nodo: el sorteo no decide si la prueba ve el caso malo.
+// La meta «{shortName} · {tema}» (QUIZ-P8) no pierde el tema ni se recorta (Quiz.md a.4 y c.3):
+// sin tope de líneas; a la derecha del contexto si entra; si no, en su propia línea debajo, a
+// todo el ancho. Con el tema más largo ocupa hasta dos líneas desde 360 px y tres a 320 px. El
+// tema más largo de los bancos (59 caracteres con el prefijo) se inyecta en el nodo: el sorteo no
+// decide si la prueba ve el caso malo.
 const META_MAS_LARGA = 'RyD · Eje hipotálamo-hipófiso-testicular y respuesta sexual';
 const META_CORTA = 'BCYT · Enzimas';
 
@@ -856,6 +857,7 @@ const MEDIR_META = (texto) => EN_MARCO(`
   const rm = meta.getBoundingClientRect(), ri = izq.getBoundingClientRect(), re = e.getBoundingClientRect();
   return {
     recorte: meta.scrollHeight - meta.clientHeight, clamp: w.getComputedStyle(meta).webkitLineClamp,
+    interlineado: parseFloat(w.getComputedStyle(meta).lineHeight),
     arriba: rm.top, x: rm.left, der: rm.right, ancho: rm.width, alto: rm.height,
     izqAbajo: ri.bottom, izqDer: ri.right, columna: re.width, columnaDer: re.right,
     desborda: desbordes().length,
@@ -871,6 +873,9 @@ async function metaSinRecorte(pagina, t, ancho) {
   t.ok(`${ancho}: la meta que no entra al lado pasa a su propia línea`, m.arriba >= m.izqAbajo - 0.5, true);
   t.ok(`${ancho}: la meta en su línea va a todo el ancho de la columna`, cerca(m.ancho, m.columna, 1), true);
   t.ok(`${ancho}: la meta más larga no abre scroll horizontal`, m.desborda, 0);
+  const lineas = Number.isFinite(m.interlineado) && m.interlineado > 0 ? Math.round(m.alto / m.interlineado) : null;
+  const tope = ancho <= 320 ? 3 : 2;
+  t.ok(`${ancho}: la meta más larga ocupa como mucho ${tope} líneas`, lineas !== null && lineas <= tope, true);
 }
 
 async function anchosDelQuiz(pagina, base, t) {

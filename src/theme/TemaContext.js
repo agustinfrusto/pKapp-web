@@ -3,7 +3,7 @@
 // Binario a propósito: el usuario prefiere activarlo con un switch y no que la
 // app siga al sistema por su cuenta. El default es claro, así que nadie se
 // encuentra la app oscura sin haberlo pedido.
-import React, { createContext, useContext, useEffect, useLayoutEffect, useState } from 'react';
+import React, { createContext, useContext, useLayoutEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import { useColorScheme } from 'nativewind';
 import { getSettingSync, saveSetting } from '../db/database';
