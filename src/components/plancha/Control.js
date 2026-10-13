@@ -27,9 +27,10 @@ export const CONTORNO = {
 };
 
 // Medidas de los botones (comun.md §8): `grande` suma paso 3.5 vertical; `amplio` lleva
-// el relleno horizontal de paso 4 a paso 8.
+// el relleno horizontal de paso 4 a paso 8; `ninguno` lo quita (celdas de ancho fijo
+// cuyo contenido es un solo glifo o letra).
 const TAMANO = { estandar: '', grande: 'py-3.5' };
-const RELLENO = { normal: 'px-4', amplio: 'px-8' };
+const RELLENO = { normal: 'px-4', amplio: 'px-8', ninguno: '' };
 
 export function medidasDeBoton({ tamano, relleno }) {
   return `${elegir(TAMANO, tamano, 'estandar', 'tamano')} ${elegir(RELLENO, relleno, 'normal', 'relleno')}`;

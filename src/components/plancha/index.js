@@ -35,7 +35,7 @@
 //   glifoPosicion   delante | detras | extremo (texto al inicio y glifo en el borde opuesto;
 //                   pide un control más ancho que su contenido, p. ej. className="w-full")
 //   tamano          estandar | grande (suma paso 3.5 vertical)
-//   relleno         normal (paso 4 horizontal) | amplio (paso 8)
+//   relleno         normal (paso 4 horizontal) | amplio (paso 8) | ninguno (sin relleno horizontal)
 //   tono (K2)       neutro | acento | peligro
 //   fondo (K2, K5)  superficie | fondo
 //   tono (K3)       neutro | acierto (con seleccionado: fondo y borde acierto, border-2)

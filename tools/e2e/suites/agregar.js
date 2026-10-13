@@ -50,7 +50,9 @@ const INFO = `
     for (let t; (t = it.nextNode());) if (t.textContent.trim()) { hoja = t.parentElement; break; }
     const tf = hoja ? w.getComputedStyle(hoja) : k;
     const svg = el.querySelector('svg');
+    const sr = svg ? svg.getBoundingClientRect() : null;
     return {
+      glifoCaja: sr ? { ancho: sr.width, alto: sr.height, dx: (sr.left + sr.width / 2) - (r.left + r.width / 2), dy: (sr.top + sr.height / 2) - (r.top + r.height / 2) } : null,
       x: r.left, y: r.top, ancho: r.width, alto: r.height, der: r.right, abajo: r.bottom,
       fondo: k.backgroundColor, borde: k.borderTopColor, bordeAncho: k.borderTopWidth,
       relleno: k.paddingLeft + ' ' + k.paddingTop,
@@ -965,8 +967,16 @@ async function estructuraDeOpciones(pagina, base, t, tema) {
     b && `${b.pressed}|${b.fondo}|${b.bordeAncho} ${b.borde}`, `true|${rgb(T.acierto)}|2px ${rgb(T.acierto)}`);
   t.ok(c('celda B marcada: glifo-acierto en fondo, sin letra'),
     b && b.glifo === T.fondo && b.texto === '', true);
+  // E-02: el glifo mide paso 4 (16 × 16) y queda centrado en la celda, sin relleno horizontal.
+  const gc = b && b.glifoCaja;
+  t.ok(c('celda B marcada: glifo-acierto de 16 × 16 (paso 4)'),
+    gc && `${Math.round(gc.ancho)}×${Math.round(gc.alto)}`, '16×16');
+  t.ok(c('celda B marcada: glifo-acierto centrado en la celda'),
+    gc && Math.abs(gc.dx) <= 0.5 && Math.abs(gc.dy) <= 0.5, true);
   const resto = [];
   for (const letra of ['A', 'C', 'D']) resto.push(await porNombre(pagina, celda(letra)));
+  t.ok(c('las demás celdas: letra centrada en la celda'),
+    resto.every((x) => x && x.relleno.startsWith('0px')), true);
   t.ok(c('las demás celdas muestran su letra y no están marcadas'),
     resto.map((x) => (x ? `${x.texto}:${x.pressed}` : 'null')).join('|'), 'A:false|C:false|D:false');
   // Marcar otra desmarca la anterior.

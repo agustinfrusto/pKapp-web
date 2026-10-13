@@ -231,6 +231,7 @@ export default function AddQuestionScreen({ navigation }) {
                 <View key={idx} className={`flex-row items-start gap-2 ${options.length < 6 || idx < 5 ? 'mb-2.5' : ''}`}>
                   <ControlMarco
                     tono="acierto"
+                    relleno="ninguno"
                     className="w-11"
                     seleccionado={correctIndex === idx}
                     accessibilityLabel={`Opción ${letra}, marcar como correcta`}
