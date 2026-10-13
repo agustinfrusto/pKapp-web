@@ -76,7 +76,10 @@ export default function MateriaSelectScreen({ navigation }) {
           <Regiones.Principal>
             {/* Rejilla fila a fila (`ESC-P1`): paso 4 entre celdas, 2 columnas desde
                 `escritorio` y 3 desde `amplio`. Bajo el corte, la lista de siempre. */}
-            <View className="mt-1.5 gap-2.5 escritorio:grid escritorio:grid-cols-2 escritorio:gap-4 amplio:grid-cols-3">
+            <View
+              dataSet={{ nosnippet: '' }}
+              className="mt-1.5 gap-2.5 escritorio:grid escritorio:grid-cols-2 escritorio:gap-4 amplio:grid-cols-3"
+            >
               {MATERIA_LIST.map((m, i) => (
                 <MateriaCard
                   key={m.id}

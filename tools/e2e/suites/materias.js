@@ -47,6 +47,45 @@ async function seisMaterias(pagina, base, t) {
   for (const n of nombres) t.ok(`el selector muestra "${n}"`, texto.includes(n), true);
 }
 
+// SEO: Google arma el fragmento con el texto de las tarjetas. La descripción debe ser la de
+// `app.json` y solo la lista de tarjetas lleva `data-nosnippet` (no el h1 ni los avisos).
+const DESCRIPCION = 'Practicá para ESFUNO con preguntas de examen. Gratis, sin publicidad y en el celular.';
+
+async function descripcionYNoSnippet(pagina, base, t) {
+  await pagina.ir(base + '/');
+  await esperarSelector(pagina);
+  await pagina.evaluar('localStorage.clear()');
+  await pagina.ir(base + '/');
+  await esperarSelector(pagina);
+  const r = await pagina.evaluar(`(() => {
+    const meta = document.querySelector('meta[name="description"]');
+    const tarjetas = Array.from(document.querySelectorAll('[role="button"][aria-label]'))
+      .filter((n) => ${JSON.stringify(['Biología Celular y Tisular', 'Anatomía', 'Neurobiología',
+        'Cardiovascular y Respiratorio', 'Digestivo, Renal y Endócrino', 'Reproductor y Desarrollo'])}
+        .includes(n.getAttribute('aria-label')));
+    const con = (n) => !!n.closest('[data-nosnippet]');
+    const encabezados = Array.from(document.querySelectorAll('h1, [role="heading"]'));
+    const avisos = document.querySelector('[role="region"][aria-label="Avisos"]');
+    return {
+      meta: meta ? meta.getAttribute('content') : null,
+      tarjetas: tarjetas.length,
+      tarjetasConNoSnippet: tarjetas.filter(con).length,
+      encabezados: encabezados.length,
+      encabezadosConNoSnippet: encabezados.filter(con).length,
+      hayAvisos: !!avisos,
+      avisosConNoSnippet: avisos ? con(avisos) : null,
+      cuerpoConNoSnippet: document.body.hasAttribute('data-nosnippet'),
+    };
+  })()`);
+  t.ok('meta description con el texto aprobado', r.meta, DESCRIPCION);
+  t.ok('hay seis tarjetas de materia', r.tarjetas, 6);
+  t.ok('cada tarjeta tiene un ancestro data-nosnippet', r.tarjetasConNoSnippet, 6);
+  t.ok('ningún encabezado tiene data-nosnippet', r.encabezadosConNoSnippet, 0);
+  t.ok('la región de avisos existe', r.hayAvisos, true);
+  t.ok('la región de avisos no tiene data-nosnippet', r.avisosConNoSnippet, false);
+  t.ok('el body no lleva data-nosnippet', r.cuerpoConNoSnippet, false);
+}
+
 // Atributos y estructura de cada <svg> visible. `texto` es el color del texto contiguo
 // (mismo token que el glifo), para no repetir colores literales.
 const LEER_SVGS = `Array.from(document.querySelectorAll('svg')).filter((s) => {
@@ -1062,6 +1101,7 @@ async function capturasDeLaTrece(pagina, base, t) {
 module.exports = [
   { nombre: 'elegir materia sin rebotar al selector', correr: elegirMateria },
   { nombre: 'el selector muestra seis materias', correr: seisMaterias },
+  { nombre: 'SEO: meta description y data-nosnippet solo en la lista de tarjetas', correr: descripcionYNoSnippet },
   { nombre: 'URLs profundas abiertas en frío', correr: urlsProfundasEnFrio },
   { nombre: 'Ilustracion: svg del DOM conserva atributos y estructura', correr: svgDelDom },
   { nombre: 'URLs con query string abiertas en frío', correr: urlsConQueryString },
