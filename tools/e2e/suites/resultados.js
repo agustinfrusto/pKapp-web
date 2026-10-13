@@ -299,6 +299,12 @@ const LEER = EN_MARCO(`
           reportar: reportar ? {
             caja: caja(reportar), texto: txt(reportar), nombre: reportar.getAttribute('aria-label'),
             glifos: glifos(reportar),
+            familia: estilo(hoja(reportar)).fontFamily, tamano: estilo(hoja(reportar)).fontSize,
+          } : null,
+          enunciado: n.children[1] ? {
+            texto: txt(n.children[1]), tamano: estilo(n.children[1]).fontSize,
+            lineHeight: estilo(n.children[1]).lineHeight, familia: estilo(n.children[1]).fontFamily,
+            color: estilo(n.children[1]).color,
           } : null,
           glifos: glifos(n),
         };
@@ -1068,6 +1074,18 @@ async function revisionTarjetas(pagina, base, t) {
       && /Reportar pregunta/.test(c.reportar.texto)
       && c.reportar.glifos[0] && c.reportar.glifos[0].primerD === GLIFOS['glifo-reportar'].elementos[0].props.d), true);
 
+  // Peso en la web: lo da la familia (`PlexSans-Regular` 400, `PlexSans-SemiBold` 600); el
+  // `fontWeight` computado queda en 400 en ambos, así que se mide la familia.
+  const familia = (f) => (f || '').split(',')[0].replace(/["']/g, '').trim();
+  // REV-3: «Reportar pregunta» en peso 400 (cuerpo), no en cuerpo-fuerte.
+  t.ok('«Reportar pregunta»: peso 400 (PlexSans-Regular) en cada tarjeta',
+    h.tarjetas.map((c) => c.reportar && familia(c.reportar.familia)).join(','),
+    h.tarjetas.map(() => 'PlexSans-Regular').join(','));
+  // REV-4: enunciado en `item` (16/22, 600), en tinta.
+  t.ok('enunciado de cada tarjeta: 16 px, interlínea 22, peso 600 (PlexSans-SemiBold), tinta',
+    h.tarjetas.map((c) => c.enunciado && `${c.enunciado.tamano}|${c.enunciado.lineHeight}|${familia(c.enunciado.familia)}|${c.enunciado.color}`).join(','),
+    h.tarjetas.map(() => `16px|22px|PlexSans-SemiBold|${rgb(T.tinta)}`).join(','));
+
   // Botones finales: «Volver» (K2) e «Inicio» (K1), en fila de dos celdas iguales.
   const v = h.volverFinal, i = h.inicioFinal;
   t.ok('hay «Volver» e «Inicio» al final', !!v && !!i, true);
@@ -1498,6 +1516,26 @@ async function fuenteDeLaPantalla(pagina, base, t) {
   t.ok('sin los nombres legados de tono (warning, success, danger)', /warning|success|danger/.test(sinComentarios), false);
 }
 
+// Capturas de la revisión (solo con PKAPP_CAPTURAS_DIR): 390 y 1366, claro y oscuro. No afirma nada.
+async function capturasDeRevision(pagina, base, t) {
+  const dir = process.env.PKAPP_CAPTURAS_DIR;
+  if (!process.env.PKAPP_CAPTURAS || !dir) return;
+  fs.mkdirSync(dir, { recursive: true });
+  const ALTO = { 390: 900, 1366: 768 };
+  for (const ancho of [390, 1366]) {
+    for (const oscuro of [false, true]) {
+      const ok = await abrirRevision(pagina, base,
+        { ancho, alto: ALTO[ancho], answers: respuestas(4, [1]), oscuro });
+      t.ok(`captura revisión ${ancho} ${oscuro ? 'oscuro' : 'claro'}: abrió`, ok, true);
+      if (!ok) continue;
+      await new Promise((r) => setTimeout(r, 400));
+      const r = await pagina.enviar('Page.captureScreenshot', { format: 'png' });
+      fs.writeFileSync(path.join(dir, `revision-${ancho}-${oscuro ? 'oscuro' : 'claro'}.png`),
+        Buffer.from(r.data, 'base64'));
+    }
+  }
+}
+
 module.exports = [
   { nombre: 'terminar un quiz no pide confirmación', correr: terminarUnQuizNoPregunta },
   { nombre: 'Results: rótulo, porcentaje y mensaje de cada tramo', correr: tarjetaPorTramo },
@@ -1518,4 +1556,5 @@ module.exports = [
   { nombre: 'Revisión: escritorio, lateral y principal (ESC-P6)', correr: escritorioRevision },
   { nombre: 'Results: tema oscuro', correr: temaOscuro },
   { nombre: 'Results: fuente sin legado y con D6 intacto', correr: fuenteDeLaPantalla },
+  { nombre: 'Revisión: capturas de la 5.0b.3 y 5.0b.4 (solo con PKAPP_CAPTURAS)', correr: capturasDeRevision },
 ];

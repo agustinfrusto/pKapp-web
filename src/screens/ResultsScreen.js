@@ -418,7 +418,7 @@ function TarjetaRespuesta({ answer, n, onReportar }) {
         />
       </View>
 
-      <Text className="mb-3 font-plex-sans text-cuerpo text-tinta dark:text-tintaD">
+      <Text className="mb-3 font-plex-sans-semibold text-item text-tinta dark:text-tintaD">
         {question.question}
       </Text>
 
@@ -457,7 +457,7 @@ function TarjetaRespuesta({ answer, n, onReportar }) {
           <Contenido
             glifo="glifo-reportar"
             etiqueta="Reportar pregunta"
-            tipografia="font-plex-sans-semibold text-cuerpo"
+            tipografia="font-plex-sans text-cuerpo"
           />
         </View>
       </FilaLista>

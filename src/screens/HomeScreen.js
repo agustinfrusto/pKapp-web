@@ -115,7 +115,7 @@ export default function HomeScreen({ navigation }) {
           </Regiones.Lateral>
 
           <Regiones.Principal>
-            <View className="mb-2 mt-4">
+            <View className="mb-2 mt-4 escritorio:mt-1.5">
               <RotuloSeccion testID="home-rotulo-acciones" color="acento">Plano / Acciones</RotuloSeccion>
             </View>
 

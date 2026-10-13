@@ -978,8 +978,8 @@ async function homeEscritorio(pagina, base, t) {
         t.ok(cuando('el contacto del banner mide paso 11 y su correo entra en una línea'),
           !!h.banner.boton && h.banner.boton.caja.alto === LADO_TACTIL
             && h.banner.boton.caja.der <= h.banner.caja.der, true);
-        t.ok(cuando('rótulo a paso 4 del inicio de la hoja (HOME-P2)'),
-          h.rotulo.caja.arriba - h.header.abajo, 4 * PASO);
+        t.ok(cuando('rótulo alineado arriba con la tarjeta de materia, ±1 px (REV-5)'),
+          Math.abs(h.rotulo.caja.arriba - h.tarjeta.caja.arriba) <= 1, true);
         t.ok(cuando('región principal: a paso 8 de la lateral y del ancho restante'),
           `${h.listaAcciones.izq}|${h.listaAcciones.ancho}`, `${principalIzq}|${principalAncho}`);
         t.ok(cuando('la tarjeta queda a la izquierda de las acciones'),
@@ -1052,8 +1052,8 @@ async function homeEscritorio(pagina, base, t) {
 // No afirma nada: deja los PNG para revisión.
 async function capturasDeLaTrece(pagina, base, t) {
   if (!process.env.PKAPP_CAPTURAS) return;
-  const dir = path.resolve(__dirname, '..', '..', '..', 'openspec', 'changes', 'rediseno-plancha',
-    'evidencia', 'despues', '3.13');
+  const dir = process.env.PKAPP_CAPTURAS_DIR || path.resolve(__dirname, '..', '..', '..', 'openspec',
+    'changes', 'rediseno-plancha', 'evidencia', 'despues', '3.13');
   fs.mkdirSync(dir, { recursive: true });
   const foto = async (ancho, alto, nombre) => {
     await pagina.enviar('Emulation.setDeviceMetricsOverride',
