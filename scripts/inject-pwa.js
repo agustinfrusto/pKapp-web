@@ -148,9 +148,9 @@ const AVISO = {
     'background:var(--su);color:var(--ti);border:1px solid var(--li)}' +
     '#pkapp-salir .f button.p{flex:2 1 auto;background:var(--ti);color:var(--fo);border-color:var(--ti)}' +
     '#pkapp-salir .f button.p:active{background:var(--su);color:var(--ti);border-color:var(--li)}' +
-    '#pkapp-salir .f button:active{background:var(--ti);color:var(--fo);border-color:var(--ti)}' +
     '#pkapp-salir .f button.k{background:var(--su);color:var(--ac);border:2px solid var(--ac)}' +
     '#pkapp-salir .f button.n{background:var(--su);color:var(--er);border:2px solid var(--er)}' +
+    '#pkapp-salir .f button:active{background:var(--ti);color:var(--fo);border-color:var(--ti)}' +
     '#pkapp-salir .x{position:absolute;top:0;right:0;display:flex;align-items:center;justify-content:center;' +
     'width:44px;height:44px;padding:0;border:0;background:transparent;color:var(--ts);cursor:pointer;' +
     'touch-action:manipulation;-webkit-tap-highlight-color:transparent}' +

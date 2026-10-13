@@ -174,6 +174,37 @@ const NOTA_A_MANO = 'No se pudo copiar. Mantené presionado el link para copiarl
 // `acento` y `error` claros de plancha (el aviso toma el tema guardado: claro por defecto).
 const RGB_ACENTO = 'rgb(11, 110, 128)';
 const RGB_ERROR = 'rgb(163, 36, 36)';
+// `tinta` y `fondo` claros de plancha: el presionado invierte en toda clase (COMUN-P2, CD-2).
+const RGB_TINTA = 'rgb(20, 24, 29)';
+const RGB_FONDO = 'rgb(244, 245, 246)';
+
+// Estilo de K2 con el botón del mouse abajo y sin soltar (se suelta fuera del botón).
+const FN_RECT_K2 = `(function () {
+  const k2 = Array.from(document.querySelectorAll('#pkapp-salir button'))
+    .find((b) => !b.classList.contains('p') && !b.classList.contains('x'));
+  const r = k2.getBoundingClientRect();
+  return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+})()`;
+const FN_PINTURA_K2 = `(function () {
+  const k2 = Array.from(document.querySelectorAll('#pkapp-salir button'))
+    .find((b) => !b.classList.contains('p') && !b.classList.contains('x'));
+  const e = getComputedStyle(k2);
+  return { fondo: e.backgroundColor, texto: e.color, borde: e.borderTopWidth + ' ' + e.borderTopColor };
+})()`;
+
+async function pinturaK2Presionado(pagina) {
+  const c = await pagina.evaluar(FN_RECT_K2);
+  await pagina.moverA(c.x, c.y);
+  await pagina.enviar('Input.dispatchMouseEvent',
+    { type: 'mousePressed', x: c.x, y: c.y, button: 'left', clickCount: 1, buttons: 1 });
+  await esperarMs(150);
+  const pintura = await pagina.evaluar(FN_PINTURA_K2);
+  await pagina.enviar('Input.dispatchMouseEvent',
+    { type: 'mouseReleased', x: 1, y: 1, button: 'left', clickCount: 1, buttons: 0 });
+  await pagina.moverA(1, 1);
+  await esperarMs(150);
+  return pintura;
+}
 
 const FN_ESTADO_AVISO = `(function () {
   const raiz = document.getElementById('pkapp-salir');
@@ -221,6 +252,11 @@ function suiteCopiar(nombre, arranque, copiado) {
       t.ok(`${nombre}: la nota dice qué sigue`, estado.nota, NOTA_PEGAR);
       t.ok(`${nombre}: K2 con borde de 2 px acento`, estado.bordeK2, '2px ' + RGB_ACENTO);
       t.ok(`${nombre}: ya no dice «Link copiado»`, estado.texto.includes('Link copiado'), false);
+      t.ok(`${nombre}: en reposo K2 conserva texto acento`, estado.colorK2, RGB_ACENTO);
+      const p = await pinturaK2Presionado(pagina);
+      t.ok(`${nombre}: presionado, K2 invierte el fondo a tinta`, p.fondo, RGB_TINTA);
+      t.ok(`${nombre}: presionado, K2 invierte el texto a fondo`, p.texto, RGB_FONDO);
+      t.ok(`${nombre}: presionado, K2 conserva 2 px y borde tinta`, p.borde, '2px ' + RGB_TINTA);
     } else {
       t.ok(`${nombre}: no confirma una copia que falló`, estado.etiqueta === 'Copiado', false);
       t.ok(`${nombre}: la nota pide copiarlo a mano`, estado.nota, NOTA_A_MANO);
@@ -228,6 +264,11 @@ function suiteCopiar(nombre, arranque, copiado) {
       t.ok(`${nombre}: muestra el link seleccionable`, estado.link, base + '/');
       t.ok(`${nombre}: el link tiene el foco`, estado.linkConFoco, true);
       t.ok(`${nombre}: el link queda seleccionado`, estado.linkSeleccionado, true);
+      t.ok(`${nombre}: en reposo K2 conserva texto error`, estado.colorK2, RGB_ERROR);
+      const p = await pinturaK2Presionado(pagina);
+      t.ok(`${nombre}: presionado, K2 invierte el fondo a tinta`, p.fondo, RGB_TINTA);
+      t.ok(`${nombre}: presionado, K2 invierte el texto a fondo`, p.texto, RGB_FONDO);
+      t.ok(`${nombre}: presionado, K2 conserva 2 px y borde tinta`, p.borde, '2px ' + RGB_TINTA);
     }
   };
 }
