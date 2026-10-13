@@ -367,7 +367,9 @@ const MEDIR_TEMAS = EN_MARCO(`
       const l = lineas(n);
       const nombre = hojas.find((x) => x.textContent.trim() === l[1]);
       const e = nombre ? w.getComputedStyle(nombre) : null;
-      return { lineas: l, caja: caja(n), svg: n.querySelectorAll('svg').length,
+      const glifos = n.querySelectorAll('svg');
+      return { lineas: l, caja: caja(n), svg: glifos.length,
+        chevron: glifos.length ? glifos[glifos.length - 1].getBoundingClientRect().width : null,
         filete: w.getComputedStyle(n.firstElementChild || n).borderBottomWidth,
         nombreFamilia: e ? e.fontFamily : null, nombreTamano: e ? e.fontSize : null };
     });
@@ -389,6 +391,11 @@ const MEDIR_TEMAS = EN_MARCO(`
     valor: valor ? valor.textContent.trim() : null,
     valorCaja: caja(valor),
     lamina: caja(visibles('[data-testid="lamina-vacia"]')[0]),
+    glifoVacio: (() => {
+      const l = visibles('[data-testid="lamina-vacia"]')[0];
+      const g = l && l.querySelector('svg');
+      return g ? g.getBoundingClientRect().width : null;
+    })(),
     barra: caja(visibles('[data-testid="barra-interna"]')[0]),
     barraVolver: caja(visibles('[data-testid="barra-volver"]')[0]),
     barraTitulo: caja(visibles('[data-testid="barra-titulo"]')[0]),
@@ -1036,6 +1043,8 @@ async function mezclaYFilas(pagina, base, t) {
   t.ok('el nombre de cada tema va en `item` semibold de 16 px (b: Nombre de tema)',
     m.filas.every((f) => /PlexSans-SemiBold/.test(f.nombreFamilia) && f.nombreTamano === '16px'), true);
   t.ok('cada fila lleva chevron (svg)', m.filas.every((f) => f.svg >= 1), true);
+  // D-13: el chevron de la fila es `GLIFO_CHICO` (paso 4 = 16 px).
+  t.ok('D-13: el chevron de cada fila mide 16 px (paso 4)', m.filas.every((f) => f.chevron === 16), true);
   t.ok('cada fila mide 44 de alto como mínimo', m.filas.every((f) => f.caja.alto >= LADO_TACTIL), true);
   t.ok('cada fila lleva filete inferior de 1 px', m.filas.every((f) => f.filete === '1px'), true);
   t.ok('las filas llenan la columna: mismo ancho que la mezcla',
@@ -1081,6 +1090,8 @@ async function vaciosV2(pagina, base, t) {
   t.ok('V2: sin filtros ni mezcla debajo (VAC-C1)', v2.fuente === null && v2.mezcla === null && v2.filas.length === 0, true);
   t.ok('V2: sin emoji', EMOJI.test(v2.texto), false);
   t.ok('V2: lámina vacía con sus cuatro marcas de esquina (VAC-P1)', v2.marcas, 4);
+  // D-13: el glifo del vacío es `GLIFO_VACIO` (paso 12 = 48 px).
+  t.ok('V2: D-13 el glifo del vacío mide 48 px (paso 12)', v2.glifoVacio, 48);
   t.ok('V2: «Practicar» mide 44 de alto como mínimo (VAC-P2)', !!v2.practicar && v2.practicar.alto >= LADO_TACTIL, true);
   // a.4 de Vacios.md: anclada arriba, a paso 6 bajo la barra interna.
   t.ok('V2: la lámina arranca a paso 6 bajo la barra interna, no centrada en la pantalla',

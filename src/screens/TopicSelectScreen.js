@@ -13,6 +13,7 @@ import {
   BotonMarco, BotonRelleno, Columna, CuadroPaso, FilaLista, FlujoColumnas, Hoja, Lamina,
   RotuloSeccion, Segmento, TarjetaNavegable,
 } from '../components/plancha';
+import { GLIFO_CHICO, GLIFO_VACIO } from '../components/plancha/Control';
 
 const SOURCE_FILTERS = {
   all: 'Todas',
@@ -230,7 +231,7 @@ export default function TopicSelectScreen({ route, navigation }) {
             <Lamina testID="lamina-vacia">
               <View className="items-center p-3.5">
                 <View className="mt-4">
-                  <Glifo id="glifo-repasar" size={48} color={tema.tintaSec} />
+                  <Glifo id="glifo-repasar" size={GLIFO_VACIO} color={tema.tintaSec} />
                 </View>
                 <Text className={`mt-4 text-center font-plex-sans-semibold text-titulo ${TINTA}`}>
                   Sin preguntas falladas
@@ -304,7 +305,7 @@ export default function TopicSelectScreen({ route, navigation }) {
                         {count} preguntas
                       </Text>
                     </View>
-                    <Glifo id="glifo-chevron" size={16} color={invertido ? tema[glifo] : tema.tintaSec} />
+                    <Glifo id="glifo-chevron" size={GLIFO_CHICO} color={invertido ? tema[glifo] : tema.tintaSec} />
                   </View>
                 )}
               </FilaLista>

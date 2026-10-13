@@ -380,10 +380,12 @@ function limpiarAjustes(pagina) {
 // materia. `ocultar` activa «Ocultar resultado hasta el final»; `temporizador` suma un paso
 // al temporizador y deja el reloj del iframe controlable (`w.__ticks`): con él, el reloj
 // real no corre y solo avanzan los ticks que da la prueba. `semilla` fija `Math.random` del
-// iframe antes de armar el examen: sale siempre el mismo orden de preguntas.
+// iframe antes de armar el examen: sale siempre el mismo orden de preguntas. `vigilarCasillas`
+// deja en `w.__casillasVistas` el máximo de casillas de progreso que hubo en el DOM desde el
+// montaje: el observador corre tras cada commit y antes de pintar, sin perder el primero.
 async function entrarAlQuiz(pagina, base, {
   ancho = 390, alto = 800, materia = MATERIA, oscuro = false, ocultar = false, temporizador = false,
-  semilla = null,
+  semilla = null, parcial = null, vigilarCasillas = false,
 } = {}) {
   await limpiarAjustes(pagina).catch(() => {});
   await abrirMarco(pagina, base, ancho, alto);
@@ -407,6 +409,13 @@ async function entrarAlQuiz(pagina, base, {
       if (ms === 1000) { w.__ticks.push(f); if (congelar) return 0; }
       return original(f, ms, ...a);
     };
+    w.__casillasVistas = 0;
+    if (${JSON.stringify(vigilarCasillas)}) {
+      new w.MutationObserver(() => {
+        const n = d.querySelectorAll('[data-testid="casilla-llena"], [data-testid="casilla-vacia"]').length;
+        if (n > w.__casillasVistas) w.__casillasVistas = n;
+      }).observe(d.documentElement, { childList: true, subtree: true });
+    }
     const semilla = ${JSON.stringify(semilla)};
     if (semilla !== null) {
       let s = semilla >>> 0;
@@ -423,6 +432,7 @@ async function entrarAlQuiz(pagina, base, {
   if (!await esperarRuta(pagina, '/inicio')) return false;
   await tocarTexto(pagina, 'modo examen');
   if (!await esperarRuta(pagina, '/temas/exam')) return false;
+  if (parcial) await tocarTexto(pagina, parcial);
   if (temporizador) {
     const p = await pagina.evaluar(MAS_TEMPORIZADOR);
     if (!p) return false;
@@ -567,6 +577,35 @@ async function probarQuiz(pagina, base, t, navegador, { tema, preguntas }) {
   const caja = await pagina.evaluar(LEER(sel('enunciado-quiz')));
   t.ok(nombre('caja del enunciado: superficie y marco `linea`, border'),
     caja !== null && `${caja.fondoEl} ${caja.bordeEl} ${caja.bordeElAncho}`, `${rgb(T.superficie)} ${rgb(T.linea)} 1px`);
+  // B-05 (CD-17): relleno paso 3.5 en las cuatro caras; paso 2 entre el chip y la meta.
+  const relleno = await pagina.evaluar(EN_MARCO(`
+    const n = visibles('[data-testid="enunciado-quiz"]')[0];
+    if (!n) return null;
+    const c = w.getComputedStyle(n);
+    return [c.paddingTop, c.paddingRight, c.paddingBottom, c.paddingLeft].join(' ');
+  `));
+  t.ok(nombre('enunciado: relleno de paso 3.5 en las cuatro caras'), relleno, `${3.5 * PASO}px `.repeat(4).trim());
+  // La separación no depende del tema sorteado: se inyecta una meta que cabe al lado del grupo
+  // (se mide en horizontal) y la más larga de los bancos, que baja a su línea (en vertical).
+  const separacionDe = (texto) => pagina.evaluar(EN_MARCO(`
+    const chip = visibles('[data-testid="chip-origen"]')[0];
+    const meta = visibles('[data-testid="meta-pregunta"]')[0];
+    if (!chip || !meta) return null;
+    const original = meta.textContent;
+    meta.textContent = ${JSON.stringify(texto)};
+    const rg = chip.parentElement.getBoundingClientRect(), rm = meta.getBoundingClientRect();
+    const r = { alLado: rm.top < rg.bottom - 0.5, horizontal: rm.left - rg.right, vertical: rm.top - rg.bottom };
+    meta.textContent = original;
+    return r;
+  `));
+  const alLado = await separacionDe(META_CORTA);
+  t.ok(nombre('meta corta: en la misma línea que el chip'), alLado !== null && alLado.alLado, true);
+  t.ok(nombre('chip de origen y meta al lado: separados por paso 2'),
+    alLado !== null && cerca(alLado.horizontal, 2 * PASO, 0.6), true);
+  const envuelta = await separacionDe(META_MAS_LARGA);
+  t.ok(nombre('meta larga: en su propia línea bajo el grupo'), envuelta !== null && !envuelta.alLado, true);
+  t.ok(nombre('chip de origen y meta debajo: separados por paso 2'),
+    envuelta !== null && cerca(envuelta.vertical, 2 * PASO, 0.6), true);
   const rotulo = await pagina.evaluar(LEER(sel('rotulo-enunciado')));
   t.ok(nombre('rótulo «Enunciado» en `tintaSec`'),
     rotulo !== null && rotulo.texto.toLowerCase() === 'enunciado' && rotulo.textoColor === rgb(T.tintaSec), true);
@@ -1008,9 +1047,43 @@ async function metaSinRecorte(pagina, t, ancho) {
   t.ok(`${ancho}: la meta más larga ocupa como mucho ${tope} líneas`, lineas !== null && lineas <= tope, true);
 }
 
+// B-04 (QUIZ-P4), borde de la cuenta: con temporizador el progreso mide `ancho - 192`, y `n`
+// casillas piden `4n - 2` px. Las 40 de BCYT caben justo en 158 px (viewport 350) y no en 157
+// (349): `+2` → `+4` o `<=` → `<` cambian uno de los dos.
+async function bordeDeLaCuenta(pagina, base, t) {
+  for (const [ancho, conCasillas] of [[350, true], [349, false]]) {
+    t.ok(`${ancho}: llegó al quiz`,
+      await entrarAlQuiz(pagina, base, { ancho, temporizador: true, parcial: '1er parcial' }), true);
+    const m = await pagina.evaluar(EN_MARCO(`
+      const p = visibles('[data-testid="progreso-quiz"]')[0];
+      return { progreso: p ? p.getBoundingClientRect().width : null,
+        casillas: visibles('[data-testid="casilla-llena"], [data-testid="casilla-vacia"]').length,
+        barra: visibles('[data-testid="barra-progreso"]').length };
+    `));
+    t.ok(`${ancho}: el progreso mide ${ancho - 192} px`, m.progreso !== null && cerca(m.progreso, ancho - 192, 0.1), true);
+    if (conCasillas) {
+      t.ok(`${ancho}: 40 casillas en ${ancho - 192} px (4n - 2 = 158) y sin barra`,
+        m.casillas === 40 && m.barra === 0, true);
+    } else {
+      t.ok(`${ancho}: 40 casillas no caben en ${ancho - 192} px: barra continua y sin casillas`,
+        m.casillas === 0 && m.barra === 1, true);
+    }
+  }
+}
+
+// B-04: sin salto de casillas a barra al arrancar. A 320 px con temporizador, 40 preguntas
+// piden barra: ningún commit desde el montaje puede haber dibujado casillas.
+async function sinSaltoAlEntrar(pagina, base, t) {
+  t.ok('320: llegó al quiz',
+    await entrarAlQuiz(pagina, base, { ancho: 320, temporizador: true, parcial: '1er parcial', vigilarCasillas: true }), true);
+  t.ok('320: arranca con barra continua', await existe(pagina, sel('barra-progreso')), true);
+  t.ok('320: ningún commit dibujó casillas desde el montaje',
+    await pagina.evaluar(EN_MARCO('return w.__casillasVistas;')), 0);
+}
+
 async function anchosDelQuiz(pagina, base, t) {
   for (const ancho of [320, 360]) {
-    t.ok(`${ancho}: llegó al quiz`, await entrarAlQuiz(pagina, base, { ancho, temporizador: true }), true);
+    t.ok(`${ancho}: llegó al quiz`, await entrarAlQuiz(pagina, base, { ancho, temporizador: true, parcial: '1er parcial' }), true);
     t.ok(`${ancho}: sin scroll horizontal antes de responder`, await pagina.evaluar(DESBORDA), 0);
     const mide = await pagina.evaluar(EN_MARCO(`
       const caja = (s) => { const n = visibles(s)[0]; if (!n) return null; const r = n.getBoundingClientRect();
@@ -1027,6 +1100,26 @@ async function anchosDelQuiz(pagina, base, t) {
       mide.progreso && mide.contador && mide.contador.x >= mide.progreso.der + 2 * PASO - 0.5, true);
     t.ok(`${ancho}: el tiempo cabe en la pantalla`,
       mide.tiempo && mide.tiempo.der <= mide.vista + 0.5, true);
+    // B-04 (QUIZ-P4): BCYT trae 40 preguntas. A 320 px el progreso mide 128 px y 40 casillas
+    // piden 158: barra continua que no pasa del reloj. A 360 px caben 42: 40 casillas.
+    const prog = await pagina.evaluar(EN_MARCO(`
+      const caja = (n) => { const r = n.getBoundingClientRect(); return { x: r.left, der: r.right }; };
+      const casillas = visibles('[data-testid="casilla-llena"], [data-testid="casilla-vacia"]').map(caja);
+      const barra = visibles('[data-testid="barra-progreso"]')[0];
+      return { casillas, barra: barra ? caja(barra) : null };
+    `));
+    if (ancho === 320) {
+      t.ok('320: 40 preguntas con temporizador: barra continua y sin casillas',
+        prog.barra !== null && prog.casillas.length === 0, true);
+      t.ok('320: la barra no pasa del reloj',
+        prog.barra && mide.tiempo && prog.barra.der <= mide.tiempo.x + 0.5, true);
+    } else {
+      t.ok('360: 40 preguntas con temporizador: 40 casillas y sin barra',
+        prog.barra === null && prog.casillas.length === 40, true);
+      const ultima = prog.casillas[prog.casillas.length - 1];
+      t.ok('360: la última casilla queda dentro del progreso',
+        ultima && mide.progreso && ultima.der <= mide.progreso.der + 0.5, true);
+    }
     await responder(pagina, 0);
     t.ok(`${ancho}: sin scroll horizontal después de responder`, await pagina.evaluar(DESBORDA), 0);
     const sig = await pagina.evaluar(LEER(sel('boton-siguiente')));
@@ -1681,6 +1774,8 @@ module.exports = [
   { nombre: 'Quiz Plancha: temporizador y alerta bajo 120 s', correr: conNavegador(temporizadorYAlerta) },
   { nombre: 'Quiz Plancha: examen en curso (resultado oculto)', correr: conNavegador(examenEnCurso) },
   { nombre: 'Quiz Plancha: anchos 320, 360 y 768', correr: conNavegador(anchosDelQuiz) },
+  { nombre: 'Quiz Plancha: borde de la cuenta de casillas (B-04)', correr: conNavegador(bordeDeLaCuenta) },
+  { nombre: 'Quiz Plancha: sin salto de casillas a barra al entrar (B-04)', correr: conNavegador(sinSaltoAlEntrar) },
   { nombre: 'Quiz Plancha: escritorio 1023, 1024, 1280, 1366 y 1920 (lectura)', correr: conNavegadorAncho(escritorioDelQuiz, { ancho: 1920, alto: 1200 }) },
   { nombre: 'Quiz Plancha: examen en curso en escritorio 1024, 1366 y 1920', correr: conNavegadorAncho(escritorioDelExamenEnCurso, { ancho: 1920, alto: 1200 }) },
   { nombre: 'Quiz Plancha: movimiento de entrada (REV-1, c.5)', correr: conNavegador(movimientoDelQuiz) },

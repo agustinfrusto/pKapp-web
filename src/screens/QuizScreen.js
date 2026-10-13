@@ -25,6 +25,9 @@ import { Contenido } from '../components/plancha/Control';
 const GLIFO_CHICO = 4 * 4;
 // Hasta este total, una casilla por pregunta; con más, una barra continua (QUIZ-P4).
 const TOPE_DE_CASILLAS = 40;
+// Cada casilla pide 2 px de marco y 2 px de separación, salvo la última (B-04): `n` casillas
+// piden `4n - 2` px, de donde `n <= floor((ancho + 2) / 4)`.
+const PX_POR_CASILLA = 4;
 // Bajo este tiempo restante (en segundos) el reloj pasa a alerta (QUIZ-P3).
 const SEGUNDOS_DE_ALERTA = 120;
 
@@ -107,6 +110,8 @@ export default function QuizScreen({ route, navigation }) {
   const { materiaId, materia } = useMateria();
   const TOPICS = materia?.TOPICS || {};
   const [currentIndex, setCurrentIndex] = useState(0);
+  // Ancho medido de `progreso-quiz`; hasta la primera medida rige solo el tope de casillas.
+  const [anchoProgreso, setAnchoProgreso] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [answered, setAnswered] = useState(false);
   const [answers, setAnswers] = useState([]); // historial para mostrar al final
@@ -120,6 +125,7 @@ export default function QuizScreen({ route, navigation }) {
   // Fundido de entrada (Quiz.md c.5, REV-1): el bloque de la pregunta al cambiar de
   // pregunta; las piezas que aparecen al responder, al montarse (clave `answered`).
   const bloqueRef = useRef(null);
+  const progresoRef = useRef(null);
   const marcaAciertoRef = useRef(null);
   const marcaErrorRef = useRef(null);
   const notaRef = useRef(null);
@@ -211,6 +217,15 @@ export default function QuizScreen({ route, navigation }) {
     answersRef.current = answers;
   }, [answers]);
 
+  // Primera medida del progreso antes del primer pintado: con `onLayout` solo, el primer cuadro
+  // dibuja las casillas y el siguiente la barra (B-04). `onLayout` queda para los cambios de ancho.
+  useLayoutEffect(() => {
+    const nodo = progresoRef.current;
+    if (Platform.OS !== 'web' || !nodo || !nodo.getBoundingClientRect) return;
+    const ancho = nodo.getBoundingClientRect().width;
+    if (ancho > 0) setAnchoProgreso(ancho);
+  }, []);
+
   // REV-9: la barra inferior se desmonta con «Siguiente» y el foco caería en `body`; con
   // teclado pasa a la primera opción de la pregunta nueva. Con puntero no se mueve.
   useLayoutEffect(() => {
@@ -275,6 +290,8 @@ export default function QuizScreen({ route, navigation }) {
   if (sinQuiz) return null;
 
   const total = preguntas.length;
+  const conCasillas = total <= TOPE_DE_CASILLAS
+    && (anchoProgreso === null || total <= Math.floor((anchoProgreso + 2) / PX_POR_CASILLA));
   const enAlerta = timeLeft !== null && timeLeft < SEGUNDOS_DE_ALERTA;
   const origen = ORIGENES[currentQuestion.source];
   const nombreOrigen = {
@@ -306,8 +323,13 @@ export default function QuizScreen({ route, navigation }) {
               accessibilityLabel="Salir"
               onPress={handleQuit}
             />
-            <View testID="progreso-quiz" className="flex-1">
-              {total > TOPE_DE_CASILLAS ? (
+            <View
+              ref={progresoRef}
+              testID="progreso-quiz"
+              className="flex-1"
+              onLayout={(e) => setAnchoProgreso(e.nativeEvent.layout.width)}
+            >
+              {!conCasillas ? (
                 <View
                   testID="barra-progreso"
                   className="h-2.5 border border-filete bg-fondo dark:border-fileteD dark:bg-fondoD"
@@ -366,7 +388,7 @@ export default function QuizScreen({ route, navigation }) {
               pasa a su propia línea, a todo el ancho y sin límite de líneas (D10: el
               tema nunca se recorta). */}
           <View ref={bloqueRef}>
-            <View className="flex-row flex-wrap items-start justify-between gap-3 pb-3 pt-4">
+            <View className="flex-row flex-wrap items-start justify-between gap-2 pb-3 pt-4">
               <View className="max-w-full items-start">
                 {currentQuestion.parcial && (
                   <View testID="insignia-parcial" className="mb-1 flex-row items-center gap-1.5">
@@ -400,7 +422,7 @@ export default function QuizScreen({ route, navigation }) {
             {/* Pregunta */}
             <View
               testID="enunciado-quiz"
-              className="mb-4 border border-linea bg-superficie px-3.5 pb-4 pt-3.5 dark:border-lineaD dark:bg-superficieD"
+              className="mb-4 border border-linea bg-superficie px-3.5 pb-3.5 pt-3.5 dark:border-lineaD dark:bg-superficieD"
             >
               <RotuloSeccion testID="rotulo-enunciado">Enunciado</RotuloSeccion>
               <Text className={`mt-1.5 font-plex-sans-semibold text-titulo ${TINTA}`}>
