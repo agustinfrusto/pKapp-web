@@ -2,13 +2,13 @@
 
 | Campo | Valor |
 |---|---|
-| Superficie | Vista de revisión de `ResultsScreen` (`src/screens/ResultsScreen.js`, rama `showReview`, ≈ l. 77 a 180), ruta `Results`. No navega: reemplaza la vista de resumen en el mismo lugar |
+| Superficie | Vista de revisión de `ResultsScreen` (`src/screens/ResultsScreen.js`, rama `if (showReview)`: `rg -n 'if \(showReview\)' src/screens/ResultsScreen.js`), ruta `Results`. No navega: reemplaza la vista de resumen en el mismo lugar |
 | Boceto | Figura 05 «Resultados» dibuja el botón «Revisar todas las respuestas» pero no esta vista. La ficha extiende la gramática del boceto (marco `linea`, rótulos mono, marcas de estado de `comun.md` §4) |
 | Comunes | `comun.md`: §3 barra interna (sin volver), §4 marcas de estado, §5 estados (K1, K2, K4, K7), §7 anchos, §8 dimensiones, §9 glifos |
 | Navegador | La barra interna de `Results`, con título «pKapp · Resultados» y sin volver. La revisión no cambia el título |
 | Variantes | Respuesta correcta o incorrecta; con y sin explicación; con y sin filtro (sin respuestas incorrectas no hay filtro); hasta cientos de respuestas |
 | Fuera de alcance | Tarjeta de resultado, trío y botones del resumen (`Results.md`); pedido de donación (`DonationBox.md`; no se muestra en la revisión) |
-| Propuestas | Sección f: `REV-P1`, `REV-P2` y `REV-P3`, aprobadas (usuario, 2026-10-10). Sección f.1: `REV-3` y `REV-4` de la revisión 5.0b (sin «P»: no son `REV-P#`), aprobadas (usuario, 2026-10-12). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Propuestas | Sección f: `REV-P1`, `REV-P2` y `REV-P3`, aprobadas (usuario, 2026-10-10). Sección f.1: `REV-3` y `REV-4` de la revisión 5.0b (sin «P»: no son `REV-P#`), aprobadas (usuario, 2026-10-12). Sección h: conservado de main (D10). Comunes: `COMUN-P2`. Sección i: cambios de la tarea 5.2 (Diseñador, 2026-10-13) |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P6`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.5 |
 
 ---
@@ -163,13 +163,15 @@ Origen de la pregunta, banco reducido y banda intermedia no aplican (—).
 
 ### d.3 Eventos `track(...)`
 
-`rg -n 'track\(' src/screens/ResultsScreen.js`
+`rg -n 'track\(' src/screens/ResultsScreen.js src/components/DonationBox.js src/utils/donacion.js`
 
-| Evento | Línea | Payload | Cuándo | Fila que lo cubre |
+La ficha no cita números de línea (se desactualizan; tarea 5.2, `C-06`).
+
+| Evento | Dónde | Payload | Cuándo | Fila que lo cubre |
 |---|---|---|---|---|
-| `simulacro_terminado` | `ResultsScreen.js:61` | `{ mode, score: percentage, total }` | Una vez al montar `Results` | No es de esta vista y no se repite al abrirla: lo cubre `Results.md` d.4 |
-| `simulacro_aprobado` | `ResultsScreen.js:63` | `{ mode, score: percentage }` | Al montar `Results`, con `percentage >= APROBADO_MIN_SCORE` | Igual: `Results.md` d.4 |
-| `donacion_click` | `ResultsScreen.js:247` | `{ origen: 'resultados', monto: amt }` | Al tocar un monto del pedido | No está en esta vista: lo cubre `DonationBox.md` d.4 |
+| `simulacro_terminado` | `ResultsScreen.js`, efecto de montaje | `{ mode, score: percentage, total }` | Una vez al montar `Results` | No es de esta vista y no se repite al abrirla: lo cubre `Results.md` d.4 |
+| `simulacro_aprobado` | `ResultsScreen.js`, mismo efecto | `{ mode, score: percentage }` | Al montar `Results`, con `percentage >= APROBADO_MIN_SCORE` | Igual: `Results.md` d.4 |
+| `donacion_vista`, `donacion_click` y `donacion_cerrada` | `DonationBox.js` (`handleDonate` y `handleCerrar`) y `utils/donacion.js` (`useDonacionVista`); ya no hay un manejador en `ResultsScreen.js` | `{ origen: 'resultados', variante, tramo, uso }`; `donacion_click` suma `monto` y `donacion_cerrada` no lleva `uso` | Con el pedido de donación del resumen: al verlo (50 % durante 1 s), al tocar un monto y al descartarlo | No están en esta vista: los cubre `DonationBox.md` d.4 |
 
 La revisión no emite eventos y la ficha no agrega ninguno.
 
@@ -243,6 +245,16 @@ Elementos de `main` que el boceto omite. No son propuestas: `main` es la base de
 
 ---
 
+## i. Cambios de la tarea 5.2
+
+Recorrido final de la rama `rediseno-revision-ux`. No son propuestas nuevas: cierran una medida que faltaba o corrigen la ficha contra el código. Cada fila dice qué había, qué rige ahora y cómo se comprueba.
+
+| Fecha | Id | Cambio | Antes | Después | Aceptación observable (Programador y e2e) |
+|---|---|---|---|---|---|
+| 2026-10-13 | `C-06` (nota) | La cabecera y d.3 dejan de citar números de línea, y los eventos de donación pasan a su archivo | «rama `showReview`, ≈ l. 77 a 180»; `simulacro_terminado` en «`ResultsScreen.js:61`», `simulacro_aprobado` en «`:63`» y `donacion_click` en «`ResultsScreen.js:247`» | Rama `if (showReview)` y efecto de montaje de `ResultsScreen.js`, con su comando `rg`. Los eventos de donación viven en `DonationBox.js` y `utils/donacion.js`: `donacion_click` lleva además `variante`, `tramo` y `uso`, y existen `donacion_vista` y `donacion_cerrada`: son de `main` 1.9.0 (`DonationBox.md` d.4) | Sin cambio de código |
+
+---
+
 ## Escritorio · propuesta `ESC-P6` (tarea 3.10, aprobada por el usuario el 2026-10-11)
 
 | Campo | Valor |
@@ -268,7 +280,7 @@ Misma hoja que el resumen de Results: al alternar «Revisar todas las respuestas
 | Elemento | Medida |
 |---|---|
 | Tarjeta de respuesta | Ancho de la región principal; relleno `paso 3.5` y borde izquierdo `border-l-3`, como en a.3 |
-| Medida de línea | ≈ 77 caracteres por línea en la nota (`cuerpo`); en el enunciado, con `item` desde `REV-4`, ≈ 72 por proporción (77 × 15 / 16), bajo los 80 de WCAG 1.4.8 (se mide en las capturas de 5.0b.14); celda de letra de `paso 11` |
+| Medida de línea | ≈ 77 caracteres por línea en la nota (`cuerpo`); en el enunciado, con `item` desde `REV-4`, 76 caracteres en la primera línea del enunciado más largo a `lectura` (caja de 568 px), bajo los 80 de WCAG 1.4.8 (medido en las capturas de 5.0b.14, a 1366 y 1920, en claro y oscuro); celda de letra de `paso 11` |
 | Región lateral | Corta: no se ancla; se desplaza con la página (`comun.md` §7.2) |
 
 ### Revisado

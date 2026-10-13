@@ -141,13 +141,13 @@ Consecuencia: el texto nunca va sobre un trazo (`NOTAS.md`, CD-16). «Encima» s
 
 ## d. Anchos
 
-Ancho de la lámina = ancho de ventana menos `paso 5` a cada lado, con tope `columna`; desde el corte `escritorio` (1024) la lámina es `lateral` (`ESC-P1`, aprobada por el usuario el 2026-10-11). El factor es el de `tokens.md` c.4: ancho disponible sobre el viewBox de 348.
+Ancho de la lámina = el menor entre el ancho de ventana y `columna` (448), menos `paso 5` a cada lado: el margen cuenta dentro de `columna` (5.2, `A1-05`); desde el corte `escritorio` (1024) la lámina es `lateral` (`ESC-P1`, aprobada por el usuario el 2026-10-11). El factor es el de `tokens.md` c.4: ancho disponible sobre el viewBox de 348.
 
 | Ancho de ventana | Ancho de lámina | `none` (V0, V1, V2, V5, V6): factor horizontal | `meet` (V3, V4): escala | Qué se ve |
 |---|---|---|---|---|
 | 320 | 280 | 0,80 | 0,80 | `none`: dibujo comprimido; hélice, latidos, papel y músculos conservan su lectura. `meet`: la figura se reduce y queda centrada; el flujo o la retícula llenan arriba y abajo |
 | 390 | 350 | 1,00 | 1,00 | Tamaño de diseño: el viewBox de 348 entra justo |
-| 768 (tablet) | 448 (`columna`) | 1,28 | 1,00 | `none`: el dibujo se estira 1,28, dentro del 1,4 que fija D2. `meet`: la figura conserva su forma y el flujo o la retícula cubren los costados |
+| 768 (tablet) | 408 (`columna`, 448, menos `paso 5` a cada lado) | 1,17 | 1,00 | `none`: el dibujo se estira 1,17, dentro del 1,4 que fija D2. `meet`: la figura conserva su forma y el flujo o la retícula cubren los costados |
 | 1024 y más (1280, 1366, 1920) | 320 (`lateral`) | 0,92 | 0,92 | La lámina está en la región lateral con el mismo alto (`paso 28`): el mismo dibujo que a ventana 320, con la lámina algo más ancha |
 
 Factor vertical: V0, V1, V5 y V6 usan un viewBox de 118 sobre `paso 28` (0,95); V2, V3 y V4 usan uno de 112 (1,00), de modo que a 390 el dibujo es 1:1 y V2 alinea sus verticales con las marcas de la regla a todos los anchos (ambos usan `none`).

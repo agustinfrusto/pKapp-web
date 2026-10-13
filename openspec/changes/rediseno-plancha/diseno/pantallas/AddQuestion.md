@@ -8,7 +8,7 @@
 | Navegador | Barra interna con título «pKapp · Agregar pregunta» y volver (`comun.md` §3.3) |
 | Variantes | De 2 a 6 opciones; con y sin correcta marcada; selector de tema cerrado o abierto; guardando; con teclado abierto |
 | Fuera de alcance | Diálogos del sistema (`confirm`, `avisar`): su texto está en d.2 y e; su aspecto no es del sistema visual |
-| Propuestas | Sección f: `ADD-P2` (aprobada, usuario, 2026-10-10) y `ADD-P3` (aprobada, usuario, 2026-10-11); `ADD-P1`, rechazada (usuario, 2026-10-11). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Propuestas | Sección f: `ADD-P2` (aprobada, usuario, 2026-10-10) y `ADD-P3` (aprobada, usuario, 2026-10-11); `ADD-P1`, rechazada (usuario, 2026-10-11). Sección h: conservado de main (D10). Comunes: `COMUN-P2`. Sección j: cambios de la tarea 5.2 (Diseñador, 2026-10-13) |
 | Anexo | `AddQuestion-ADD-P3.md`: alternativas evaluadas, interacción del desplegable, componente `Desplegable`, contraste, medidas y figuras de `ADD-P3`. Ante una diferencia rige el cuerpo de esta ficha y `comun.md` §5.3 |
 | Escritorio | Sección «Escritorio», al final: `ESC-P9` rechazada (usuario, 2026-10-11); desde el corte `escritorio` el formulario va en una columna `lectura`, como el quiz. Bajo el corte rige a.3 |
 
@@ -239,6 +239,7 @@ Origen de la pregunta, aciertos de rendimiento, banco reducido y estado vacío n
 | Texto de ayuda de una opción | «Opción {letra}» | Igual | — |
 | Texto de ayuda de la explicación | «Explicación que se mostrará después de responder...» | Igual | — |
 | Celda de letra | Sin nombre accesible | «Opción {letra}, marcar como correcta» | Cadena accesible nueva, no visible |
+| Campo de texto (enunciado, cada opción y explicación) | Sin cadena accesible: el nombre accesible es su texto de ayuda | Igual: el nombre accesible de cada campo es su texto de ayuda visible («Escribí la pregunta acá...», «Opción {letra}» o «Explicación que se mostrará después de responder...»); sin cadena accesible aparte | Aceptado, sin código (tarea 5.2, `D-12`, 2026-10-13): una cadena aparte divergiría del texto visible (WCAG 2.5.3, etiqueta en el nombre) |
 | Diálogos | Los de d.2 | Iguales | — |
 
 El texto de ayuda del campo (placeholder) lleva el color del token `tintaSec` en los dos temas.
@@ -322,6 +323,16 @@ Para la 3.x y el e2e. El e2e `tools/e2e/suites/agregar.js` codificaba `ADD-P1` (
 | 17 | Estados y colores | Disparador y filas toman los tokens de c.1 en los dos temas |
 | 18 | Escritorio | A 1024, 1366 × 768 y 1920 × 1080: una sola columna `lectura`, centrada y anclada arriba, sin segunda columna ni región lateral; la barra interna con el filete a todo el ancho; sin scroll horizontal; con el selector abierto, la lámina entra completa en la ventana |
 | 19 | Orden de foco | Tab recorre el orden de DOM, que es el visual, en todos los anchos: disparador, enunciado, cada opción, «Agregar opción», explicación y «Guardar pregunta» |
+
+---
+
+## j. Cambios de la tarea 5.2
+
+Recorrido final de la rama `rediseno-revision-ux`. No son propuestas nuevas: cierran una medida que faltaba o corrigen la ficha contra el código. Cada fila dice qué había, qué rige ahora y cómo se comprueba.
+
+| Fecha | Id | Cambio | Antes | Después | Aceptación observable (Programador y e2e) |
+|---|---|---|---|---|---|
+| 2026-10-13 | `D-12` (nota) | e: el nombre accesible de los tres campos de texto es su texto de ayuda visible | e listaba las cadenas accesibles del disparador, la lista, la celda de letra y quitar opción; no decía nada del enunciado, las opciones ni la explicación | Sin cadena accesible aparte: el lector anuncia «Escribí la pregunta acá...», «Opción {letra}» o «Explicación que se mostrará después de responder...». Una cadena distinta divergiría del texto visible (WCAG 2.5.3) | Sin cambio de código: los campos no llevan `accessibilityLabel` y conservan su `placeholder` |
 
 ---
 

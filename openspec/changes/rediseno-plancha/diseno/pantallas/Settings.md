@@ -8,7 +8,7 @@
 | Navegador | Barra interna con título «pKapp · Ajustes» y volver (`comun.md` §3.3) |
 | Variantes | Plegables cerrados o abiertos; con y sin preguntas propias; web (con respaldo) o nativo (sin respaldo) |
 | Fuera de alcance | Diálogos del sistema (`confirm`, `avisar`) y el selector de archivos del navegador: su aspecto no es del sistema visual. El estado vacío de «Mis preguntas» tiene su ficha en `Vacios.md` |
-| Propuestas | Sección f: `SET-P1` y `SET-P2`, aprobadas (usuario, 2026-10-10), y `SET-P3`, aprobada (usuario, 2026-10-11). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Propuestas | Sección f: `SET-P1` y `SET-P2`, aprobadas (usuario, 2026-10-10), y `SET-P3`, aprobada (usuario, 2026-10-11). Sección h: conservado de main (D10). Comunes: `COMUN-P2`. Sección i: cambios de la tarea 5.2 (Diseñador, 2026-10-13) |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P8`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.6 |
 
 ---
@@ -46,7 +46,7 @@ Panel con relleno `paso 3.5` en las cuatro caras. Una fila: bloque de texto flex
 
 | Cuerpo | Medidas | Contenido |
 |---|---|---|
-| «Mis preguntas», con preguntas | Tarjetas separadas por `paso 2.5`; relleno `paso 3.5`; primera fila con tema a la izquierda y eliminar a la derecha: la fila mide al menos `paso 11` por el objetivo de eliminar, sin márgenes negativos, y el tema (`rotulo`) salta de línea si es largo; enunciado a dos líneas como máximo (margen superior `paso 1.5`); correcta en una línea con `glifo-acierto` (margen superior `paso 1.5`, separación `paso 2`) | Una tarjeta por pregunta propia, en el orden que devuelve `getUserQuestions` |
+| «Mis preguntas», con preguntas | Tarjetas separadas por `paso 2.5`; relleno `paso 3.5`; primera fila con tema a la izquierda y eliminar a la derecha: la fila mide al menos `paso 11` por el objetivo de eliminar, sin márgenes negativos, y el tema (`rotulo`) salta de línea si es largo; enunciado a dos líneas como máximo (margen superior `paso 1.5`); correcta en una línea con `glifo-acierto` (margen superior `paso 1.5`, separación `paso 1.5`: la de toda marca de estado con glifo chico, `comun.md` §4) | Una tarjeta por pregunta propia, en el orden que devuelve `getUserQuestions` |
 | «Mis preguntas», sin preguntas | Ver `Vacios.md` (V3) | Mensaje |
 | «Tus datos», web | Panel con relleno `paso 3.5`; texto con margen inferior `paso 2.5`; botones de ancho completo y alto mínimo `paso 11`, separados `paso 2`; divisor `filete` con margen vertical `paso 3` entre los botones de respaldo y el de reseteo | Texto, «Descargar respaldo», «Importar respaldo», divisor, «Resetear estadísticas» |
 | «Tus datos», nativo | Panel con relleno `paso 3.5` | Solo «Resetear estadísticas» |
@@ -197,7 +197,7 @@ Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—)
 | Importar | Emoji de carpeta y «Importar respaldo» | «Importar respaldo» con `glifo-importar` | Reemplazo de emoji |
 | Resetear | «Resetear estadísticas» | Igual | — |
 | Identidad | «pKapp v{versión}» y «Preparación para ESFUNO» | Iguales | — |
-| Banco | «Banco de {materia}», total y «{n} de exámenes · {n} generadas · {n} tuyas» | «Banco de {materia}», total y «{n} de exámenes · {n} tuyas»; con generadas (mayor que cero), «{n} de exámenes · {n} generadas · {n} tuyas» | `SET-P3` |
+| Banco | «Banco de {materia}», total y «{n} de exámenes · {n} generadas · {n} tuyas» | «Banco de {materia}», total y «{n} de exámenes · {n} tuyas»; con generadas (mayor que cero), «{n} de exámenes · {n} generadas · {n} tuyas». Concordancia (5.2, `D-09`): con uno, «1 tuya» y «1 generada» | `SET-P3` |
 | Reportar | Emoji de sobre y «Reportar un error» | «Reportar un error» con `glifo-correo` | Reemplazo de emoji |
 | Código | «Código fuente» y flecha de salida | «Código fuente» con `glifo-externo` | Reemplazo de símbolo |
 
@@ -211,7 +211,7 @@ Cambios respecto de `main` que el boceto no dibuja. El usuario aprobó `SET-P1` 
 |---|---|---|---|---|
 | SET-P1 | El `Switch` de «Ocultar resultado hasta el final» pasa a un control segmentado de dos opciones, «No» y «Sí», de la misma clase K4 que el control «Claro \| Oscuro» (D7). Un toque en la opción no seleccionada cambia el ajuste, como hoy | El `Switch` es un elemento circular de plataforma que no admite radio 0 ni los tokens (`tokens.md` c.1); D7 ya resolvió el mismo problema con el control de tema. El estado se lee con palabra e inversión de valor, no solo por posición | visual | aprobada (usuario, 2026-10-10) |
 | SET-P2 | «Resetear estadísticas» usa `error` en borde y texto (K2 de peligro). Es la única acción destructiva e irreversible de la pantalla | `main` la distingue con tono de peligro y el usuario ya la reconoce así. Es una excepción a la reserva de `error` (incorrecta, banda baja, validación y alerta de tiempo: `tokens.md` a.1 y CD-8 de `CONVENCIONES.md`), aprobada por el usuario | visual | aprobada (usuario, 2026-10-10) |
-| SET-P3 | El desglose del banco por origen de «Acerca de» omite el término «{n} generadas» cuando vale cero: «{n} de exámenes · {n} tuyas». Con generadas (mayor que cero) el texto es el de `main`, «{n} de exámenes · {n} generadas · {n} tuyas». El total y «tuyas» no cambian; «tuyas» se dibuja también con cero. La condición es del dato, no de la materia ni una constante: si un banco vuelve a traer generadas, el término reaparece | `generadas` vale cero en las seis materias: «0 generadas» era una constante en un panel de datos. Es la misma razón que `HOME-P4`; D6 (origen visible) se cumple igual, porque cada origen que existe sigue separado | copy | aprobada (usuario, 2026-10-11) |
+| SET-P3 | El desglose del banco por origen de «Acerca de» omite el término «{n} generadas» cuando vale cero: «{n} de exámenes · {n} tuyas». Con generadas (mayor que cero) el texto es el de `main`, «{n} de exámenes · {n} generadas · {n} tuyas». El total y «tuyas» no cambian; «tuyas» se dibuja también con cero, y concuerda en número: «1 tuya», «1 generada» (`userQuestions.length === 1`, `generatedCount === 1`). La condición es del dato, no de la materia ni una constante: si un banco vuelve a traer generadas, el término reaparece | `generadas` vale cero en las seis materias: «0 generadas» era una constante en un panel de datos. Es la misma razón que `HOME-P4`; D6 (origen visible) se cumple igual, porque cada origen que existe sigue separado | copy | aprobada (usuario, 2026-10-11) |
 
 ### f.1 Aceptación observable (`SET-P3`)
 
@@ -258,6 +258,18 @@ Elementos de `main` que el boceto omite. No son propuestas: `main` es la base de
 
 ---
 
+## i. Cambios de la tarea 5.2
+
+Recorrido final de la rama `rediseno-revision-ux`. No son propuestas nuevas: cierran una medida que faltaba o corrigen la ficha contra el código. Cada fila dice qué había, qué rige ahora y cómo se comprueba.
+
+| Fecha | Id | Cambio | Antes | Después | Aceptación observable (Programador y e2e) |
+|---|---|---|---|---|---|
+| 2026-10-13 | `D-04` | Marca y texto de la correcta de «Mis preguntas» a `paso 1.5` | a.4, fila «con preguntas»: «separación `paso 2`»; el código (`MarcaEstado`, `gap-1.5`) pone 6 px | `paso 1.5` (6 px), la separación de toda marca de estado con glifo chico: rótulo del trío, línea de estado de la revisión, valor de falladas, leyenda. `paso 2` queda para el glifo `display` (porcentaje de Results y Stats global) y el rótulo de la tarjeta global de Stats (`comun.md` §4) | Sin cambio de código. Si la e2e de `ajustes.js` mide esa separación, el valor esperado es 6 px |
+| 2026-10-13 | `D-09` (nota) | Concordancia del desglose del banco | e y `SET-P3`: solo el plural, «{n} tuyas» y «{n} generadas» | Con uno, «1 tuya» y «1 generada»: es lo que el código ya hace y lo que `ajustes.js` afirma | Sin cambio de código |
+| 2026-10-13 | `D-11` (nota) | La frase de `ESC-P8` sobre la identidad ya no promete el salto de línea | «la identidad salta de línea» | «puede saltar de línea (`flex-wrap`)»: con v1.9.0 entra en una línea con ≈ 30 px de holgura a `lateral` | Las aserciones de dirección del trazo (`D-01`) y de alto del K1 (`D-02`) las cubren esas tandas; la de «una o dos líneas» de `ajustes.js` pasa a deuda de la auditoría 6.2: hoy compara tops de dos textos con interlineado distinto y aprueba igual |
+
+---
+
 ## Escritorio · propuesta `ESC-P8` (tarea 3.10, aprobada por el usuario el 2026-10-11)
 
 | Campo | Valor |
@@ -281,7 +293,7 @@ Elementos de `main` que el boceto omite. No son propuestas: `main` es la base de
 | Elemento | Medida |
 |---|---|
 | Paneles y plegables | Llenan la región principal; relleno `paso 3.5` y cabecera de alto mínimo `paso 11`, como en a.2 y a.3 |
-| «Acerca de» | Ancho `lateral`: la identidad salta de línea y los dos enlaces K2 de acento, una por línea (a.5) |
+| «Acerca de» | Ancho `lateral`: la identidad puede saltar de línea (fila `flex-wrap`, a.5): con la versión actual («pKapp» y su versión) entra en una línea con ≈ 30 px de holgura a ese ancho (medido en 5.2); los dos enlaces K2 de acento, una por línea (a.5) |
 | Botones de respaldo | Apilados, a ancho de la región principal (a.4) |
 
 ### Revisado

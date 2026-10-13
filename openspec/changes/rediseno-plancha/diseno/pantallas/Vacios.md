@@ -17,39 +17,41 @@
 
 ### a.1 Inventario desde el código
 
+«Línea en `main`» es la cita del inventario de 1.3. «Línea actual» es la de `rediseno` el 2026-10-13 y cambia con cada edición: la clave estable es el símbolo de la «Condición» (p. ej. `rg -n totalAnswered src/screens/StatsScreen.js`), no el número.
+
 Con tratamiento propio en esta ficha:
 
-| Id | Estado | Dónde | Condición | Línea | Qué muestra hoy | Tratamiento |
-|---|---|---|---|---|---|---|
-| V1 | Sin estadísticas | `StatsScreen` | `totalAnswered === 0` | `StatsScreen.js:90` | Emoji de gráfico, título y texto, centrados en la pantalla; admite tirar para actualizar | Lámina vacía (a.2) |
-| V2 | Sin preguntas falladas | `TopicSelectScreen`, modo `failed` | `mode === 'failed' && failedIds.size === 0` | `TopicSelectScreen.js:177` | Emoji de diana, título y texto, centrados; sin filtros | Lámina vacía (a.2) |
-| V3 | Sin preguntas propias | `SettingsScreen`, «Mis preguntas» abierto | `showQuestions && userQuestions.length === 0` | `SettingsScreen.js:114` | Tarjeta con un texto centrado | Mensaje compacto (a.3) |
-| V4 | Sin temas con los filtros actuales | `TopicSelectScreen`, modos `practice` y `failed` con fallos | `filteredBase` vacía: ningún tema con `count > 0`; p. ej. «Solo mías» con un parcial distinto de «Examen», porque las preguntas propias no traen `parcial` (`TopicSelect.md` f.1, tabla 6) | `TopicSelectScreen.js:213` a `215` | La tarjeta de mezcla dice «0 preguntas» y, bajo el rótulo de sección, la lista queda vacía | Mensaje bajo el rótulo (a.4): el de `VAC-P3` o, con «Solo mías» y un parcial, el de `VAC-P5` |
+| Id | Estado | Dónde | Condición | Línea en `main` | Línea actual | Qué muestra hoy | Tratamiento |
+|---|---|---|---|---|---|---|---|
+| V1 | Sin estadísticas | `StatsScreen` | `totalAnswered === 0` | `StatsScreen.js:90` | `StatsScreen.js:124` | Emoji de gráfico, título y texto, centrados en la pantalla; admite tirar para actualizar | Lámina vacía (a.2) |
+| V2 | Sin preguntas falladas | `TopicSelectScreen`, modo `failed` | `mode === 'failed' && failedIds.size === 0` | `TopicSelectScreen.js:177` | `TopicSelectScreen.js:224` | Emoji de diana, título y texto, centrados; sin filtros | Lámina vacía (a.2) |
+| V3 | Sin preguntas propias | `SettingsScreen`, «Mis preguntas» abierto | `showQuestions && userQuestions.length === 0` | `SettingsScreen.js:114` | `SettingsScreen.js:163` | Tarjeta con un texto centrado | Mensaje compacto (a.3) |
+| V4 | Sin temas con los filtros actuales | `TopicSelectScreen`, modos `practice` y `failed` con fallos | `filteredBase` vacía: ningún tema con `count > 0`; p. ej. «Solo mías» con un parcial distinto de «Examen», porque las preguntas propias no traen `parcial` (`TopicSelect.md` f.1, tabla 6) | `TopicSelectScreen.js:213` a `215` | `TopicSelectScreen.js:286` | La tarjeta de mezcla dice «0 preguntas» y, bajo el rótulo de sección, la lista queda vacía | Mensaje bajo el rótulo (a.4): el de `VAC-P3` o, con «Solo mías» y un parcial, el de `VAC-P5` |
 
 Aviso del sistema, sin diseño propio:
 
-| Id | Estado | Dónde | Condición | Línea | Qué muestra hoy |
-|---|---|---|---|---|---|
-| V5 | Sin preguntas al comenzar | `TopicSelectScreen.startQuiz` | `questions.length === 0` | `TopicSelectScreen.js:116` | `avisar('Sin preguntas', 'No hay preguntas disponibles con los filtros actuales.')` |
+| Id | Estado | Dónde | Condición | Línea en `main` | Línea actual | Qué muestra hoy |
+|---|---|---|---|---|---|---|
+| V5 | Sin preguntas al comenzar | `TopicSelectScreen.startQuiz` | `questions.length === 0` | `TopicSelectScreen.js:116` | `TopicSelectScreen.js:146` a `149` | `avisar('Sin preguntas', 'No hay preguntas disponibles con los filtros actuales.')` |
 
 Elementos que se omiten sin dejar hueco, o pantalla sin render. Su fila de matriz ya vive en la ficha de su pantalla:
 
-| Id | Estado | Dónde | Condición | Línea | Qué ocurre | Ficha que lo cubre |
-|---|---|---|---|---|---|---|
-| V6 | Sin «Más falladas» | `StatsScreen` | `failedStats.length === 0` | `StatsScreen.js:164` | La sección no se renderiza | `Stats.md` a.1 y h |
-| V7 | Tema sin práctica | `StatsScreen`, fila | `accuracy === null` | `StatsScreen.js:131` y `136` | «Sin practicar» y sin barra | `Stats.md` b y c |
-| V8 | Tema sin preguntas | `StatsScreen`, fila | `totalQuestions === 0` | `StatsScreen.js:126` | La fila no se renderiza | `Stats.md` d.2 |
-| V9 | Tema sin preguntas tras filtros | `TopicSelectScreen`, fila | `count === 0` | `TopicSelectScreen.js:215` | La fila no se renderiza | `TopicSelect.md` c |
-| V10 | Pregunta sin explicación | `QuizScreen`, `ResultsScreen` | Sin `explanation` | `QuizScreen.js:293`, `ResultsScreen.js:145` | La nota no se renderiza | `Quiz.md` a.1, `Revision.md` c.2 |
-| V11 | Materia sin parciales | `TopicSelectScreen` | `!hasParciales` | `TopicSelectScreen.js:54` y `264` | El grupo «Parcial» no se renderiza | `TopicSelect.md` a.3 |
-| V12 | Materia sin elegir | `HomeScreen`, `TopicSelectScreen` | `!materia` | `HomeScreen.js:33`, `TopicSelectScreen.js:140` | `return null`; `App.js` vuelve al selector | Sin render: no hay pantalla que diseñar |
-| V13 | Entrada en frío a quiz o resultados | `QuizScreen`, `ResultsScreen` | Sin `questions` o sin `answers` | `QuizScreen.js:168`, `ResultsScreen.js:75` | `return null` y `navigation.reset` a `MateriaSelect` | Sin render: ídem |
-| V14 | Materia cargando o no disponible | `MateriaSelectScreen`, tarjeta | `cargando`, `!available` | `MateriaSelectScreen.js:144` y `147` | «Cargando…» y «Próximamente» | `MateriaSelect.md` b y c |
-| V15 | Sin pedido de donación | `ResultsScreen` | `!showDonation` o descartado | `ResultsScreen.js:213`, `254` | El bloque no se renderiza | `DonationBox.md` c |
-| V16 | Sin nota del creador, sin banner | `MateriaSelectScreen`, `HomeScreen` | Nota vista hace menos de siete días; materia sin `bancoReducido` | `MateriaSelectScreen.js:81`, `HomeScreen.js:59` | El bloque no se renderiza | `Banners.md` c |
-| V17 | Materia sin temas | `AddQuestionScreen` | `Object.keys(TOPICS).length === 0` | `AddQuestionScreen.js:19` y `20` | El grupo «Tema» queda sin filtros y `topic` sin valor | No ocurre con las seis materias registradas; sin diseño propio |
-| V18 | Materia sin preguntas propias | `TopicSelectScreen`, panel de filtros | `userQuestions.length === 0` | Nuevo (`TOPIC-P6`): hoy el grupo se dibuja siempre, `TopicSelectScreen.js:321` | El grupo «Fuente» no se renderiza: ni rótulo, ni filtros, ni divisor ni hueco; el filtro vale «Todas». Es la regla de `VAC-C5` | `TopicSelect.md` a.3, c y f.1 |
-| V19 (`REV-2`, aprobada 2026-10-12) | Arranque en web: antes del primer render y durante la carga | `scripts/inject-pwa.js` (`<style>` del `<head>` servido) y `App.js` | Siempre, en cada carga | `inject-pwa.js`, `pwaTags`; `App.js:93` a `155` (el splash, que se retira) | Sin splash: el primer cuadro que React pinta es la app, en el tema guardado; ningún cuadro `manifestFondo`. Antes de montar, el lienzo del navegador es `claro.fondo` (`html { background-color }`) y, con la clase `dark` en `html`, `oscuro.fondo`; `color-scheme` es `light` o `dark` según esa clase, así que las barras de scroll y los diálogos del navegador siguen al tema de la app. Quien usa el tema oscuro ve lienzo claro hasta que React monta y lee el tema (decisión 4.1: el script síncrono sigue aplazado) | `tokens.md` a.2, filas «Fondo del documento y `color-scheme`» y bloque «Decisión · `theme-color` inicial»; f.2 |
+| Id | Estado | Dónde | Condición | Línea en `main` | Línea actual | Qué ocurre | Ficha que lo cubre |
+|---|---|---|---|---|---|---|---|
+| V6 | Sin «Más falladas» | `StatsScreen` | `failedStats.length === 0` | `StatsScreen.js:164` | `StatsScreen.js:274` | La sección no se renderiza | `Stats.md` a.1 y h |
+| V7 | Tema sin práctica | `StatsScreen`, fila | `accuracy === null` | `StatsScreen.js:131` y `136` | `StatsScreen.js:214` y `235` | «Sin practicar» y sin barra | `Stats.md` b y c |
+| V8 | Tema sin preguntas | `StatsScreen`, fila | `totalQuestions === 0` | `StatsScreen.js:126` | `StatsScreen.js:213` | La fila no se renderiza | `Stats.md` d.2 |
+| V9 | Tema sin preguntas tras filtros | `TopicSelectScreen`, fila | `count === 0` | `TopicSelectScreen.js:215` | `TopicSelectScreen.js:258` | La fila no se renderiza | `TopicSelect.md` c |
+| V10 | Pregunta sin explicación | `QuizScreen`, `ResultsScreen` | Sin `explanation` | `QuizScreen.js:293`, `ResultsScreen.js:145` | `QuizScreen.js:508`, `ResultsScreen.js:440` | La nota no se renderiza | `Quiz.md` a.1, `Revision.md` c.2 |
+| V11 | Materia sin parciales | `TopicSelectScreen` | `!hasParciales` | `TopicSelectScreen.js:54` y `264` | `TopicSelectScreen.js:66` y `364` | El grupo «Parcial» no se renderiza | `TopicSelect.md` a.3 |
+| V12 | Materia sin elegir | `HomeScreen`, `TopicSelectScreen` | `!materia` | `HomeScreen.js:33`, `TopicSelectScreen.js:140` | `HomeScreen.js:77`, `TopicSelectScreen.js:170` | `return null`; `App.js` vuelve al selector | Sin render: no hay pantalla que diseñar |
+| V13 | Entrada en frío a quiz o resultados | `QuizScreen`, `ResultsScreen` | Sin `questions` o sin `answers` | `QuizScreen.js:168`, `ResultsScreen.js:75` | `QuizScreen.js:149` y `275`, `ResultsScreen.js:80` y `101` | `return null` y `navigation.reset` a `MateriaSelect` | Sin render: ídem |
+| V14 | Materia cargando o no disponible | `MateriaSelectScreen`, tarjeta | `cargando`, `!available` | `MateriaSelectScreen.js:144` y `147` | `MateriaSelectScreen.js:178` a `181` | «Cargando…» y «Próximamente» | `MateriaSelect.md` b y c |
+| V15 | Sin pedido de donación | `ResultsScreen` | `!showDonation` o descartado | `ResultsScreen.js:213`, `254` | `ResultsScreen.js:336` | El bloque no se renderiza | `DonationBox.md` c |
+| V16 | Sin nota del creador, sin banner | `MateriaSelectScreen`, `HomeScreen` | Nota vista hace menos de siete días; materia sin `bancoReducido` | `MateriaSelectScreen.js:81`, `HomeScreen.js:59` | `RegionAvisos` en `MateriaSelectScreen.js:73`; `BancoReducidoBanner` en `HomeScreen.js:112` (definición `:189`) | El bloque no se renderiza | `Banners.md` c |
+| V17 | Materia sin temas | `AddQuestionScreen` | `Object.keys(TOPICS).length === 0` | `AddQuestionScreen.js:19` y `20` | `AddQuestionScreen.js:197` a `205`; el deshabilitado, en `plancha/Desplegable.js:85` y `249` | El disparador del tema (`Desplegable`, grupo «Tema») queda deshabilitado con el texto de ayuda «Elegí un tema» y `topic` sin valor: no hay lista que abrir (`ADD-P3`) | `AddQuestion.md` c.2 («Sin temas») y d.1; no ocurre con las seis materias registradas; sin diseño propio en esta ficha |
+| V18 | Materia sin preguntas propias | `TopicSelectScreen`, panel de filtros | `userQuestions.length === 0` | Nuevo (`TOPIC-P6`): en `main` el grupo se dibuja siempre, `TopicSelectScreen.js:321` | `TopicSelectScreen.js:102` y `352` | El grupo «Fuente» no se renderiza: ni rótulo, ni filtros, ni divisor ni hueco; el filtro vale «Todas». Es la regla de `VAC-C5` | `TopicSelect.md` a.3, c y f.1 |
+| V19 (`REV-2`, aprobada 2026-10-12) | Arranque en web: antes del primer render y durante la carga | `scripts/inject-pwa.js` (`<style>` del `<head>` servido) y `App.js` | Siempre, en cada carga | `inject-pwa.js`, `pwaTags`; `App.js:93` a `155` (el splash, que se retira) | `scripts/inject-pwa.js:42` y `45` (`pwaTags`); el splash ya no está en `App.js` | Sin splash: el primer cuadro que React pinta es la app, en el tema guardado; ningún cuadro `manifestFondo`. Antes de montar, el lienzo del navegador es `claro.fondo` (`html { background-color }`) y, con la clase `dark` en `html`, `oscuro.fondo`; `color-scheme` es `light` o `dark` según esa clase, así que las barras de scroll y los diálogos del navegador siguen al tema de la app. Quien usa el tema oscuro ve lienzo claro hasta que React monta y lee el tema (decisión 4.1: el script síncrono sigue aplazado) | `tokens.md` a.2, filas «Fondo del documento y `color-scheme`» y bloque «Decisión · `theme-color` inicial»; f.2 |
 
 ### a.2 Lámina vacía (V1 y V2)
 

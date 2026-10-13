@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Superficie | Tres avisos de las pantallas de entrada: banner de banco reducido (`BancoReducidoBanner`, `src/screens/HomeScreen.js:122`), nota del creador (`AboutBanner`, `src/screens/MateriaSelectScreen.js:67`; desde 3.14, la región de avisos `src/components/RegionAvisos.js` con la lista `src/avisos/avisos.js`: hoy tres mensajes) y nota de privacidad (`HomeScreen.js:107`). Además, fuera de React, el aviso de navegador interno de Instagram (`scripts/inject-pwa.js`): sección «Aviso de navegador interno», al final (`REV-6`) |
+| Superficie | Tres avisos de las pantallas de entrada: banner de banco reducido (`BancoReducidoBanner`, `src/screens/HomeScreen.js`: uso en `:112`, definición en `:189`), nota del creador (desde 3.14, la región de avisos `RegionAvisos`, `src/components/RegionAvisos.js`, montada en `src/screens/MateriaSelectScreen.js:73` con la lista `src/avisos/avisos.js`: hoy tres mensajes; el `AboutBanner` de `main` ya no existe) y nota de privacidad (`HomeScreen.js`, bloque `testID="home-privacidad"`, `:168` a `176`). Además, fuera de React, el aviso de navegador interno de Instagram (`scripts/inject-pwa.js`): sección «Aviso de navegador interno», al final (`REV-6`) |
 | Boceto | Sin figura: el boceto no dibuja estos avisos. La ficha usa la «nota» de `Quiz.md` b (borde izquierdo de acento, rótulo mono con glifo) y la extiende a dos avisos informativos |
 | Comunes | `comun.md`: §5 estados (K2, K7), §7 anchos, §8 dimensiones, §9 glifos |
 | Lo usan | `Home` (banco reducido y privacidad) y `MateriaSelect` (región de avisos de 3.14: en producción, desde el 2026-10-12, tres mensajes «Nota de pKapp» en el carrusel `BAN-P2`) |
@@ -124,7 +124,7 @@ Origen de la pregunta, aciertos de rendimiento y estado vacío no aplican (—).
 
 | Evento | Línea | Payload | Fila que lo cubre |
 |---|---|---|---|
-| `materia_elegida` | `MateriaSelectScreen.js:23` | `{ materia: materia.id }` | No es de estos avisos: lo cubre `MateriaSelect.md` d.3 (tarjeta de materia). Ninguno de los tres avisos emite eventos y la ficha no agrega ninguno |
+| `materia_elegida` | `MateriaSelectScreen.js:46` (`handlePick`) | `{ materia: materia.id }` | No es de estos avisos: lo cubre `MateriaSelect.md` d.3 (tarjeta de materia). Ninguno de los tres avisos emite eventos y la ficha no agrega ninguno |
 
 ---
 
@@ -626,8 +626,9 @@ Variables CSS en `#pkapp-salir`; el bloque oscuro solo las redefine. Los hex se 
 | Tema | Regla |
 |---|---|
 | Fuente del tema | El tema guardado de la app: campo `tema` del objeto JSON de `localStorage['pkapp_settings']` (`src/db/database.web.js:9`). `'oscuro'` → variables oscuras; `'claro'`, clave ausente, inválida o `localStorage` inaccesible → claro, el tema por defecto de la app (`src/theme/TemaContext.js`, `POR_DEFECTO`) |
-| Mecanismo | Las variables oscuras cuelgan de la clase `o` en `#pkapp-salir` (`#pkapp-salir.o { … }`), que `SALIR_SCRIPT` pone al crear el nodo si leyó `'oscuro'`; **no** de `@media (prefers-color-scheme: dark)`. La app no sigue al sistema (H1): con `prefers-color-scheme` un celular en oscuro vería la lámina oscura sobre una app clara |
-| Qué se ve | Lámina en el mismo tema que la app que tapa. Es esperable que un visitante que llega desde Instagram no tenga la clave (almacenamiento aparte del navegador real): ve claro, igual que la app |
+| Mecanismo | Las variables oscuras cuelgan de la clase `o` en `#pkapp-salir` (`#pkapp-salir.o { … }`), que `SALIR_SCRIPT` pone una sola vez, al crear el nodo, si leyó `'oscuro'` (`oscuro()` y `d.className='o'` en `aviso()`); **no** de `@media (prefers-color-scheme: dark)`. La app no sigue al sistema (H1): con `prefers-color-scheme` un celular en oscuro vería la lámina oscura sobre una app clara. Después de crear el nodo nada actualiza la clase (ver «Límite conocido») |
+| Qué se ve | Lámina en el mismo tema que la app que tapa, al abrirse; si el tema cambia con la lámina abierta, ver «Límite conocido». Es esperable que un visitante que llega desde Instagram no tenga la clave (almacenamiento aparte del navegador real): ve claro, igual que la app |
+| Límite conocido (tarea 5.2, `A2-02`, 2026-10-13) | La lámina toma el tema una sola vez, al crear el nodo (`scripts/inject-pwa.js`: `oscuro()` y `d.className='o'` en `aviso()`): si el usuario alterna el tema con la lámina abierta, conserva el de apertura hasta cerrarse. Aceptado: no es modal, solo existe en el navegador interno de Instagram, es cosmético y cada tema usa sus propios pares, ya calculados («Contraste y objetivos táctiles»). Con el tema cruzado la lámina se separa de la página por el relleno y no por el marco: `superficie` claro sobre `fondo` oscuro 19,45 y `superficie` oscuro sobre `fondo` claro 16,63 (el marco `linea` valdría 1,09 y 1,42). Sin `MutationObserver` (`rg -n MutationObserver scripts/inject-pwa.js` vacío), que sumaría ≈ 0,1 KB al `index.html` |
 
 ### Matriz de estados
 
@@ -644,7 +645,9 @@ Celdas «claro / oscuro». Sin hover (solo táctil). Presionado = `:active`; foc
 | K2 «Copiar link» | Reposo | `superficie` | 1 px `linea` | `tinta` | T2, N2 |
 | K2 | Presionado | `tinta` | 1 px `tinta` | `fondo` | Inversión |
 | K2 | Copiado (clase `k`) | `superficie` | 2 px `acento` | `acento` | Etiqueta «Copiado»; variante de acento de K2 (T6, N18); 2 px = estado (`tokens.md` c.2); permanente hasta cerrar |
+| K2 | Copiado · presionado (clase `k`) | `tinta` | 2 px `tinta` | `fondo` | Inversión total (`COMUN-P2`, CD-2): manda sobre el color del estado (`acento`) y el marco conserva los 2 px; T7. La etiqueta «Copiado» y la nota no cambian, así que el estado sigue sin depender solo del color (CD-6) |
 | K2 | Error de copia (clase `n`) | `superficie` | 2 px `error` | `error` | Etiqueta sin cambio; T15, N13; el texto del error va en la nota y aparece el link de respaldo |
+| K2 | Error de copia · presionado (clase `n`) | `tinta` | 2 px `tinta` | `fondo` | Inversión total (`COMUN-P2`, CD-2): manda sobre el color del estado (`error`) y el marco conserva los 2 px; T7. La nota y el link de respaldo no cambian, así que el estado sigue sin depender solo del color (CD-6) |
 | Cerrar (K7) | Reposo | Sin relleno | — | `tintaSec` | 44 × 44 a ras del marco; nombre accesible «Cerrar»; N20 |
 | Cerrar | Presionado | `tinta` | — | `fondo` | Inversión total |
 | Cerrar | Foco | = reposo | Contorno 2 px `foco`, separado 2 px | = reposo | N8 |

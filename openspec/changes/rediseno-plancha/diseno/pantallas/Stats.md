@@ -8,7 +8,7 @@
 | Navegador | Barra interna con título «pKapp · Estadísticas» y volver |
 | Variantes | Con datos; fila con práctica o «Sin practicar»; con y sin «Más falladas» |
 | Fuera de alcance | Estado vacío «Sin estadísticas todavía» (`totalAnswered === 0`): su lugar está fijado; su ficha es `Vacios.md` (V1) |
-| Propuestas | Sección f: `STATS-P1`, `STATS-P2` y `STATS-P5`. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Propuestas | Sección f: `STATS-P1`, `STATS-P2` y `STATS-P5`. Sección h: conservado de main (D10). Comunes: `COMUN-P2`. Sección i: cambios de la tarea 5.2 (Diseñador, 2026-10-13) |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P7`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.5 |
 
 ---
@@ -46,7 +46,7 @@ La vista admite tirar para actualizar (`RefreshControl`); es un control nativo y
 | 2 | Barra | Alto `paso 2`; margen superior `paso 2`, inferior `paso 1.5`; ancho completo | — | Relleno proporcional y dos marcas de umbral |
 | 3 | Detalle | Relleno inferior `paso 3` | — | Resumen de respuestas |
 
-La barra lleva dos marcas verticales, en el 60 % y en el 80 % de su ancho: alto `paso 3.5`, centradas sobre la barra, de modo que sobresalen arriba y abajo.
+La barra lleva dos marcas verticales, en el 60 % y en el 80 % de su ancho: trazo de 1 px (`w-px`, el `border` de `tokens.md` c.2), alto `paso 3.5`, centradas sobre la barra, de modo que sobresalen 3 px arriba y 3 px abajo. Esos dos sobresalidos, sobre `fondo`, son lo que identifica la marca (N1); el tramo que cruza el relleno es exento (X8, `tokens.md` e: `linea` sobre el relleno no llega a 3:1 y en oscuro la marca no se distingue dentro de él). La banda sigue sin depender del color solo: marca de banda, valor y leyenda la dicen con texto y forma (`STATS-P2`).
 
 Fila «Sin practicar» (`accuracy === null`, V7 de `Vacios.md`): sin barra ni marca de banda; a la derecha del nombre, «Sin practicar» en `detalle` y `tintaSec` en el lugar del valor, y debajo, en el detalle de la fila, «{t} preguntas disponibles» (c).
 
@@ -84,7 +84,7 @@ Filete superior `filete`; relleno vertical `paso 3`; primera línea con «#{n}»
 | «Sin practicar» | `tintaSec` | `fondo` | — | `detalle` | — | — | T3 |
 | Pista de la barra | — | `superficie` | `filete`, `border` | — | — | — | X1, X2 |
 | Relleno de la barra | — | `acierto`, `intermedia` o `error` según banda | — | — | — | — | N10, N16, N13 |
-| Marca de umbral (60 y 80) | `linea` | — | — | — | — | — | N1 |
+| Marca de umbral (60 y 80) | `linea`; trazo `w-px` (1 px) y alto `paso 3.5` | — | — | — | — | — | N1 y N2 (sobresalido), X8 (tramo sobre el relleno) |
 | Detalle de fila | `tintaSec` | `fondo` | — | `detalle` | — | — | T3 |
 | Índice de falladas «#{n}» | `tintaSec` | `fondo` | — | `rotulo` | — | — | T3 |
 | Valor de falladas | Color de su banda | `fondo` | — | `rotulo-medio` | — | Marca de banda (chico) | T10, T18, T14 |
@@ -127,7 +127,7 @@ Origen de la pregunta, banco reducido y acierto o error de una opción no aplica
 
 ### d.1 Bandas (D6, leídas de `src/screens/StatsScreen.js`)
 
-Función `acierto(percentage, esOscuro)`, líneas 192 a 197:
+Función de módulo `acierto(percentage)` de `StatsScreen.js` (`rg -n 'function acierto' src/screens/StatsScreen.js`):
 
 | Condición | Banda | Token | Marca |
 |---|---|---|---|
@@ -218,6 +218,17 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 |---|---|---|---|
 | STATS-P3 | Las filas por tema siguen el orden de los temas de la materia (el de TopicSelect). El boceto las ordena de mayor a menor porcentaje | Continuidad (D10): el usuario ubica cada tema por su posición, la misma en TopicSelect y en Stats | uso |
 | STATS-P4 | Bajo las filas por tema sigue la lista «Más falladas» (hasta 10, por acierto ascendente), con el valor «{pct}% ({aciertos}/{respuestas})» a la derecha y la marca de banda delante de él. El dato, el orden y la cantidad son los de `main`; el aspecto es Plancha (`CONVENCIONES.md`, C1 y CD-7): el valor toma el color y la marca de su banda (d.1), no el rojo único de `main`. Una fallada con 80 % o más lleva `glifo-acierto`: es la banda de su porcentaje, el mismo estado que en el resto de la app. El boceto termina en las filas por tema | Está en uso en `main`. CD-7 (acordada) fija el mismo token y la misma marca por estado, también en «Más falladas» | uso |
+
+---
+
+## i. Cambios de la tarea 5.2
+
+Recorrido final de la rama `rediseno-revision-ux`. No son propuestas nuevas: cierran una medida que faltaba o corrigen la ficha contra el código. Cada fila dice qué había, qué rige ahora y cómo se comprueba.
+
+| Fecha | Id | Cambio | Antes | Después | Aceptación observable (Programador y e2e) |
+|---|---|---|---|---|---|
+| 2026-10-13 | `C-05` | La marca de umbral se conserva tal como está dibujada y su par sobre el relleno se registra como exento (X8) | b: marca `linea`, solo el par N1; sin grosor. `linea` sobre el relleno no figuraba en `tokens.md` e: 2,73 / 2,65 / 2,40 en claro y 1,24 / 1,41 / 1,52 en oscuro | b: trazo `w-px` y alto `paso 3.5`, pares N1, N2 y X8. `tokens.md` e suma X8 (exento: lo identifica su sobresalido, redundante con el valor y la leyenda). No hay cambio de dibujo ni de código | Sin cambio de código: `stats-umbral-60-*` y `stats-umbral-80-*` siguen midiendo 14 px de alto, 1 px de ancho, `linea`, centrados y sobresaliendo 3 px arriba y abajo (`estadisticas.js`). Descartado: partir la marca en dos muescas fuera de la barra (más DOM y más aserciones para un tramo de 8 px, el alto de la barra, que en claro se ve y en oscuro ya no se distingue) |
+| 2026-10-13 | `C-06` (nota) | d.1 deja de citar números de línea | «Función `acierto(percentage, esOscuro)`, líneas 192 a 197» | `acierto(percentage)`, función de módulo | Sin cambio de código |
 
 ---
 

@@ -2,14 +2,14 @@
 
 | Campo | Valor |
 |---|---|
-| Superficie | Componente `DonationBox` (`src/components/DonationBox.js`) y su variante de resultados, `DonationPrompt` (`src/screens/ResultsScreen.js`, ≈ l. 242). Un solo aspecto para las dos |
+| Superficie | Componente `DonationBox` (`src/components/DonationBox.js`). Results lo monta con la prop `descartable` (`rg -n '<DonationBox' src/screens/ResultsScreen.js`); ya no hay una variante propia de resultados. Un solo componente y un solo aspecto para los dos usos |
 | Boceto | Sin figura: el boceto no dibuja el pedido de donación. La ficha extiende su gramática (lámina con marcas de esquina, marco `acento`, cajetín y controles K2 de acento) |
 | Comunes | `comun.md`: §4 marcas de estado, §5 estados (K3, K7), §7 anchos, §8 dimensiones, §9 glifos |
 | Lo usan | `MateriaSelect` (bloque 5 de `MateriaSelect.md` a.1, `origen="materias"`) y `Results` (bloque 4 de `Results.md` a.1, `origen: 'resultados'`) |
 | Variantes | Persistente, sin descartar (MateriaSelect, todas las plataformas) y descartable (Results, solo web); texto normal y celebratorio (80 o más) |
 | Fuera de alcance | La página de Mercado Pago (`Linking.openURL`) |
 | Maqueta | Figura 09 de `diseno/maqueta/`: antes (`DON-P1`) y `DON-P5`, aprobada, lado a lado, con el pedido solo y en su contexto (MateriaSelect y Results). Las figuras 01, 05a y 05b ya dibujan `DON-P5`. Capturas: `maqueta-donacion-<ancho>-<tema>.png` |
-| Propuestas | Sección f: `DON-P5`, aprobada (usuario, 2026-10-11), con un ajuste de oscuro (banda en `acentoBanda`); reemplaza a `DON-P1`, aprobada el 2026-10-10. `DON-P2` y `DON-P4`, descartadas; `DON-P3`, retirada (f.2). Tokens nuevos: `acentoFondo` y `acentoBanda`, en `tokens.md` (sección i). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Propuestas | Sección f: `DON-P5`, aprobada (usuario, 2026-10-11), con un ajuste de oscuro (banda en `acentoBanda`); reemplaza a `DON-P1`, aprobada el 2026-10-10. `DON-P2` y `DON-P4`, descartadas; `DON-P3`, retirada (f.2). Tokens nuevos: `acentoFondo` y `acentoBanda`, definidos en la sección i de esta ficha y dados de alta en `tokens.md` a.1. Sección h: conservado de main (D10). Comunes: `COMUN-P2`. Sección j: cambios de la tarea 5.2 (Diseñador, 2026-10-13) |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P10`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.3 |
 
 ---
@@ -27,7 +27,7 @@
 
 ### a.2 Interior del panel
 
-Panel sin relleno propio, con marco `acento` de `border-2` y las cuatro marcas de esquina de `comun.md` §6 (lado `paso 2`, sobresalen `paso 1` del borde exterior del marco; el margen lateral `paso 5` les deja lugar). El interior son tres franjas apiladas: encabezado en banda `acentoBanda`, y cuerpo y pie en `acentoFondo`. Las marcas quedan fuera del marco: no tocan el objetivo de descartar, que va dentro, a ras del marco. Ninguna palabra nueva.
+Panel con marco `acento` de `border-2` y relleno `acentoFondo` en el propio marco (`bg-acentoFondo`), y las cuatro marcas de esquina de `comun.md` §6 (lado `paso 2`, sobresalen `paso 1` del borde exterior del marco; el margen lateral `paso 5` les deja lugar). El interior son tres franjas apiladas que cubren ese relleno: encabezado en banda `acentoBanda`, y cuerpo y pie, que repiten `acentoFondo` (tarea 5.2, `C-11`, 2026-10-13). Las marcas quedan fuera del marco: no tocan el objetivo de descartar, que va dentro, a ras del marco. Ninguna palabra nueva.
 
 | # | Parte | Medidas | Contenido |
 |---|---|---|---|
@@ -55,7 +55,7 @@ Orden de lectura: título, texto, montos, pie.
 
 | Elemento | Frente | Fondo | Borde | Paso tipográfico | Filete | Glifo | Par |
 |---|---|---|---|---|---|---|---|
-| Panel (cuerpo) | — | `acentoFondo` | `acento`, `border-2`; marcas de esquina `linea` (§6) | — | — | — | N17, N22, N1 |
+| Panel (marco y relleno) | — | `acentoFondo` | `acento`, `border-2`; marcas de esquina `linea` (§6) | — | — | — | N17, N22, N1 |
 | Regla corta | — | `fondo` | — | — | `filete`, `border` | — | X1 |
 | Encabezado (banda) | — | `acentoBanda` | — | — | — | — | N23 |
 | Título, variante normal | `fondo` | `acentoBanda` | — | `item` | — | — | T22 |
@@ -98,7 +98,7 @@ Hover solo con puntero, por el estado `hovered` de `Pressable`: contorno o borde
 | Estado de la variante descartable | Efecto |
 |---|---|
 | Visible | `visible` en verdadero al montar el componente |
-| Descartado | Un toque en descartar lo oculta; no emite evento |
+| Descartado | Un toque en descartar lo oculta y emite `donacion_cerrada` (d.4) |
 | Al volver de la revisión | El componente se vuelve a montar con `visible` en verdadero, como hoy: el descarte no persiste (comportamiento de `main`, la ficha no lo cambia) |
 
 Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—).
@@ -109,16 +109,18 @@ Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—)
 
 ### d.1 Cuándo aparece y qué muestra (D6, leídos de `src/screens/ResultsScreen.js` y `src/utils/mercadopago.js`)
 
-| Constante | Valor | Línea | Qué decide |
+| Constante | Valor | Dónde | Qué decide |
 |---|---|---|---|
-| `DONATION_MIN_SCORE` | 60 | `ResultsScreen.js:18` | El pedido solo puede aparecer con `percentage >= 60` |
-| `DONATION_WARM_SCORE` | 80 | `ResultsScreen.js:19` | Con `percentage >= 80` el pedido usa el texto celebratorio |
-| `DONATION_COUNT_KEY` | `'pkapp_donation_count'` | `ResultsScreen.js:20` | Clave de `localStorage` con el conteo de aprobados |
-| `DONATION_EVERY` | 3 | `ResultsScreen.js:21` | Se muestra en 1 de cada 3 aprobados (el 1.º, el 4.º, el 7.º…) |
+| `DONATION_MIN_SCORE` | 60 | `ResultsScreen.js` | El pedido solo puede aparecer con `percentage >= 60` |
+| `DONATION_WARM_SCORE` | 80 | `ResultsScreen.js` | Con `percentage >= 80` el pedido usa el texto celebratorio |
+| `DONATION_COUNT_KEY` | `'pkapp_donation_count'` | `ResultsScreen.js` | Clave de `localStorage` con el conteo de aprobados |
+| `DONATION_EVERY` | 3 | `ResultsScreen.js` | Se muestra en 1 de cada 3 aprobados (el 1.º, el 4.º, el 7.º…) |
 | `DONATION_AMOUNTS` | Lista de montos | `src/utils/mercadopago.js` | Montos y orden de los botones; la ficha no copia los valores |
 | `MP_LINKS` | Un enlace por monto | `src/utils/mercadopago.js` | Destino del toque |
 
-`shouldShowDonation(percentage)` (`ResultsScreen.js:26`): solo en web con `localStorage`; devuelve falso con `percentage < DONATION_MIN_SCORE` sin contar; con porcentaje suficiente suma 1 al conteo y muestra si `(conteo - 1) % DONATION_EVERY === 0`. Se evalúa una sola vez al montar `Results`. Ningún valor cambia.
+Las cuatro constantes de `ResultsScreen.js` son de módulo: `rg -n '^const DONATION_' src/screens/ResultsScreen.js`. La ficha no cita números de línea (se desactualizan; tarea 5.2, `C-06`, 2026-10-13).
+
+`shouldShowDonation(percentage)` (función de módulo de `ResultsScreen.js`: `rg -n 'function shouldShowDonation' src/screens/ResultsScreen.js`): solo en web con `localStorage`; devuelve falso con `percentage < DONATION_MIN_SCORE` sin contar; con porcentaje suficiente suma 1 al conteo y muestra si `(conteo - 1) % DONATION_EVERY === 0`. Se evalúa una sola vez al montar `Results`. Ningún valor cambia.
 
 | Dónde | Cuándo se muestra |
 |---|---|
@@ -132,29 +134,40 @@ Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—)
 | Título | Cadena fija; la celebratoria es «¡Gran resultado!» con `glifo-trofeo` | Variante según `percentage >= DONATION_WARM_SCORE` |
 | Texto | Cadena fija por variante (e) | — |
 | Montos | `DONATION_AMOUNTS`, con el texto «${monto}» | Un botón por monto, en orden |
-| Origen del evento | Prop `origen` de `DonationBox`; `'resultados'` fijo en `DonationPrompt` | — |
+| Origen del evento | Prop `origen` de `DonationBox`: `'materias'` desde MateriaSelect y `'resultados'` desde Results | Las demás propiedades del evento: d.4 |
 
 ### d.3 Invariantes
 
 | Invariante | Detalle |
 |---|---|
 | Umbrales | d.1: ningún valor cambia; la ficha no los mueve ni los renombra |
-| Un toque abre el pago | `handleDonate(amt)` y `openLink(amt)`: emiten el evento y, en `requestAnimationFrame`, `Linking.openURL(MP_LINKS[amt])` con `catch` vacío |
+| Un toque abre el pago | `handleDonate(amt)`: emite `donacion_click` (d.4) y, en `requestAnimationFrame`, llama a `Linking.openURL(MP_LINKS[amt])` con `catch` vacío |
 | Aviso de no pertenencia | «NO ES DE UDELAR» se conserva en mayúsculas dentro del texto (copy de `main`); el paso tipográfico no lo altera |
 | Sin emoji, radio ni sombra | El trofeo, el símbolo de cerrar, `rounded-*`, la familia `warning*` y `activeOpacity` salen del componente (`comun.md` §9, D9) |
 | Sin tono cálido propio | La paleta Plancha no tiene tono de aviso cálido: el pedido destaca con el `acento` de marca (b.1) y no usa `intermedia` ni `error`, que son estados de rendimiento |
-| Misma ficha, dos usos | El aspecto de `DonationBox` y de `DonationPrompt` es idéntico; difieren en descartar y en el texto celebratorio |
+| Misma ficha, dos usos | MateriaSelect y Results montan el mismo `DonationBox`: el aspecto es idéntico; difieren en `descartable` y en `celebratoria` (el texto celebratorio) |
 
 ### d.4 Eventos `track(...)`
 
-`rg -n 'track\(' src/components/DonationBox.js src/screens/ResultsScreen.js`
+`rg -n 'track\(' src/components/DonationBox.js src/utils/donacion.js src/screens/ResultsScreen.js`
 
-| Evento | Línea | Payload | Cuándo | Fila que lo cubre |
+Los eventos de donación son los de `main` 1.9.0 (`5114522`; en el rediseño, `39bf558`): D6 no cambia. `origen` y `monto` se conservan (`DON-C5`); el resto del embudo es `DON-C7` (tarea 5.2, `C-07`, 2026-10-13). La ficha no cita números de línea (se desactualizan; `C-06`).
+
+| Evento | Dónde | Payload | Cuándo | Fila que lo cubre |
 |---|---|---|---|---|
-| `donacion_click` | `DonationBox.js:10` | `{ origen, monto: amt }` con `origen` recibido por prop (`'materias'` desde MateriaSelect) | Al tocar un monto | Monto (b, c). No se toca |
-| `donacion_click` | `ResultsScreen.js:247` | `{ origen: 'resultados', monto: amt }` | Al tocar un monto del pedido de resultados | Monto (b, c). No se toca |
-| `simulacro_terminado` | `ResultsScreen.js:61` | `{ mode, score: percentage, total }` | Al montar `Results` | No es de esta ficha: lo cubre `Results.md` d.4 |
-| `simulacro_aprobado` | `ResultsScreen.js:63` | `{ mode, score: percentage }` | Al montar `Results`, con `percentage >= APROBADO_MIN_SCORE` | No es de esta ficha: lo cubre `Results.md` d.4 |
+| `donacion_vista` | `useDonacionVista` (`src/utils/donacion.js`), llamado desde `Pedido` (`DonationBox.js`) | `{ origen, variante, tramo, uso }` | El bloque queda al menos 50 % visible durante 1 s seguido (`IntersectionObserver`; si sale antes, el reloj se reinicia). Una vez por montaje (MateriaSelect) o, en Results, una por simulacro terminado: la ref `vistaEnviada` del padre sobrevive a «Revisar» y «Volver». Solo web | Panel (b); estado «Visible» (c). No se toca |
+| `donacion_click` | `handleDonate` (`DonationBox.js`) | `{ origen, variante, tramo, uso, monto: amt }` | Al tocar un monto | Monto (b, c). No se toca |
+| `donacion_cerrada` | `handleCerrar` (`DonationBox.js`) | `{ origen, variante, tramo }`: sin `uso` | Al tocar descartar; solo la variante descartable (Results) | Descartar (b, c). No se toca |
+| `simulacro_terminado` | `ResultsScreen.js`, efecto de montaje | `{ mode, score: percentage, total }` | Al montar `Results` | No es de esta ficha: lo cubre `Results.md` d.4 |
+| `simulacro_aprobado` | `ResultsScreen.js`, mismo efecto | `{ mode, score: percentage }` | Al montar `Results`, con `percentage >= APROBADO_MIN_SCORE` | No es de esta ficha: lo cubre `Results.md` d.4 |
+
+| Propiedad | Valor | Origen |
+|---|---|---|
+| `origen` | Prop `origen`: `'materias'` (MateriaSelect) o `'resultados'` (Results) | Conservada (`DON-C5`) |
+| `monto` | El monto tocado, de `DONATION_AMOUNTS` | Conservada (`DON-C5`) |
+| `variante` | `'celebratoria'` con la prop `celebratoria`; si no, `'normal'` | `DON-C7` |
+| `tramo` | Solo con la prop `tramo` (Results): `'80-100'` con `percentage >= DONATION_WARM_SCORE`; si no, `'60-79'`. Ausente en MateriaSelect | `DON-C7` |
+| `uso` | Simulacros terminados en el dispositivo, en rangos: `'0'`, `'1'`, `'2-5'`, `'6-20'` y `'21+'` (`rangoUso`). En Results cuenta el recién terminado (`usoTrasTerminar`); en MateriaSelect, `usoActual`. `donacion_cerrada` no lo lleva | `DON-C7` |
 
 ---
 
@@ -269,7 +282,7 @@ Título sobre la banda oscura: 5,45:1 (mínimo 4,5:1). Glifo de descartar y trof
 | `DONATION_MIN_SCORE`, `DONATION_WARM_SCORE`, `DONATION_EVERY`, `DONATION_COUNT_KEY` | Sin cambio (d.1) |
 | Copy | Ninguna cadena modificada ni agregada (e); `DON-C1` y `DON-C2` |
 | Montos | `DONATION_AMOUNTS`, en una fila y en su orden (`DON-C1`) |
-| Eventos | `donacion_click` con `origen` y `monto`, sin cambio (d.4, `DON-C5`) |
+| Eventos | `donacion_click` con `origen` y `monto`, sin cambio (d.4, `DON-C5`); `donacion_vista`, `donacion_cerrada` y las propiedades `variante`, `tramo` y `uso`, también de `main` (d.4, `DON-C7`) |
 | Destino del toque | `MP_LINKS[monto]` por `Linking.openURL` (d.3) |
 | Lugar en pantalla | MateriaSelect tras la regla corta; Results entre el trío y los botones (`DON-C4`, `DON-C6`) |
 | «Volver a practicar» | Sigue siendo la acción más fuerte de Results: único relleno `tinta` y contraste más alto en los dos temas (f.5) |
@@ -330,6 +343,7 @@ Elementos de `main` que el boceto omite. No son propuestas: `main` es la base de
 | DON-C4 | En MateriaSelect: persistente, sin descartar, en todas las plataformas, precedido por la regla corta | Función de `main` | uso |
 | DON-C5 | Un toque emite `donacion_click` con `origen` y `monto`, y abre el enlace de Mercado Pago del monto | D6: eventos y payloads | dato |
 | DON-C6 | El pedido de Results conserva su lugar entre el trío y los botones | D10: orden y ubicación relativa | uso |
+| DON-C7 | El embudo de analítica de donación: `donacion_vista` (al 50 % de visibilidad durante 1 s), `donacion_cerrada` (al descartar) y las propiedades `variante`, `tramo` y `uso` de los eventos del pedido. `origen` y `monto` no cambian (`DON-C5`) | D6: eventos y payloads. Vienen de `main` 1.9.0 (`5114522`) y el rediseño los porta en `39bf558` (d.4) | dato |
 
 ---
 
@@ -350,6 +364,18 @@ Cada token lleva su valor en claro y en oscuro, su uso y los pares de f.6 que cu
 | `border-2` | Sumar el pedido de donación a los usos de `border-2` de `tokens.md` c.2 |
 | Reserva (CD-8) | Solo el pedido de donación: ninguno es fondo de estados ni de otras láminas |
 | Techo | `acentoFondo`: hasta 37 % en claro y 22 % en oscuro sin bajar de 4,5:1 (`tintaSec`). `acentoBanda` en oscuro: hasta 65 % de `acento` sobre `fondo` con el título en `fondo` a 4,5:1 |
+
+---
+
+## j. Cambios de la tarea 5.2
+
+Recorrido final de la rama `rediseno-revision-ux`. No son propuestas nuevas: cierran una medida que faltaba o corrigen la ficha contra el código. Cada fila dice qué había, qué rige ahora y cómo se comprueba.
+
+| Fecha | Id | Cambio | Antes | Después | Aceptación observable (Programador y e2e) |
+|---|---|---|---|---|---|
+| 2026-10-13 | `C-06` (nota) | La cabecera, d.1, d.2, d.3 y d.4 dejan de citar números de línea y de nombrar `DonationPrompt` y `openLink`, que ya no existen | Constantes en «`ResultsScreen.js:18` a `:21`», `shouldShowDonation` en «`:26`», `track` en «`:61` y `:63`», `donacion_click` en «`DonationBox.js:10`» y «`ResultsScreen.js:247`» (el `DonationPrompt` de Results) | Constantes y función de módulo con su comando `rg`; Results monta `DonationBox` con `descartable`; el clic lo emite `handleDonate`; los eventos de `Results` se citan por símbolo | Sin cambio de código |
+| 2026-10-13 | `C-07` (nota) | c y d.4 documentan el embudo de analítica de `main` 1.9.0; h suma `DON-C7` | c: «Descartado … no emite evento»; d.4: solo `donacion_click` con `{ origen, monto }` | Descartar emite `donacion_cerrada` (`{ origen, variante, tramo }`); `donacion_vista` (50 % visible durante 1 s); `donacion_click` suma `variante`, `tramo` y `uso`. `origen` y `monto` se conservan; D6 no cambia | Sin cambio de código: la e2e `tools/e2e/suites/donacion.js` ya afirma los tres eventos y sus propiedades |
+| 2026-10-13 | `C-11` (nota) | a.2 y b describen el mismo relleno del panel | a.2: «Panel sin relleno propio»; b: fondo `acentoFondo` en «Panel (cuerpo)» | El marco lleva `acentoFondo` (`bg-acentoFondo`) y las tres franjas lo cubren: banda `acentoBanda`, cuerpo y pie `acentoFondo`. La fila de b pasa a «Panel (marco y relleno)» | Sin cambio de código ni de pares |
 
 ---
 

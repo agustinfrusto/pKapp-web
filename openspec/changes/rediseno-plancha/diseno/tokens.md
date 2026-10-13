@@ -245,7 +245,7 @@ Un ancho distinto para escritorio es otro token con nombre propio, no una varian
 | Token | Criterio | Comprobación |
 |---|---|---|
 | `lectura` | A lo sumo 80 caracteres por línea en los pasos de texto corrido (WCAG 1.4.8) | Medido en la maqueta con IBM Plex Sans (`NOTAS-MAQUETA.md` §8): enunciado `titulo` 64; opción `cuerpo` 73; nota y revisión `cuerpo` 77; descripción de acción `detalle` 77. Con 640 la nota y la revisión daban 86 |
-| `lateral` | El ancho de columna de un teléfono de 360 con margen lateral `paso 5` (360 − 2 × 20): la lámina con el campo de filamentos y las tarjetas ya están verificadas a ese ancho | El campo se estira 320 / 348 = 0,92× (viewBox de 348): dentro del 0,80× a 1,28× validado y bajo el ~1,4× de `design.md` D2, así que `encuadre` sigue en `'none'` |
+| `lateral` | El ancho de columna de un teléfono de 360 con margen lateral `paso 5` (360 − 2 × 20): la lámina con el campo de filamentos y las tarjetas ya están verificadas a ese ancho | El campo se estira 320 / 348 = 0,92× (viewBox de 348): dentro del 0,80× a 1,28× validado (a 768 px la lámina de `columna` mide 408 px, `columna` menos `paso 5` a cada lado: 1,17×) y bajo el ~1,4× de `design.md` D2, así que `encuadre` sigue en `'none'` |
 | `hoja` | `lateral` + `paso 8` + `lectura` | Con el margen lateral `paso 8` a cada lado entra completa desde 1016 px de ventana: en el corte (1024) no hay ajuste |
 | `hoja-amplia` | Tres celdas de rejilla del ancho de una tarjeta de teléfono junto a la región lateral | Con el contenido entero (1440 px): 1440 − `lateral` − `paso 8` = 1088 de región principal; con `paso 4` entre celdas, cada una mide 352 (una tarjeta de un teléfono de 390 mide 350). El contenido entero solo existe desde 1504 px de ventana (1440 más el margen lateral `paso 8` a cada lado): entre 1440 y 1503 px la hoja cede ancho y cada celda mide (ventana − 448) / 3, de 331 px a 1440 a 352 px a 1503, nunca menos que los 280 de una tarjeta de un teléfono de 320 (`REV-7`, variante A, 2026-10-12: corrige la cuenta; el corte `amplio` sigue en 1440) |
 
@@ -362,7 +362,7 @@ width: {
 | Fuente de los valores | `src/theme/colores.js`, export `plancha`; las tablas E1 a E4 las genera un script que lee ese archivo |
 | Umbral de texto | 4,5:1 en todos los pares, incluidos `display`, `cifra` y `marca` (texto grande): ninguno depende de la excepción de 3:1 |
 | Umbral no textual | 3:1 contra el fondo adyacente (1.4.11): borde de campo, selección del control de tema, foco, marcas de estado |
-| Fuera de umbral | Filetes decorativos, ilustración y componente inactivo: tabla E3, marcados como tales |
+| Fuera de umbral | Filetes decorativos, ilustración y componente inactivo: tabla E3, marcados como tales. También el tramo de un trazo que otro tramo del mismo trazo identifica (X6, X8) |
 
 Reproducir una razón:
 
@@ -438,6 +438,7 @@ node -e "const {plancha:p}=require('./src/theme/colores');const l=h=>{const c=[1
 | X5 | `inactivo` sobre `superficie` | Exento (inactivo) | Texto y glifo de un control deshabilitado sobre superficie | 3,78 | 3,93 |
 | X6 | `superficie` sobre `acentoFondo` | Exento (lo delimita su borde) | Celda de monto contra el panel | 1,18 | 1,32 |
 | X7 | `filete` sobre `acentoFondo` | Decorativo | Filete del pie del pedido de donación | 1,56 | 1,05 |
+| X8 | `linea` sobre `acierto`, `intermedia` o `error` | Exento (lo identifica su sobresalido) | Tramo de la marca de umbral de Stats (60 % y 80 %, `w-px`: 1 px, el `border` de c.2) que cruza el relleno de la barra. El mismo trazo sobresale 3 px por encima y por debajo de la barra y ahí es N1 (sobre `fondo`) y N2 (sobre `superficie`): ese sobresalido la identifica, y el valor y la leyenda de bandas dicen lo mismo con texto. Tarea 5.2, `C-05`, 2026-10-13 | 2,73 · 2,65 · 2,40 | 1,24 · 1,41 · 1,52 |
 
 ### E4 · Bordes de app (independientes del tema)
 
@@ -452,8 +453,9 @@ node -e "const {plancha:p}=require('./src/theme/colores');const l=h=>{const c=[1
 
 | Medida | Resultado |
 |---|---|
-| Filas de texto (T1–T19) bajo 4,5:1 | 0 |
-| Filas no textuales (N1–N20) bajo 3:1 | 0 |
+| Filas de texto (T1–T22) bajo 4,5:1 | 0 |
+| Filas no textuales (N1–N24) bajo 3:1 | 0 |
+| Filas fuera de umbral por regla (X1–X8) | 8, todas marcadas: decorativas (X1, X2, X3, X7), inactivas (X4, X5) y exentas porque otro elemento las identifica (X6, el borde de la celda de monto; X8, el sobresalido de la marca de umbral) |
 | Filas de borde de app (A1–A3) bajo su umbral | 0 |
 | Holgura mínima | `borde` sobre `fondo` en claro: 3,47 contra 3,00 (N3) |
 | Valor del boceto que no pasa y se cambió | Ninguno de color de texto ni de marca. `--hair` no pasa 3:1 como borde de control: se separa `borde` (f, fila 3) |

@@ -8,7 +8,7 @@
 | Navegador | `headerShown: false`; header propio (HeaderMarca) |
 | Variantes | Con y sin banner de banco reducido (`materia.bancoReducido`); con y sin nota de privacidad (solo web) |
 | Fuera de alcance | Banner de banco reducido: su lugar está fijado; su ficha es `Banners.md` |
-| Propuestas | Sección f: `HOME-P2` (usuario, 2026-10-10), `HOME-P4` y `HOME-P5` (usuario, 2026-10-11). Sección «Escritorio · Propuesta»: `ESC-P2` (usuario, 2026-10-11) y `REV-5` de la revisión 5.0b (usuario, 2026-10-12). Sección h: conservado de main (D10). Comunes: `COMUN-P1`, `COMUN-P2` |
+| Propuestas | Sección f: `HOME-P2` (usuario, 2026-10-10), `HOME-P4` y `HOME-P5` (usuario, 2026-10-11). Sección «Escritorio · Propuesta»: `ESC-P2` (usuario, 2026-10-11) y `REV-5` de la revisión 5.0b (usuario, 2026-10-12). Sección h: conservado de main (D10). Comunes: `COMUN-P1`, `COMUN-P2`. Sección i: cambios de la tarea 5.2 (Diseñador, 2026-10-13) |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P2`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.4 |
 
 ---
@@ -19,7 +19,7 @@
 
 | # | Bloque | Margen superior | Margen lateral | Separación inferior | Contenido |
 |---|---|---|---|---|---|
-| 1 | HeaderMarca | — | Relleno `paso 5` | — | `comun.md` §1. Slot `izquierda`: botón «Cambiar materia» (con texto desde 360 px; solo glifo bajo 360 px, `comun.md` §1.1). Control de tema a la derecha |
+| 1 | HeaderMarca | — | Relleno `paso 5` | — | `comun.md` §1. Slot `izquierda`: botón «Cambiar materia» (con texto desde 360 px, relleno horizontal `paso 3` y 174 × 44 px; solo glifo bajo 360 px, `comun.md` §1.1). Control de tema a la derecha |
 | 2 | Tarjeta de materia | `paso 1.5` | `paso 5` | — | Ilustración, id, nombre y conteos (a.2) |
 | 3 | Banner de banco reducido (`Banners.md` a.1 y a.2) | `paso 3` | `paso 5` | — | Solo si `materia.bancoReducido`. Sigue visible (D6) |
 | 4 | Rótulo de sección | `paso 4` bajo el corte `escritorio`; desde el corte, `paso 1.5` (`REV-5`, sección «Escritorio · Medidas») | `paso 5` | `paso 2` | «Plano / Acciones», entre la tarjeta de materia (o el banner, si hay) y la lista |
@@ -62,7 +62,7 @@ Relleno interno de la acción: `paso 3.5` en las cuatro caras.
 | Elemento | Frente | Fondo | Borde | Paso tipográfico | Filete | Glifo | Par |
 |---|---|---|---|---|---|---|---|
 | Control de tema | `comun.md` §2 | | | | | | |
-| Botón «Cambiar materia» (K2), desde 360 px | `tinta` | `fondo` | `linea`, `border` | `cuerpo-fuerte` | — | `glifo-volver` (grande), `tinta`, delante del texto | T1, N1, N5 |
+| Botón «Cambiar materia» (K2), desde 360 px; relleno horizontal `paso 3` (`A1-01`, sección i) | `tinta` | `fondo` | `linea`, `border` | `cuerpo-fuerte` | — | `glifo-volver` (grande), `tinta`, delante del texto, separado `paso 2` | T1, N1, N5 |
 | Botón «Cambiar materia» (K2), bajo 360 px | `tinta` | `fondo` | `linea`, `border` | — | — | `glifo-volver` (grande), `tinta`, único contenido; cuadrado de `paso 11` | N1, N5 |
 | Tarjeta de materia (cuerpo) | — | `superficie` | `linea`, `border`; marcas de esquina (§6) | — | — | — | N1, N2 |
 | Ilustración | `filamento` | `superficie` | — | — | Derecho `filete` | Ilustración de materia (D3) | X3 |
@@ -115,7 +115,7 @@ Las seis acciones no tienen estado deshabilitado en el código actual; ninguna s
 | Nombre | `materia.name` | — |
 | Id | `materia.shortName` y la posición de la materia en `MATERIA_LIST`, con dos dígitos, separados por « · » | Derivado de datos |
 | Conteo de preguntas reales | `QUESTIONS` filtradas por `q.source === 'exam'` (`examCount`) | Se muestra siempre |
-| Conteo de preguntas extra | `QUESTIONS` filtradas por `q.source === 'generated'` (`generatedCount`) | Se muestra solo si es mayor que cero (`HOME-P4`): la condición es del dato, no de la materia ni una constante. Las preguntas del usuario no se cuentan acá (comportamiento actual) |
+| Conteo de preguntas extra | `QUESTIONS` filtradas por `q.source === 'generated'` (`generatedCount`) | Se muestra solo si es mayor que cero (`HOME-P4`): la condición es del dato, no de la materia ni una constante. Concuerda en número: «1 pregunta extra» y «{n} preguntas extra» (5.2, `A1-03`; «reales» no concuerda: ninguna materia tiene una sola pregunta de examen). Las preguntas del usuario no se cuentan acá (comportamiento actual) |
 | Preguntas del modo examen | `Math.min(materia.config?.examSize \|\| 75, QUESTIONS.length)` | Texto de la descripción del modo examen |
 | Banner | `materia.bancoReducido` | Hoy `cyr` y `neuro` |
 | Nota de privacidad | `Platform.OS === 'web'` | Solo web |
@@ -147,7 +147,7 @@ Las seis acciones no tienen estado deshabilitado en el código actual; ninguna s
 | Elemento | Actual | Nuevo | Motivo |
 |---|---|---|---|
 | Botón de volver | «← Cambiar materia» (flecha de texto) | «Cambiar materia» con `glifo-volver`; bajo 360 px solo el glifo, con nombre accesible «Cambiar materia» (`comun.md` §1.1) | Reemplazo de símbolo; ancho mínimo (D10) |
-| Nombre y conteos | En el header: nombre y «{examCount} preguntas reales · {generatedCount} preguntas extra» | Dentro de la tarjeta de materia: el nombre y «{examCount} preguntas reales»; con `generatedCount` mayor que cero, «{examCount} preguntas reales · {generatedCount} preguntas extra» | Ubicación; `HOME-P4` para el término de extra |
+| Nombre y conteos | En el header: nombre y «{examCount} preguntas reales · {generatedCount} preguntas extra» | Dentro de la tarjeta de materia: el nombre y «{examCount} preguntas reales»; con `generatedCount` mayor que cero, «{examCount} preguntas reales · {generatedCount} preguntas extra» (con uno, «1 pregunta extra») | Ubicación; `HOME-P4` para el término de extra |
 | Id de materia | No existe | `{shortName} · {NN}` | Elemento del boceto, derivado de datos |
 | Rótulo de sección | No existe | «Plano / Acciones» | Texto del boceto, aprobado por el usuario |
 | Acciones: títulos y descripciones | Seis pares de texto | Iguales, salvo la descripción de «Ajustes»: «Ocultar resultado, resetear estadísticas» (antes «Filtrar fuente, resetear estadísticas») | `HOME-P5` |
@@ -175,7 +175,7 @@ Para la tarea 3.x que los implementa y para el e2e (`home.js`). Matriz: las seis
 |---|---|---|
 | 1 | Tarjeta de materia de cada una de las seis | El texto de conteos es «{N} preguntas reales», con N igual a `CONTEOS[materia.id]` (las `source: 'exam'`); ningún texto de la tarjeta dice «preguntas extra» |
 | 2 | 390, 360 y 320 | El conteo entra en una línea (antes partía en dos); sin desborde horizontal |
-| 3 | Banco con preguntas `generated` (M mayor que cero) | « · {M} preguntas extra» sigue al conteo de reales. Con los datos de hoy no hay camino e2e: ningún banco publicado trae `source: 'generated'`. Lo verifica la lectura del Analista: la condición es `generatedCount > 0` sobre el dato, no sobre la materia ni una constante |
+| 3 | Banco con preguntas `generated` (M mayor que cero) | « · {M} preguntas extra» sigue al conteo de reales; con M igual a 1, « · 1 pregunta extra» (`homeSingularExtra` de `home.js` lo afirma). Con los datos de hoy no hay camino e2e: ningún banco publicado trae `source: 'generated'`. Lo verifica la lectura del Analista: la condición es `generatedCount > 0` sobre el dato, no sobre la materia ni una constante |
 | 4 | Acción «Ajustes» | La descripción es «Ocultar resultado, resetear estadísticas»; ningún texto de Home dice «Filtrar fuente» |
 | 5 | La descripción de «Ajustes» a 360 y 320 | Salta de línea sin desborde: a 360 pasa a dos líneas (la cadena nueva tiene tres caracteres más que la anterior) |
 | 6 | Sin cambio | Seis acciones, su orden, títulos, glifos y destinos; las otras cinco descripciones; el banner de banco reducido; la nota de privacidad |
@@ -205,6 +205,17 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 |---|---|---|---|
 | HOME-P1 | Seis acciones en la lista; el boceto muestra cuatro. «Agregar pregunta» (`glifo-agregar`) y «Ajustes» (`glifo-ajustes`) siguen en los lugares 5 y 6, con el tratamiento secundario (K3, `borde`) | Están en uso en `main` y son la única entrada a `AddQuestion` y `Settings` | uso |
 | HOME-P3 | La nota de privacidad («Tus estadísticas y preguntas se guardan localmente en tu navegador…») al pie, solo en web, centrada en `detalle` y `tintaSec`. El boceto no la incluye | Está en uso en `main` y es el aviso de analíticas de la app | uso |
+
+---
+
+## i. Cambios de la tarea 5.2
+
+Recorrido final de la rama `rediseno-revision-ux`. No son propuestas nuevas: cierran una medida que faltaba o corrigen la ficha contra el código. Cada fila dice qué había, qué rige ahora y cómo se comprueba.
+
+| Fecha | Id | Cambio | Antes | Después | Aceptación observable (Programador y e2e) |
+|---|---|---|---|---|---|
+| 2026-10-13 | `A1-01` | Relleno horizontal del botón «Cambiar materia» con texto: `paso 3` (a.1 fila 1, b; `comun.md` §1.1 y §8) | Sin medida en la ficha; `comun.md` §8 pide `paso 4` a todo botón estándar. El código usa `px-2` (`paso 2`): 166,3 px. Con `paso 4` serían 182,3 px y, a 360 px con barra de desplazamiento clásica de 15 px (fila de 305 px, ranura de 179,1 px), el texto saltaría a dos líneas | `paso 3` (12 px): 174,3 × 44 px, el valor de la maqueta (`NOTAS-MAQUETA.md`: 174 × 44). A 360 px con barra de 15 px: una línea, 4,8 px de holgura en la ranura y 12,8 px hasta el control de tema (≥ `paso 2`); a 360 px sin barra, 27,8 px. Medido en el build de 5.0b (arnés del repo con `::-webkit-scrollbar` de 15 px, como `barra.js`). Bajo 360 px sigue el cuadrado de `paso 11` | `HomeScreen.js`, `BotonCambiarMateria`: `px-2` pasa a `px-3` (o, si migra a `BotonMarco`, una variante de relleno `paso 3`). e2e de `home.js`: a 360 y 390 px el botón mide 174,3 ± 1 px de ancho y 44 de alto; a 360 px con barra de 15 px el texto «Cambiar materia» ocupa una línea y el botón termina a ≥ 8 px del control de tema |
+| 2026-10-13 | `A1-03` (nota) | Concordancia del conteo de extras | d.1, e, `HOME-P4` y f.1 fila 3: solo «preguntas extra» | Con uno, «1 pregunta extra» (`generatedCount === 1`): lo hace el código y lo afirma `homeSingularExtra` | Sin cambio de código |
 
 ---
 

@@ -8,7 +8,7 @@
 | Navegador | Barra interna con título «pKapp · Resultados», sin volver (`headerBackVisible: false`): el lugar del volver queda vacío y la fila conserva el alto `paso 11` (`MAQUETA-P1`, `comun.md` §3.5) |
 | Variantes | Tramo alto, medio o bajo (a.2 de d); con y sin tira (hasta 40 respuestas); con y sin pedido de donación (solo web) |
 | Fuera de alcance | Revisión de respuestas (`showReview`, vista alternativa) y pedido de donación: su lugar está fijado; sus fichas son `Revision.md` y `DonationBox.md` |
-| Propuestas | Sección f: `RESULTS-P1` a `RESULTS-P3`. Sección h: conservado de main (D10). Comunes: `COMUN-P2` y `MAQUETA-P1` (aprobada, usuario, 2026-10-10) |
+| Propuestas | Sección f: `RESULTS-P1` a `RESULTS-P3`. Sección h: conservado de main (D10). Comunes: `COMUN-P2` y `MAQUETA-P1` (aprobada, usuario, 2026-10-10). Sección i: cambios de la tarea 5.2 (Diseñador, 2026-10-13) |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P5`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.4 |
 
 ---
@@ -44,13 +44,22 @@ La acción «Revisar todas las respuestas» cambia la vista a la revisión en el
 
 Tres celdas de igual ancho, relleno vertical `paso 3`, separadas por filete vertical `filete`, contenido centrado: cifra arriba (`cifra`) y rótulo debajo (`rotulo`, margen superior `paso 1.5`).
 
+Forma del rótulo según el ancho de la ventana (`C-01`, tarea 5.2, 2026-10-13). El criterio es el ancho de la ventana y no el contenido medido (`comun.md` §1.1): las tres celdas muestran siempre la misma forma.
+
+| Ancho de ventana | Rótulo de «Correctas» e «Incorrectas» | Rótulo de «Total» | Por qué |
+|---|---|---|---|
+| 375 px o más | En línea: glifo chico y palabra en una línea, separados `paso 1.5`. «✗ INCORRECTAS» mide 101,9 px (16 + 6 + 11 × 7,26) | Su palabra, sin glifo, a la altura de las otras dos | Con 375 px el rótulo más largo (101,9 px) deja 4,2 px por lado en su celda; a 390 px, 6,7; a 768 px sobra |
+| Menos de 375 px (360 y 320 px) | Apilado: el glifo chico arriba, centrado; la palabra debajo, separada `paso 1`. El bloque mide `paso 4` + `paso 1` + 16 px = 36 px y la celda crece 20 px | Su palabra va en la misma línea que las otras dos: la línea del glifo queda vacía, así las tres palabras comparten línea | En línea, a 320 px el rótulo (101,9 px) pisa 4,9 px por lado los filetes de una celda de 92 px y a 360 px deja 1,7 px por lado. Apilado, la palabra más larga mide 79,9 px: 6,1 px por lado a 320 y 12,7 a 360 |
+
+El apilado no es un salto de línea por desborde de cada celda: con «salta de línea si no entra» a 320 px «Correctas» (87,3 px en línea) quedaba en línea con 2,3 px por lado e «Incorrectas» apilada, dos formas en la misma fila. Con barra de desplazamiento clásica de 15 px, a 375 px el rótulo en línea deja 1,7 px por lado: no pisa el filete. Medido en el build de 5.0b; la forma apilada, emulada en el DOM (columna, `paso 1`, línea reservada en «Total»): las tres palabras comparten línea y la celda pasa de 74 a 94 px.
+
 ### a.4 Tablet (D10); desde 1024 px, sección «Escritorio»
 
 | Ancho | Columna | Alineación | Particularidades |
 |---|---|---|---|
 | 768 px | `comun.md` §7: una columna, ancho máximo `max-w-columna` | Centrada en horizontal, anclada arriba | Tarjeta, trío y botones llenan la columna. La tira sigue la regla de 40 |
 | 1280 px (desde 1024 px) | Sección «Escritorio» de esta ficha (`ESC-P5`, aprobada): `hoja` | Igual | Tarjeta de resultado en la región lateral; trío, pedido y los tres botones, apilados, en la principal |
-| 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. En la tarjeta, el mensaje y el chip de tema saltan de línea; con 40 respuestas o menos la tira reparte sus casillas en el ancho disponible y la leyenda salta de línea si no entra. En el trío cada celda conserva un tercio del ancho y su rótulo salta de línea si no entra. Los tres botones siguen apilados, con el texto saltando dentro del botón si no entra |
+| 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | — | Sin scroll horizontal. En la tarjeta, el mensaje y el chip de tema saltan de línea; con 40 respuestas o menos la tira reparte sus casillas en el ancho disponible y la leyenda salta de línea si no entra. En el trío cada celda conserva un tercio del ancho y el rótulo se apila (glifo arriba, palabra abajo) en las tres celdas a la vez bajo 375 px (a.3, `C-01`). Los tres botones siguen apilados, con el texto saltando dentro del botón si no entra |
 
 ---
 
@@ -124,14 +133,16 @@ Banco reducido y origen de la pregunta no aplican (—).
 
 ### d.1 Umbrales (D6, leídos de `src/screens/ResultsScreen.js`)
 
-| Constante | Valor | Línea | Qué decide |
-|---|---|---|---|
-| `APROBADO_MIN_SCORE` | 60 | 15 | Con `percentage >= 60` se emite `simulacro_aprobado` |
-| `DONATION_MIN_SCORE` | 60 | 18 | El pedido de donación solo puede aparecer con `percentage >= 60` |
-| `DONATION_WARM_SCORE` | 80 | 19 | Con `percentage >= 80` el pedido usa el texto celebratorio |
-| `DONATION_EVERY` | 3 | 21 | El pedido se muestra en 1 de cada 3 aprobados (el 1.º, el 4.º, el 7.º…) |
+| Constante | Valor | Qué decide |
+|---|---|---|
+| `APROBADO_MIN_SCORE` | 60 | Con `percentage >= 60` se emite `simulacro_aprobado` |
+| `DONATION_MIN_SCORE` | 60 | El pedido de donación solo puede aparecer con `percentage >= 60` |
+| `DONATION_WARM_SCORE` | 80 | Con `percentage >= 80` el pedido usa el texto celebratorio |
+| `DONATION_EVERY` | 3 | El pedido se muestra en 1 de cada 3 aprobados (el 1.º, el 4.º, el 7.º…) |
 
-`getResultFeedback(percentage, esOscuro)` (líneas 290 a 305):
+Son constantes de módulo: `rg -n 'APROBADO_MIN_SCORE|DONATION_' src/screens/ResultsScreen.js`. La ficha no cita números de línea (se desactualizan; tarea 5.2, `C-06`).
+
+`getResultFeedback(percentage)` (función de módulo al final de `ResultsScreen.js`; devuelve `{ message, estado }`, y `estado` elige token y marca):
 
 | Porcentaje | Mensaje | Tramo de color | Token | Marca |
 |---|---|---|---|---|
@@ -171,11 +182,11 @@ Los cortes 90, 75, 60 y 50 no cambian. La ficha solo traduce el tono de aviso qu
 
 `rg -n 'track\(' src/screens/ResultsScreen.js`
 
-| Evento | Línea | Payload | Cuándo | Fila que lo cubre |
+| Evento | Dónde | Payload | Cuándo | Fila que lo cubre |
 |---|---|---|---|---|
-| `simulacro_terminado` | `ResultsScreen.js:61` | `{ mode, score: percentage, total }` | Una vez al montar, si hay respuestas | Tarjeta de resultado y trío (porcentaje, total). No se mueve |
-| `simulacro_aprobado` | `ResultsScreen.js:63` | `{ mode, score: percentage }` | Al montar, si `percentage >= APROBADO_MIN_SCORE` | Porcentaje, tramo alto o medio (d.1). No se mueve |
-| `donacion_click` | `ResultsScreen.js:247` | `{ origen: 'resultados', monto: amt }` | Al tocar un monto del pedido de donación | Pedido de donación (`DonationBox.md` d.4). No se toca |
+| `simulacro_terminado` | `ResultsScreen.js`, efecto de montaje | `{ mode, score: percentage, total }` | Una vez al montar, si hay respuestas | Tarjeta de resultado y trío (porcentaje, total). No se mueve |
+| `simulacro_aprobado` | `ResultsScreen.js`, mismo efecto | `{ mode, score: percentage }` | Al montar, si `percentage >= APROBADO_MIN_SCORE` | Porcentaje, tramo alto o medio (d.1). No se mueve |
+| `donacion_click` | `DonationBox.js` (el pedido de Results ya no tiene un manejador propio en `ResultsScreen.js`) | `{ origen: 'resultados', monto: amt }`, más `variante`, `tramo` y `uso` | Al tocar un monto del pedido de donación | Pedido de donación (`DonationBox.md` d.4, que documenta también `donacion_vista` y `donacion_cerrada`). No se toca |
 
 ---
 
@@ -233,6 +244,17 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 | RESULTS-C3 | El orden de los tres botones («Revisar todas las respuestas», «Volver a practicar», «Inicio») y sus acciones: alternar la revisión, `navigation.goBack()` y navegar a `Home` | Orden y gestos de `main` (d.3) | uso |
 | RESULTS-C4 | Los cinco mensajes de `getResultFeedback` y sus cortes 90, 75, 60 y 50, salvo el texto del tramo de 75 a 89 (`RESULTS-P2`) | D6 y copy de `main` (d.1, e) | copy |
 | RESULTS-C5 | Los eventos `simulacro_terminado`, `simulacro_aprobado` y `donacion_click` con sus payloads | D6: eventos y payloads (d.4) | dato |
+
+---
+
+## i. Cambios de la tarea 5.2
+
+Recorrido final de la rama `rediseno-revision-ux`. No son propuestas nuevas: cierran una medida que faltaba o corrigen la ficha contra el código. Cada fila dice qué había, qué rige ahora y cómo se comprueba.
+
+| Fecha | Id | Cambio | Antes | Después | Aceptación observable (Programador y e2e) |
+|---|---|---|---|---|---|
+| 2026-10-13 | `C-01` | Forma del rótulo del trío a 360 y 320 px: apilado en las tres celdas a la vez, por ancho de ventana (a.3 y a.4) | a.4, fila «360 px y 320 px»: «su rótulo salta de línea si no entra». A 320 px «✗ INCORRECTAS» (101,9 px) pisaba 4,9 px por lado los filetes de una celda de 92 px (`CeldaTrio` y `MarcaEstado`: fila sin salto) y a 360 px dejaba 1,7 px por lado | Bajo 375 px de ancho de ventana las marcas de «Correctas» e «Incorrectas» se apilan a la vez (glifo arriba, palabra abajo, `paso 1`) y «Total» deja libre la línea del glifo; desde 375 px, en línea. Criterio por ancho de ventana, como `comun.md` §1.1 | (1) 320 y 360 px: en «Correctas» e «Incorrectas» `glifo.abajo ≤ palabra.arriba`; las tres palabras con el mismo `arriba` (± 0,5 px); celda 20 px más alta. (2) 375, 390, 768 y 1366 px: glifo y palabra en una línea (centros verticales a ± 1 px) y «Total» a la altura de las otras. (3) En todo ancho la caja del rótulo cae dentro de su celda: `rótulo.izq ≥ celda.izq + borde` y `rótulo.der ≤ celda.der`; holgura ≥ 5 px por lado apilado y ≥ 4 px a 375 px. Implementación: en `ResultsScreen.js`, `useWindowDimensions` contra una constante nombrada de 375 (precedente: `ANCHO_CORTE` de `HomeScreen.js`), pasada a las tres `CeldaTrio`; `MarcaEstado` con una forma apilada (`flex-col items-center gap-1`); en «Total» una `View` de alto `paso 4` con `aria-hidden` antes de la palabra. La aserción de `resultados.js` («320 px: «Incorrectas» rompe con el glifo arriba…») pasa a las dos celdas y a 360 px |
+| 2026-10-13 | `C-06` (nota) | d.1 y d.4 dejan de citar números de línea | `APROBADO_MIN_SCORE` «15», `DONATION_*` «18 a 21», `getResultFeedback(percentage, esOscuro)` «290 a 305», `track` «61» y «63», `donacion_click` en `ResultsScreen.js:247` | Constantes de módulo (`rg -n 'APROBADO_MIN_SCORE\|DONATION_' src/screens/ResultsScreen.js`); `getResultFeedback(percentage)`; `donacion_click` vive en `DonationBox.js` | Sin cambio de código |
 
 ---
 
