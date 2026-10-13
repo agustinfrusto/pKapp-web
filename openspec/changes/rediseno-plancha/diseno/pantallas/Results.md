@@ -146,7 +146,7 @@ Son constantes de módulo: `rg -n 'APROBADO_MIN_SCORE|DONATION_' src/screens/Res
 
 | Porcentaje | Mensaje | Tramo de color | Token | Marca |
 |---|---|---|---|---|
-| 90 o más | «¡Excelente!.» | Alto | `acierto` | `glifo-acierto` |
+| 90 o más | «¡Excelente!» | Alto | `acierto` | `glifo-acierto` |
 | 75 o más y menos de 90 | «Muy bien. Vas por buen camino.» | Alto | `acierto` | `glifo-acierto` |
 | 60 o más y menos de 75 | «A repasar solo un poco más.» | Medio | `intermedia` | `glifo-intermedia` |
 | 50 o más y menos de 60 | «Seguí mejorando.» | Medio | `intermedia` | `glifo-intermedia` |

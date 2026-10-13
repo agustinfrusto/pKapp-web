@@ -787,7 +787,7 @@ function pantallaOrigen() {
 
 // getResultFeedback (ResultsScreen.js): cortes 90, 75, 60 y 50. Copy de la ficha (RESULTS-P2).
 function feedback(pct) {
-  if (pct >= 90) return { banda: 'alta', msg: '¡Excelente!.' };
+  if (pct >= 90) return { banda: 'alta', msg: '¡Excelente!' };
   if (pct >= 75) return { banda: 'alta', msg: 'Muy bien. Vas por buen camino.' };
   if (pct >= 60) return { banda: 'media', msg: 'A repasar solo un poco más.' };
   if (pct >= 50) return { banda: 'media', msg: 'Seguí mejorando.' };

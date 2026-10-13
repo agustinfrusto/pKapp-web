@@ -818,6 +818,69 @@ async function conDatos(pagina, base, t, tema) {
   }
 }
 
+// E-05: avisos de «Importar respaldo». El selector de archivo (`input.click()`) no se maneja desde
+// el arnés: se intercepta el `click` del `input` en el marco y se le entrega el archivo a su
+// `onchange`, igual que haría el navegador.
+const PREPARAR_SELECTOR = EN_MARCO(`
+  w.__entradaRespaldo = null;
+  w.HTMLInputElement.prototype.click = function () { w.__entradaRespaldo = this; };
+  return true;
+`);
+const ENVIAR_ARCHIVO = (contenido) => EN_MARCO(`
+  const input = w.__entradaRespaldo;
+  if (!input || typeof input.onchange !== 'function') return false;
+  input.onchange({ target: { files: [new w.File([${JSON.stringify(contenido)}], 'respaldo.json')] } });
+  return true;
+`);
+const CLAVES_E05 = {
+  existe: 'pkapp_question_stats:e2e-existe',
+  uno: 'pkapp_question_stats:e2e-uno',
+  dosA: 'pkapp_question_stats:e2e-dos-a',
+  dosB: 'pkapp_question_stats:e2e-dos-b',
+};
+const LIMPIAR_E05 = `(function () {
+  ${JSON.stringify(Object.values(CLAVES_E05))}.forEach((k) => localStorage.removeItem(k));
+})()`;
+
+async function importarRespaldo(pagina, base, t) {
+  const c = (s) => `Ajustes · importar respaldo · ${s}`;
+  const respaldo = (data, version = 1) => JSON.stringify({ version, data });
+  const importar = async (contenido) => {
+    pagina.dialogos.length = 0;
+    await pagina.evaluar(PREPARAR_SELECTOR);
+    await clicTexto(pagina, 'Importar respaldo');
+    const entregado = await pagina.esperarA(async () => await pagina.evaluar(ENVIAR_ARCHIVO(contenido)));
+    if (!entregado) return null;
+    await pagina.esperarA(() => pagina.dialogos.length === 1);
+    return pagina.dialogos[0] ?? null;
+  };
+  try {
+    t.ok(c('llega a /ajustes'), await irAAjustes(pagina, base, 390, 'claro'), true);
+    await clicTexto(pagina, 'Respaldo y reseteo');
+    await pausa();
+    await pagina.evaluar(LIMPIAR_E05);
+    await pagina.evaluar(`localStorage.setItem(${JSON.stringify(CLAVES_E05.existe)}, '{}')`);
+
+    t.ok(c('un archivo que no es JSON: sin el texto del motor (E-05.4)'),
+      await importar('{no es json'), 'Error\n\nNo se pudo leer el archivo.');
+    t.ok(c('un JSON sin forma de respaldo (E-05.1)'),
+      await importar('{"a":1}'), 'Error\n\nArchivo inválido: no parece un respaldo de pKapp.');
+    t.ok(c('una versión no soportada (E-05.2)'),
+      await importar(respaldo({}, 2)), 'Error\n\nVersión de respaldo no soportada (2).');
+    t.ok(c('claves que ya existen: nada nuevo (E-05.3, n = 0)'),
+      await importar(respaldo({ [CLAVES_E05.existe]: '{}' })), 'Listo\n\nNo había datos nuevos para restaurar.');
+    t.ok(c('una clave nueva, en singular (E-05.3, n = 1)'),
+      await importar(respaldo({ [CLAVES_E05.existe]: '{}', [CLAVES_E05.uno]: '{}' })),
+      'Listo\n\nSe restauró 1 dato.');
+    t.ok(c('varias claves nuevas, en plural (E-05.3, n > 1)'),
+      await importar(respaldo({ [CLAVES_E05.dosA]: '{}', [CLAVES_E05.dosB]: '{}', 'clave-ajena': 'x' })),
+      'Listo\n\nSe restauraron 2 datos.');
+  } finally {
+    await pagina.evaluar(LIMPIAR_E05);
+    pagina.dialogos.length = 0;
+  }
+}
+
 // Cero literales visuales en la pantalla (aceptación común, C6): tamaños, ángulos y
 // medidas van por token o por clase, no por número.
 const LITERALES = [
@@ -886,6 +949,7 @@ module.exports = [
   { nombre: 'Ajustes: con preguntas propias, eliminar y resetear en claro', correr: (p, b, t) => conDatos(p, b, t, 'claro') },
   { nombre: 'Ajustes: con preguntas propias, eliminar y resetear en oscuro', correr: (p, b, t) => conDatos(p, b, t, 'oscuro') },
   { nombre: 'Ajustes: «1 generada» en singular', correr: singularGeneradas },
+  { nombre: 'Ajustes: avisos de importar respaldo (E-05)', correr: importarRespaldo },
   { nombre: 'Ajustes: SettingsScreen.js sin literales visuales', correr: sinLiterales },
   { nombre: 'Ajustes: capturas de la 3.13d (solo con PKAPP_CAPTURAS)', correr: capturasDeLaTrece },
 ];

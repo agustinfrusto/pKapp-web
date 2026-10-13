@@ -63,8 +63,8 @@ const BAJO = { estado: 'error', glifo: 'glifo-error' };
 
 // Cortes de D6: 90, 75, 60 y 50; el color cambia en 75 y en 50 (Results.md d.1).
 const TRAMOS = [
-  { total: 10, aciertos: 10, pct: 100, mensaje: '¡Excelente!.', ...ALTO },
-  { total: 10, aciertos: 9, pct: 90, mensaje: '¡Excelente!.', ...ALTO },
+  { total: 10, aciertos: 10, pct: 100, mensaje: '¡Excelente!', ...ALTO },
+  { total: 10, aciertos: 9, pct: 90, mensaje: '¡Excelente!', ...ALTO },
   { total: 19, aciertos: 17, pct: 89, mensaje: 'Muy bien. Vas por buen camino.', ...ALTO },
   { total: 4, aciertos: 3, pct: 75, mensaje: 'Muy bien. Vas por buen camino.', ...ALTO },
   { total: 50, aciertos: 37, pct: 74, mensaje: 'A repasar solo un poco más.', ...MEDIO },

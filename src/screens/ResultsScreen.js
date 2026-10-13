@@ -566,7 +566,7 @@ function OpcionRevision({ letra, texto, estado }) {
 // la marca de estado, no de un literal.
 function getResultFeedback(percentage) {
   if (percentage >= 90) {
-    return { message: '¡Excelente!.', estado: 'acierto' };
+    return { message: '¡Excelente!', estado: 'acierto' };
   }
   if (percentage >= 75) {
     return { message: 'Muy bien. Vas por buen camino.', estado: 'acierto' };
