@@ -38,8 +38,8 @@ async function seisMaterias(pagina, base, t) {
   await pagina.evaluar('localStorage.clear()');
   await pagina.ir(base + '/');
   await esperarSelector(pagina);
-  const nota = await pagina.esperarTexto('Ahora estoy trabajando en la estética de la página');
-  t.ok('la nota del creador anuncia el trabajo en la estética', nota, true);
+  const nota = await pagina.esperarTexto('estrené una nueva estética');
+  t.ok('el primer aviso anuncia la nueva estética', nota, true);
   await cerrarNota(pagina);
   const nombres =['Biología Celular y Tisular', 'Anatomía', 'Neurobiología',
     'Cardiovascular y Respiratorio', 'Digestivo, Renal y Endócrino', 'Reproductor y Desarrollo'];
@@ -414,7 +414,7 @@ async function abrirMarcoConNota(pagina, base, ancho, alto = 800) {
     const ajustes = JSON.parse(localStorage.getItem('pkapp_settings') || '{}');
     delete ajustes.tema;
     localStorage.setItem('pkapp_settings', JSON.stringify(ajustes));
-    localStorage.removeItem(${JSON.stringify(CLAVE_NOTA)});
+    ${JSON.stringify(CLAVES_NOTA)}.forEach((k) => localStorage.removeItem(k));
     const marco = document.createElement('iframe');
     marco.id = '${MARCO}';
     marco.src = ${JSON.stringify(base + '/')};
@@ -424,41 +424,73 @@ async function abrirMarcoConNota(pagina, base, ancho, alto = 800) {
   return esperarEnMarco(pagina, 'Tus materias');
 }
 
-const LEER_NOTA = EN_MARCO(`
+// Mide un aviso de la región `avisos` (el carrusel deja los demás `visibility: hidden`):
+// `id` es su testID y `texto` un fragmento de su cuerpo.
+const LEER_NOTA = (id, texto) => EN_MARCO(`
   const caja = (n) => {
     if (!n) return null;
     const r = n.getBoundingClientRect();
     return { izq: r.left, der: r.right, arriba: r.top, abajo: r.bottom, ancho: r.width, alto: r.height };
   };
-  const nota = visibles('[data-testid="nota-del-creador"]')[0];
-  const hojas = nota ? Array.from(nota.querySelectorAll('*')).filter((n) =>
+  const vista = (sel) => visibles(sel).filter((n) => w.getComputedStyle(n).visibility !== 'hidden')[0];
+  const nota = visibles('[data-testid="avisos"]')[0];
+  const aviso = vista('[data-testid=${JSON.stringify(id)}]');
+  const hojas = aviso ? Array.from(aviso.querySelectorAll('*')).filter((n) =>
     n.children.length === 0 && n.textContent.trim() !== '') : [];
-  const rotulo = hojas.find((n) => n.textContent.trim().toLowerCase() === 'una nota del creador');
-  const cuerpo = hojas.find((n) => n.textContent.includes('Ahora estoy trabajando'));
-  const cerrar = visibles('[aria-label="Cerrar nota"]')[0];
+  const rotulo = hojas.find((n) => n.textContent.trim().toLowerCase() === 'nota de pkapp');
+  const cuerpo = hojas.find((n) => n.textContent.includes(${JSON.stringify(texto)}));
+  const cerrar = vista('[aria-label="Cerrar nota"]');
+  const contacto = vista('[aria-label^="Escribir a "]');
   return {
     desborda: desbordes().length > 0,
     nota: caja(nota), rotulo: caja(rotulo), cuerpo: caja(cuerpo), cerrar: caja(cerrar),
+    contacto: caja(contacto),
   };
 `);
+
+// Los avisos que se miden con la nota a la vista: el primero y el tercero, el más largo
+// (fija el alto de la región) y el único con botón de contacto.
+const AVISOS_MEDIDOS = [
+  { id: 'nueva-estetica', texto: 'nueva estética', pasos: 0, contacto: false },
+  { id: 'aviso-contenido', texto: 'informático', pasos: 2, contacto: true },
+];
 
 async function conLaNotaVisible(pagina, base, t) {
   for (const ancho of [320, 390]) {
     t.ok(`${ancho} px: abrió la app en el marco con la nota visible`,
       await abrirMarcoConNota(pagina, base, ancho), true);
-    const n = await pagina.evaluar(LEER_NOTA);
     const s = await pagina.evaluar(LEER_SELECTOR(MATERIAS));
-    t.ok(`${ancho} px, con nota: la nota y su botón de cerrar están`, !!n.nota && !!n.cerrar && !!n.rotulo && !!n.cuerpo, true);
-    if (!n.nota || !n.cerrar || !n.rotulo || !n.cuerpo) continue;
-    t.ok(`${ancho} px, con nota: sin scroll horizontal ni recorte`, s.desborda, false);
-    t.ok(`${ancho} px, con nota: la nota entra en la ventana`,
-      n.nota.izq >= -0.5 && n.nota.der <= ancho + 0.5, true);
-    t.ok(`${ancho} px, con nota: cerrar de 44 × 44 como mínimo`,
-      n.cerrar.ancho >= LADO_TACTIL && n.cerrar.alto >= LADO_TACTIL, true);
-    t.ok(`${ancho} px, con nota: cerrar a ras del marco de la nota (derecha y arriba)`,
-      n.nota.der - n.cerrar.der <= 2 && n.cerrar.arriba - n.nota.arriba <= 2, true);
-    t.ok(`${ancho} px, con nota: el rótulo no pisa el botón de cerrar`, n.rotulo.der <= n.cerrar.izq + 0.5, true);
-    t.ok(`${ancho} px, con nota: el cuerpo queda bajo el botón de cerrar`, n.cuerpo.arriba >= n.cerrar.abajo - 0.5, true);
+    for (const aviso of AVISOS_MEDIDOS) {
+      const etiqueta = `${ancho} px, con ${aviso.id}`;
+      for (let i = 0; i < aviso.pasos; i++) {
+        const p = await pagina.evaluar(EN_MARCO(`
+          const b = visibles('[aria-label="Nota siguiente"]')[0];
+          if (!b) return null;
+          const r = b.getBoundingClientRect();
+          return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+        `));
+        if (p) await pagina.clicEn(p.x, p.y);
+        await new Promise((r) => setTimeout(r, 400));
+      }
+      const n = await pagina.evaluar(LEER_NOTA(aviso.id, aviso.texto));
+      t.ok(`${etiqueta}: la nota y su botón de cerrar están`, !!n.nota && !!n.cerrar && !!n.rotulo && !!n.cuerpo, true);
+      if (!n.nota || !n.cerrar || !n.rotulo || !n.cuerpo) continue;
+      t.ok(`${etiqueta}: sin scroll horizontal ni recorte`, s.desborda || n.desborda, false);
+      t.ok(`${etiqueta}: la nota entra en la ventana`,
+        n.nota.izq >= -0.5 && n.nota.der <= ancho + 0.5, true);
+      t.ok(`${etiqueta}: cerrar de 44 × 44 como mínimo`,
+        n.cerrar.ancho >= LADO_TACTIL && n.cerrar.alto >= LADO_TACTIL, true);
+      t.ok(`${etiqueta}: cerrar a ras del marco de la nota (derecha y arriba)`,
+        n.nota.der - n.cerrar.der <= 2 && n.cerrar.arriba - n.nota.arriba <= 2, true);
+      t.ok(`${etiqueta}: el rótulo no pisa el botón de cerrar`, n.rotulo.der <= n.cerrar.izq + 0.5, true);
+      t.ok(`${etiqueta}: el cuerpo queda bajo el botón de cerrar`, n.cuerpo.arriba >= n.cerrar.abajo - 0.5, true);
+      if (aviso.contacto) {
+        t.ok(`${etiqueta}: el botón de contacto está y mide 44 de alto como mínimo`,
+          !!n.contacto && n.contacto.alto >= LADO_TACTIL, true);
+        t.ok(`${etiqueta}: el botón de contacto entra en la nota`,
+          !!n.contacto && n.contacto.izq >= n.nota.izq - 0.5 && n.contacto.der <= n.nota.der + 0.5, true);
+      }
+    }
     t.ok(`${ancho} px, con nota: las seis tarjetas entran y miden 44 × 44`,
       s.tarjetas.every((x) => !x.falta && x.caja.der <= ancho + 0.5 && x.caja.izq >= -0.5 &&
         x.caja.ancho >= LADO_TACTIL && x.caja.alto >= LADO_TACTIL), true);
@@ -541,7 +573,7 @@ const LEER_ESCRITORIO = EN_MARCO(`
     control: control ? caja(control) : null,
     regla,
     lamina: uno('[data-testid="lamina-materias"]'),
-    nota: uno('[data-testid="nota-del-creador"]'),
+    nota: uno('[data-testid="avisos"]'),
     cerrar: uno('[aria-label="Cerrar nota"]'),
     donacion: uno('[data-testid="donacion"]'),
     montos,
@@ -802,16 +834,18 @@ async function escritorioConNota(pagina, base, t) {
 // la nota entera (más de 100 px), así que el margen se fija en `paso 12`.
 const MARGEN_DE_FUENTES = 12 * PASO;
 
-// Clave de la marca de visto de la nota del creador (MateriaSelectScreen).
-const CLAVE_NOTA = 'pkapp_about_seen_at_v2';
+// Claves de la marca de visto de los tres avisos de MateriaSelect (src/avisos/avisos.js).
+const CLAVES_NOTA = ['pkapp_aviso_nueva-estetica_visto', 'pkapp_about_seen_at_v3', 'pkapp_aviso_aviso-contenido_visto'];
 
 // Abre la app en un iframe recién creado y, desde el padre, engancha un MutationObserver al
 // documento nuevo en cuanto existe: cada commit de React que cambia el DOM deja una
 // muestra (antes de pintarse) con la posición de la primera tarjeta y la presencia de la
 // nota. Así se ve el primer pintado, no solo el estado final.
 const GRABAR_ARRANQUE = (nombre, titulo, visible) => `new Promise((fin) => {
-  if (${visible}) localStorage.removeItem(${JSON.stringify(CLAVE_NOTA)});
-  else localStorage.setItem(${JSON.stringify(CLAVE_NOTA)}, String(Date.now()));
+  ${JSON.stringify(CLAVES_NOTA)}.forEach((k) => {
+    if (${visible}) localStorage.removeItem(k);
+    else localStorage.setItem(k, String(Date.now()));
+  });
   const marco = document.createElement('iframe');
   marco.style.cssText = 'position:fixed;top:0;left:0;border:0;width:390px;height:800px';
   const muestras = [];
@@ -840,7 +874,7 @@ const GRABAR_ARRANQUE = (nombre, titulo, visible) => `new Promise((fin) => {
 
 async function notaSinSaltoDeLayout(pagina, base, t) {
   const nombre = MATERIA;
-  const titulo = 'una nota del creador';
+  const titulo = 'nota de pkapp';
   for (const visible of [true, false]) {
     const cuando = visible ? 'nota visible' : 'nota descartada hace menos de siete días';
     await pagina.ir(base + '/favicon.png');

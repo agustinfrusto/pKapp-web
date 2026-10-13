@@ -97,7 +97,7 @@ Fuente: `diseno/revision-5.0b.md` (§3 propuestas, §6 fuera de spec). Ninguna s
 - [ ] 5.2 (en `rediseno-revision-ux`) Recorrer las 10 superficies en ambos temas contra sus fichas; verificar contraste, estados sin color y sin emojis
 - [ ] 5.3 (en `rediseno-revision-ux`) `openspec validate rediseno-plancha --strict`
 - [ ] 5.4 Con orden del operador y la auditoría 5.0b.14 aprobada: merge de `rediseno-revision-ux` a `main`, que lleva todo `rediseno` y reemplaza al merge de `rediseno` (cambio del operador 2026-10-12; `openspec/commit.md` «Ramas derivadas», punto 4); lo que se commitee solo en `rediseno` se mergea antes en la rama. Versión minor en el commit siguiente (`openspec/commit.md`, paso 4) y archivo del change
-- [ ] 5.5 Recordatorio del usuario (2026-10-11): después del merge de 5.4, recordarle cambiar los mensajes de los banners (nota del creador y los que sume el sistema de la 3.14). El texto lo da el usuario
+- [x] 5.5 Recordatorio del usuario (2026-10-11): después del merge de 5.4, recordarle cambiar los mensajes de los banners (nota del creador y los que sume el sistema de la 3.14). El texto lo da el usuario (adelantada por el usuario el 2026-10-12, en `rediseno-revision-ux`: tres avisos en `materias` con la voz de pKapp, textos aprobados por el usuario; `design.md` D11 «Voz»)
 
 ## 6. Después del merge (fuera de este change)
 

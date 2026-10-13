@@ -9,7 +9,8 @@ const DESCARTAR_NOTA = '[aria-label="Cerrar nota"]';
 const PUNTO_DE_NOTA = `(function () {
   const n = Array.from(document.querySelectorAll(${JSON.stringify(DESCARTAR_NOTA)})).find((e) => {
     const r = e.getBoundingClientRect();
-    return r.width > 0 && r.height > 0;
+    // Las notas inactivas del carrusel conservan caja pero van con visibility hidden.
+    return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== 'hidden';
   });
   if (!n) return null;
   n.scrollIntoView({ block: 'center' });
@@ -24,14 +25,17 @@ const TEXTO_DEL_SELECTOR = 'tus materias de esfuno';
 const esperarSelector = (pagina, opts) => pagina.esperarA(async () =>
   (await pagina.texto(4000)).toLowerCase().includes(TEXTO_DEL_SELECTOR), opts);
 
-// La nota del creador aparece en un perfil nuevo y empuja las tarjetas.
+// Los avisos de MateriaSelect (hoy tres) aparecen en un perfil nuevo y empujan las tarjetas:
+// se cierran todos, de uno en uno.
 async function cerrarNota(pagina) {
-  if (!await pagina.evaluar(PUNTO_DE_NOTA)) return;
-  // Dos pasadas, como `pagina.clic`: la primera acomoda el scroll, la segunda mide.
-  await new Promise((r) => setTimeout(r, 400));
-  const punto = await pagina.evaluar(PUNTO_DE_NOTA);
-  if (punto) await pagina.clicEn(punto.x, punto.y);
-  await pagina.esperarA(async () => !await pagina.evaluar(PUNTO_DE_NOTA), { limite: 3000 });
+  for (let i = 0; i < 5; i++) {
+    if (!await pagina.evaluar(PUNTO_DE_NOTA)) return;
+    // Dos pasadas, como `pagina.clic`: la primera acomoda el scroll, la segunda mide.
+    await new Promise((r) => setTimeout(r, 400));
+    const punto = await pagina.evaluar(PUNTO_DE_NOTA);
+    if (punto) await pagina.clicEn(punto.x, punto.y);
+    await new Promise((r) => setTimeout(r, 250));
+  }
 }
 
 // La carga de la materia baja un chunk aparte, así que se espera por la URL y
@@ -117,7 +121,8 @@ async function abrirMarco(pagina, base, ancho, alto = 800) {
     const ajustes = JSON.parse(localStorage.getItem('pkapp_settings') || '{}');
     delete ajustes.tema;
     localStorage.setItem('pkapp_settings', JSON.stringify(ajustes));
-    localStorage.setItem('pkapp_about_seen_at_v2', String(Date.now()));
+    // Los tres avisos de MateriaSelect (src/avisos/avisos.js): nueva-estetica, nota-del-creador y aviso-contenido.
+    ['pkapp_aviso_nueva-estetica_visto', 'pkapp_about_seen_at_v3', 'pkapp_aviso_aviso-contenido_visto'].forEach((k) => localStorage.setItem(k, String(Date.now())));
     const marco = document.createElement('iframe');
     marco.id = '${MARCO}';
     marco.src = ${JSON.stringify(base + '/')};

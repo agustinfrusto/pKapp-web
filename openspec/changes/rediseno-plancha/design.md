@@ -203,7 +203,7 @@ cambiar un aviso no toca componentes.
   | Campo | Tipo | Regla |
   |---|---|---|
   | `id` | cadena | Única, estable, `[a-z0-9-]+`; es el `testID` del aviso. La nota del creador es `nota-del-creador` |
-  | `clave` | cadena, opcional | Clave de `localStorage` del descarte. Por defecto `pkapp_aviso_<id>_visto`. La nota del creador usa `pkapp_about_seen_at_v2` (D10: quien la descartó no la vuelve a ver al estrenar el sistema) |
+  | `clave` | cadena, opcional | Clave de `localStorage` del descarte. Por defecto `pkapp_aviso_<id>_visto`. La nota del creador usó `pkapp_about_seen_at_v2` (D10: quien la descartó no la volvía a ver al estrenar el sistema); desde los textos de 2026-10-12 usa `pkapp_about_seen_at_v3`, para que la vea todo el mundo |
   | `rotulo` | cadena | Una línea a 360 px |
   | `glifo` | `'glifo-mensaje'` \| `'glifo-explicacion'` | Cerrado al inventario |
   | `parrafos` | cadena[] | Al menos uno; texto plano, sin enlaces en línea |
@@ -223,6 +223,15 @@ cambiar un aviso no toca componentes.
   `notaVisible` hoy). Descartado = hay marca en `clave` y (`reaparece` ausente o no pasaron
   `reaparece` días). Sin `localStorage`, nada está descartado. Se evalúa al montar.
 - **Descartar** guarda `Date.now()` en `clave`. Los no descartables nunca escriben.
+- **Voz** (decisión de estilo del usuario, 2026-10-12): los avisos hablan en primera persona
+  como pKapp, como si la app tuviera voz propia («¡Hola! Soy pKapp…», «Mi creador…»). El
+  creador aparece en tercera persona; nunca habla él en primera persona. Rótulo de todo aviso:
+  `Nota de pKapp`. Se dirige a quienes la usan en plural («No sean malos conmigo», «Sus
+  aportes»), con el registro informal de la app, sin emojis ni enlaces en línea. El texto de cada aviso lo
+  aprueba el usuario; el Ingeniero puede proponerlo, pero no lo publica sin esa aprobación.
+  Primeros avisos con esta voz (2026-10-12, en `materias`, el tope de 3): `nueva-estetica`,
+  `nota-del-creador` (clave `pkapp_about_seen_at_v3`) y `aviso-contenido` (contacto
+  `pkappsoporte@gmail.com`).
 - **Lugar**: MateriaSelect y Home según `Banners.md` §3.14.9. El banner de banco reducido
   queda fuera del sistema (D6).
 - **Respuestas a `BAN-Q1`…`BAN-Q5`**: Q1 sí (`polite` solo cuando el avance lo gobierna el
