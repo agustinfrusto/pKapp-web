@@ -1,6 +1,7 @@
 // Suite «quiz» del arnés end-to-end (ver ../README.md).
 
 const { plancha } = require('../../../src/theme/colores');
+const { GLIFOS } = require('../../../src/assets/glifos');
 const { abrirPagina, conectarNavegador } = require('../cdp');
 const { EN_MARCO, LADO_TACTIL, MATERIA, PASO, TITULO_DEL_QUIZ, abrirMarco, cerrarNota, clicEnMarco, entrarAMateria } = require('./comunes');
 
@@ -206,8 +207,73 @@ const LEER = (s) => EN_MARCO(`
   };
 `);
 
+// «Reportar pregunta» (K7, REV-3): sin marco en la caja ni en el contenedor, texto Plex Sans 400/15 en
+// `tinta`, centrado en la columna y de 44 de alto como mínimo, con `glifo-reportar` delante (separado
+// `paso 2`, trazo `tinta`) y relleno horizontal `paso 4` entre el borde del botón y su contenido.
+const LEER_REPORTAR = EN_MARCO(`
+  const el = visibles('[data-testid="boton-reportar"]')[0];
+  const enun = visibles('[data-testid="enunciado-quiz"]')[0];
+  if (!el) return null;
+  const caja = el.firstElementChild || el;
+  const lados = (n) => ['Top', 'Right', 'Bottom', 'Left'].map((l) => w.getComputedStyle(n)['border' + l + 'Width']);
+  const hoja = (() => {
+    const it = d.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let t;
+    while ((t = it.nextNode())) if (t.textContent.trim()) return t.parentElement;
+    return null;
+  })();
+  const r = el.getBoundingClientRect(), e = enun ? enun.getBoundingClientRect() : null;
+  const h = hoja ? w.getComputedStyle(hoja) : null;
+  const svg = el.querySelector('svg');
+  const rs = svg ? svg.getBoundingClientRect() : null, rt = hoja ? hoja.getBoundingClientRect() : null;
+  return {
+    glifo: svg ? {
+      primerD: svg.children[0] ? svg.children[0].getAttribute('d') : null,
+      trazo: svg.getAttribute('stroke'),
+      visible: !!rs && rs.width > 0 && rs.height > 0,
+      delante: !!rs && !!rt && rs.right <= rt.left,
+      separacion: rs && rt ? rt.left - rs.right : null,
+      rellenoIzq: rs ? rs.left - r.left : null,
+      rellenoDer: rt ? r.right - rt.right : null,
+    } : null,
+    bordes: lados(el).concat(lados(caja)).join(' '),
+    peso: h && h.fontWeight, tamano: h && h.fontSize, color: h && h.color,
+    alto: r.height, descentrado: e ? Math.abs((r.left + r.width / 2) - (e.left + e.width / 2)) : null,
+  };
+`);
+
+async function reportarK7(ctx, nombre) {
+  const { pagina, t, T } = ctx;
+  await pagina.moverA(1, 1);
+  await espera(150);
+  const r = await pagina.evaluar(LEER_REPORTAR);
+  t.ok(`${nombre}: «Reportar pregunta» sin borde en reposo (K7)`, r !== null && r.bordes, Array(8).fill('0px').join(' '));
+  t.ok(`${nombre}: «Reportar pregunta» Plex Sans 400, 15 px, \`tinta\``,
+    r !== null && `${r.peso} ${r.tamano} ${r.color}`, `400 15px ${rgb(T.tinta)}`);
+  t.ok(`${nombre}: «Reportar pregunta» de 44 de alto como mínimo`, r !== null && r.alto >= LADO_TACTIL, true);
+  t.ok(`${nombre}: «Reportar pregunta» centrado en la columna`, r !== null && r.descentrado !== null && r.descentrado <= 1, true);
+  const g = r !== null ? r.glifo : null;
+  t.ok(`${nombre}: «Reportar pregunta» lleva glifo-reportar`,
+    !!g && g.visible && g.primerD === GLIFOS['glifo-reportar'].elementos[0].props.d, true);
+  t.ok(`${nombre}: glifo-reportar delante del texto`, !!g && g.visible && g.delante, true);
+  t.ok(`${nombre}: glifo-reportar con trazo \`tinta\``, !!g && g.trazo, T.tinta);
+  t.ok(`${nombre}: separación glifo-texto \`paso 2\` (8 px)`,
+    !!g && g.separacion !== null && Math.abs(g.separacion - 2 * PASO) <= 0.5, true);
+  t.ok(`${nombre}: relleno horizontal \`paso 4\` (16 px)`,
+    !!g && g.rellenoIzq !== null && g.rellenoDer !== null
+      && Math.abs(g.rellenoIzq - 4 * PASO) <= 0.5 && Math.abs(g.rellenoDer - 4 * PASO) <= 0.5, true);
+}
+
 const CONTAR = (s) => EN_MARCO(`return visibles(${JSON.stringify(s)}).length;`);
 const TEXTO = EN_MARCO('return d.body.innerText;');
+const TEXTO_SIN_PREGUNTA = EN_MARCO(`
+  const ocultos = Array.from(d.querySelectorAll('[data-testid="enunciado-quiz"], [data-testid^="opcion-quiz-"]'));
+  const previos = ocultos.map((n) => n.style.display);
+  ocultos.forEach((n) => { n.style.display = 'none'; });
+  const texto = d.body.innerText;
+  ocultos.forEach((n, i) => { n.style.display = previos[i]; });
+  return texto;
+`);
 const DESBORDA = EN_MARCO('return desbordes().length;');
 const RUTA = EN_MARCO('return w.location.pathname;');
 const ESTA_OSCURO = EN_MARCO("return d.documentElement.classList.contains('dark');");
@@ -457,7 +523,9 @@ async function probarQuiz(pagina, base, t, navegador, { tema, preguntas }) {
     contador !== null && /^01 \/ \d{2,3}$/.test(contador.texto), true);
   t.ok(nombre('contador en `tinta`'), contador && contador.textoColor, rgb(T.tinta));
   t.ok(nombre('sin barra interna del Stack'), await existe(pagina, sel('barra-interna')), false);
-  const cuerpo = await pagina.evaluar(TEXTO);
+  // El cromo de la app, sin el enunciado ni las opciones: el texto de la pregunta sorteada puede
+  // traer `→` o símbolos propios del contenido y no es lo que estas dos aserciones prueban.
+  const cuerpo = await pagina.evaluar(TEXTO_SIN_PREGUNTA);
   t.ok(nombre('sin emojis ni símbolos de texto'), EMOJI.test(cuerpo), false);
   t.ok(nombre('sin «Siguiente →» de texto'), cuerpo.includes('→'), false);
   t.ok(nombre('sin título «pKapp · Quiz»'), cuerpo.includes(TITULO_DEL_QUIZ), false);
@@ -592,10 +660,11 @@ async function probarQuiz(pagina, base, t, navegador, { tema, preguntas }) {
       bi !== null && `${bi.bordeElAncho} ${bi.bordeEl} ${bi.fondoEl}`, `1px ${rgb(T.linea)} ${rgb(T.fondo)}`);
     if (primera) {
       primera = false;
-      await estadosK(ctx, 'Reportar pregunta (K3)', sel('boton-reportar'), {
-        reposo: { fondo: rgb(T.superficie), borde: rgb(T.borde), textoColor: rgb(T.tinta) },
-        hover: { fondo: rgb(T.superficie), borde: rgb(T.linea) },
-        presionado: { fondo: rgb(T.tinta), borde: rgb(T.tinta) },
+      await reportarK7(ctx, `${tema} · quiz`);
+      await estadosK(ctx, 'Reportar pregunta (K7)', sel('boton-reportar'), {
+        reposo: { fondo: TRANSPARENTE, textoColor: rgb(T.tinta) },
+        hover: { fondo: TRANSPARENTE, contorno: { ancho: '1px', color: rgb(T.linea), sep: '0px' } },
+        presionado: { fondo: rgb(T.tinta), textoColor: rgb(T.fondo) },
       }).catch(() => {});
       await estadosK(ctx, 'Siguiente (K1)', sel('boton-siguiente'), {
         reposo: { fondo: rgb(T.tinta), borde: rgb(T.tinta), textoColor: rgb(T.fondo), glifo: T.fondo },
@@ -806,6 +875,7 @@ async function examenEnCurso(pagina, base, t) {
     }
     t.ok('las demás: marco `filete`, texto `tintaSec` y sin opacidad', apagadas, true);
     t.ok('«Reportar pregunta» sigue disponible', await existe(pagina, sel('boton-reportar')), true);
+    await reportarK7({ pagina, t, T }, 'examen en curso');
     t.ok('«Siguiente» o «Ver resultados» disponible', await existe(pagina, sel('boton-siguiente')), true);
 
     // Un solo toque (c.2): la elegida sigue siendo pulsable (`ControlMarco`), así que lo que
@@ -1359,7 +1429,7 @@ async function movimientoDelQuiz(pagina, base, t) {
     // achicado el contenedor desborda, también con la pregunta nueva: sin el `scrollTo` queda abajo.
     await pagina.evaluar(ACHICAR_MARCO);
     const bajo = await pagina.evaluar(BAJAR_EL_QUIZ);
-    t.ok('c.5 #4: el contenedor del quiz es desplazable y quedó bajado', typeof bajo === 'number' && bajo > 0, true);
+    t.ok('c.5 #4: el contenedor del quiz es desplazable y quedó bajado (si falla: el marco no quedó achicado y la pregunta nueva no desborda)', typeof bajo === 'number' && bajo > 0, true);
     const fotoNext = await siguienteObservando(pagina);
     t.ok('c.5 #4: pasó de pregunta con animaciones', fotoNext.length > 0, true);
     t.ok('c.5 #4: el bloque de contexto, enunciado y opciones entra', abarca(fotoNext, 'enunciado-quiz'), true);
@@ -1475,6 +1545,18 @@ async function focoTrasSiguienteEnElExamen(pagina, base, t) {
 }
 
 // «Ver resultados» (última pregunta) no es «Siguiente»: no mueve el foco a una opción.
+const ESPIA_DE_FOCO = EN_MARCO(`
+  const proto = w.HTMLElement.prototype, original = proto.focus;
+  w.__enfocados = [];
+  proto.focus = function (...args) {
+    const dueno = this.closest && this.closest('[data-testid]');
+    w.__enfocados.push(dueno ? dueno.getAttribute('data-testid') : '');
+    return original.apply(this, args);
+  };
+  return Array.isArray(w.__enfocados);
+`);
+const LEER_ESPIA_DE_FOCO = EN_MARCO('return w.__enfocados || [];');
+
 async function focoEnVerResultados(pagina, base, t) {
   try {
     t.ok('llegó al quiz', await entrarAlQuiz(pagina, base, { semilla: SEMILLA }), true);
@@ -1488,9 +1570,14 @@ async function focoEnVerResultados(pagina, base, t) {
     t.ok('llegó a la última pregunta («Ver resultados»)', ultima, true);
     if (!ultima) return;
     t.ok('REV-9 última: Tab llega a «Ver resultados»', await enfocarConTab(pagina, sel('boton-siguiente')), true);
+    // El quiz se desmonta al navegar, así que mirar el foco después no prueba nada: un espía de
+    // `focus()` anota el `data-testid` de cada llamada, antes del `Enter`.
+    t.ok('REV-9 última: espía de focus() instalado', await pagina.evaluar(ESPIA_DE_FOCO), true);
     await pagina.tecla('Enter');
     t.ok('REV-9 última: Enter lleva a /resultados', await esperarRuta(pagina, '/resultados'), true);
-    t.ok('REV-9 última: el foco no pasa a una opción', await pagina.evaluar(FOCO_EN_OPCION(0)), false);
+    const enfocados = await pagina.evaluar(LEER_ESPIA_DE_FOCO);
+    t.ok('REV-9 última: ningún focus() apuntó a una opción',
+      enfocados.filter((id) => /^opcion-quiz-/.test(id)).join(','), '');
   } finally {
     await limpiarAjustes(pagina);
   }

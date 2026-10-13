@@ -19,6 +19,7 @@ import Glifo from '../components/Glifo';
 import {
   BotonRelleno, Columna, ControlMarco, FilaLista, MarcaEstado, RotuloSeccion, useEntrada,
 } from '../components/plancha';
+import { Contenido } from '../components/plancha/Control';
 
 // Escala de 4 px por paso (tokens.md c.3, comun.md §8).
 const GLIFO_CHICO = 4 * 4;
@@ -533,12 +534,18 @@ export default function QuizScreen({ route, navigation }) {
 
           {answered && (
             <View ref={reportarRef} className="mt-3.5 items-center">
-              <ControlMarco
+              <FilaLista
                 testID="boton-reportar"
-                etiqueta="Reportar pregunta"
-                glifo="glifo-reportar"
                 onPress={() => reportQuestion(currentQuestion, materia?.name)}
-              />
+              >
+                <View className="flex-row items-center gap-2 px-4">
+                  <Contenido
+                    glifo="glifo-reportar"
+                    etiqueta="Reportar pregunta"
+                    tipografia="font-plex-sans text-cuerpo"
+                  />
+                </View>
+              </FilaLista>
             </View>
           )}
 

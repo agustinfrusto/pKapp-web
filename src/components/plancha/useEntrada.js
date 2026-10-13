@@ -1,12 +1,12 @@
 // Fundido de entrada (Quiz.md c.5, REV-1): `opacity` de 0 a 1 en 150 ms con la Web Animations
 // API, calculado por el compositor. Sin `fill`: al terminar no queda estilo residual.
 //
-// `useEntrada(ref, clave, { desplazar })` anima el nodo de `ref` cada vez que cambia `clave`
+// `useEntrada(ref, clave, { soloDesplazar })` anima el nodo de `ref` cada vez que cambia `clave`
 // (salvo en el montaje de la pantalla). Una pieza que aparece al responder usa como clave el
 // estado que la monta: su ref ya está puesto cuando corre el efecto, y si aún no existe no hace
-// nada. `desplazar` suma `translateY(8px)` a `none` al fundido; `soloDesplazar` anima solo ese
-// desplazamiento, sin `opacity` (el contenido de la barra inferior: su lámina entra con fundido
-// y no se mueve, así su alto sigue reservado en el mismo cuadro).
+// nada. `soloDesplazar` anima `translateY(8px)` a `none`, sin `opacity` (el contenido de la
+// barra inferior: su lámina entra con fundido y no se mueve, así su alto sigue reservado en el
+// mismo cuadro).
 //
 // No hace nada fuera de la web, con `prefers-reduced-motion: reduce` ni sin `el.animate`.
 // Sin librerías de animación, cuadro a cuadro en JS ni temporizadores. Efecto de layout: el primer
@@ -22,12 +22,8 @@ const SOLO_DESPLAZAMIENTO = [
   { transform: 'translateY(8px)' },
   { transform: 'none' },
 ];
-const FUNDIDO_Y_DESPLAZAMIENTO = [
-  { opacity: 0, transform: 'translateY(8px)' },
-  { opacity: 1, transform: 'none' },
-];
 
-export default function useEntrada(ref, clave, { desplazar = false, soloDesplazar = false } = {}) {
+export default function useEntrada(ref, clave, { soloDesplazar = false } = {}) {
   const montaje = useRef(true);
   useLayoutEffect(() => {
     if (montaje.current) {
@@ -38,10 +34,7 @@ export default function useEntrada(ref, clave, { desplazar = false, soloDesplaza
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return undefined;
     const el = ref.current;
     if (!el || typeof el.animate !== 'function') return undefined;
-    let keyframes = FUNDIDO;
-    if (soloDesplazar) keyframes = SOLO_DESPLAZAMIENTO;
-    else if (desplazar) keyframes = FUNDIDO_Y_DESPLAZAMIENTO;
-    const animacion = el.animate(keyframes, {
+    const animacion = el.animate(soloDesplazar ? SOLO_DESPLAZAMIENTO : FUNDIDO, {
       duration: DURACION_MS,
       easing: CURVA,
     });

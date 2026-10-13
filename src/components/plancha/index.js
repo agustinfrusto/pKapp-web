@@ -27,7 +27,7 @@
 // | Hoja              | —     | children, ancho, testID                                               |
 // | Regiones          | —     | children, testID; Regiones.Lateral y Regiones.Principal (children, testID) |
 // | FlujoColumnas     | —     | children, escritorio, amplio, testID                                  |
-// | useEntrada        | hook  | (ref, clave, { desplazar }): fundido de entrada de Quiz.md c.5        |
+// | useEntrada        | hook  | (ref, clave, { soloDesplazar }): fundido de entrada de Quiz.md c.5    |
 //
 // Valores de las enumeraciones (el primero es el por defecto):
 //   glifoPosicion   delante | detras | extremo (texto al inicio y glifo en el borde opuesto;
