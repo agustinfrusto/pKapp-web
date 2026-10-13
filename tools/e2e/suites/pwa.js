@@ -357,6 +357,29 @@ async function primerCuadroEnElTemaGuardado(pagina, base, t) {
   }
 }
 
+// A2-01 (5.2): `pkapp_settings` con un valor que no es un objeto plano (número, booleano, cadena,
+// JSON roto) no puede tumbar el arranque: el tema es claro y la app monta (Vacios.md V19;
+// Banners.md «clave inválida → claro»).
+async function arranqueConAjustesInvalidos(pagina, base, t) {
+  const valores = ['5', 'true', '"sistema"', '{roto'];
+  await pagina.ir(base + '/favicon.png');
+  await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
+  try {
+    for (const crudo of valores) {
+      await pagina.evaluar(`localStorage.setItem('pkapp_settings', ${JSON.stringify(crudo)})`);
+      pagina.errores.length = 0;
+      await pagina.ir(base + '/');
+      t.ok(`pkapp_settings = ${crudo}: la app monta`, await esperarSelector(pagina), true);
+      t.ok(`pkapp_settings = ${crudo}: html sin la clase dark`,
+        await pagina.evaluar("document.documentElement.classList.contains('dark')"), false);
+      t.ok(`pkapp_settings = ${crudo}: sin excepciones de JS`, pagina.errores.length, 0);
+      if (pagina.errores.length) t.nota('  ' + pagina.errores[0]);
+    }
+  } finally {
+    await pagina.evaluar("localStorage.removeItem('pkapp_settings')");
+  }
+}
+
 // inject-preload.js sobre un dist/ mínimo en el directorio temporal; no toca el dist servido.
 async function preloadDeMaterias(pagina, base, t) {
   const os = require('os');
@@ -456,6 +479,7 @@ module.exports = [
   { nombre: 'PWA: manifest.json y app.json coinciden con los tokens', correr: jsonContraTokens },
   { nombre: 'PWA: sin cuadro oscuro al cargar con el tema claro', correr: sinCuadroOscuroAlCargar },
   { nombre: 'PWA: el primer cuadro de React ya está en el tema oscuro guardado', correr: primerCuadroEnElTemaGuardado },
+  { nombre: 'PWA: arranca en claro con pkapp_settings inválido', correr: arranqueConAjustesInvalidos },
   { nombre: 'PWA: inject-preload.js inyecta las imágenes de materia y falla sin ellas', correr: preloadDeMaterias },
   { nombre: 'PWA: html lleva fondo y color-scheme del tema activo', correr: fondoYColorSchemeDelDocumento },
   { nombre: 'PWA: el index.html servido trae el <style> del fondo', correr: styleDelHeadServido },

@@ -24,7 +24,11 @@ function aplicar(esOscuro, setColorScheme) {
 // tema elegido. Una clave ausente cae en el default; también cae acá 'sistema', que fue
 // un valor válido en una versión anterior de este change.
 function temaGuardadoOscuro() {
-  return getSettingSync('tema', POR_DEFECTO) === 'oscuro';
+  try {
+    return getSettingSync('tema', POR_DEFECTO) === 'oscuro';
+  } catch {
+    return POR_DEFECTO === 'oscuro';
+  }
 }
 
 // En web, SafeAreaProvider monta su contenedor en un commit anterior al de este proveedor:
