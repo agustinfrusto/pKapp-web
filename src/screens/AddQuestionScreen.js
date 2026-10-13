@@ -11,7 +11,7 @@ import Glifo from '../components/Glifo';
 import {
   BotonRelleno, Columna, ControlMarco, Desplegable, FilaLista, RotuloSeccion,
 } from '../components/plancha';
-import { useTokens } from '../components/plancha/Control';
+import { GLIFO_CHICO, useTokens } from '../components/plancha/Control';
 
 const TINTA_SEC = 'text-tintaSec dark:text-tintaSecD';
 
@@ -178,7 +178,7 @@ export default function AddQuestionScreen({ navigation }) {
   const ayudaDeMarcado = (
     <View className="mt-2 flex-row flex-wrap items-center gap-1">
       <Text className={`font-plex-sans text-detalle ${TINTA_SEC}`}>Marcá con</Text>
-      <Glifo id="glifo-acierto" size={16} color={tema.acierto} />
+      <Glifo id="glifo-acierto" size={GLIFO_CHICO} color={tema.acierto} />
       <Text className={`font-plex-sans text-detalle ${TINTA_SEC}`}>cuál es la correcta</Text>
     </View>
   );
@@ -237,7 +237,7 @@ export default function AddQuestionScreen({ navigation }) {
                     onPress={() => setCorrectIndex(idx)}
                   >
                     {({ texto, glifo }) => (correctIndex === idx
-                      ? <Glifo id="glifo-acierto" size={16} color={tema[glifo]} />
+                      ? <Glifo id="glifo-acierto" size={GLIFO_CHICO} color={tema[glifo]} />
                       : <Text className={`font-plex-mono-medium text-dato ${texto}`}>{letra}</Text>)}
                   </ControlMarco>
 

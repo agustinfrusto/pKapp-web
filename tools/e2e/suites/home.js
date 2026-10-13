@@ -213,7 +213,12 @@ async function volverDeLaBarra(pagina, base, t) {
 // ---------------------------------------------------------------------------
 
 const fs = require('fs');
+const net = require('net');
+const os = require('os');
 const path = require('path');
+const { spawn } = require('child_process');
+const { conectarNavegador, abrirPagina } = require('../cdp');
+const { rutaChrome } = require('../entorno');
 const { plancha } = require('../../../src/theme/colores');
 const { GLIFOS } = require('../../../src/assets/glifos');
 const { CONTEOS } = require('../../../src/materias/conteos');
@@ -371,7 +376,17 @@ const LEER_HOME = EN_MARCO(`
     textoVisible: d.body.innerText,
     cambiar: (function () {
       const b = visibles('[aria-label="Cambiar materia"]')[0];
-      return b ? { caja: caja(b), texto: b.innerText.trim(), rol: b.getAttribute('role') } : null;
+      if (!b) return null;
+      // Líneas del texto: tops distintos de los rects de sus nodos de texto (no el alto del botón, que es fijo).
+      const tops = new Set();
+      const rec = d.createTreeWalker(b, 4 /* SHOW_TEXT */);
+      for (let n = rec.nextNode(); n; n = rec.nextNode()) {
+        if (!n.textContent.trim()) continue;
+        const rg = d.createRange();
+        rg.selectNodeContents(n);
+        Array.from(rg.getClientRects()).forEach((q) => { if (q.width > 0) tops.add(Math.round(q.top)); });
+      }
+      return { caja: caja(b), texto: b.innerText.trim(), rol: b.getAttribute('role'), lineas: tops.size };
     })(),
     tema: caja(visibles('[role="radiogroup"]')[0]),
   };
@@ -757,6 +772,13 @@ async function homeAnchos(pagina, base, t) {
         h.cambiar.texto, conTexto ? 'Cambiar materia' : '');
       t.ok(`${ancho} px: «Cambiar materia» es un botón de al menos 44 × 44`,
         h.cambiar.rol === 'button' && h.cambiar.caja.alto >= LADO_TACTIL && h.cambiar.caja.ancho >= LADO_TACTIL, true);
+      if (conTexto && (ancho === 360 || ancho === 390)) {
+        // A1-01 (5.2): relleno `paso 3`, el valor de la maqueta (comun.md §1.1).
+        t.ok(`${ancho} px: «Cambiar materia» mide 174,3 × 44`,
+          Math.abs(h.cambiar.caja.ancho - 174.3) <= 1 && Math.abs(h.cambiar.caja.alto - LADO_TACTIL) <= 0.5, true);
+        t.ok(`${ancho} px: «Cambiar materia» queda a 8 px o más del control de tema`,
+          !!h.tema && h.tema.izq - h.cambiar.caja.der >= 8, true);
+      }
       if (!conTexto) {
         t.ok(`${ancho} px: el cuadrado mide paso 11`, `${h.cambiar.caja.ancho}×${h.cambiar.caja.alto}`, `${LADO_TACTIL}×${LADO_TACTIL}`);
       }
@@ -778,6 +800,64 @@ async function homeAnchos(pagina, base, t) {
       t.ok(`${ancho} px: la tarjeta de materia no recorta el texto`,
         !!h.tarjeta && h.tarjeta.texto.includes(MATERIAS[2].nombre), true);
     }
+  }
+}
+
+// A1-01 (5.2): a 360 px con barra de desplazamiento clásica de 15 px (ancho útil 345) el texto de
+// «Cambiar materia» no parte. El arnés oculta las barras: esta prueba lanza su propio Chrome, como barra.js.
+const BARRAS_15 = '*::-webkit-scrollbar { width: 15px; height: 15px; } *::-webkit-scrollbar-thumb { background: #888; }';
+
+function puertoLibre() {
+  return new Promise((listo, falla) => {
+    const sonda = net.createServer();
+    sonda.once('error', falla);
+    sonda.listen(0, () => {
+      const { port } = sonda.address();
+      sonda.close(() => listo(port));
+    });
+  });
+}
+
+async function homeCambiarConBarraClasica(_paginaDelArnes, base, t) {
+  const pausa = (ms) => new Promise((r) => setTimeout(r, ms));
+  const puerto = await puertoLibre();
+  const perfil = fs.mkdtempSync(path.join(os.tmpdir(), 'pkapp-e2e-home-barras-'));
+  const proceso = spawn(rutaChrome(), [
+    '--headless=new', `--remote-debugging-port=${puerto}`, `--user-data-dir=${perfil}`,
+    '--no-first-run', '--no-default-browser-check', '--disable-gpu', 'about:blank',
+  ], { stdio: 'ignore' });
+  let navegador;
+  try {
+    const hasta = Date.now() + 20000;
+    for (;;) {
+      try { await fetch(`http://127.0.0.1:${puerto}/json/version`); break; } catch {
+        if (Date.now() > hasta) throw new Error('Chrome con barras no respondió');
+        await pausa(200);
+      }
+    }
+    navegador = await conectarNavegador(puerto);
+    const pagina = await abrirPagina(navegador);
+    t.ok('360 px · barra clásica · entra a Home', await entrarAHome(pagina, base, 360, MATERIAS[2]), true);
+    await pagina.evaluar(EN_MARCO(`
+      const s = d.createElement('style');
+      s.textContent = ${JSON.stringify(BARRAS_15)};
+      d.head.appendChild(s);
+      return true;
+    `));
+    await pausa(300);
+    const h = await leerHome(pagina);
+    t.ok('360 px · barra clásica · hay botón «Cambiar materia» con texto',
+      !!h.cambiar && h.cambiar.texto === 'Cambiar materia', true);
+    t.ok('360 px · barra clásica · «Cambiar materia» en una línea',
+      !!h.cambiar && h.cambiar.lineas === 1, true);
+    t.ok('360 px · barra clásica · «Cambiar materia» queda a 8 px o más del control de tema',
+      !!h.cambiar && !!h.tema && h.tema.izq - h.cambiar.caja.der >= 8, true);
+    t.ok('360 px · barra clásica · «Cambiar materia» mide 174,3 de ancho',
+      !!h.cambiar && Math.abs(h.cambiar.caja.ancho - 174.3) <= 1, true);
+  } finally {
+    if (navegador) navegador.cerrar();
+    try { proceso.kill('SIGKILL'); } catch { /* ya no está */ }
+    fs.rmSync(perfil, { recursive: true, force: true });
   }
 }
 
@@ -1096,6 +1176,7 @@ module.exports = [
   { nombre: 'Home: tema oscuro sin baldosa clara', correr: homeOscuro },
   { nombre: 'Home: corte de 360 px y sin scroll horizontal', correr: homeAnchos },
   { nombre: 'Home: «1 pregunta extra» en singular', correr: homeSingularExtra },
+  { nombre: 'Home: «Cambiar materia» en una línea con barra clásica a 360 px', correr: homeCambiarConBarraClasica },
   { nombre: 'Home: escritorio, regiones, columnas y foco (ESC-P2, ESC-P11)', correr: homeEscritorio },
   { nombre: 'atrás y adelante del navegador', correr: atrasDelNavegador },
   { nombre: 'HeaderMarca: mismo alto en MateriaSelect y Home', correr: altoDeHeaderIgual },

@@ -39,7 +39,7 @@ function BotonCambiarMateria({ navigation }) {
     >
       {({ pressed }) => (
         <View
-          className={`h-full flex-row items-center justify-center gap-2 border px-2 ${
+          className={`h-full flex-row items-center justify-center gap-2 border ${soloGlifo ? 'px-2' : 'px-3'} ${
             pressed
               ? 'border-tinta bg-tinta dark:border-tintaD dark:bg-tintaD'
               : 'border-linea bg-fondo dark:border-lineaD dark:bg-fondoD'

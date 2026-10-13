@@ -1069,6 +1069,60 @@ async function escritorioVacioFocoYOrden(pagina, base, t) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// 9 · Contenedor desplazable con datos (E-03): sigue enfocable y su foco se ve con el
+// contorno de la Plancha (`foco`, 2 px, offset −2 px), solo con teclado.
+
+const LEER_SCROLLER = EN_MARCO(`
+  const el = visibles('[data-testid="stats-scroller"]')[0];
+  if (!el) return null;
+  const c = w.getComputedStyle(el), r = el.getBoundingClientRect();
+  return {
+    contorno: c.outlineStyle + ' ' + c.outlineWidth + ' ' + c.outlineColor + ' ' + c.outlineOffset,
+    foco: d.activeElement === el,
+    izq: r.left, arriba: r.top, alto: r.height,
+  };
+`);
+
+async function scrollerConFoco(pagina, base, t) {
+  for (const [ancho, alto, oscuro] of [[1280, 900, false], [1280, 900, true], [390, 900, false], [390, 900, true]]) {
+    const T = oscuro ? plancha.oscuro : plancha.claro;
+    const cuando = `${ancho} ${oscuro ? 'oscuro' : 'claro'}`;
+    if (!await abrirStats(pagina, base, { ancho, alto, oscuro })) {
+      t.ok(`${cuando}: abrió Estadísticas`, false, true);
+      continue;
+    }
+    const reposo = await pagina.evaluar(LEER_SCROLLER);
+    t.ok(`E-03 ${cuando}: el contenedor desplazable existe`, reposo !== null, true);
+    if (!reposo) continue;
+
+    await pagina.evaluar(EN_MARCO(`m.contentWindow.focus(); if (d.activeElement && d.activeElement.blur) d.activeElement.blur();`));
+    let enfocado = false;
+    for (let i = 0; i < 12 && !enfocado; i++) {
+      await pagina.tecla('Tab');
+      enfocado = (await pagina.evaluar(LEER_SCROLLER)).foco;
+    }
+    t.ok(`E-03 ${cuando}: Tab llega al contenedor desplazable`, enfocado, true);
+    if (enfocado) {
+      t.ok(`E-03 ${cuando}: foco con teclado: contorno foco de 2 px y offset −2 px`,
+        (await pagina.evaluar(LEER_SCROLLER)).contorno, `solid 2px ${rgb(T.foco)} -2px`);
+    }
+
+    // Foco por programa con `focusVisible: false` (el clic no enfoca este contenedor en
+    // Chrome): es `:focus` pero no `:focus-visible`, sin contorno. Con `:focus` en la regla
+    // aparecería el contorno.
+    await pagina.evaluar(EN_MARCO(`
+      const el = visibles('[data-testid="stats-scroller"]')[0];
+      el.blur();
+      el.focus({ focusVisible: false });
+    `));
+    const sinTeclado = await pagina.evaluar(LEER_SCROLLER);
+    t.ok(`E-03 ${cuando}: enfocado sin ser \`:focus-visible\``, sinTeclado.foco, true);
+    const sinContorno = sinTeclado.contorno.startsWith('none') || sinTeclado.contorno.includes(' 0px ');
+    t.ok(`E-03 ${cuando}: foco sin teclado, sin contorno`, sinContorno ? 'sin contorno' : sinTeclado.contorno, 'sin contorno');
+  }
+}
+
 async function restaurarPerfil(pagina, base, t) {
   await abrirMarco(pagina, base, 390);
   await escribirClave(pagina, previo === undefined ? null : previo);
@@ -1090,5 +1144,6 @@ module.exports = [
   { nombre: 'Estadísticas: escritorio, estado vacío en `lectura` (ESC-P12)', correr: escritorioVacio },
   { nombre: 'Estadísticas: escritorio, anclado, recorte de foco y orden de Tab con datos', correr: escritorioAnclaFocoYOrden },
   { nombre: 'Estadísticas: escritorio, foco y orden de Tab en el estado vacío', correr: escritorioVacioFocoYOrden },
+  { nombre: 'Estadísticas: foco del contenedor desplazable con datos (E-03)', correr: scrollerConFoco },
   { nombre: 'Estadísticas: restaura el perfil', correr: restaurarPerfil },
 ];

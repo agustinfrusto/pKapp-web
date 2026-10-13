@@ -1923,7 +1923,38 @@ async function capturasDeLaTrece(pagina, base, t) {
 // GRUPO B · tarea 2.10, plan B de D2 (Ilustracion.js: <svg> del DOM)
 // ===========================================================================
 
+// E-07: el fondo de navegación de React Navigation (`#f2f2f2` del tema por defecto) no
+// es de la paleta: ningún elemento de la app lo pinta, en ningún tema. El contenedor de
+// navegación toma `fondo` del tema activo, también al cambiar de tema sin recargar.
+const GRIS_DE_REACT_NAVIGATION = 'rgb(242, 242, 242)';
+const PINTADOS_CON = (color) => EN_MARCO(`
+  return Array.from(d.body.querySelectorAll('*'))
+    .filter((n) => w.getComputedStyle(n).backgroundColor === ${JSON.stringify(color)}).length;
+`);
+
+async function fondoDeNavegacionDelTema(pagina, base, t) {
+  const fondo = { claro: rgb(plancha.claro.fondo), oscuro: rgb(plancha.oscuro.fondo) };
+  const contar = (color) => pagina.evaluar(PINTADOS_CON(color));
+  // El fondo del tema activo lo pinta algún elemento y el del otro tema, ninguno.
+  const verificar = async (cuando, activo, otro) => {
+    t.ok(`${cuando}: ningún elemento pinta el gris de React Navigation`,
+      await contar(GRIS_DE_REACT_NAVIGATION), 0);
+    t.ok(`${cuando}: el contenedor pinta el fondo del tema activo`,
+      await contar(fondo[activo]) > 0, true);
+    t.ok(`${cuando}: ningún elemento pinta el fondo del otro tema`, await contar(fondo[otro]), 0);
+  };
+  t.ok('abrió la app en el marco', await abrirMarco(pagina, base, 390), true);
+  await verificar('claro', 'claro', 'oscuro');
+  await clicEnMarco(pagina, 'oscuro');
+  t.ok('oscuro aplicado', await pagina.esperarA(() => pagina.evaluar(ESTA_OSCURO)), true);
+  await verificar('oscuro, sin recargar', 'oscuro', 'claro');
+  await clicEnMarco(pagina, 'claro');
+  t.ok('claro restaurado', await pagina.esperarA(async () => !await pagina.evaluar(ESTA_OSCURO)), true);
+  await verificar('claro de nuevo, sin recargar', 'claro', 'oscuro');
+}
+
 module.exports = [
+  { nombre: 'Navegación: fondo del contenedor sin el gris de React Navigation (E-07)', correr: fondoDeNavegacionDelTema },
   { nombre: 'HeaderMarca: control Claro | Oscuro', correr: controlDeTema },
   { nombre: 'HeaderMarca: sin scroll horizontal y corte de 360 px', correr: sinScrollHorizontalYCorteDe360 },
   { nombre: 'HeaderMarca: teclado del control Claro | Oscuro', correr: tecladoDelControlDeTema },

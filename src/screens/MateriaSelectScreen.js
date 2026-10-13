@@ -183,7 +183,7 @@ function MateriaCard({ materia, numero, tema, onPress, cargando, bloqueada }) {
                   ) : cargando ? (
                     <Text className={`${DETALLE} ${colorLeyenda}`}>Cargando…</Text>
                   ) : (
-                    <Text className="text-rotulo">
+                    <Text className="font-plex-mono text-rotulo">
                       <Text className={`font-plex-mono-medium text-rotulo uppercase ${texto}`}>{totalQs}</Text>
                       <Text className={`${DETALLE} ${colorLeyenda}`}> preguntas</Text>
                     </Text>

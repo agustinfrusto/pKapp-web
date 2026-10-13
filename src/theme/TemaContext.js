@@ -1,6 +1,6 @@
 // Selección y persistencia del tema visual.
 //
-// Binario a propósito: el usuario prefiere activarlo con un switch y no que la
+// Binario a propósito: el usuario prefiere activarlo con el segmentado Claro | Oscuro y no que la
 // app siga al sistema por su cuenta. El default es claro, así que nadie se
 // encuentra la app oscura sin haberlo pedido.
 import React, { createContext, useContext, useLayoutEffect, useState } from 'react';

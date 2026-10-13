@@ -8,7 +8,7 @@ import { useMateria } from '../materia/MateriaContext';
 import { useTema } from '../theme/TemaContext';
 import { plancha } from '../theme/colores';
 import Glifo from '../components/Glifo';
-import { GLIFO_CHICO } from '../components/plancha/Control';
+import { GLIFO_CHICO, GLIFO_VACIO } from '../components/plancha/Control';
 import {
   BotonMarco, Columna, FlujoColumnas, Lamina, MarcaEstado, Regiones, RotuloSeccion,
 } from '../components/plancha';
@@ -129,7 +129,7 @@ export default function StatsScreen({ navigation }) {
             <Lamina testID="stats-vacio">
               <View className="items-center p-3.5">
                 <View testID="stats-vacio-glifo" className="mt-4">
-                  <Glifo id="glifo-estadisticas" size={48} color={tema.tintaSec} />
+                  <Glifo id="glifo-estadisticas" size={GLIFO_VACIO} color={tema.tintaSec} />
                 </View>
                 <Text testID="stats-vacio-titulo" className={`mt-4 text-center font-plex-sans-semibold text-titulo ${TINTA}`}>
                   Sin estadísticas todavía
@@ -156,7 +156,7 @@ export default function StatsScreen({ navigation }) {
   const bandaGlobal = acierto(globalAccuracy);
 
   return (
-    <ScrollView className={`flex-1 ${FONDO}`} contentContainerClassName="pb-8" refreshControl={refreshControl}>
+    <ScrollView testID="stats-scroller" dataSet={{ scrollerFoco: '' }} className={`flex-1 ${FONDO}`} contentContainerClassName="pb-8" refreshControl={refreshControl}>
       <Columna ancho="hoja-amplia">
         {/* Escritorio (ESC-P7): tarjeta, rótulo y leyenda a la izquierda; filas a la derecha.
             Bajo el corte las regiones se apilan en este mismo orden. */}

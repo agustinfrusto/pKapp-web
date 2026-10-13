@@ -1,8 +1,8 @@
 import './global.css';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Platform } from 'react-native';
-import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
+import { DefaultTheme, NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'nativewind';
@@ -69,6 +69,11 @@ function AppContent() {
   // si no se pinta a mano, queda un borde claro delatando el tema anterior.
   const tema = esOscuro ? plancha.oscuro : plancha.claro;
   const chrome = { cabecera: tema.fondo };
+  // El fondo de navegación por defecto (#f2f2f2) no es de la paleta en ningún tema.
+  const temaNavegacion = useMemo(
+    () => ({ ...DefaultTheme, colors: { ...DefaultTheme.colors, background: tema.fondo } }),
+    [tema.fondo],
+  );
   const navigationRef = useNavigationContainerRef();
   const routeNameRef = useRef();
 
@@ -108,6 +113,7 @@ function AppContent() {
     <NavigationContainer
       ref={navigationRef}
       linking={linking}
+      theme={temaNavegacion}
       onReady={() => {
         // La carga inicial ("/") ya la registra Umami; solo guardamos la ruta actual.
         routeNameRef.current = navigationRef.getCurrentRoute()?.name;

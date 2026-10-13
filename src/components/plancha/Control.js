@@ -16,6 +16,7 @@ import { avisar, elegir } from './guardias';
 const PX_POR_PASO = 4;
 export const GLIFO_CHICO = 4 * PX_POR_PASO;
 export const GLIFO_GRANDE = 6 * PX_POR_PASO;
+export const GLIFO_VACIO = 12 * PX_POR_PASO;
 
 // Contornos web de hover (§5.2): sin separación, sobre el borde, sin mover el layout.
 export const CONTORNO = {
