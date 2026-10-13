@@ -119,7 +119,7 @@ export default function HomeScreen({ navigation }) {
               <RotuloSeccion testID="home-rotulo-acciones" color="acento">Plano / Acciones</RotuloSeccion>
             </View>
 
-            <View testID="home-acciones" className="gap-2.5 amplio:grid amplio:grid-cols-2 amplio:gap-4">
+            <View testID="home-acciones" className="gap-2.5 amplio:grid amplio:grid-cols-2 amplio:gap-4 amplio:[&>*>*]:grow">
               <Accion
                 clave="practicar"
                 primaria

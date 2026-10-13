@@ -313,6 +313,7 @@ const LEER_HOME = EN_MARCO(`
     return {
       clave, existe: true,
       caja: caja(el),
+      marcoCaja: marco ? caja(marco) : null,
       rol: el.getAttribute('role'),
       nombre: (el.getAttribute('aria-label') || el.textContent || '').trim(),
       fondo: estilo(marco, 'backgroundColor'),
@@ -995,6 +996,9 @@ async function homeEscritorio(pagina, base, t) {
           t.ok(cuando('acciones en 2 columnas de igual ancho, separadas por paso 4'),
             acc.map((a, i) => `${a.caja.ancho}|${a.caja.izq === principalIzq + (i % 2) * (celda + CELDA)}`).join(','),
             acc.map(() => `${celda}|true`).join(','));
+          t.ok(cuando('cada acción llena su celda: el marco mide lo mismo que el control y la fila 1 es pareja (A1-02)'),
+            acc.every((a) => !!a.marcoCaja && a.marcoCaja.alto === a.caja.alto
+              && a.marcoCaja.ancho === a.caja.ancho) && acc[0].caja.alto === acc[1].caja.alto, true);
           t.ok(cuando('orden 1 2 / 3 4 / 5 6, con la primaria primera'),
             acc.every((a, i) => i < 2 || a.caja.arriba > acc[i - 2].caja.arriba)
               && acc[0].caja.arriba === acc[1].caja.arriba, true);

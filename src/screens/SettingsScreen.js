@@ -52,7 +52,7 @@ function Plegable({ nombre, abierto, onPress }) {
             >
               {abierto ? 'Ocultar' : 'Ver'}
             </Text>
-            <View className={abierto ? 'rotate-180' : ''}>
+            <View className={abierto ? '-rotate-90' : 'rotate-90'}>
               <Glifo id="glifo-chevron" size={GLIFO_CHICO} color={tema[invertido ? glifo : 'acento']} />
             </View>
           </View>

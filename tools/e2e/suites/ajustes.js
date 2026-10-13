@@ -75,7 +75,7 @@ const LEER_PANEL = (texto) => EN_MARCO(`
 `);
 
 // Plegable (K3): distancia del texto y del chevron a los bordes del control, y giro del
-// chevron (1 = apunta abajo, -1 = girado 180°).
+// chevron medido por el seno de su matriz (1 = apunta abajo, -1 = arriba, 0 = sin giro, a la derecha).
 const LEER_PLEGABLE = (texto) => EN_MARCO(`
   const t = ${JSON.stringify(texto.toLowerCase())};
   const hoja = visibles('*').find((n) =>
@@ -88,7 +88,7 @@ const LEER_PLEGABLE = (texto) => EN_MARCO(`
   const giro = w.getComputedStyle(svg.parentElement).transform;
   const mat = giro && giro !== 'none' ? giro.match(/matrix\\(([^)]+)\\)/) : null;
   return { izq: hr.left - cr.left, der: cr.right - sr.right, lado: sr.width,
-    giro: mat ? Math.round(parseFloat(mat[1].split(',')[0])) : 1 };
+    giro: mat ? Math.round(parseFloat(mat[1].split(',')[1])) : 0 };
 `);
 
 // Tarjeta de una pregunta propia: panel, tres textos (tema, enunciado, correcta), eliminar
@@ -270,7 +270,7 @@ async function pantalla(pagina, base, t, tema) {
   const pleg = await pagina.evaluar(LEER_PLEGABLE(nombre));
   t.ok(c('plegable: texto y chevron a paso 3.5 del borde (a.3)'),
     pleg && `${pleg.izq}|${pleg.der}`, `${1 + 3.5 * PASO}|${1 + 3.5 * PASO}`);
-  t.ok(c('plegable cerrado: chevron chico (paso 4) apuntando abajo'),
+  t.ok(c('plegable cerrado: chevron chico (paso 4) apuntando abajo (D-01)'),
     pleg && `${pleg.lado}|${pleg.giro}`, `${4 * PASO}|1`);
   const ver = await pagina.evaluar(LEER_TEXTO('Ver'));
   t.ok(c('palabra «Ver» en acento'), ver && ver.color, rgb(T.acento));
@@ -282,7 +282,7 @@ async function pantalla(pagina, base, t, tema) {
     abierto && `${abierto.control.expandido}|${abierto.control.borde}`, `true|${rgb(T.linea)}`);
   t.ok(c('plegable abierto: palabra «Ocultar»'), !!(await pagina.evaluar(LEER_TEXTO('Ocultar'))), true);
   const plegAbierto = await pagina.evaluar(LEER_PLEGABLE(nombre));
-  t.ok(c('plegable abierto: chevron girado 180° y relleno paso 3.5'),
+  t.ok(c('plegable abierto: chevron apuntando arriba y relleno paso 3.5 (D-01)'),
     plegAbierto && `${plegAbierto.giro}|${plegAbierto.izq}|${plegAbierto.der}`,
     `-1|${1 + 3.5 * PASO}|${1 + 3.5 * PASO}`);
 

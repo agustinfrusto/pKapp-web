@@ -927,6 +927,7 @@ async function estructuraDeOpciones(pagina, base, t, tema) {
     t.ok(c(`celda ${letra}: 44 × 44, letra, marco borde, tinta`),
       cel && `${cel.ancho}×${cel.alto}|${cel.texto}|${cel.bordeAncho} ${cel.borde}|${cel.color}|${cel.tamano}`,
       `${LADO_TACTIL}×${LADO_TACTIL}|${letra}|1px ${rgb(T.borde)}|${rgb(T.tinta)}|16px`);
+    t.ok(c(`celda ${letra}: letra en Plex Mono 500 (dato, D-03)`), cel && cel.familia, 'PlexMono-Medium');
     const q = await porNombre(pagina, quitar(letra));
     t.ok(c(`quitar ${letra}: 44 × 44, glifo-cerrar tintaSec decorativo en fondo`),
       q && `${q.ancho}×${q.alto}|${q.glifo}|${q.texto}`, `${LADO_TACTIL}×${LADO_TACTIL}|${T.tintaSec}|`);
@@ -953,6 +954,7 @@ async function estructuraDeOpciones(pagina, base, t, tema) {
   t.ok(c('«Guardar pregunta»: glifo-guardar en fondo, decorativo, sin emoji'),
     g && g.glifo === T.fondo && g.glifoOculto === 'true' && !EMOJI_O_SIMBOLO.test(g.texto), true);
   t.ok(c('«Guardar pregunta»: 44 de alto como mínimo'), g && g.alto >= LADO_TACTIL - 0.5, true);
+  t.ok(c('«Guardar pregunta»: tamaño grande, 52 de alto (D-02)'), g && Math.round(g.alto), 52);
   t.ok(c('«Guardar pregunta»: mismo ancho que el campo del enunciado'),
     g && Math.abs(g.ancho - ((await porPh(pagina, PH_ENUNCIADO)) || { ancho: -1 }).ancho) < 1, true);
 
@@ -986,6 +988,24 @@ async function estructuraDeOpciones(pagina, base, t, tema) {
   await tocar(pagina, porNombre(pagina, quitar('B')));
   t.ok(c('con dos opciones el quitar responde con «Mínimo 2 opciones»'),
     pagina.dialogos.join('|'), 'Mínimo 2 opciones\n\nTiene que haber al menos 2 opciones de respuesta.');
+}
+
+// Con 6 opciones no hay «Agregar opción»: la última fila queda a 24 px del grupo siguiente (a.1, D-05).
+async function seisOpciones(pagina, base, t) {
+  const c = (s) => `390 px · Agregar · 6 opciones · ${s}`;
+  t.ok(c('llega a /agregar'), await abrirAgregar(pagina, base, { ancho: 390 }), true);
+  await tocar(pagina, porTexto(pagina, 'Agregar opción'));
+  await tocar(pagina, porTexto(pagina, 'Agregar opción'));
+  t.ok(c('hay una celda F'), !!(await porNombre(pagina, celda('F'))), true);
+  const hueco = await pagina.evaluar(EN_MARCO(`
+    ${INFO}
+    const f = porNombre(${JSON.stringify(celda('F'))});
+    const fila = f && f.parentElement;
+    const rotulo = hojaConTexto('Explicación (opcional)');
+    if (!fila || !rotulo) return null;
+    return Math.round(rotulo.getBoundingClientRect().top - fila.getBoundingClientRect().bottom);
+  `));
+  t.ok(c('24 px entre la última fila y el grupo siguiente'), hueco, 24);
 }
 
 // El alto de los campos crece con el contenido (a.2): sin scroll interno ni texto recortado.
@@ -1699,6 +1719,7 @@ module.exports = [
   { nombre: 'Agregar: celdas, quitar, agregar y guardar en claro', correr: (p, b, t) => estructuraDeOpciones(p, b, t, 'claro') },
   { nombre: 'Agregar: celdas, quitar, agregar y guardar en oscuro', correr: (p, b, t) => estructuraDeOpciones(p, b, t, 'oscuro') },
   { nombre: 'Agregar: los campos crecen con el contenido a 320', correr: camposCrecen },
+  { nombre: 'Agregar: con 6 opciones, 24 px al grupo siguiente', correr: seisOpciones },
   { nombre: 'Agregar: estados K de los controles', correr: estadosK },
   { nombre: 'Agregar: el hover de los campos solo con puntero', correr: hoverSoloConPuntero },
   { nombre: 'Agregar: quitar una opción anterior a la marcada', correr: quitarAnteriorAMarcada },

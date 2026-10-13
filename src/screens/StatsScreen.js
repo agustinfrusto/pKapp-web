@@ -219,7 +219,7 @@ export default function StatsScreen({ navigation }) {
                       className="border-t border-filete py-3 dark:border-fileteD"
                     >
                       <View className="flex-row items-baseline justify-between gap-3">
-                        <Text testID={`stats-nombre-${key}`} className={`min-w-0 flex-1 font-plex-sans text-item ${TINTA}`}>
+                        <Text testID={`stats-nombre-${key}`} className={`min-w-0 flex-1 font-plex-sans-semibold text-item ${TINTA}`}>
                           {TOPICS[key]}
                         </Text>
                         <View className="shrink-0">

@@ -228,7 +228,7 @@ export default function AddQuestionScreen({ navigation }) {
             {options.map((option, idx) => {
               const letra = String.fromCharCode(65 + idx);
               return (
-                <View key={idx} className="mb-2.5 flex-row items-start gap-2">
+                <View key={idx} className={`flex-row items-start gap-2 ${options.length < 6 || idx < 5 ? 'mb-2.5' : ''}`}>
                   <ControlMarco
                     tono="acierto"
                     className="w-11"
@@ -238,7 +238,7 @@ export default function AddQuestionScreen({ navigation }) {
                   >
                     {({ texto, glifo }) => (correctIndex === idx
                       ? <Glifo id="glifo-acierto" size={16} color={tema[glifo]} />
-                      : <Text className={`font-plex-mono text-dato ${texto}`}>{letra}</Text>)}
+                      : <Text className={`font-plex-mono-medium text-dato ${texto}`}>{letra}</Text>)}
                   </ControlMarco>
 
                   <Campo
@@ -288,6 +288,7 @@ export default function AddQuestionScreen({ navigation }) {
           <BotonRelleno
             etiqueta={saving ? 'Guardando...' : 'Guardar pregunta'}
             glifo={saving ? undefined : 'glifo-guardar'}
+            tamano="grande"
             className="w-full"
             deshabilitado={saving}
             onPress={handleSave}

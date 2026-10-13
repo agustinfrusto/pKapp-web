@@ -267,6 +267,7 @@ async function filasPorBanda(pagina, base, t) {
       t.ok(`${q}: nombre del tema`, f.nombre && f.nombre.texto, e.nombre);
       t.ok(`${q}: nombre en tinta, paso item (16 px)`,
         f.nombre && `${f.nombre.color}|${f.nombre.tamano}`, `${rgb(T.tinta)}|16px`);
+      t.ok(`${q}: nombre en Plex Sans 600 (item, C-02)`, f.nombre && f.nombre.familia, 'PlexSans-SemiBold');
       t.ok(`${q}: filete superior de 1 px en filete`, `${f.fileteAncho}|${f.fileteColor}`, `1px|${rgb(T.filete)}`);
 
       if (e.pct === null) {
