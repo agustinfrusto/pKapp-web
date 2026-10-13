@@ -35,7 +35,7 @@ export const AVISOS = [
     rotulo: 'Nota de pKapp',
     glifo: 'glifo-mensaje',
     parrafos: [
-      'Mi creador lleva meses trabajando en mí. Fue un trabajo arduo y ya me usaron más de 7000 personas: ¡fue una sorpresa para los dos!',
+      'Mi creador lleva meses trabajando en mí. ¡Estamos sorprendidos porque miles de personas han usado pKapp!',
       '¡Gracias a todos los que donaron! Sigo gratis y sin publicidad gracias a sus donaciones y aportes.',
     ],
     pantallas: ['materias'],

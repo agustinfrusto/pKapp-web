@@ -25,7 +25,7 @@ const CONTACTO = 'pkappsoporte@gmail.com';
 const TEXTOS = {
   'nueva-estetica': ['¡Hola! Soy pKapp y estrené una nueva estética. No sean malos conmigo: las apps también queremos cambiar de look a veces.'],
   'nota-del-creador': [
-    'Mi creador lleva meses trabajando en mí. Fue un trabajo arduo y ya me usaron más de 7000 personas: ¡fue una sorpresa para los dos!',
+    'Mi creador lleva meses trabajando en mí. ¡Estamos sorprendidos porque miles de personas han usado pKapp!',
     '¡Gracias a todos los que donaron! Sigo gratis y sin publicidad gracias a sus donaciones y aportes.',
   ],
   'aviso-contenido': [
