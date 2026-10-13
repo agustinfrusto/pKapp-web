@@ -1,9 +1,12 @@
 // K1 · botón relleno (comun.md §5.2). Acción primaria: fondo `tinta`, texto `fondo`.
 // Props: `etiqueta`, `glifo`, `glifoPosicion` (`delante` | `detras` | `extremo`),
-// `tamano` (`estandar` | `grande`), `relleno` (`normal` | `amplio`), `className` (layout).
+// `tamano` (`estandar` | `grande`), `relleno` (`normal` | `amplio`), `className` (layout),
+// `tamanoGlifo` (`chico`, por defecto, paso 4 | `grande`, paso 6: «Siguiente» del quiz).
 import React from 'react';
-import Control, { Contenido, CONTORNO, medidasDeBoton } from './Control';
-import { exigirNombre } from './guardias';
+import Control, { Contenido, CONTORNO, GLIFO_CHICO, GLIFO_GRANDE, medidasDeBoton } from './Control';
+import { elegir, exigirNombre } from './guardias';
+
+const TAMANOS_GLIFO = { chico: GLIFO_CHICO, grande: GLIFO_GRANDE };
 
 const REPOSO = {
   caja: 'bg-tinta border-tinta dark:bg-tintaD dark:border-tintaD',
@@ -31,7 +34,7 @@ const ASPECTO = {
 const CAJA = 'min-h-11 min-w-11 flex-row items-center justify-center gap-2 border';
 
 export default function BotonRelleno({
-  etiqueta, glifo, glifoPosicion, tamano, relleno, onPress, deshabilitado,
+  etiqueta, glifo, glifoPosicion, tamano, tamanoGlifo, relleno, onPress, deshabilitado,
   accessibilityLabel, testID, className,
 }) {
   exigirNombre('BotonRelleno', { etiqueta, accessibilityLabel });
@@ -48,6 +51,7 @@ export default function BotonRelleno({
       <Contenido
         glifo={glifo}
         glifoPosicion={glifoPosicion}
+        tamanoGlifo={elegir(TAMANOS_GLIFO, tamanoGlifo, 'chico', 'tamanoGlifo')}
         etiqueta={etiqueta}
         tipografia="font-plex-sans-semibold text-cuerpo"
       />

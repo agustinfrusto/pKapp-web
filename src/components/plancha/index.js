@@ -8,8 +8,8 @@
 //
 // | Componente        | Clase | Props                                                                 |
 // |-------------------|-------|-----------------------------------------------------------------------|
-// | BotonRelleno      | K1    | etiqueta, glifo, glifoPosicion, tamano, relleno, onPress, deshabilitado, |
-// |                   |       | accessibilityLabel, testID, className                                 |
+// | BotonRelleno      | K1    | etiqueta, glifo, glifoPosicion, tamano, tamanoGlifo, relleno, onPress, |
+// |                   |       | deshabilitado, accessibilityLabel, testID, className                  |
 // | BotonMarco        | K2    | las de K1 y tono, fondo, tamanoGlifo                                  |
 // | ControlMarco      | K3    | las de K1 y children, seleccionado, abierto, tono, enfasis,           |
 // |                   |       | popup, controla, onKeyDown, registrar                                 |

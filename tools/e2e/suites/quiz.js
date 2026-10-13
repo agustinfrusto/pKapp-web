@@ -210,6 +210,16 @@ const LEER = (s) => EN_MARCO(`
 // «Reportar pregunta» (K7, REV-3): sin marco en la caja ni en el contenedor, texto Plex Sans 400/15 en
 // `tinta`, centrado en la columna y de 44 de alto como mínimo, con `glifo-reportar` delante (separado
 // `paso 2`, trazo `tinta`) y relleno horizontal `paso 4` entre el borde del botón y su contenido.
+// Celda de texto de la opción (el padre del texto): su ancho y la distancia de su borde
+// derecho al borde derecho de la opción. Reposo y respondida deben coincidir (B-01).
+const LEER_CELDA_TEXTO = (k) => EN_MARCO(`
+  const t = visibles(${JSON.stringify(sel(`texto-opcion-quiz-${k}`))})[0];
+  const o = visibles(${JSON.stringify(sel(`opcion-quiz-${k}`))})[0];
+  if (!t || !o || !t.parentElement) return null;
+  const c = t.parentElement.getBoundingClientRect(), r = o.getBoundingClientRect();
+  return { ancho: c.width, derecha: r.right - c.right };
+`);
+
 const LEER_REPORTAR = EN_MARCO(`
   const el = visibles('[data-testid="boton-reportar"]')[0];
   const enun = visibles('[data-testid="enunciado-quiz"]')[0];
@@ -565,6 +575,8 @@ async function probarQuiz(pagina, base, t, navegador, { tema, preguntas }) {
   const letra = await pagina.evaluar(LEER(sel('letra-opcion-quiz-0')));
   t.ok(nombre('celda de letra: ancho paso 11, letra A'),
     letra !== null && Math.round(letra.rect.ancho) === LADO_TACTIL && letra.texto === 'A', true);
+  t.ok(nombre('celda de letra: pegada al marco (1 px), sin relleno de botón'),
+    letra !== null && reposo !== null && cerca(letra.rect.x - reposo.rect.x, 1, 0.6), true);
   t.ok(nombre('celda de letra: filete derecho `filete`'),
     letra !== null && letra.bordeElInfAncho !== undefined && await pagina.evaluar(EN_MARCO(`
       const n = visibles('[data-testid="letra-opcion-quiz-0"]')[0];
@@ -653,6 +665,11 @@ async function probarQuiz(pagina, base, t, navegador, { tema, preguntas }) {
       reportar !== null && reportar.rect.alto >= LADO_TACTIL && reportar.rect.ancho >= LADO_TACTIL
       && reportar.texto.toLowerCase().includes('reportar pregunta'), true);
     const sig = await pagina.evaluar(LEER(sel('boton-siguiente')));
+    const flecha = await pagina.evaluar(EN_MARCO(`
+      const g = visibles('[data-testid="boton-siguiente"] svg');
+      return g.length ? g[g.length - 1].getBoundingClientRect().width : null;
+    `));
+    t.ok(nombre('siguiente: flecha a paso 6 (24 px)'), flecha, 6 * PASO);
     t.ok(nombre('siguiente: botón K1 `tinta` con texto `fondo`, 44 de alto'),
       sig !== null && sig.fondo === rgb(T.tinta) && sig.rect.alto >= LADO_TACTIL, true);
     const bi = await pagina.evaluar(LEER(sel('barra-inferior')));
@@ -841,6 +858,8 @@ async function examenEnCurso(pagina, base, t) {
     t.ok('la semilla repite la misma primera pregunta', enunciado && enunciado.texto, previa.enunciado);
     t.ok('sin responder: no hay aviso', await existe(pagina, sel('aviso-resultado-oculto')), false);
     const antes = await pagina.evaluar(LEER(sel(`opcion-quiz-${idx}`)));
+    const letraAntes = await pagina.evaluar(LEER(sel(`letra-opcion-quiz-${idx}`)));
+    const celdaAntes = await pagina.evaluar(LEER_CELDA_TEXTO(idx));
     t.ok('hay opción para responder', antes !== null, true);
     t.ok('respondió una opción que no es la correcta', await responder(pagina, idx), true);
     const aviso = await pagina.evaluar(LEER(sel('aviso-resultado-oculto')));
@@ -857,6 +876,21 @@ async function examenEnCurso(pagina, base, t) {
     t.ok('elegida: el layout no se mueve al responder',
       elegida !== null && antes !== null && cerca(elegida.rect.alto, antes.rect.alto, 0.6), true);
     t.ok('elegida: estado accesible seleccionado', elegida && elegida.presionado, 'true');
+    const letraDespues = await pagina.evaluar(LEER(sel(`letra-opcion-quiz-${idx}`)));
+    t.ok('elegida: la celda de letra no salta al responder (queda pegada al marco)',
+      letraAntes !== null && letraDespues !== null && elegida !== null
+        && cerca(letraDespues.rect.x, letraAntes.rect.x, 0.6)
+        && cerca(letraDespues.rect.x - elegida.rect.x, 1, 0.6), true);
+    // B-01 por los dos lados: la celda de texto en reposo mide lo mismo y termina en el
+    // mismo borde derecho que la de una opción respondida (la elegida comparte el
+    // componente del reposo, así que se mide otra, ya apagada): perder la compensación
+    // derecha de `-mx-4` la dejaría 16 px más angosta.
+    const otra = idx === 0 ? 1 : 0;
+    const celdaDespues = await pagina.evaluar(LEER_CELDA_TEXTO(otra));
+    t.ok('respondida: la celda de texto de una opción en reposo coincide con la de una respondida (ancho y borde derecho)',
+      celdaAntes !== null && celdaDespues !== null
+        && cerca(celdaDespues.ancho, celdaAntes.ancho, 0.6)
+        && cerca(celdaDespues.derecha, celdaAntes.derecha, 0.6), true);
 
     // La correcta no se revela (EXA-C1): marco `filete`, texto `tintaSec`, sin opacidad ni
     // línea de estado. Se mira la correcta aparte, con su índice, y después todas las demás.

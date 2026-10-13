@@ -441,7 +441,9 @@ export default function QuizScreen({ route, navigation }) {
                       onPress={() => handleSelectOption(idx)}
                     >
                       {({ texto }) => (
-                        <View className="flex-1 flex-row items-stretch">
+                        // `-mx-4` anula el `px-4` del control: la celda de letra queda pegada
+                        // al marco, como en la opción respondida (Quiz.md a.3).
+                        <View className="-mx-4 flex-1 flex-row items-stretch">
                           <View
                             testID={`letra-opcion-quiz-${idx}`}
                             className="w-11 items-center justify-center border-r border-filete dark:border-fileteD"
@@ -574,6 +576,7 @@ export default function QuizScreen({ route, navigation }) {
                 glifo="glifo-siguiente"
                 glifoPosicion="extremo"
                 tamano="grande"
+                tamanoGlifo="grande"
                 className="w-full"
                 onPress={handleNext}
               />

@@ -195,6 +195,9 @@ const LEER = EN_MARCO(`
     return {
       caja: caja(n), borde: estilo(n).borderLeftWidth + ' ' + estilo(n).borderLeftColor,
       cifra: texto(cifra), rotulo: texto(rotulo), glifos: glifos(rotulo),
+      rotuloCaja: caja(rotulo), borde1: parseFloat(estilo(n).borderLeftWidth) || 0,
+      glifoCaja: rotulo && rotulo.querySelector('svg') ? caja(rotulo.querySelector('svg')) : null,
+      palabraCaja: caja(hoja(rotulo)),
     };
   };
   const barra = uno('barra-interna');
@@ -229,6 +232,9 @@ const LEER = EN_MARCO(`
     porcentaje: uno('resultados-porcentaje') ? {
       caja: caja(uno('resultados-porcentaje')), texto: texto(uno('resultados-porcentaje')),
       glifos: glifos(uno('resultados-porcentaje')),
+      glifoCaja: uno('resultados-porcentaje').querySelector('svg')
+        ? caja(uno('resultados-porcentaje').querySelector('svg')) : null,
+      palabraCaja: caja(hoja(uno('resultados-porcentaje'))),
     } : null,
     subtitulo: texto(uno('resultados-subtitulo')),
     subtituloCaja: caja(uno('resultados-subtitulo')),
@@ -296,6 +302,7 @@ const LEER = EN_MARCO(`
         return {
           id, caja: caja(n), texto: txt(n), bordeIzq: e.borderLeftWidth + ' ' + e.borderLeftColor,
           nota: nota ? txt(nota) : null, notaCaja: caja(nota),
+          notaRelleno: nota ? ['Top', 'Right', 'Bottom', 'Left'].map((l) => estilo(nota)['padding' + l]).join(' ') : null,
           reportar: reportar ? {
             caja: caja(reportar), texto: txt(reportar), nombre: reportar.getAttribute('aria-label'),
             glifos: glifos(reportar),
@@ -487,6 +494,8 @@ async function tarjetaPorTramo(pagina, base, t) {
     t.ok(`${c.pct}%: marca ${c.glifo} de paso 6 (24 px), oculta a lectores`,
       !!p && p.glifos.length === 1 && `${p.glifos[0].ancho}|${p.glifos[0].primerD}|${p.glifos[0].oculto}`,
       `24|${GLIFOS[c.glifo].elementos[0].props.d}|true`);
+    t.ok(`${c.pct}%: marca y porcentaje separados paso 2 (8 px)`,
+      !!p && !!p.glifoCaja && !!p.palabraCaja && p.palabraCaja.izq - p.glifoCaja.der, 2 * PASO);
     t.ok(`${c.pct}%: subtítulo «${c.aciertos} de ${c.total} correctas»`,
       !!h.subtitulo && h.subtitulo.texto, `${c.aciertos} de ${c.total} correctas`);
     t.ok(`${c.pct}%: mensaje «${c.mensaje}»`, !!h.mensaje && h.mensaje.texto, c.mensaje);
@@ -1063,6 +1072,8 @@ async function revisionTarjetas(pagina, base, t) {
   // Nota «Nota / Explicación» (REV-P3): solo con explicación.
   t.ok('con explicación hay nota con rótulo «Nota / Explicación»',
     !!acertada.nota && /Nota \/ Explicación/i.test(acertada.nota), true);
+  t.ok('la nota lleva relleno paso 3.5 (14 px) en las cuatro caras, como la del quiz (CD-17)',
+    acertada.notaRelleno, '14px 14px 14px 14px');
   t.ok('la nota trae el texto de la explicación', !!acertada.nota && acertada.nota.includes('Explicación de prueba 1'), true);
   t.ok('la nota lleva glifo-explicacion delante',
     !!acertada.nota && acertada.glifos.some((g) => g.primerD === GLIFOS['glifo-explicacion'].elementos[0].props.d), true);
@@ -1113,7 +1124,7 @@ async function revisionTarjetas(pagina, base, t) {
 
 async function anchos(pagina, base, t) {
   // 1023 es el último ancho bajo el corte `escritorio`: sigue la columna de siempre.
-  for (const ancho of [320, 360, 390, 768, 1023]) {
+  for (const ancho of [320, 360, 375, 390, 768, 1023]) {
     const columna = Math.min(ancho, COLUMNA);
     const izq = (ancho - columna) / 2 + MARGEN;
     t.ok(`${ancho} px: navegar al resumen con 40 respuestas`,
@@ -1132,6 +1143,25 @@ async function anchos(pagina, base, t) {
     t.ok(`${ancho} px: trío con tres celdas de un tercio`,
       !!h.correctas && !!h.incorrectas && !!h.total
         && [h.correctas, h.incorrectas, h.total].every((c) => Math.abs(c.caja.ancho - (columna - 2 * MARGEN) / 3) < 1.5), true);
+    // C3 (sin recorte desde 320): el rótulo de cada celda cae entre sus filetes.
+    t.ok(`${ancho} px: el rótulo del trío no pisa filetes ni la celda vecina`,
+      [h.correctas, h.incorrectas, h.total].every((c) => !!c && !!c.rotuloCaja
+        && c.rotuloCaja.izq >= c.caja.izq + c.borde1 - 0.5 && c.rotuloCaja.der <= c.caja.der + 0.5), true);
+    const cs = [h.correctas, h.incorrectas, h.total];
+    if (ancho < 375) {
+      t.ok(`${ancho} px: «Correctas» e «Incorrectas» apiladas, glifo arriba y palabra abajo`,
+        [h.correctas, h.incorrectas].every((c) => !!c && !!c.glifoCaja && !!c.palabraCaja
+          && c.glifoCaja.abajo <= c.palabraCaja.arriba + 0.5), true);
+      t.ok(`${ancho} px: las tres palabras comparten línea`,
+        cs.every((c) => !!c && !!c.palabraCaja)
+          && cs.every((c) => Math.abs(c.palabraCaja.arriba - cs[0].palabraCaja.arriba) <= 0.5), true);
+    } else {
+      t.ok(`${ancho} px: glifo y palabra en una línea, «Total» a la altura de las otras`,
+        [h.correctas, h.incorrectas].every((c) => !!c && !!c.glifoCaja && !!c.palabraCaja
+          && Math.abs((c.glifoCaja.arriba + c.glifoCaja.abajo) / 2
+            - (c.palabraCaja.arriba + c.palabraCaja.abajo) / 2) <= 1)
+          && !!h.total && Math.abs(h.total.palabraCaja.arriba - h.correctas.palabraCaja.arriba) <= 4, true);
+    }
     t.ok(`${ancho} px: nada del trío ni de los botones queda fuera de la columna`,
       !!h.trio && h.trio.caja.der <= izq + columna - 2 * MARGEN + 0.5, true);
 
@@ -1511,8 +1541,14 @@ async function fuenteDeLaPantalla(pagina, base, t) {
   // Escritorio: las piezas de `plancha/`, sin cortes ni anchos propios (3.11a).
   t.ok('usa Hoja y Regiones de plancha',
     /<Hoja[\s>]/.test(sinComentarios) && /<Regiones[\s>]/.test(sinComentarios), true);
-  t.ok('sin max-w-*, escritorio:, amplio: ni useWindowDimensions propios',
-    /max-w-|escritorio:|amplio:|useWindowDimensions|\b1024\b/.test(sinComentarios), false);
+  // `useWindowDimensions` queda acotado a un solo uso: el rótulo del trío se apila bajo
+  // 375 px de ventana (Results.md a.3, C-01), criterio por ancho de ventana (comun.md §1.1).
+  t.ok('sin max-w-*, escritorio:, amplio: ni cortes de escritorio propios',
+    /max-w-|escritorio:|amplio:|\b1024\b/.test(sinComentarios), false);
+  t.ok('useWindowDimensions: un solo uso, el del rótulo del trío (C-01), con corte en 375',
+    (sinComentarios.match(/useWindowDimensions\(/g) || []).length === 1
+      && /useWindowDimensions\(\)\.width < ANCHO_ROTULO_EN_LINEA\b/.test(sinComentarios)
+      && /ANCHO_ROTULO_EN_LINEA = 375\b/.test(sinComentarios), true);
   t.ok('sin los nombres legados de tono (warning, success, danger)', /warning|success|danger/.test(sinComentarios), false);
 }
 
