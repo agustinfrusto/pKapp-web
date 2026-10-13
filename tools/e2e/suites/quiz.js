@@ -274,6 +274,18 @@ async function reportarK7(ctx, nombre) {
       && Math.abs(g.rellenoIzq - 4 * PASO) <= 0.5 && Math.abs(g.rellenoDer - 4 * PASO) <= 0.5, true);
 }
 
+// Insignia de parcial (PAR-P1): sus casillas, con borde y relleno computados, y su texto.
+const MEDIR_INSIGNIA = EN_MARCO(`
+  const ins = visibles('[data-testid="insignia-parcial"]')[0];
+  if (!ins) return null;
+  const marca = ins.querySelector('[aria-hidden="true"]');
+  const casillas = marca ? Array.from(marca.children).map((c) => {
+    const e = w.getComputedStyle(c);
+    return { borde: e.borderTopColor, relleno: e.backgroundColor };
+  }) : [];
+  return { texto: ins.innerText.trim().toLowerCase(), casillas };
+`);
+
 const CONTAR = (s) => EN_MARCO(`return visibles(${JSON.stringify(s)}).length;`);
 const TEXTO = EN_MARCO('return d.body.innerText;');
 const TEXTO_SIN_PREGUNTA = EN_MARCO(`
@@ -659,7 +671,21 @@ async function probarQuiz(pagina, base, t, navegador, { tema, preguntas }) {
           return s.borderLeftWidth + ' ' + s.borderLeftColor + ' ' + s.backgroundColor;
         `)), `3px ${rgb(T.acento)} ${rgb(T.superficie)}`);
     }
-    if (await existe(pagina, sel('insignia-parcial'))) vistos.parcial++;
+    if (await existe(pagina, sel('insignia-parcial'))) {
+      vistos.parcial++;
+      // BCYT tiene dos parciales: dos casillas, la llena en `tinta` y la vacía con borde `tinta`.
+      const ins = await pagina.evaluar(MEDIR_INSIGNIA);
+      const pos = ins && ins.texto.startsWith('1er') ? 0 : (ins && ins.texto.startsWith('2do') ? 1 : -1);
+      const cas = ins ? ins.casillas : [];
+      t.ok(nombre('insignia: dos casillas (una por parcial de BCYT)'), cas.length, 2);
+      t.ok(nombre('insignia: solo la casilla del parcial está llena'),
+        cas.map((c) => c.relleno !== TRANSPARENTE).join('|'), [0, 1].map((k) => k === pos).join('|'));
+      t.ok(nombre('insignia: la casilla llena es `tinta`'),
+        pos >= 0 && cas[pos] ? `${cas[pos].borde} ${cas[pos].relleno}` : null, `${rgb(T.tinta)} ${rgb(T.tinta)}`);
+      t.ok(nombre('insignia: la casilla vacía lleva borde `tinta` y sin relleno'),
+        pos >= 0 && cas[1 - pos] ? `${cas[1 - pos].borde} ${cas[1 - pos].relleno}` : null,
+        `${rgb(T.tinta)} ${TRANSPARENTE}`);
+    }
     const reportar = await pagina.evaluar(LEER(sel('boton-reportar')));
     t.ok(nombre('reportar: aparece tras responder, 44 × 44'),
       reportar !== null && reportar.rect.alto >= LADO_TACTIL && reportar.rect.ancho >= LADO_TACTIL

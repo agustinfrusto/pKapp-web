@@ -17,7 +17,7 @@ import { plancha } from '../theme/colores';
 import { reportQuestion } from '../utils/report';
 import Glifo from '../components/Glifo';
 import {
-  BotonRelleno, Columna, ControlMarco, FilaLista, MarcaEstado, RotuloSeccion, useEntrada,
+  BotonRelleno, Columna, ControlMarco, FilaLista, MarcaEstado, MarcaParcial, RotuloSeccion, useEntrada,
 } from '../components/plancha';
 import { Contenido } from '../components/plancha/Control';
 
@@ -370,21 +370,7 @@ export default function QuizScreen({ route, navigation }) {
               <View className="max-w-full items-start">
                 {currentQuestion.parcial && (
                   <View testID="insignia-parcial" className="mb-1 flex-row items-center gap-1.5">
-                    <View
-                      aria-hidden
-                      accessibilityElementsHidden
-                      importantForAccessibility="no-hide-descendants"
-                      className="flex-row items-center gap-0.5"
-                    >
-                      {Array.from({ length: casillasParcial }, (_, i) => (
-                        <View
-                          key={i}
-                          className={`h-2.5 w-2.5 border border-tinta dark:border-tintaD ${
-                            i === llenaParcial ? 'bg-tinta dark:bg-tintaD' : ''
-                          }`}
-                        />
-                      ))}
-                    </View>
+                    <MarcaParcial indice={llenaParcial} de={casillasParcial} color="tinta" />
                     <Text className={`font-plex-mono text-rotulo uppercase ${TINTA}`}>{etiquetaParcial}</Text>
                   </View>
                 )}

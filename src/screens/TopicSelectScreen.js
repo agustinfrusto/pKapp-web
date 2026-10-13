@@ -180,6 +180,7 @@ export default function TopicSelectScreen({ route, navigation }) {
       sourceFilter={fuenteEfectiva} setSourceFilter={setSourceFilter}
       parcialFilter={parcialFilter} setParcialFilter={setParcialFilter}
       parcialFilters={PARCIAL_FILTERS}
+      parcialIds={hasParciales ? parcialesConfig.map(p => p.id) : null}
       timerMinutes={timerMinutes} setTimerMinutes={setTimerMinutes}
     />
   );
@@ -294,7 +295,7 @@ export default function TopicSelectScreen({ route, navigation }) {
               <FilaLista key={key} filete onPress={() => startQuiz(key)}>
                 {({ texto, glifo, invertido }) => (
                   <View className="flex-1 flex-row items-center gap-3 py-3">
-                    <Text className={`font-plex-mono text-rotulo ${invertido ? texto : TINTA_SEC}`}>
+                    <Text className={`font-plex-mono text-rotulo uppercase ${invertido ? texto : TINTA_SEC}`}>
                       {String(i + 1).padStart(2, '0')}
                     </Text>
                     <View className="min-w-0 flex-1">
@@ -318,7 +319,7 @@ export default function TopicSelectScreen({ route, navigation }) {
 
 // Panel de filtros: fuente (solo con propias), parcial (si la materia tiene parciales) y
 // temporizador. Los divisores van solo entre grupos presentes (TOPIC-P6).
-function Filters({ mostrarFuente, sourceFilter, setSourceFilter, parcialFilter, setParcialFilter, parcialFilters, timerMinutes, setTimerMinutes }) {
+function Filters({ mostrarFuente, sourceFilter, setSourceFilter, parcialFilter, setParcialFilter, parcialFilters, parcialIds, timerMinutes, setTimerMinutes }) {
   const currentIdx = TIMER_OPTIONS.indexOf(timerMinutes);
   const panelRef = useRef(null);
   const teniaFuente = useRef(mostrarFuente);
@@ -362,11 +363,19 @@ function Filters({ mostrarFuente, sourceFilter, setSourceFilter, parcialFilter, 
     );
   }
   if (parcialFilters) {
+    // PAR-P2: cada parcial lleva la marca, la `indice`-ésima casilla llena; «Examen» no.
+    // «Examen» se reconoce por su clave y los parciales van en el orden de `parciales[]`,
+    // cualquiera sea su id: el orden de las claves del objeto no sirve (las enteras van primero).
+    const de = parcialIds.length;
+    const opcionesDeParcial = [
+      { valor: 'all', etiqueta: parcialFilters.all },
+      ...parcialIds.map((valor, indice) => ({ valor, etiqueta: parcialFilters[valor], marca: { indice, de } })),
+    ];
     grupos.push(
       <GrupoDeFiltro key="parcial" nombre="Parcial" className="escritorio:min-w-0 escritorio:flex-1">
         <Segmento
           accessibilityLabel="Parcial"
-          opciones={Object.entries(parcialFilters).map(([valor, etiqueta]) => ({ valor, etiqueta }))}
+          opciones={opcionesDeParcial}
           valor={parcialFilter}
           alCambiar={setParcialFilter}
         />

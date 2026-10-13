@@ -1,7 +1,8 @@
 // K4 · filtro o segmento de un grupo (comun.md §5.2). Grupo `radiogroup`; cada opción
 // es un `radio` con su estado seleccionado. Tocar la opción ya seleccionada no hace nada.
-// Cada opción admite `deshabilitado` (fila «Deshabilitado» de K4).
-// Props: `opciones` [{ valor, etiqueta, deshabilitado? }], `valor`, `alCambiar(valor)`,
+// Cada opción admite `deshabilitado` (fila «Deshabilitado» de K4) y `marca`: la marca de
+// parcial (comun.md §12.2) delante del texto, del color del glifo del estado de la opción.
+// Props: `opciones` [{ valor, etiqueta, deshabilitado?, marca?: { indice, de } }], `valor`, `alCambiar(valor)`,
 //   `accessibilityLabel`, `className` (layout) y
 //   `anchoIgual` (false por defecto): opciones de igual ancho que llenan el contenedor
 //   `forma`  `filtro` (por defecto: opciones con marco `borde`, `cuerpo`) |
@@ -12,7 +13,8 @@
 // se actúa. Todas las opciones habilitadas siguen siendo paradas de Tab.
 import React, { useRef } from 'react';
 import { View } from 'react-native';
-import Control, { Contenido, CONTORNO } from './Control';
+import Control, { Contenido, CONTORNO, useEstadoControl } from './Control';
+import MarcaParcial from './MarcaParcial';
 import { ASPECTO_MARCO_BORDE } from './aspectoMarcoBorde';
 import { elegir } from './guardias';
 
@@ -56,6 +58,13 @@ const SEGMENTADO = {
 };
 
 const FORMAS = { filtro: FILTRO, segmentado: SEGMENTADO };
+
+// La marca toma el color del glifo del estado: `tinta` en reposo, hover y foco; `fondo`
+// al presionar y seleccionada. Vive dentro del `Control` para leer ese estado.
+function MarcaDeOpcion({ marca }) {
+  const { glifo } = useEstadoControl();
+  return <MarcaParcial indice={marca.indice} de={marca.de} color={glifo} />;
+}
 
 export default function Segmento({
   opciones, valor, alCambiar, accessibilityLabel, forma, anchoIgual = false, className = '',
@@ -105,6 +114,7 @@ export default function Segmento({
             onKeyDown={(e) => alTeclear(e, i)}
             registrar={(nodo) => { refs.current[i] = nodo; }}
           >
+            {op.marca && <MarcaDeOpcion marca={op.marca} />}
             <Contenido etiqueta={op.etiqueta} tipografia={f.tipografia} />
           </Control>
         );

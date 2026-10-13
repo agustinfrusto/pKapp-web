@@ -641,6 +641,7 @@ const LEER_DESP = (id) => `(function () {
         nombre: g.getAttribute('aria-label'),
         rotulo: cab.textContent.trim(),
         marca: marca ? Array.from(marca.children).map((c) => getComputedStyle(c).backgroundColor) : null,
+        bordes: marca ? Array.from(marca.children).map((c) => getComputedStyle(c).borderTopColor) : null,
         oculta: marca ? marca.getAttribute('aria-hidden') : null,
         opciones: g.querySelectorAll('[role="option"]').length,
       };
@@ -780,6 +781,9 @@ async function desplegables(pagina, t, tema, T) {
   t.ok(c('grupos: la casilla llena es tintaSec'),
     l.grupos.map((g) => g.marca.find((x) => x !== TRANSPARENTE)).join('|'),
     `${rgb(T.tintaSec)}|${rgb(T.tintaSec)}`);
+  t.ok(c('grupos: las casillas vacías llevan borde tintaSec'),
+    l.grupos.map((g) => g.bordes.filter((_, k) => g.marca[k] === TRANSPARENTE).join(',')).join('|'),
+    [2, 2].map(() => [rgb(T.tintaSec), rgb(T.tintaSec)].join(',')).join('|'));
   t.ok(c('grupos: la deshabilitada lleva aria-disabled; ninguna está elegida'),
     `${l.deshabilitadas.join(',')}|${l.elegidas.join(',')}`, 'false,true,false,false|false,false,false,false');
   t.ok(c('grupos sin valor: el foco abre en la primera habilitada, única parada de Tab'),

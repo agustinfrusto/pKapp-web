@@ -23,6 +23,7 @@ import Glifo from '../Glifo';
 import ControlMarco from './ControlMarco';
 import FilaLista from './FilaLista';
 import Lamina from './Lamina';
+import MarcaParcial from './MarcaParcial';
 import { GLIFO_CHICO, useTokens } from './Control';
 import { avisar } from './guardias';
 
@@ -38,27 +39,6 @@ let contador = 0;
 
 const normalizar = (texto) => texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 const ES_CARACTER = /^[\p{L}\p{N} ]$/u;
-
-// Marca de parcial (comun.md §12.2): `de` casillas de lado paso 2.5, llena la `indice`.
-function MarcaParcial({ indice, de }) {
-  return (
-    <View
-      aria-hidden
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-      className="flex-row items-center gap-0.5"
-    >
-      {Array.from({ length: de }, (_, i) => (
-        <View
-          key={i}
-          className={`h-2.5 w-2.5 border border-tintaSec dark:border-tintaSecD ${
-            i === indice ? 'bg-tintaSec dark:bg-tintaSecD' : ''
-          }`}
-        />
-      ))}
-    </View>
-  );
-}
 
 export default function Desplegable({
   accessibilityLabel, opciones, grupos, valor, alCambiar, textoDeAyuda,

@@ -13,7 +13,8 @@
 // | BotonMarco        | K2    | las de K1 y tono, fondo, tamanoGlifo                                  |
 // | ControlMarco      | K3    | las de K1 y children, seleccionado, abierto, tono, enfasis,           |
 // |                   |       | popup, controla, onKeyDown, registrar                                 |
-// | Segmento          | K4    | opciones, valor, alCambiar, forma, anchoIgual, accessibilityLabel, className |
+// | Segmento          | K4    | opciones ({ valor, etiqueta, deshabilitado?, marca?: { indice, de } }), |
+// |                   |       | valor, alCambiar, forma, anchoIgual, accessibilityLabel, className    |
 // | CuadroPaso        | K5    | glifo, fondo, onPress, deshabilitado, accessibilityLabel (obligatoria)|
 // | TarjetaNavegable  | K6    | children, variante, onPress, deshabilitado, accessibilityLabel        |
 // | FilaLista         | K7    | children, glifo, tono, filete, onPress, deshabilitado, accessibilityLabel,|
@@ -22,6 +23,7 @@
 // |                   |       | deshabilitado, className, testID                                      |
 // | Lamina            | —     | children; Lamina.Divisor                                              |
 // | MarcaEstado       | —     | estado, texto, paso, colorTexto                                       |
+// | MarcaParcial      | —     | indice, de, color                                                     |
 // | RotuloSeccion     | —     | children, color                                                       |
 // | Columna           | —     | children, ancho, testID                                               |
 // | Hoja              | —     | children, ancho, testID                                               |
@@ -51,6 +53,8 @@
 //   amplio (FlujoColumnas)     3 (por defecto) | 2 | 1: columnas desde `amplio` (1440)
 //   paso (MarcaEstado)       rotulo | rotulo-medio | detalle | dato | display (glifo paso 6 solo con display)
 //   colorTexto (MarcaEstado) estado | tintaSec
+//   color (MarcaParcial)     tintaSec (por defecto) | tinta | fondo | inactivo. En K4 la marca
+//                   toma el color del glifo del estado de la opción.
 //
 // Estado accesible (web): K3 con `seleccionado` emite `aria-pressed` (botón conmutable);
 // con `abierto`, `aria-expanded`; K4 emite `role="radio"` con `aria-checked`; K7 con
@@ -78,6 +82,7 @@ export { default as FilaLista } from './FilaLista';
 export { default as Lamina } from './Lamina';
 export { default as Desplegable } from './Desplegable';
 export { default as MarcaEstado } from './MarcaEstado';
+export { default as MarcaParcial } from './MarcaParcial';
 export { default as RotuloSeccion } from './RotuloSeccion';
 export { default as Columna } from './Columna';
 export { default as Hoja } from './Hoja';
