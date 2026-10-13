@@ -194,9 +194,22 @@ La escala por defecto de Tailwind (base 4 px) ya contiene todos los pasos del bo
 | `20` | 80 | Ancho mínimo del valor del temporizador del quiz; alto mínimo del campo multilínea de AddQuestion (enunciado y explicación) |
 | `24` | 96 | Ancho de la celda de ilustración en la tarjeta de materia de Home; relleno inferior del scroll del quiz (más el área segura inferior) |
 | `28` | 112 | Alto del campo de filamentos del selector |
-| `80` | 320 | Alto máximo de la lista del desplegable de AddQuestion (`ADD-P3`, aprobada el 2026-10-11; `comun.md` §5.3 y §8) |
+| `72` | 288 | Alto máximo de la lista plana del desplegable de AddQuestion, la que se publica: deja una fila cortada al pie (tarea 5.2, `E-01`, 2026-10-13; `comun.md` §5.3 y §8) |
+| `80` | 320 | Alto máximo de la lista del desplegable con rótulos de grupo (`ADD-P3`, aprobada el 2026-10-11; `comun.md` §5.3 y §8). Hasta `E-01` lo era también de la lista plana |
 
-Los pasos `11`, `12`, `16`, `20`, `24` y `28` no estaban en la lista original; salen de la escala por defecto de Tailwind y se aceptaron en la corrección de 1.2. El paso `80` sale de la misma escala y lo suma `ADD-P3` (2026-10-11). `spacing` sigue sin cambios.
+Los pasos `11`, `12`, `16`, `20`, `24` y `28` no estaban en la lista original; salen de la escala por defecto de Tailwind y se aceptaron en la corrección de 1.2. Los pasos `72` y `80` salen de la misma escala (`max-h-72` y `max-h-80`): el `80` lo suma `ADD-P3` (2026-10-11) y el `72`, `E-01` (tarea 5.2, 2026-10-13). `spacing` sigue sin cambios.
+
+**Alto máximo del desplegable** (tarea 5.2, `E-01`, 2026-10-13). El valor se elige para que el borde inferior de la región caiga sobre la línea de texto de una fila, no sobre su relleno. Cuenta con filas de 44 px que incluyen su filete, relleno de la región `paso 1` y rótulo de grupo de 33 px (relleno vertical `paso 2` dos veces, `rotulo` de 16 y filete):
+
+| Lista | Cuenta | Región | Visible de la fila cortada | Resultado | Paso |
+|---|---|---|---|---|---|
+| Plana | 4 + 6 × 44 + 20 | 288 | 20 de 44 px | Línea de texto cortada | `72` |
+| Con rótulos de grupo | 4 + 33 + 6 × 44 + 19 | 320 | 19 de 44 px | Línea de texto cortada | `80` |
+| Plana con `80` (hasta `E-01`) | 4 + 7 × 44 + 8 | 320 | 8 de 44 px | Relleno sin texto: la lista parece terminar | — |
+| Con rótulos con `72` | 4 + 33 + 5 × 44 + 31 | 288 | 31 de 44 px | El texto entra entero: sin pista | — |
+| Otros pasos de la escala, lista plana | `60`: 4 + 5 × 44 + 16 · `64`: 4 + 5 × 44 + 32 · `96`: 4 + 8 × 44 + 28 | 240 · 256 · 384 | 16 · 32 · 28 de 44 px | Sin texto, texto entero y solo descendentes | — |
+
+La línea de texto de una fila de 44 px (`cuerpo`, 15/22, centrada) ocupa de 15 a 30 px: ascendentes desde 15, capitales desde 16, línea base en 26,5 y descendentes hasta 29,7 (Chrome 155, IBM Plex Sans). El corte cae sobre las letras, con al menos 3 px de capitales a la vista y sin pasar de la línea base, entre 19 y 26 px visibles; con 27 a 29 solo faltan los descendentes, desde 30 el texto está entero y con 16 o menos no hay tinta. Vale para filas de un renglón; con nombres de dos renglones (61 px) el corte cae donde sumen las alturas, y con la fila elegida lejos la región abre centrada y el corte cae sobre el relleno: límites medidos en `AddQuestion.md` j.
 
 | Valor del boceto | Paso final |
 |---|---|

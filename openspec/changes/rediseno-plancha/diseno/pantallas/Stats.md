@@ -96,7 +96,7 @@ Filete superior `filete`; relleno vertical `paso 3`; primera línea con «#{n}»
 
 ## c. Matriz de estados
 
-Las filas de esta pantalla no son controles: no hay hover, presionado, foco, seleccionado ni deshabilitado salvo en la barra interna.
+Las filas de esta pantalla no son controles: no hay hover, presionado, foco, seleccionado ni deshabilitado salvo en la barra interna y, con datos, en el contenedor desplazable, que es la otra parada de Tab (5.2, `E-03`; ver i).
 
 | Elemento | Reposo | Banda alta (80 o más) | Banda intermedia (60 a 79) | Banda baja (menos de 60) | Sin practicar |
 |---|---|---|---|---|---|
@@ -116,6 +116,7 @@ Las filas de esta pantalla no son controles: no hay hover, presionado, foco, sel
 | Elemento | Reposo | Hover (web) | Presionado | Foco | Seleccionado | Deshabilitado |
 |---|---|---|---|---|---|---|
 | Botón volver de la barra | `comun.md` §3 | `comun.md` §3 | `comun.md` §3 | `comun.md` §3 | — | — |
+| Contenedor desplazable, con datos (5.2, `E-03`) | Sin contorno | — | — | Contorno `foco`, `border-2`, `outline-offset` −`paso 0.5` (hacia adentro), solo `:focus-visible`; par N7 | — | — |
 | Tirar para actualizar | Nativo, sin estilo propio | — | — | — | — | — |
 | (5.0b, sin documentar) Tirar para actualizar en web | Sin efecto: el `RefreshControl` de react-native-web renderiza un `View` sin gesto ni indicador, así que en la única plataforma vigente (web, D10 y retiro de nativo 5.0) el gesto no existe y la pantalla se recarga solo al enfocar (`useFocusEffect`, d.2). Vale igual para V1 de `Vacios.md` (`VAC-C3`). Sin cambio en esta tarea | — | — | — | — | — |
 
@@ -229,6 +230,7 @@ Recorrido final de la rama `rediseno-revision-ux`. No son propuestas nuevas: cie
 |---|---|---|---|---|---|
 | 2026-10-13 | `C-05` | La marca de umbral se conserva tal como está dibujada y su par sobre el relleno se registra como exento (X8) | b: marca `linea`, solo el par N1; sin grosor. `linea` sobre el relleno no figuraba en `tokens.md` e: 2,73 / 2,65 / 2,40 en claro y 1,24 / 1,41 / 1,52 en oscuro | b: trazo `w-px` y alto `paso 3.5`, pares N1, N2 y X8. `tokens.md` e suma X8 (exento: lo identifica su sobresalido, redundante con el valor y la leyenda). No hay cambio de dibujo ni de código | Sin cambio de código: `stats-umbral-60-*` y `stats-umbral-80-*` siguen midiendo 14 px de alto, 1 px de ancho, `linea`, centrados y sobresaliendo 3 px arriba y abajo (`estadisticas.js`). Descartado: partir la marca en dos muescas fuera de la barra (más DOM y más aserciones para un tramo de 8 px, el alto de la barra, que en claro se ve y en oscuro ya no se distingue) |
 | 2026-10-13 | `C-06` (nota) | d.1 deja de citar números de línea | «Función `acierto(percentage, esOscuro)`, líneas 192 a 197» | `acierto(percentage)`, función de módulo | Sin cambio de código |
+| 2026-10-13 | `E-03` | c y «Orden, teclado y foco» (Escritorio): con datos, el contenedor desplazable es una parada de Tab con contorno propio | «La pantalla no tiene controles salvo el volver de la barra». Chrome 130 o más trata un contenedor desplazable sin controles dentro como parada de Tab: con datos era una segunda parada tras «Volver», con el contorno por defecto del navegador (`auto 1px`, `rgb(0, 95, 204)` en claro y `rgb(153, 200, 255)` en oscuro), fuera de la paleta y de CD-4 | Con datos, dos paradas: el volver de la barra y el contenedor desplazable, que deja desplazar con el teclado. Contorno `foco` (`#095c6b` claro, `#7fd6e3` oscuro), `border-2`, `outline-offset` −`paso 0.5` hacia adentro, solo `:focus-visible`. Las filas siguen sin ser controles. Sin pares nuevos: `foco` sobre `fondo` es N7 | Con datos, Tab desde «Volver» enfoca el contenedor desplazable: contorno `solid 2px` `foco` y `outline-offset: -2px`; con el puntero no aparece; Shift+Tab vuelve a «Volver». Sin datos (`Vacios.md` V1) su acción queda dentro del scroll y no hay segunda parada. Implementado fuera de este árbol (tanda del Programador): sin verificar acá |
 
 ---
 
@@ -275,7 +277,7 @@ El estado vacío (V1) es `Vacios.md` (`ESC-P12`).
 | Aspecto | Regla |
 |---|---|
 | Orden de DOM | El del teléfono: barra, tarjeta, «Por tema», leyenda, filas, «Más falladas», lista |
-| Foco | La pantalla no tiene controles salvo el volver de la barra; las filas no son controles (c) |
+| Foco | Con datos, dos paradas de Tab: el volver de la barra y, después, el contenedor desplazable (5.2, `E-03`). El contenedor lleva contorno `foco`, `border-2`, `outline-offset` −`paso 0.5` (hacia adentro: ocupa todo el ancho de la ventana y uno hacia afuera se recortaría), solo con `:focus-visible`, y deja desplazar con el teclado. Las filas no son controles (c) |
 | Cambia de lugar | La tarjeta global y la leyenda quedan a la izquierda de las filas, no encima |
 
 ### Propuesta

@@ -277,7 +277,7 @@ Elegir un valor entre una lista corta, sin cambiar de pantalla. Ninguna clase K1
 |---|---|---|
 | Disparador | K3 | Ancho completo; relleno `paso 3`; alto mínimo `paso 11`; el valor elegido (o el texto de ayuda) en `cuerpo` y `glifo-chevron` (chico, `tintaSec`) a la derecha: abajo cerrado, arriba abierto. Abierto está expandido y no seleccionado (regla 2.9-2): borde `linea`, sin relleno |
 | Lámina | §6 | Cuerpo `superficie`, marco `linea` y cuatro marcas de esquina; en línea, a `paso 2` del disparador; empuja lo que sigue y no tapa campos |
-| Región de scroll | — | Relleno `paso 1` (el contorno de foco, `paso 0.5` más `border-2`, no se recorta); alto máximo `paso 80`; scroll vertical propio con indicador visible, que no se encadena a la página |
+| Región de scroll | — | Relleno `paso 1` (el contorno de foco, `paso 0.5` más `border-2`, no se recorta); alto máximo `paso 72` con la lista plana y `paso 80` con rótulos de grupo (5.2, `E-01`, 2026-10-13: el tope deja una fila cortada al pie, ver «Alto»); scroll vertical propio con indicador visible, que no se encadena a la página |
 | Rótulo de grupo | — | Opcional. Relleno vertical `paso 2` y horizontal `paso 3`; fondo `fondo`; filete inferior `filete`; `rotulo` en `tintaSec`; con la marca de parcial de §12.2 delante, separada `paso 1.5`. No es un control |
 | Fila | K7 | Ancho completo; alto mínimo `paso 11`; relleno vertical `paso 2` y horizontal `paso 3`; filete inferior `filete`, salvo en la última; el nombre salta de línea y no se abrevia. Elegida: regla 2.9-10 |
 
@@ -287,7 +287,7 @@ Elegir un valor entre una lista corta, sin cambiar de pantalla. Ninguna clase K1
 | Cerrar | Tocar el disparador abierto; elegir una fila (el foco vuelve al disparador); Escape o Tab y Shift+Tab (sin cambiar el valor; con Tab el foco sigue el orden de DOM). Tocar otro control con puntero no cierra: cerrar movería el formulario bajo el dedo |
 | Elegir | Toque, Enter o Espacio sobre una fila: llama una vez a `alCambiar(valor)`. Las flechas no cambian el valor (es la diferencia con K4, regla 2.9-7) |
 | Al abrir | La región se desplaza hasta la fila elegida y la deja centrada si no está a la vista; si la lámina no entra en la ventana, la página se desplaza lo mínimo para mostrarla completa |
-| Alto | El del contenido hasta `paso 80`; con más, scroll vertical propio. La fila cortada al pie avisa que hay más. Sin posición pegajosa: los rótulos de grupo se desplazan con la lista |
+| Alto | El del contenido hasta `paso 72` (288 px) con la lista plana y `paso 80` (320 px) con rótulos de grupo; con más, scroll vertical propio. El tope deja una fila cortada al pie, con su línea de texto partida, que avisa que hay más (5.2, `E-01`, 2026-10-13; antes, `paso 80` en los dos casos). La cuenta está en `tokens.md` c.3. Rige con la lista abierta arriba y filas de un renglón; con nombres de dos renglones o abierta centrada en una fila lejana el corte cae donde caiga y queda solo el indicador de scroll (límites medidos: `AddQuestion.md` j). Sin posición pegajosa: los rótulos de grupo se desplazan con la lista |
 | Deshabilitado | El disparador sin toque, hover ni foco (borde `filete`; texto y chevron `inactivo`); si estaba abierto, cierra |
 | Fuera de alcance | Multiselección, buscador (se reabre con más de unas 40 opciones) y opciones con ilustración |
 
@@ -430,7 +430,7 @@ Pedido del usuario (2026-10-11): «La UI debería adaptarse también a un monito
 
 ## 8. Dimensiones de componente
 
-Pasos que fijan tamaños de componente. Todos figuran en `tokens.md` c.3: los pasos `11`, `12`, `16`, `20`, `24`, `28` y `80` se aceptaron como parte de la escala por defecto y están en la lista «en uso» con su rol (`80`: `ADD-P3`, 2026-10-11).
+Pasos que fijan tamaños de componente. Todos figuran en `tokens.md` c.3: los pasos `11`, `12`, `16`, `20`, `24`, `28`, `72` y `80` se aceptaron como parte de la escala por defecto y están en la lista «en uso» con su rol (`80`: `ADD-P3`, 2026-10-11; `72`: `E-01`, 2026-10-13).
 
 | Componente | Dimensión | Paso |
 |---|---|---|
@@ -463,7 +463,7 @@ Pasos que fijan tamaños de componente. Todos figuran en `tokens.md` c.3: los pa
 | Filtro K4 (TopicSelect, Revisión) y opción del segmentado (Settings) | Relleno horizontal; alto mínimo `paso 11` | `paso 3` |
 | Disparador del desplegable (K3, AddQuestion) | Relleno en las cuatro caras; alto mínimo `paso 11` | `paso 3` |
 | Fila del desplegable (K7) | Relleno vertical; relleno horizontal; alto mínimo `paso 11` | `paso 2`; `paso 3` |
-| Región de scroll del desplegable | Relleno; alto máximo | `paso 1`; `paso 80` |
+| Región de scroll del desplegable | Relleno; alto máximo | `paso 1`; `paso 72` con la lista plana, `paso 80` con rótulos de grupo (`E-01`) |
 | Tarjeta navegable K6 | Sin relleno propio: el contenido fija el suyo (tarjeta de materia, `MateriaSelect.md` a.3; tarjeta de mezcla, vertical `paso 3` y horizontal `paso 3.5`) | — |
 | Glifo de una marca de estado con paso `display` (porcentaje de Results y de Estadísticas) | Lado | `paso 6` |
 
