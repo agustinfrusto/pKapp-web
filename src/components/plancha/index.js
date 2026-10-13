@@ -65,7 +65,7 @@
 // plana [{ valor, etiqueta, deshabilitado? }]; `grupos` [{ id, etiqueta, marca?: { indice,
 // de }, opciones }] agrupa con rótulos (hoy ninguna materia declara el parcial de cada
 // tema: AddQuestion pasa `opciones`). Abre en línea bajo el disparador con alto máximo
-// paso 80. Una sola parada de Tab; flechas, Inicio, Fin, Re Pág/Av Pág, letras, Enter,
+// paso 72 (lista plana) o paso 80 (con rótulos). Una sola parada de Tab; flechas, Inicio, Fin, Re Pág/Av Pág, letras, Enter,
 // Espacio y Escape; el foco vuelve al disparador al elegir o cancelar.
 //
 // `children` de K3, K6 y K7 puede ser una función que recibe

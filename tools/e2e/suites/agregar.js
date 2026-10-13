@@ -406,7 +406,7 @@ async function desplegableAbrirYElegir(pagina, base, t, tema) {
   t.ok(c('exactamente una option aria-selected="true": la del tema actual'),
     JSON.stringify(l.opciones.filter((o) => o.seleccionada === 'true').map((o) => o.texto)),
     JSON.stringify([TEMAS_BCYT[0].nombre]));
-  t.ok(c('la región mide a lo sumo 320 px (paso 80)'), l.lista.alto <= 320 + 0.5, true);
+  t.ok(c('la región mide a lo sumo 288 px (paso 72, lista plana)'), l.lista.alto <= 288 + 0.5, true);
   t.ok(c('la lista empuja al formulario: el enunciado queda debajo de ella'),
     !!l.enunciado && l.enunciado.arriba >= l.lista.marco.abajo, true);
   t.ok(c('la lámina: fondo superficie y marco linea 1 px'),
@@ -454,7 +454,7 @@ async function desplegableAbrirYElegir(pagina, base, t, tema) {
   t.ok(c('elegir la ya elegida cierra y conserva el tema'),
     `${igual.nListasEnDom}|${igual.disp && igual.disp.texto}`, `0|${tercero}`);
 
-  // Centrado al abrir (d.2, F09): solo si la elegida no está a la vista con su contorno.
+  // Alineada a fila al abrir (d.4, E-01b): solo si la elegida no está a la vista con su contorno.
   // Fila 5: cabe en la región sin desplazar → la región queda en 0.
   const filaVista = 5;
   await abrirDesplegable(pagina);
@@ -464,7 +464,7 @@ async function desplegableAbrirYElegir(pagina, base, t, tema) {
   t.ok(c(`elegida a la vista (fila ${filaVista + 1}): la región no se desplaza al abrir`),
     `${vista.disp && vista.disp.texto}|${vista.lista && vista.lista.scrollTop}`,
     `${TEMAS_BCYT[filaVista].nombre}|0`);
-  // Fila 20: fuera de la región → al abrir queda dentro y centrada.
+  // Fila 20: fuera de la región → al abrir queda tercera, con dos filas de contexto y la siguiente a las tres enteras cortada al pie.
   const filaLejos = 19;
   await pagina.evaluar(EN_MARCO(`
     visibles('[role="listbox"]')[0].scrollTop = 600;
@@ -479,8 +479,31 @@ async function desplegableAbrirYElegir(pagina, base, t, tema) {
     `${TEMAS_BCYT[filaLejos].nombre}|${TEMAS_BCYT[filaLejos].nombre}`);
   t.ok(c('al abrir, la elegida queda dentro de la región'),
     !!sel && !!lejos.lista && sel.arriba >= lejos.lista.arriba - 0.5 && sel.abajo <= lejos.lista.abajo + 0.5, true);
-  t.ok(c('al abrir, la elegida queda centrada en la región'),
-    !!sel && !!lejos.lista && Math.abs((sel.arriba + sel.alto / 2) - (lejos.lista.arriba + lejos.lista.alto / 2)) <= 1.5, true);
+  const op = lejos.opciones;
+  const reg = lejos.lista;
+  const previa = op[filaLejos - 2];
+  const asoma = reg && op[filaLejos + 4] ? reg.abajo - op[filaLejos + 4].arriba : null;
+  t.ok(c('al abrir, la fila dos lugares antes queda alineada al borde superior de la región'),
+    !!reg && !!previa && Math.abs(previa.arriba - reg.arriba) <= 1.5, true);
+  t.ok(c('al abrir, la elegida es la tercera: a la altura de las dos filas anteriores del borde'),
+    !!sel && !!reg && !!previa
+      && Math.abs((sel.arriba - reg.arriba) - (previa.alto + op[filaLejos - 1].alto)) <= 1.5, true);
+  t.ok(c('al abrir, tres filas enteras bajo la elegida'),
+    !!reg && op[filaLejos + 3].abajo <= reg.abajo + 0.5, true);
+  t.ok(c('al abrir, la fila siguiente asoma entre 19 y 26 px: la línea de texto cortada'),
+    asoma !== null && asoma >= 19 && asoma <= 26, true);
+  // Elegida entre las últimas (fila 26): la región queda en el final de la lista, sin fila cortada.
+  const filaFinal = 25;
+  await pagina.evaluar(EN_MARCO(`
+    visibles('[role="listbox"]')[0].scrollTop = 99999;
+    return true;`));
+  await pausa(100);
+  await tocarCaja(pagina, (await leerDesp(pagina)).opciones[filaFinal]);
+  await abrirDesplegable(pagina);
+  const alFinal = await leerDesp(pagina);
+  t.ok(c(`elegida entre las últimas (fila ${filaFinal + 1}): la región queda en el final de la lista`),
+    !!alFinal.lista
+      && Math.abs(alFinal.lista.scrollTop - (alFinal.lista.scrollHeight - alFinal.lista.clientHeight)) <= 1, true);
   await teclaSintetica(pagina, 'Escape');
 }
 
