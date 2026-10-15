@@ -528,8 +528,7 @@ async function abrirPlegable(pagina, texto) {
 // Capturas de evidencia (solo con PKAPP_CAPTURAS): el viewport de la página ya es el del marco.
 async function capturar(pagina, nombre) {
   if (!process.env.PKAPP_CAPTURAS) return;
-  const dir = path.join(__dirname, '..', '..', '..', 'openspec', 'changes', 'rediseno-plancha',
-    'evidencia', 'despues', '3.11h');
+  const dir = path.join(__dirname, '..', '..', '..', 'tools', 'e2e', 'capturas', '3.11h');
   fs.mkdirSync(dir, { recursive: true });
   await pausa(400);
   const r = await pagina.enviar('Page.captureScreenshot', { format: 'png' });
@@ -904,8 +903,7 @@ function sinLiterales(_pagina, _base, t) {
 // y 1366, claro y oscuro, sin y con propias. No afirma nada: deja los PNG para revisión.
 async function capturasDeLaTrece(pagina, base, t) {
   if (!process.env.PKAPP_CAPTURAS) return;
-  const dir = path.resolve(__dirname, '..', '..', '..', 'openspec', 'changes', 'rediseno-plancha',
-    'evidencia', 'despues', '3.13');
+  const dir = path.resolve(__dirname, '..', '..', '..', 'tools', 'e2e', 'capturas', '3.13');
   fs.mkdirSync(dir, { recursive: true });
   const foto = async (ancho, alto, nombre) => {
     await pagina.enviar('Emulation.setDeviceMetricsOverride',

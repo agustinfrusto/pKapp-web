@@ -1,5 +1,5 @@
 // Pantalla de ajustes: gestión de preguntas custom, reseteo de stats, info.
-// Plancha (change rediseno-plancha, tarea 3.8): diseno/pantallas/Settings.md y el estado
+// Plancha (change rediseno-plancha, tarea 3.8): openspec/diseno/pantallas/Settings.md y el estado
 // vacío V3 de Vacios.md.
 import React, { useState, useCallback } from 'react';
 import {

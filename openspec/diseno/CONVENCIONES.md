@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Change | `openspec/changes/rediseno-plancha` |
+| Change | `openspec/changes/archive/2026-10-15-rediseno-plancha` |
 | Rama | `rediseno` |
 | Pedido | Usuario, 2026-10-10: «el diseñador debe también aceptar tus cambios, lleguen a convenciones y que no muera en ti, devuélvele tus conclusiones y déjalo opinar» |
 | Escribe | Diseñador: postura sobre C1 a C10 (§1), convenciones propias CD-1 a CD-27 (§2), gobernanza G-1 a G-4 (§3), alineaciones (§4) |
@@ -130,7 +130,7 @@ Estado de CD-1 a CD-27: acordada (Ingeniero y Diseñador, 2026-10-10). Reglas tr
 | id | Convención | Vive hoy en | Cómo se verifica |
 |---|---|---|---|
 | CD-25 | Los datos visibles se derivan: conteos de `CONTEOS`, id de `shortName` y posición, nombre de `materia.name`. Ni la ficha ni la pantalla llevan cifras escritas a mano | `MateriaSelect.md` d.1; reporte | Ninguna cifra de conteo en fichas ni en `src/screens` |
-| CD-26 | Ninguna ficha deja una rama abierta: toda alternativa condicional («si el usuario prefiere…», «si se rechaza…») se cierra antes de una tarea 3.x | C2; reporte 1.2-decisiones | `rg -n -i 'si el usuario prefiere\|si se rechaza' openspec/changes/rediseno-plancha/diseno/pantallas/` vacío |
+| CD-26 | Ninguna ficha deja una rama abierta: toda alternativa condicional («si el usuario prefiere…», «si se rechaza…») se cierra antes de una tarea 3.x | C2; reporte 1.2-decisiones | `rg -n -i 'si el usuario prefiere\|si se rechaza' openspec/diseno/pantallas/` vacío |
 | CD-27 | Tocar un token de `plancha` obliga a recalcular E1 a E4 con el script de `tokens.md` e y a actualizar sus tablas. Un par bajo 4,5:1 (texto) o 3:1 (no textual) no entra | `tokens.md` e | Resumen de e en cero filas bajo umbral |
 
 ---

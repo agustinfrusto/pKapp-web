@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Change | `openspec/changes/rediseno-plancha` (D6, D7, D9, D10) |
+| Change | `openspec/changes/archive/2026-10-15-rediseno-plancha` (D6, D7, D9, D10) |
 | Rama | `rediseno` |
 | Insumos | `tokens.md` (1.1), `hibrido.html`, `NOTAS.md`, `src/components/HeaderMarca.js`, `src/screens/*Screen.js`, `App.js` |
 | Lo usan | `MateriaSelect.md`, `Home.md`, `TopicSelect.md`, `Quiz.md`, `Results.md`, `Stats.md` |

@@ -23,7 +23,7 @@
 // `filamentos.js`. `V0-vigente.svg` es la referencia congelada: este script no la reescribe si
 // existe (`--forzar-v0` para hacerlo).
 //
-// Uso: node openspec/changes/rediseno-plancha/diseno/marca-prototipos/generar.mjs [--forzar-v0]
+// Uso: node openspec/diseno/marca-prototipos/generar.mjs [--forzar-v0]
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -32,7 +32,7 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
 const AQUI = path.dirname(fileURLToPath(import.meta.url));
-const RAIZ = path.resolve(AQUI, '..', '..', '..', '..', '..');
+const RAIZ = path.resolve(AQUI, '..', '..', '..');
 const require = createRequire(import.meta.url);
 
 export const plancha = require(path.join(RAIZ, 'src/theme/colores.js')).plancha;

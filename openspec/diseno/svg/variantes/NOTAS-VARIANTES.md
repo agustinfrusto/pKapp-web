@@ -2,14 +2,14 @@
 
 | Campo | Valor |
 |---|---|
-| Change | `openspec/changes/rediseno-plancha` (D2, D3; `CONVENCIONES.md` CD-15) |
+| Change | `openspec/changes/archive/2026-10-15-rediseno-plancha` (D2, D3; `CONVENCIONES.md` CD-15) |
 | Rama | `rediseno` |
 | Pedido | `cyr`: «No me gusta el glifo de cyr, no considero que identifica la materia (cardiovascular y respiratorio).» Ampliado a todas: «pedile lo mismo para todas las materias» |
 | Estado | Propuesta a elegir. Los seis `svg/<id>.svg` no se reemplazan hasta que el usuario decida |
 | Insumos | `svg/<id>.svg`; `referencia/REFERENCIAS.md` y `hibrido.html`; `design.md` D2 y D3; `tokens.md` (pasos `12` y `16`, `filamento`); `src/materias/*/ilustracion.js` |
 | Entrega | 18 SVG `<id>-a.svg`, `<id>-b.svg` y `<id>-c.svg`; `variantes.html` y `variantes.png`; `variantes.mjs`; `fuentes/`; este archivo |
 | Lámina | Claro y oscuro lado a lado. 01: filas hoy, A, B y C por las seis materias, cada celda a 112, 64 (Home, paso 16) y 48 px (selector, paso 12). 02: el selector completo con cada familia, celda 64 e ilustración 48 |
-| Regenerar | `node openspec/changes/rediseno-plancha/diseno/svg/variantes/variantes.mjs` (verifica el contrato y captura el PNG; `--sin-png` solo escribe el html). Los 15 dibujos calculados salen de `fuentes/familia-{a,b,c}.mjs` |
+| Regenerar | `node openspec/diseno/svg/variantes/variantes.mjs` (verifica el contrato y captura el PNG; `--sin-png` solo escribe el html). Los 15 dibujos calculados salen de `fuentes/familia-{a,b,c}.mjs` |
 
 ---
 

@@ -1,8 +1,8 @@
 // Ilustración de la materia cyr: datos de trazo, sin JSX ni dependencias de plataforma.
-// Contrato en openspec/changes/rediseno-plancha/design.md (D2/D3). El color lo pone Ilustracion.
+// Contrato en openspec/changes/archive/2026-10-15-rediseno-plancha/design.md (D2/D3). El color lo pone Ilustracion.
 // GENERADO — no editar a mano.
 // Regenerar: node tools/ui/convertir-ilustraciones.mjs cyr
-// Fuente: openspec/changes/rediseno-plancha/diseno/svg/cyr.svg
+// Fuente: openspec/diseno/svg/cyr.svg
 export const ilustracion = {
   viewBox: '0 0 64 64',
   trazo: { ancho: 1.1, union: 'miter', extremo: 'square' },

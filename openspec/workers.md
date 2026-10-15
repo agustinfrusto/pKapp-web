@@ -14,7 +14,7 @@ esa guía no respalde.
 | Rol | Archivo | Modelo | Effort | Puede editar | git |
 |---|---|---|---|---|---|
 | **Ingeniero Arquitecto** | `ingeniero.md` | `opus` | `high` | `openspec/**`, `CLAUDE.md`, `.claude/agents/**` y el campo de versión (`package.json`, `package-lock.json`, `app.json`) | `add` de la lista, `commit`, `tag` de versión y `push`, con orden (`openspec/commit.md`) |
-| **Diseñador UI/UX** | `disenador.md` | `sonnet` | `max` | `src/screens/**`, `src/components/**`, `src/theme/**`, `src/assets/**`, `referencias-diseno/**`, `openspec/changes/*/diseno/**` | ninguno |
+| **Diseñador UI/UX** | `disenador.md` | `sonnet` | `max` | `src/screens/**`, `src/components/**`, `src/theme/**`, `src/assets/**`, `referencias-diseno/**`, `openspec/diseno/**` | ninguno |
 | **Programador Ejecutor** | `programador.md` | `sonnet` | `low` | lo que su spec nombre | ninguno |
 | **Investigador** | `investigador.md` | `sonnet` | `high` | la carpeta de salida del pipeline (`tools/ingesta/salidas/**`) | ninguno |
 | **Analista de código** | `analista.md` | `sonnet` | `high` | solo su reporte (`.orca/reports/<tarea>-analisis.md`) | solo lectura |
@@ -229,10 +229,8 @@ Programador es una comprobación del arnés e2e o del build que el cambio vuelve
   tag (`feat` → minor; el resto → patch; breaking → major, previa consulta), y crea el
   tag `vX.Y.Z`. `tools/**`, `openspec/**`, `.claude/**` y los docs no bumpean.
 - Pushea solo con orden explícita, y con el push van sus tags.
-- El rediseño visual se commitea en la rama `rediseno`, y el merge a `main` solo se hace
-  consolidado y con orden del operador. Lo que no es diseño va a `main`, y después de
-  cada push a `main` se sincroniza `main` → `rediseno` (`openspec/commit.md`,
-  "Sincronización de `rediseno`").
+- Cada unidad de trabajo va en una rama corta desde `main` y vuelve a `main` con orden del
+  operador (`openspec/commit.md`, «Ramas»).
 
 Ningún otro rol toca git. Un worker que cree que su trabajo está listo manda
 `worker_done` y se detiene.

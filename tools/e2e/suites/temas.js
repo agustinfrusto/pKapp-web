@@ -1473,8 +1473,7 @@ async function sinDesbordeNiCortes(pagina, base, t) {
 const ALTO_DE_CAPTURA = { 1024: 768, 1366: 768, 1920: 1080 };
 async function capturar(pagina, ancho, nombre) {
   if (!process.env.PKAPP_CAPTURAS || !ALTO_DE_CAPTURA[ancho]) return;
-  const dir = path.resolve(__dirname, '..', '..', '..', 'openspec', 'changes', 'rediseno-plancha',
-    'evidencia', 'despues', '3.11d');
+  const dir = path.resolve(__dirname, '..', '..', '..', 'tools', 'e2e', 'capturas', '3.11d');
   fs.mkdirSync(dir, { recursive: true });
   await pagina.enviar('Emulation.setDeviceMetricsOverride',
     { width: ancho, height: ALTO_DE_CAPTURA[ancho], deviceScaleFactor: 1, mobile: false });
@@ -1893,8 +1892,7 @@ async function escritorioExamYVacios(pagina, base, t) {
 // y oscuro, con y sin propias, y el vacío de VAC-P5. No afirma nada: deja los PNG para revisión.
 async function capturasDeLaTrece(pagina, base, t) {
   if (!process.env.PKAPP_CAPTURAS) return;
-  const dir = path.resolve(__dirname, '..', '..', '..', 'openspec', 'changes', 'rediseno-plancha',
-    'evidencia', 'despues', '3.13');
+  const dir = path.resolve(__dirname, '..', '..', '..', 'tools', 'e2e', 'capturas', '3.13');
   fs.mkdirSync(dir, { recursive: true });
   const ALTO = { 390: 1000, 1366: 768 };
   const foto = async (ancho, nombre) => {

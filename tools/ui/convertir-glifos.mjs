@@ -1,6 +1,6 @@
 // Convierte los SVG de los glifos a datos (design.md D2, tarea 2.5).
 //
-// Lee openspec/changes/rediseno-plancha/diseno/svg/glifos/*.svg y escribe
+// Lee openspec/diseno/svg/glifos/*.svg y escribe
 // src/assets/glifos.js: { viewBox, trazo, elementos } por glifo, en el contrato de
 // `Ilustracion`. Los atributos de la raíz (fill, stroke, aria-hidden…) no pasan a los
 // datos: el color y la accesibilidad los pone el componente.
@@ -14,7 +14,7 @@ import { fileURLToPath } from 'url';
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 export const DIR_SVG = path.join(
-  RAIZ, 'openspec', 'changes', 'rediseno-plancha', 'diseno', 'svg', 'glifos',
+  RAIZ, 'openspec', 'diseno', 'svg', 'glifos',
 );
 export const SALIDA = path.join(RAIZ, 'src', 'assets', 'glifos.js');
 
@@ -86,7 +86,7 @@ export function generar(glifos) {
   const lineas = [
     '// GENERADO — no editar a mano.',
     '// Regenerar: node tools/ui/convertir-glifos.mjs',
-    '// Fuente: openspec/changes/rediseno-plancha/diseno/svg/glifos/*.svg',
+    '// Fuente: openspec/diseno/svg/glifos/*.svg',
     '//',
     '// Datos de los glifos en el contrato de `Ilustracion` (design.md D2): sin color',
     '// literal; el trazo se dibuja a 1,5 u en un viewBox de 16 y `Glifo` lo compensa',

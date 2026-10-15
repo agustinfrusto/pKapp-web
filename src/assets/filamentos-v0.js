@@ -1,7 +1,7 @@
 // V0: campo de filamentos vigente hasta la marca V5 «Fusiforme». Se conserva para poder volver:
 // en MateriaSelectScreen.js se importa `ilustracionV0` en lugar de `ilustracion`.
 // Mismo formato de datos que las ilustraciones de materia; `tono: 'acento'` marca el contorno.
-// Contrato en openspec/changes/rediseno-plancha/design.md (D2/D3).
+// Contrato en openspec/changes/archive/2026-10-15-rediseno-plancha/design.md (D2/D3).
 export const ilustracionV0 = {
   viewBox: '0 0 348 118',
   encuadre: 'none', // estira a ancho x alto, como el boceto

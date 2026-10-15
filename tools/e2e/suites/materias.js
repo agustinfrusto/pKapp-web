@@ -652,11 +652,10 @@ async function elegirTema(pagina, nombre) {
   return true;
 }
 
-// Con PKAPP_CAPTURAS deja la captura de la ficha en evidencia/despues/3.11b (1024, 1366, 1920).
+// Con PKAPP_CAPTURAS deja la captura de la ficha en tools/e2e/capturas/3.11b (1024, 1366, 1920).
 async function capturar(pagina, ancho, tema) {
   if (!process.env.PKAPP_CAPTURAS || ![1024, 1366, 1920].includes(ancho)) return;
-  const dir = path.join(__dirname, '..', '..', '..', 'openspec', 'changes', 'rediseno-plancha',
-    'evidencia', 'despues', '3.11b');
+  const dir = path.join(__dirname, '..', '..', '..', 'tools', 'e2e', 'capturas', '3.11b');
   fs.mkdirSync(dir, { recursive: true });
   await pagina.enviar('Emulation.setDeviceMetricsOverride',
     { width: ancho, height: ALTOS[ancho], deviceScaleFactor: 1, mobile: false });
@@ -1074,8 +1073,7 @@ async function marcaV5EnAnchos(pagina, base, t) {
 // oscuro. No afirma nada: deja los PNG para revisión.
 async function capturasDeLaTrece(pagina, base, t) {
   if (!process.env.PKAPP_CAPTURAS) return;
-  const dir = path.resolve(__dirname, '..', '..', '..', 'openspec', 'changes', 'rediseno-plancha',
-    'evidencia', 'despues', '3.13');
+  const dir = path.resolve(__dirname, '..', '..', '..', 'tools', 'e2e', 'capturas', '3.13');
   fs.mkdirSync(dir, { recursive: true });
   const foto = async (ancho, alto, nombre) => {
     await pagina.enviar('Emulation.setDeviceMetricsOverride',

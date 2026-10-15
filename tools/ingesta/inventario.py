@@ -82,9 +82,10 @@ def inventariar_directorio(dir_path: Path):
     return resultados
 
 if __name__ == '__main__':
-    dir_to_scan = Path('/Users/usuario/Documents/ESFUNO/4 - Cardiovascular y Respiratorio/Examenes')
-    if len(sys.argv) > 1:
-        dir_to_scan = Path(sys.argv[1])
+    if len(sys.argv) < 2:
+        print("Uso: python inventario.py <dir_pdfs>")
+        sys.exit(1)
+    dir_to_scan = Path(sys.argv[1])
         
     print(f"Analizando corpus en: {dir_to_scan}\n")
     res = inventariar_directorio(dir_to_scan)

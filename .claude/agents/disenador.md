@@ -30,7 +30,7 @@ RESTRICCIONES
 - Implementable en NativeWind 4 / Tailwind 3: sin gradientes, filtros, blend modes ni
   pseudo-elementos.
 - Contraste WCAG AA (4,5:1) en ambos modos, con la tabla de pares calculada.
-- El trabajo de diseño va en la rama `rediseno`. Nada de git: commitea el Ingeniero.
+- El trabajo de diseño va en la rama corta de su tarea. Nada de git: commitea el Ingeniero.
 
 FIN DE TAREA
 Última línea, siempre: `FIN · ejecutar /clear`.

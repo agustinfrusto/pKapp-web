@@ -13,7 +13,7 @@
 //               descartar renumera, a dónde va el foco y el último descartado.
 //   tarjeta     la tarjeta de materia mide 89 px y su cajetín 29 px a 390 (MateriaSelect.md f.2, 3).
 //
-// Uso: node openspec/changes/rediseno-plancha/diseno/banners/verificar-banners.mjs
+// Uso: node openspec/diseno/banners/verificar-banners.mjs
 //      (antes: node .../generar-banners.mjs)
 
 import fs from 'node:fs';
@@ -22,7 +22,7 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const AQUI = path.dirname(fileURLToPath(import.meta.url));
-const RAIZ = path.resolve(AQUI, '..', '..', '..', '..', '..');
+const RAIZ = path.resolve(AQUI, '..', '..', '..');
 const require = createRequire(import.meta.url);
 const { lanzarChrome } = require(path.join(RAIZ, 'tools/e2e/entorno.js'));
 const { conectarNavegador, esperar } = require(path.join(RAIZ, 'tools/e2e/cdp.js'));

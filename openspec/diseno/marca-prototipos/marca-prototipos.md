@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Change | `openspec/changes/rediseno-plancha` |
+| Change | `openspec/changes/archive/2026-10-15-rediseno-plancha` |
 | Rama | `rediseno` |
 | Pedido | Usuario, 2026-10-11: «Que haga algunos prototipos para el encabezado donde dice pKapp. Mismo estilo pero puede hacerlo más complejo, incluso formando alguna forma con los vectores; creo que debe ser memorable. Que haga cuatro para elegir; debemos guardar la que está por si ninguna me convence. Me gusta la idea de que sea reticular también.» Segundo pedido, mismo día, para V5 y V6: «Crea dos mas, utiliza vectores suavemente ondulados para representar musculos abstractos» |
 | Estado | **Resuelta: V5 «Fusiforme» elegida** (usuario, 2026-10-11: «ME gusta V5 Fusiforme»). V0 se conserva como respaldo. V1 a V4 y V6 quedan como registro de la exploración. Rige `MateriaSelect.md` a.2, que describe V5 con sus medidas, y f, que registra la decisión (`CONVENCIONES.md` C2) |
@@ -209,4 +209,4 @@ Criterio de diseño: solo la de sigmoides llegó a dibujarse.
 | Registro | `MateriaSelect.md` a.2 (descripción y medidas), d.1 y f (`V5`). C2 pide que, resuelta la elección, la ficha conserve solo la vigente y registre id, decisión y fecha: está hecho en `MateriaSelect.md`. En esta carpeta, las variantes no elegidas siguen como registro de la exploración |
 | Limpieza pendiente | Borrar V1 a V4 y V6 de esta carpeta (C2: «las variantes no elegidas se borran») es decisión del Ingeniero: la carpeta no está versionada y el borrado no se deshace con git |
 | Implementación | Hecha en el árbol de trabajo, sin commit: `src/assets/filamentos.js` con V5 (27 trazos, `encuadre: 'none'`) y `filamentos-v0.js` con V0; capturas en `evidencia/despues/marca-v5/` y reporte `.orca/reports/marca-v5.md` |
-| Reproducir | `node openspec/changes/rediseno-plancha/diseno/marca-prototipos/generar.mjs` (V0 se escribe una sola vez; `--forzar-v0` la reescribe). Lee V0 de `filamentos-v0.js`: V5 y `medidas.json` salen idénticos a lo que está en `src/` |
+| Reproducir | `node openspec/diseno/marca-prototipos/generar.mjs` (V0 se escribe una sola vez; `--forzar-v0` la reescribe). Lee V0 de `filamentos-v0.js`: V5 y `medidas.json` salen idénticos a lo que está en `src/` |

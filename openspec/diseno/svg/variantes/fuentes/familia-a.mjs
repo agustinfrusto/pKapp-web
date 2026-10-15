@@ -1,7 +1,7 @@
 // Familia A · Lámina: figura anatómica con contorno cerrado y cota a la izquierda.
 // Escribe bcyt-a, anatomia-a, neuro-a, dre-a y ryd-a en la carpeta superior. cyr-a se dibujó a mano.
 // Dibujo paramétrico: la geometría y el rayado se calculan con geo.mjs; el SVG escrito es la fuente de verdad.
-// Uso: node openspec/changes/rediseno-plancha/diseno/svg/variantes/fuentes/familia-a.mjs
+// Uso: node openspec/diseno/svg/variantes/fuentes/familia-a.mjs
 import fs from 'node:fs';
 import nodePath from 'node:path';
 import { fileURLToPath } from 'node:url';

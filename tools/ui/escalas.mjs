@@ -22,7 +22,7 @@ import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const TOKENS = path.join(RAIZ, 'openspec', 'changes', 'rediseno-plancha', 'diseno', 'tokens.md');
+const TOKENS = path.join(RAIZ, 'openspec', 'diseno', 'tokens.md');
 const require = createRequire(import.meta.url);
 const resolveConfig = require('tailwindcss/resolveConfig');
 

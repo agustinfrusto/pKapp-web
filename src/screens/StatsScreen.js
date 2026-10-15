@@ -1,5 +1,5 @@
 // Pantalla de estadísticas: % de aciertos por tema, total respondido, etc.
-// Ficha: openspec/changes/rediseno-plancha/diseno/pantallas/Stats.md (y Vacios.md, V1, V6 a V8).
+// Ficha: openspec/diseno/pantallas/Stats.md (y Vacios.md, V1, V6 a V8).
 import React, { useState, useCallback } from 'react';
 import { View, Text, ScrollView, RefreshControl } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';

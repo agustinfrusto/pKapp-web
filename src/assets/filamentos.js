@@ -1,9 +1,9 @@
 // Campo de filamentos de la pantalla de selección de materias (lámina de la cabecera).
 // Marca V5 «Fusiforme»: un músculo abstracto de fibras que ondulan entre dos tendones; una
 // fibra es el contorno `acento`. Generado por `tools/ui/generar-filamentos.mjs` desde
-// `openspec/changes/rediseno-plancha/diseno/marca-prototipos/`; el campo anterior (V0) está en
+// `openspec/diseno/marca-prototipos/`; el campo anterior (V0) está en
 // `filamentos-v0.js`. Mismo formato de datos que las ilustraciones de materia.
-// Contrato en openspec/changes/rediseno-plancha/design.md (D2/D3).
+// Contrato en openspec/changes/archive/2026-10-15-rediseno-plancha/design.md (D2/D3).
 export const ilustracion = {
   viewBox: '0 0 348 118',
   encuadre: 'none', // estira a ancho x alto, como el boceto

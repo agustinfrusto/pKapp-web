@@ -991,7 +991,7 @@ async function recorrerFoco(pagina) {
 
 async function capturar(pagina, ancho, alto, nombre) {
   if (!process.env.PKAPP_CAPTURAS) return;
-  const dir = path.join(RAIZ, 'openspec', 'changes', 'rediseno-plancha', 'evidencia', 'despues', '3.11c');
+  const dir = path.join(RAIZ, 'tools', 'e2e', 'capturas', '3.11c');
   fs.mkdirSync(dir, { recursive: true });
   await pagina.enviar('Emulation.setDeviceMetricsOverride',
     { width: ancho, height: alto, deviceScaleFactor: 1, mobile: false });
@@ -1143,8 +1143,7 @@ async function homeEscritorio(pagina, base, t) {
 // No afirma nada: deja los PNG para revisión.
 async function capturasDeLaTrece(pagina, base, t) {
   if (!process.env.PKAPP_CAPTURAS) return;
-  const dir = process.env.PKAPP_CAPTURAS_DIR || path.resolve(__dirname, '..', '..', '..', 'openspec',
-    'changes', 'rediseno-plancha', 'evidencia', 'despues', '3.13');
+  const dir = process.env.PKAPP_CAPTURAS_DIR || path.resolve(__dirname, '..', '..', '..', 'tools', 'e2e', 'capturas', '3.13');
   fs.mkdirSync(dir, { recursive: true });
   const foto = async (ancho, alto, nombre) => {
     await pagina.enviar('Emulation.setDeviceMetricsOverride',

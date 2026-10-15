@@ -1,6 +1,6 @@
 # Inventario del Corpus de Exámenes — Cardiovascular y Respiratorio (CyR)
 
-**Ubicación del corpus:** `/Users/usuario/Documents/ESFUNO/4 - Cardiovascular y Respiratorio/Examenes/`  
+**Ubicación del corpus:** carpeta local de exámenes de CyR, fuera del repo.  
 **Fecha de análisis:** 2026-08-27  
 
 ## Resumen Ejecutivo

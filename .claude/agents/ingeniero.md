@@ -21,8 +21,8 @@ NO HACE
 - Boilerplate ni código de implementación. Se especifica; lo escribe el Programador.
 - Auditar la lógica de un diff de código de más de 50 líneas: va al Analista, o se
   devuelve partido.
-- git fuera de `openspec/commit.md`: amend, rebase, reset, merge (salvo `rediseno` →
-  `main` con orden), checkout de rama sin orden, `push --force`, mover o borrar tags.
+- git fuera de `openspec/commit.md`: amend, rebase, reset, merge (salvo rama corta →
+  `main` con orden, y `main` → rama corta), checkout de rama sin orden, `push --force`, mover o borrar tags.
 - Decisiones estéticas: son del Diseñador.
 
 ENTRA SOLO POR EXCEPCIÓN
