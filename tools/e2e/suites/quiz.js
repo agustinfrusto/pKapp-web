@@ -208,8 +208,8 @@ const LEER = (s) => EN_MARCO(`
 `);
 
 // «Reportar pregunta» (K7, REV-3): sin marco en la caja ni en el contenedor, texto Plex Sans 400/15 en
-// `tinta`, centrado en la columna y de 44 de alto como mínimo, con `glifo-reportar` delante (separado
-// `paso 2`, trazo `tinta`) y relleno horizontal `paso 4` entre el borde del botón y su contenido.
+// `tintaSec` (CC-1), centrado en la columna y de 44 de alto como mínimo, con `glifo-reportar` delante (separado
+// `paso 2`, trazo `tintaSec`) y relleno horizontal `paso 4` entre el borde del botón y su contenido.
 // Celda de texto de la opción (el padre del texto): su ancho y la distancia de su borde
 // derecho al borde derecho de la opción. Reposo y respondida deben coincidir (B-01).
 const LEER_CELDA_TEXTO = (k) => EN_MARCO(`
@@ -258,15 +258,15 @@ async function reportarK7(ctx, nombre) {
   await espera(150);
   const r = await pagina.evaluar(LEER_REPORTAR);
   t.ok(`${nombre}: «Reportar pregunta» sin borde en reposo (K7)`, r !== null && r.bordes, Array(8).fill('0px').join(' '));
-  t.ok(`${nombre}: «Reportar pregunta» Plex Sans 400, 15 px, \`tinta\``,
-    r !== null && `${r.peso} ${r.tamano} ${r.color}`, `400 15px ${rgb(T.tinta)}`);
+  t.ok(`${nombre}: «Reportar pregunta» Plex Sans 400, 15 px, \`tintaSec\``,
+    r !== null && `${r.peso} ${r.tamano} ${r.color}`, `400 15px ${rgb(T.tintaSec)}`);
   t.ok(`${nombre}: «Reportar pregunta» de 44 de alto como mínimo`, r !== null && r.alto >= LADO_TACTIL, true);
   t.ok(`${nombre}: «Reportar pregunta» centrado en la columna`, r !== null && r.descentrado !== null && r.descentrado <= 1, true);
   const g = r !== null ? r.glifo : null;
   t.ok(`${nombre}: «Reportar pregunta» lleva glifo-reportar`,
     !!g && g.visible && g.primerD === GLIFOS['glifo-reportar'].elementos[0].props.d, true);
   t.ok(`${nombre}: glifo-reportar delante del texto`, !!g && g.visible && g.delante, true);
-  t.ok(`${nombre}: glifo-reportar con trazo \`tinta\``, !!g && g.trazo, T.tinta);
+  t.ok(`${nombre}: glifo-reportar con trazo \`tintaSec\``, !!g && g.trazo, T.tintaSec);
   t.ok(`${nombre}: separación glifo-texto \`paso 2\` (8 px)`,
     !!g && g.separacion !== null && Math.abs(g.separacion - 2 * PASO) <= 0.5, true);
   t.ok(`${nombre}: relleno horizontal \`paso 4\` (16 px)`,
@@ -744,7 +744,7 @@ async function probarQuiz(pagina, base, t, navegador, { tema, preguntas }) {
       primera = false;
       await reportarK7(ctx, `${tema} · quiz`);
       await estadosK(ctx, 'Reportar pregunta (K7)', sel('boton-reportar'), {
-        reposo: { fondo: TRANSPARENTE, textoColor: rgb(T.tinta) },
+        reposo: { fondo: TRANSPARENTE, textoColor: rgb(T.tintaSec) },
         hover: { fondo: TRANSPARENTE, contorno: { ancho: '1px', color: rgb(T.linea), sep: '0px' } },
         presionado: { fondo: rgb(T.tinta), textoColor: rgb(T.fondo) },
       }).catch(() => {});

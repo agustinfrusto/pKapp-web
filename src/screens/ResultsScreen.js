@@ -490,7 +490,7 @@ function TarjetaRespuesta({ answer, n, onReportar }) {
         </View>
       ) : null}
 
-      <FilaLista testID={`revision-reportar-${n}`} onPress={onReportar} className="mt-2 self-start">
+      <FilaLista testID={`revision-reportar-${n}`} tono="sec" onPress={onReportar} className="mt-2 self-start">
         <View className="flex-row items-center gap-2 px-1">
           <Contenido
             glifo="glifo-reportar"

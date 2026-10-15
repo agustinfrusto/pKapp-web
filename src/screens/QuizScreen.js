@@ -546,6 +546,7 @@ export default function QuizScreen({ route, navigation }) {
             <View ref={reportarRef} className="mt-3.5 items-center">
               <FilaLista
                 testID="boton-reportar"
+                tono="sec"
                 onPress={() => reportQuestion(currentQuestion, materia?.name)}
               >
                 <View className="flex-row items-center gap-2 px-4">

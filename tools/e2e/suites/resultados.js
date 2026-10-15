@@ -163,6 +163,7 @@ const LEER = EN_MARCO(`
     ancho: s.getAttribute('width'),
     primerD: s.children[0] ? s.children[0].getAttribute('d') : null,
     oculto: s.getAttribute('aria-hidden'),
+    trazo: s.getAttribute('stroke'),
   })) : []);
   const texto = (n) => {
     const h = hoja(n);
@@ -307,6 +308,7 @@ const LEER = EN_MARCO(`
             caja: caja(reportar), texto: txt(reportar), nombre: reportar.getAttribute('aria-label'),
             glifos: glifos(reportar),
             familia: estilo(hoja(reportar)).fontFamily, tamano: estilo(hoja(reportar)).fontSize,
+            color: estilo(hoja(reportar)).color,
           } : null,
           enunciado: n.children[1] ? {
             texto: txt(n.children[1]), tamano: estilo(n.children[1]).fontSize,
@@ -962,7 +964,7 @@ async function estadosDeRevision(pagina, base, t) {
       reposo: INVERTIDO, hover: { ...INVERTIDO, contorno: contorno('2px', T.linea) },
       presionado: { fondo: rgb(T.superficie), color: rgb(T.tinta), borde: rgb(T.linea) } },
     { nombre: '«Reportar pregunta» (K7)', buscar: POR_TESTID('revision-reportar-1'),
-      reposo: { fondo: SIN_FONDO, color: rgb(T.tinta) },
+      reposo: { fondo: SIN_FONDO, color: rgb(T.tintaSec) },
       hover: { fondo: SIN_FONDO, contorno: contorno('1px', T.linea) },
       presionado: { fondo: rgb(T.tinta), color: rgb(T.fondo) } },
     { nombre: 'filtro «Incorrectas» sin marcar (K4)', buscar: RADIO('Incorrectas'),
@@ -1084,6 +1086,9 @@ async function revisionTarjetas(pagina, base, t) {
     h.tarjetas.every((c) => !!c.reportar && c.reportar.caja.alto >= LADO_TACTIL
       && /Reportar pregunta/.test(c.reportar.texto)
       && c.reportar.glifos[0] && c.reportar.glifos[0].primerD === GLIFOS['glifo-reportar'].elementos[0].props.d), true);
+  t.ok('«Reportar pregunta»: texto y trazo del glifo en `tintaSec` (CC-1)',
+    h.tarjetas.every((c) => !!c.reportar && c.reportar.glifos[0]
+      && c.reportar.glifos[0].trazo === T.tintaSec), true);
 
   // Peso en la web: lo da la familia (`PlexSans-Regular` 400, `PlexSans-SemiBold` 600); el
   // `fontWeight` computado queda en 400 en ambos, así que se mide la familia.
@@ -1495,6 +1500,10 @@ async function temaOscuro(pagina, base, t) {
   t.ok('oscuro: borde izquierdo aciertoD y errorD',
     !!acertada && !!fallada && `${acertada.bordeIzq}|${fallada.bordeIzq}`, `3px ${rgb(T.acierto)}|3px ${rgb(T.error)}`);
   t.ok('oscuro: título en tintaD', !!h.revision && !!h.revision.titulo && h.revision.titulo.color, rgb(T.tinta));
+  const rep = h.tarjetas.find((c) => c.id === 'revision-tarjeta-1');
+  t.ok('oscuro: «Reportar pregunta» en tintaSecD (texto y trazo)',
+    !!rep && !!rep.reportar && !!rep.reportar.glifos[0]
+      && `${rep.reportar.color}|${rep.reportar.glifos[0].trazo}`, `${rgb(T.tintaSec)}|${T.tintaSec}`);
   t.ok('oscuro: «Volver» de arriba en tintaD con borde lineaD',
     !!h.volverArriba && `${h.volverArriba.color}|${h.volverArriba.borde}`, `${rgb(T.tinta)}|${rgb(T.linea)}`);
 }
