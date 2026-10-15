@@ -1,0 +1,233 @@
+{
+  "cableados": {
+    "A-vigente": {
+      "1x": {
+        "1x_medios_tonos": 40,
+        "1x_pixeles_de_trazo": 107,
+        "1x_sha256": "9b7686f1ad8be49177995fd9035bf81959ad484757c4c227f203e9005b461960",
+        "2x_medios_tonos": 75,
+        "2x_sha256": "3afa97c9eb6a9bcf131305bb4d49ad09365682cc0bd8c5541fafbdcd4d681742",
+        "archivos_que_bajo_chrome": [
+          "favicon-32.png"
+        ],
+        "bitmaps_guardados_px": [
+          16,
+          32
+        ],
+        "coincide_con_la_replica": true,
+        "icono_guardado": [
+          "favicon-32.png"
+        ]
+      },
+      "2x": {
+        "1x_medios_tonos": 40,
+        "1x_pixeles_de_trazo": 107,
+        "1x_sha256": "9b7686f1ad8be49177995fd9035bf81959ad484757c4c227f203e9005b461960",
+        "2x_medios_tonos": 75,
+        "2x_sha256": "3afa97c9eb6a9bcf131305bb4d49ad09365682cc0bd8c5541fafbdcd4d681742",
+        "archivos_que_bajo_chrome": [
+          "favicon-32.png"
+        ],
+        "bitmaps_guardados_px": [
+          16,
+          32
+        ],
+        "coincide_con_la_replica": true,
+        "icono_guardado": [
+          "favicon-32.png"
+        ]
+      }
+    },
+    "B-ico": {
+      "1x": {
+        "1x_medios_tonos": 0,
+        "1x_pixeles_de_trazo": 92,
+        "1x_sha256": "242ca545c47de7d3db8c6d3130d42004f14f227612d1e0e9c32d4869aef5bfaf",
+        "2x_medios_tonos": 75,
+        "2x_sha256": "3afa97c9eb6a9bcf131305bb4d49ad09365682cc0bd8c5541fafbdcd4d681742",
+        "archivos_que_bajo_chrome": [
+          "favicon.ico"
+        ],
+        "bitmaps_guardados_px": [
+          16,
+          32
+        ],
+        "coincide_con_la_replica": true,
+        "icono_guardado": [
+          "favicon.ico"
+        ]
+      },
+      "2x": {
+        "1x_medios_tonos": 0,
+        "1x_pixeles_de_trazo": 92,
+        "1x_sha256": "242ca545c47de7d3db8c6d3130d42004f14f227612d1e0e9c32d4869aef5bfaf",
+        "2x_medios_tonos": 75,
+        "2x_sha256": "3afa97c9eb6a9bcf131305bb4d49ad09365682cc0bd8c5541fafbdcd4d681742",
+        "archivos_que_bajo_chrome": [
+          "favicon.ico"
+        ],
+        "bitmaps_guardados_px": [
+          16,
+          32
+        ],
+        "coincide_con_la_replica": true,
+        "icono_guardado": [
+          "favicon.ico"
+        ]
+      }
+    },
+    "C-solo-16": {
+      "1x": {
+        "1x_medios_tonos": 0,
+        "1x_pixeles_de_trazo": 92,
+        "1x_sha256": "242ca545c47de7d3db8c6d3130d42004f14f227612d1e0e9c32d4869aef5bfaf",
+        "2x_medios_tonos": 0,
+        "2x_sha256": "5ffaa9e45d104ddef827ab79a92306cdf72f2415b080d4c8d6710733b22b3c97",
+        "archivos_que_bajo_chrome": [
+          "favicon-16.png"
+        ],
+        "bitmaps_guardados_px": [
+          16,
+          32
+        ],
+        "coincide_con_la_replica": true,
+        "icono_guardado": [
+          "favicon-16.png"
+        ]
+      },
+      "2x": {
+        "1x_medios_tonos": 0,
+        "1x_pixeles_de_trazo": 92,
+        "1x_sha256": "242ca545c47de7d3db8c6d3130d42004f14f227612d1e0e9c32d4869aef5bfaf",
+        "2x_medios_tonos": 0,
+        "2x_sha256": "5ffaa9e45d104ddef827ab79a92306cdf72f2415b080d4c8d6710733b22b3c97",
+        "archivos_que_bajo_chrome": [
+          "favicon-16.png"
+        ],
+        "bitmaps_guardados_px": [
+          16,
+          32
+        ],
+        "coincide_con_la_replica": true,
+        "icono_guardado": [
+          "favicon-16.png"
+        ]
+      }
+    },
+    "D-32-duplicado": {
+      "1x": {
+        "1x_medios_tonos": 13,
+        "1x_pixeles_de_trazo": 95,
+        "1x_sha256": "7716abc834e86fc90bd3f5733476da7f11aa37f7d8e10f3f752ac2e5d74c93e0",
+        "2x_medios_tonos": 0,
+        "2x_sha256": "5ffaa9e45d104ddef827ab79a92306cdf72f2415b080d4c8d6710733b22b3c97",
+        "archivos_que_bajo_chrome": [
+          "favicon-32.png"
+        ],
+        "bitmaps_guardados_px": [
+          16,
+          32
+        ],
+        "coincide_con_la_replica": true,
+        "icono_guardado": [
+          "favicon-32.png"
+        ]
+      },
+      "2x": {
+        "1x_medios_tonos": 13,
+        "1x_pixeles_de_trazo": 95,
+        "1x_sha256": "7716abc834e86fc90bd3f5733476da7f11aa37f7d8e10f3f752ac2e5d74c93e0",
+        "2x_medios_tonos": 0,
+        "2x_sha256": "5ffaa9e45d104ddef827ab79a92306cdf72f2415b080d4c8d6710733b22b3c97",
+        "archivos_que_bajo_chrome": [
+          "favicon-32.png"
+        ],
+        "bitmaps_guardados_px": [
+          16,
+          32
+        ],
+        "coincide_con_la_replica": true,
+        "icono_guardado": [
+          "favicon-32.png"
+        ]
+      }
+    },
+    "E-ico-sizes-32": {
+      "1x": {
+        "1x_medios_tonos": 40,
+        "1x_pixeles_de_trazo": 107,
+        "1x_sha256": "9b7686f1ad8be49177995fd9035bf81959ad484757c4c227f203e9005b461960",
+        "2x_medios_tonos": 75,
+        "2x_sha256": "3afa97c9eb6a9bcf131305bb4d49ad09365682cc0bd8c5541fafbdcd4d681742",
+        "archivos_que_bajo_chrome": [
+          "favicon-32.png"
+        ],
+        "bitmaps_guardados_px": [
+          16,
+          32
+        ],
+        "coincide_con_la_replica": true,
+        "icono_guardado": [
+          "favicon-32.png"
+        ]
+      },
+      "2x": {
+        "1x_medios_tonos": 40,
+        "1x_pixeles_de_trazo": 107,
+        "1x_sha256": "9b7686f1ad8be49177995fd9035bf81959ad484757c4c227f203e9005b461960",
+        "2x_medios_tonos": 75,
+        "2x_sha256": "3afa97c9eb6a9bcf131305bb4d49ad09365682cc0bd8c5541fafbdcd4d681742",
+        "archivos_que_bajo_chrome": [
+          "favicon-32.png"
+        ],
+        "bitmaps_guardados_px": [
+          16,
+          32
+        ],
+        "coincide_con_la_replica": true,
+        "icono_guardado": [
+          "favicon-32.png"
+        ]
+      }
+    },
+    "F-svg-16": {
+      "1x": {
+        "1x_medios_tonos": 13,
+        "1x_pixeles_de_trazo": 95,
+        "1x_sha256": "7716abc834e86fc90bd3f5733476da7f11aa37f7d8e10f3f752ac2e5d74c93e0",
+        "2x_medios_tonos": 0,
+        "2x_sha256": "5ffaa9e45d104ddef827ab79a92306cdf72f2415b080d4c8d6710733b22b3c97",
+        "archivos_que_bajo_chrome": [
+          "icon.svg"
+        ],
+        "bitmaps_guardados_px": [
+          16,
+          32
+        ],
+        "coincide_con_la_replica": null,
+        "icono_guardado": [
+          "icon.svg"
+        ]
+      },
+      "2x": {
+        "1x_medios_tonos": 13,
+        "1x_pixeles_de_trazo": 95,
+        "1x_sha256": "7716abc834e86fc90bd3f5733476da7f11aa37f7d8e10f3f752ac2e5d74c93e0",
+        "2x_medios_tonos": 0,
+        "2x_sha256": "5ffaa9e45d104ddef827ab79a92306cdf72f2415b080d4c8d6710733b22b3c97",
+        "archivos_que_bajo_chrome": [
+          "icon.svg"
+        ],
+        "bitmaps_guardados_px": [
+          16,
+          32
+        ],
+        "coincide_con_la_replica": null,
+        "icono_guardado": [
+          "icon.svg"
+        ]
+      }
+    }
+  },
+  "chrome": "Google Chrome 155.0.8059.40"
+}

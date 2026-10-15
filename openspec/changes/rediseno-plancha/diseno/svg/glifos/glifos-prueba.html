@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>Glifos Plancha · prueba 1.4</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font:12px/1.35 ui-monospace,"SF Mono",Menlo,Consolas,monospace;background:#e3e6e9;color:#14181d}
+header{padding:18px 24px 8px}
+h1{font:600 15px/1.2 ui-monospace,Menlo,monospace;margin:0 0 6px}
+header p{margin:0 0 4px;color:#4a525c}
+.paneles{display:flex;gap:0;align-items:flex-start}
+.panel{width:50%;padding:18px 24px 24px;background:var(--fondo);color:var(--tinta)}
+.panel h2{font:600 11px/16px ui-monospace,Menlo,monospace;letter-spacing:.66px;margin:0 0 12px;color:var(--tintaSec)}
+.panel h3{font:600 11px/16px ui-monospace,Menlo,monospace;margin:18px 0 8px;color:var(--tintaSec)}
+code{font:inherit;color:var(--tinta)}
+.fichas{display:grid;grid-template-columns:1fr 1fr;gap:8px 18px}
+.ficha{display:flex;gap:8px;align-items:center;height:44px}
+.cel{display:flex;align-items:center;justify-content:center;border:1px solid var(--filete);flex:none}
+.cel.c{width:32px;height:32px}
+.cel.g{width:44px;height:44px}
+.cel.v{width:72px;height:72px}
+.txt{display:flex;flex-direction:column;min-width:0}
+.txt b{font-weight:600;color:var(--tinta)}
+.txt span{color:var(--tintaSec);font-size:10.5px}
+.fila{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.sep{width:18px}
+svg{display:block;fill:none;stroke:currentColor}
+.g16{width:16px;height:16px;stroke-width:1.5}
+.g24{width:24px;height:24px;stroke-width:1}
+.g48{width:48px;height:48px;stroke-width:.5}
+.r90{transform:rotate(90deg)}
+.r270{transform:rotate(270deg)}
+</style></head>
+<body>
+<header>
+ <h1>Glifos Plancha · prueba 1.4 · 35 glifos, viewBox 0 0 16 16</h1>
+ <p>chico 16 px (paso 4): strokeWidth 1,5 u · grande 24 px (paso 6): 1 u · vacío 48 px (paso 12): 0,5 u. Fórmula: strokeWidth = 24 / lado. En pantalla, 1,5 px en los tres.</p>
+ <p>Cada glifo en el frente y sobre el fondo que le asigna comun.md §9; razón de contraste truncada como en tokens.md e. Colores: src/theme/colores.js (plancha).</p>
+</header>
+<div class="paneles">
+<section class="panel" id="claro" style="--fondo:#f4f5f6;--superficie:#ffffff;--tinta:#14181d;--tintaSec:#4a525c;--linea:#14181d;--borde:#7c848d;--filete:#b9bfc6;--inactivo:#7c848d;--acento:#0b6e80;--foco:#095c6b;--acierto:#1f6b3a;--aciertoFondo:#e6f1ea;--error:#a32424;--errorFondo:#f8e9e9;--intermedia:#3f5f7a;--filamento:#14181d">
+ <h2>CLARO</h2>
+ <div class="fichas"><div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/>
+</svg></div><div class="txt"><b>glifo-volver</b><span>tinta / fondo</span><span>N5 16,32:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tintaSec);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M5.5 3L10.5 8L5.5 13"/>
+</svg></div><div class="cel g" style="color:var(--tintaSec);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M5.5 3L10.5 8L5.5 13"/>
+</svg></div><div class="txt"><b>glifo-chevron</b><span>tintaSec / fondo</span><span>N19 7,25:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/>
+</svg></div><div class="txt"><b>glifo-cerrar</b><span>tinta / fondo</span><span>N5 16,32:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--fondo);background:var(--tinta)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 8.5H12.75M8.5 3.5L13.5 8.5L8.5 13.5"/>
+</svg></div><div class="cel g" style="color:var(--fondo);background:var(--tinta)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 8.5H12.75M8.5 3.5L13.5 8.5L8.5 13.5"/>
+</svg></div><div class="txt"><b>glifo-siguiente</b><span>fondo / tinta</span><span>T7 16,32:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acierto);background:var(--aciertoFondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 7.5L6.5 11.5L13.5 4.5"/>
+</svg></div><div class="cel g" style="color:var(--acierto);background:var(--aciertoFondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 7.5L6.5 11.5L13.5 4.5"/>
+</svg></div><div class="txt"><b>glifo-acierto</b><span>acierto / aciertoFondo</span><span>N11 5,62:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--error);background:var(--errorFondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/>
+</svg></div><div class="cel g" style="color:var(--error);background:var(--errorFondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/>
+</svg></div><div class="txt"><b>glifo-error</b><span>error / errorFondo</span><span>N14 6,28:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--intermedia);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 6.5H12.5M3.5 9.5H12.5"/>
+</svg></div><div class="cel g" style="color:var(--intermedia);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 6.5H12.5M3.5 9.5H12.5"/>
+</svg></div><div class="txt"><b>glifo-intermedia</b><span>intermedia / fondo</span><span>N15 6,14:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 8.5H13.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 8.5H13.5"/>
+</svg></div><div class="txt"><b>glifo-menos</b><span>tinta / superficie</span><span>N6 17,82:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 8.5H13.5M8.5 3.5V13.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 8.5H13.5M8.5 3.5V13.5"/>
+</svg></div><div class="txt"><b>glifo-mas</b><span>tinta / superficie</span><span>N6 17,82:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8" cy="8" r="2.5"/>
+<path d="M8 1.5V3M8 13V14.5M1.5 8H3M13 8H14.5"/>
+<path d="M4.46 4.46L3.4 3.4M11.54 4.46L12.6 3.4M11.54 11.54L12.6 12.6M4.46 11.54L3.4 12.6"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8" cy="8" r="2.5"/>
+<path d="M8 1.5V3M8 13V14.5M1.5 8H3M13 8H14.5"/>
+<path d="M4.46 4.46L3.4 3.4M11.54 4.46L12.6 3.4M11.54 11.54L12.6 12.6M4.46 11.54L3.4 12.6"/>
+</svg></div><div class="txt"><b>glifo-claro</b><span>tinta / fondo</span><span>N5 16,32:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M13.5 8.5A5.5 5.5 0 1 1 7.5 2.5A4.25 4.25 0 0 0 13.5 8.5Z"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M13.5 8.5A5.5 5.5 0 1 1 7.5 2.5A4.25 4.25 0 0 0 13.5 8.5Z"/>
+</svg></div><div class="txt"><b>glifo-oscuro</b><span>tinta / fondo</span><span>N5 16,32:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M6.5 11.5V10.24A4.5 4.5 0 1 1 9.5 10.24V11.5Z"/>
+<path d="M7 14.5H9"/>
+</svg></div><div class="cel g" style="color:var(--acento);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M6.5 11.5V10.24A4.5 4.5 0 1 1 9.5 10.24V11.5Z"/>
+<path d="M7 14.5H9"/>
+</svg></div><div class="txt"><b>glifo-explicacion</b><span>acento / superficie</span><span>N18 5,9:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8.5" cy="9.5" r="5"/>
+<path d="M6.5 1.5H10.5M8.5 1.5V4.5"/>
+<path d="M8.5 6.5V9.5H11.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8.5" cy="9.5" r="5"/>
+<path d="M6.5 1.5H10.5M8.5 1.5V4.5"/>
+<path d="M8.5 6.5V9.5H11.5"/>
+</svg></div><div class="txt"><b>glifo-reloj</b><span>tinta / fondo</span><span>N5 16,32:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tintaSec);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 14.5V2.5H13.5V9.5H3.5"/>
+</svg></div><div class="cel g" style="color:var(--tintaSec);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 14.5V2.5H13.5V9.5H3.5"/>
+</svg></div><div class="txt"><b>glifo-reportar</b><span>tintaSec / superficie</span><span>N20 7,91:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<circle cx="8" cy="10" r="2"/>
+</svg></div><div class="cel g" style="color:var(--acento);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<circle cx="8" cy="10" r="2"/>
+</svg></div><div class="txt"><b>glifo-origen-examen</b><span>acento / superficie</span><span>N18 5,9:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--fondo);background:var(--tinta)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M8 1.5L10 6L14.5 8L10 10L8 14.5L6 10L1.5 8L6 6Z"/>
+</svg></div><div class="cel g" style="color:var(--fondo);background:var(--tinta)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M8 1.5L10 6L14.5 8L10 10L8 14.5L6 10L1.5 8L6 6Z"/>
+</svg></div><div class="txt"><b>glifo-origen-generada</b><span>fondo / tinta</span><span>T7 16,32:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8" cy="4.5" r="2.5"/>
+<path d="M3 14.5A5 5 0 0 1 13 14.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8" cy="4.5" r="2.5"/>
+<path d="M3 14.5A5 5 0 0 1 13 14.5"/>
+</svg></div><div class="txt"><b>glifo-origen-propia</b><span>tinta / superficie</span><span>N6 17,82:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="2.5" y="2.5" width="2" height="2"/>
+<rect x="2.5" y="7.5" width="2" height="2"/>
+<rect x="2.5" y="12.5" width="2" height="2"/>
+<path d="M7.5 3.5H13.5M7.5 8.5H13.5M7.5 13.5H11.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="2.5" y="2.5" width="2" height="2"/>
+<rect x="2.5" y="7.5" width="2" height="2"/>
+<rect x="2.5" y="12.5" width="2" height="2"/>
+<path d="M7.5 3.5H13.5M7.5 8.5H13.5M7.5 13.5H11.5"/>
+</svg></div><div class="txt"><b>glifo-practicar</b><span>tinta / superficie</span><span>N6 17,82:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<path d="M6 8.5H10M6 11.5H9"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<path d="M6 8.5H10M6 11.5H9"/>
+</svg></div><div class="txt"><b>glifo-examen</b><span>tinta / superficie</span><span>N6 17,82:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8.5" cy="8.5" r="4"/>
+<circle cx="8.5" cy="8.5" r="1"/>
+<path d="M8.5 2.5V5.5M8.5 11.5V14.5M2.5 8.5H5.5M11.5 8.5H14.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8.5" cy="8.5" r="4"/>
+<circle cx="8.5" cy="8.5" r="1"/>
+<path d="M8.5 2.5V5.5M8.5 11.5V14.5M2.5 8.5H5.5M11.5 8.5H14.5"/>
+</svg></div><div class="txt"><b>glifo-repasar</b><span>tinta / superficie</span><span>N6 17,82:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5V13.5H13.5"/>
+<path d="M5.5 13.5V10M8.5 13.5V7M11.5 13.5V4"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5V13.5H13.5"/>
+<path d="M5.5 13.5V10M8.5 13.5V7M11.5 13.5V4"/>
+</svg></div><div class="txt"><b>glifo-estadisticas</b><span>tinta / superficie</span><span>N6 17,82:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="2.5" y="2.5" width="11" height="11"/>
+<path d="M8 5.5V10.5M5.5 8H10.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="2.5" y="2.5" width="11" height="11"/>
+<path d="M8 5.5V10.5M5.5 8H10.5"/>
+</svg></div><div class="txt"><b>glifo-agregar</b><span>tinta / superficie</span><span>N6 17,82:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M1.5 4.5H8.5M12.5 4.5H14.5M1.5 11.5H3.5M7.5 11.5H14.5"/>
+<rect x="8.5" y="2.5" width="4" height="4"/>
+<rect x="3.5" y="9.5" width="4" height="4"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M1.5 4.5H8.5M12.5 4.5H14.5M1.5 11.5H3.5M7.5 11.5H14.5"/>
+<rect x="8.5" y="2.5" width="4" height="4"/>
+<rect x="3.5" y="9.5" width="4" height="4"/>
+</svg></div><div class="txt"><b>glifo-ajustes</b><span>tinta / superficie</span><span>N6 17,82:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="1.5" y="1.5" width="13" height="13"/>
+<circle cx="5" cy="5" r="0.75"/>
+<circle cx="11" cy="5" r="0.75"/>
+<circle cx="8" cy="8" r="0.75"/>
+<circle cx="5" cy="11" r="0.75"/>
+<circle cx="11" cy="11" r="0.75"/>
+</svg></div><div class="cel g" style="color:var(--acento);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="1.5" y="1.5" width="13" height="13"/>
+<circle cx="5" cy="5" r="0.75"/>
+<circle cx="11" cy="5" r="0.75"/>
+<circle cx="8" cy="8" r="0.75"/>
+<circle cx="5" cy="11" r="0.75"/>
+<circle cx="11" cy="11" r="0.75"/>
+</svg></div><div class="txt"><b>glifo-aleatorio</b><span>acento / superficie</span><span>N18 5,9:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="3.5" y="2.5" width="9" height="12"/>
+<path d="M6.5 1.5H9.5"/>
+<path d="M6 5.5H10M6 8.5H10M6 11.5H10"/>
+</svg></div><div class="cel g" style="color:var(--acento);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="3.5" y="2.5" width="9" height="12"/>
+<path d="M6.5 1.5H9.5"/>
+<path d="M6 5.5H10M6 8.5H10M6 11.5H10"/>
+</svg></div><div class="txt"><b>glifo-revisar</b><span>acento / superficie</span><span>N18 5,9:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--fondo);background:var(--tinta)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 8.5V4.5H11.75M10 2L12.5 4.5L10 7"/>
+<path d="M13.5 7.5V11.5H4.25M6 9L3.5 11.5L6 14"/>
+</svg></div><div class="cel g" style="color:var(--fondo);background:var(--tinta)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 8.5V4.5H11.75M10 2L12.5 4.5L10 7"/>
+<path d="M13.5 7.5V11.5H4.25M6 9L3.5 11.5L6 14"/>
+</svg></div><div class="txt"><b>glifo-reintentar</b><span>fondo / tinta</span><span>T7 16,32:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 7.5L8 2L13.5 7.5"/>
+<path d="M3.5 7.25V14.5H12.5V7.25"/>
+<path d="M6.5 14.5V9.5H9.5V14.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 7.5L8 2L13.5 7.5"/>
+<path d="M3.5 7.25V14.5H12.5V7.25"/>
+<path d="M6.5 14.5V9.5H9.5V14.5"/>
+</svg></div><div class="txt"><b>glifo-inicio</b><span>tinta / superficie</span><span>N6 17,82:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M1.5 1.5H14.5V11.5H7.5L4.5 14.5V11.5H1.5Z"/>
+<path d="M4.5 4.5H11.5M4.5 7.5H9.5"/>
+</svg></div><div class="cel g" style="color:var(--acento);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M1.5 1.5H14.5V11.5H7.5L4.5 14.5V11.5H1.5Z"/>
+<path d="M4.5 4.5H11.5M4.5 7.5H9.5"/>
+</svg></div><div class="txt"><b>glifo-mensaje</b><span>acento / superficie</span><span>N18 5,9:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5V13.5H14.5"/>
+<path d="M4.5 3.5L8.5 7.5L10.5 5.5L12.97 7.97"/>
+<path d="M10 8.5H13.5V5"/>
+</svg></div><div class="cel g" style="color:var(--acento);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5V13.5H14.5"/>
+<path d="M4.5 3.5L8.5 7.5L10.5 5.5L12.97 7.97"/>
+<path d="M10 8.5H13.5V5"/>
+</svg></div><div class="txt"><b>glifo-banco-reducido</b><span>acento / superficie</span><span>N18 5,9:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acierto);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M4.5 2.5H11.5L10 8.5H6Z"/>
+<path d="M4.75 4.5H2.5V7.5H5.5M11.25 4.5H13.5V7.5H10.5"/>
+<path d="M8 8.5V13.5M5.5 13.5H10.5"/>
+</svg></div><div class="cel g" style="color:var(--acierto);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M4.5 2.5H11.5L10 8.5H6Z"/>
+<path d="M4.75 4.5H2.5V7.5H5.5M11.25 4.5H13.5V7.5H10.5"/>
+<path d="M8 8.5V13.5M5.5 13.5H10.5"/>
+</svg></div><div class="txt"><b>glifo-trofeo</b><span>acierto / superficie</span><span>N10 6,51:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--fondo);background:var(--tinta)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5H11.5L13.5 4.5V13.5H2.5Z"/>
+<path d="M5.5 2.5V5.5H10.5V2.5"/>
+<path d="M4.5 13.5V9.5H11.5V13.5"/>
+</svg></div><div class="cel g" style="color:var(--fondo);background:var(--tinta)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5H11.5L13.5 4.5V13.5H2.5Z"/>
+<path d="M5.5 2.5V5.5H10.5V2.5"/>
+<path d="M4.5 13.5V9.5H11.5V13.5"/>
+</svg></div><div class="txt"><b>glifo-guardar</b><span>fondo / tinta</span><span>T7 16,32:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--fondo);background:var(--tinta)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M1.5 3.5H6.5L8.5 5.5H14.5V13.5H1.5Z"/>
+</svg></div><div class="cel g" style="color:var(--fondo);background:var(--tinta)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M1.5 3.5H6.5L8.5 5.5H14.5V13.5H1.5Z"/>
+</svg></div><div class="txt"><b>glifo-importar</b><span>fondo / tinta</span><span>T7 16,32:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acento);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="1.5" y="3.5" width="13" height="9"/>
+<path d="M2.09 3.96L8 8.5L13.91 3.96"/>
+</svg></div><div class="cel g" style="color:var(--acento);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="1.5" y="3.5" width="13" height="9"/>
+<path d="M2.09 3.96L8 8.5L13.91 3.96"/>
+</svg></div><div class="txt"><b>glifo-correo</b><span>acento / fondo</span><span>N17 5,4:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acento);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M6.5 2.5H2.5V13.5H13.5V9.5"/>
+<path d="M7.5 8.5L12.97 3.03"/>
+<path d="M9.5 2.5H13.5V6.5"/>
+</svg></div><div class="cel g" style="color:var(--acento);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M6.5 2.5H2.5V13.5H13.5V9.5"/>
+<path d="M7.5 8.5L12.97 3.03"/>
+<path d="M9.5 2.5H13.5V6.5"/>
+</svg></div><div class="txt"><b>glifo-externo</b><span>acento / fondo</span><span>N17 5,4:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tintaSec);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M1.5 4.5H14.5"/>
+<path d="M6.5 4.5V2.5H9.5V4.5"/>
+<path d="M2.5 4.5L4.5 14.5H11.5L13.5 4.5"/>
+<path d="M6.5 7.5V11.5M9.5 7.5V11.5"/>
+</svg></div><div class="cel g" style="color:var(--tintaSec);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M1.5 4.5H14.5"/>
+<path d="M6.5 4.5V2.5H9.5V4.5"/>
+<path d="M2.5 4.5L4.5 14.5H11.5L13.5 4.5"/>
+<path d="M6.5 7.5V11.5M9.5 7.5V11.5"/>
+</svg></div><div class="txt"><b>glifo-eliminar</b><span>tintaSec / superficie</span><span>N20 7,91:1 · grande</span></div></div></div>
+ 
+<h3>Distinción a 16 px: color y escala de grises</h3>
+<div class="fila"><div class="cel c" style="color:var(--acierto);background:var(--aciertoFondo);"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 7.5L6.5 11.5L13.5 4.5"/>
+</svg></div><div class="cel c" style="color:var(--error);background:var(--errorFondo);"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/>
+</svg></div><div class="cel c" style="color:var(--intermedia);background:var(--fondo);"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 6.5H12.5M3.5 9.5H12.5"/>
+</svg></div><span class="sep"></span><div class="cel c" style="color:var(--acierto);background:var(--aciertoFondo);filter:grayscale(1)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 7.5L6.5 11.5L13.5 4.5"/>
+</svg></div><div class="cel c" style="color:var(--error);background:var(--errorFondo);filter:grayscale(1)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/>
+</svg></div><div class="cel c" style="color:var(--intermedia);background:var(--fondo);filter:grayscale(1)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 6.5H12.5M3.5 9.5H12.5"/>
+</svg></div></div>
+<div class="fila"><div class="cel c" style="color:var(--acento);background:var(--superficie);"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<circle cx="8" cy="10" r="2"/>
+</svg></div><div class="cel c" style="color:var(--fondo);background:var(--tinta);"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M8 1.5L10 6L14.5 8L10 10L8 14.5L6 10L1.5 8L6 6Z"/>
+</svg></div><div class="cel c" style="color:var(--tinta);background:var(--superficie);"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8" cy="4.5" r="2.5"/>
+<path d="M3 14.5A5 5 0 0 1 13 14.5"/>
+</svg></div><span class="sep"></span><div class="cel c" style="color:var(--acento);background:var(--superficie);filter:grayscale(1)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<circle cx="8" cy="10" r="2"/>
+</svg></div><div class="cel c" style="color:var(--fondo);background:var(--tinta);filter:grayscale(1)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M8 1.5L10 6L14.5 8L10 10L8 14.5L6 10L1.5 8L6 6Z"/>
+</svg></div><div class="cel c" style="color:var(--tinta);background:var(--superficie);filter:grayscale(1)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8" cy="4.5" r="2.5"/>
+<path d="M3 14.5A5 5 0 0 1 13 14.5"/>
+</svg></div></div>
+<h3>Estado vacío, 48 px, trazo 0,5 u (<code>tintaSec</code> sobre <code>fondo</code>)</h3>
+<div class="fila">
+ <div class="cel v" style="color:var(--tintaSec);background:var(--fondo)"><svg class="g48" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8.5" cy="8.5" r="4"/>
+<circle cx="8.5" cy="8.5" r="1"/>
+<path d="M8.5 2.5V5.5M8.5 11.5V14.5M2.5 8.5H5.5M11.5 8.5H14.5"/>
+</svg></div>
+ <div class="cel v" style="color:var(--tintaSec);background:var(--fondo)"><svg class="g48" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5V13.5H13.5"/>
+<path d="M5.5 13.5V10M8.5 13.5V7M11.5 13.5V4"/>
+</svg></div>
+</div>
+<h3>Giro del chevron (plegables de Ajustes), 16 px, <code>acento</code> sobre <code>superficie</code></h3>
+<div class="fila">
+ <div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M5.5 3L10.5 8L5.5 13"/>
+</svg></div>
+ <div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16 r90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M5.5 3L10.5 8L5.5 13"/>
+</svg></div>
+ <div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16 r270" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M5.5 3L10.5 8L5.5 13"/>
+</svg></div>
+</div>
+
+</section>
+<section class="panel" id="oscuro" style="--fondo:#0b0d10;--superficie:#12161b;--tinta:#e6e9ed;--tintaSec:#98a2ae;--linea:#c9d0d8;--borde:#6b7684;--filete:#2b323a;--inactivo:#6b7684;--acento:#5cc3d6;--foco:#7fd6e3;--acierto:#7bcb92;--aciertoFondo:#10231a;--error:#f08c8c;--errorFondo:#2a1414;--intermedia:#8fb4c9;--filamento:#8fb4c9">
+ <h2>OSCURO</h2>
+ <div class="fichas"><div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M13.5 8.5H3.25M7.5 3.5L2.5 8.5L7.5 13.5"/>
+</svg></div><div class="txt"><b>glifo-volver</b><span>tinta / fondo</span><span>N5 15,97:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tintaSec);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M5.5 3L10.5 8L5.5 13"/>
+</svg></div><div class="cel g" style="color:var(--tintaSec);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M5.5 3L10.5 8L5.5 13"/>
+</svg></div><div class="txt"><b>glifo-chevron</b><span>tintaSec / fondo</span><span>N19 7,51:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5L13.5 13.5M13.5 2.5L2.5 13.5"/>
+</svg></div><div class="txt"><b>glifo-cerrar</b><span>tinta / fondo</span><span>N5 15,97:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--fondo);background:var(--tinta)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 8.5H12.75M8.5 3.5L13.5 8.5L8.5 13.5"/>
+</svg></div><div class="cel g" style="color:var(--fondo);background:var(--tinta)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 8.5H12.75M8.5 3.5L13.5 8.5L8.5 13.5"/>
+</svg></div><div class="txt"><b>glifo-siguiente</b><span>fondo / tinta</span><span>T7 15,97:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acierto);background:var(--aciertoFondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 7.5L6.5 11.5L13.5 4.5"/>
+</svg></div><div class="cel g" style="color:var(--acierto);background:var(--aciertoFondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 7.5L6.5 11.5L13.5 4.5"/>
+</svg></div><div class="txt"><b>glifo-acierto</b><span>acierto / aciertoFondo</span><span>N11 8,45:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--error);background:var(--errorFondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/>
+</svg></div><div class="cel g" style="color:var(--error);background:var(--errorFondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/>
+</svg></div><div class="txt"><b>glifo-error</b><span>error / errorFondo</span><span>N14 7,31:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--intermedia);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 6.5H12.5M3.5 9.5H12.5"/>
+</svg></div><div class="cel g" style="color:var(--intermedia);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 6.5H12.5M3.5 9.5H12.5"/>
+</svg></div><div class="txt"><b>glifo-intermedia</b><span>intermedia / fondo</span><span>N15 8,83:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 8.5H13.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 8.5H13.5"/>
+</svg></div><div class="txt"><b>glifo-menos</b><span>tinta / superficie</span><span>N6 14,91:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 8.5H13.5M8.5 3.5V13.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 8.5H13.5M8.5 3.5V13.5"/>
+</svg></div><div class="txt"><b>glifo-mas</b><span>tinta / superficie</span><span>N6 14,91:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8" cy="8" r="2.5"/>
+<path d="M8 1.5V3M8 13V14.5M1.5 8H3M13 8H14.5"/>
+<path d="M4.46 4.46L3.4 3.4M11.54 4.46L12.6 3.4M11.54 11.54L12.6 12.6M4.46 11.54L3.4 12.6"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8" cy="8" r="2.5"/>
+<path d="M8 1.5V3M8 13V14.5M1.5 8H3M13 8H14.5"/>
+<path d="M4.46 4.46L3.4 3.4M11.54 4.46L12.6 3.4M11.54 11.54L12.6 12.6M4.46 11.54L3.4 12.6"/>
+</svg></div><div class="txt"><b>glifo-claro</b><span>tinta / fondo</span><span>N5 15,97:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M13.5 8.5A5.5 5.5 0 1 1 7.5 2.5A4.25 4.25 0 0 0 13.5 8.5Z"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M13.5 8.5A5.5 5.5 0 1 1 7.5 2.5A4.25 4.25 0 0 0 13.5 8.5Z"/>
+</svg></div><div class="txt"><b>glifo-oscuro</b><span>tinta / fondo</span><span>N5 15,97:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M6.5 11.5V10.24A4.5 4.5 0 1 1 9.5 10.24V11.5Z"/>
+<path d="M7 14.5H9"/>
+</svg></div><div class="cel g" style="color:var(--acento);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M6.5 11.5V10.24A4.5 4.5 0 1 1 9.5 10.24V11.5Z"/>
+<path d="M7 14.5H9"/>
+</svg></div><div class="txt"><b>glifo-explicacion</b><span>acento / superficie</span><span>N18 8,84:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8.5" cy="9.5" r="5"/>
+<path d="M6.5 1.5H10.5M8.5 1.5V4.5"/>
+<path d="M8.5 6.5V9.5H11.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8.5" cy="9.5" r="5"/>
+<path d="M6.5 1.5H10.5M8.5 1.5V4.5"/>
+<path d="M8.5 6.5V9.5H11.5"/>
+</svg></div><div class="txt"><b>glifo-reloj</b><span>tinta / fondo</span><span>N5 15,97:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tintaSec);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 14.5V2.5H13.5V9.5H3.5"/>
+</svg></div><div class="cel g" style="color:var(--tintaSec);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 14.5V2.5H13.5V9.5H3.5"/>
+</svg></div><div class="txt"><b>glifo-reportar</b><span>tintaSec / superficie</span><span>N20 7,01:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<circle cx="8" cy="10" r="2"/>
+</svg></div><div class="cel g" style="color:var(--acento);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<circle cx="8" cy="10" r="2"/>
+</svg></div><div class="txt"><b>glifo-origen-examen</b><span>acento / superficie</span><span>N18 8,84:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--fondo);background:var(--tinta)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M8 1.5L10 6L14.5 8L10 10L8 14.5L6 10L1.5 8L6 6Z"/>
+</svg></div><div class="cel g" style="color:var(--fondo);background:var(--tinta)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M8 1.5L10 6L14.5 8L10 10L8 14.5L6 10L1.5 8L6 6Z"/>
+</svg></div><div class="txt"><b>glifo-origen-generada</b><span>fondo / tinta</span><span>T7 15,97:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8" cy="4.5" r="2.5"/>
+<path d="M3 14.5A5 5 0 0 1 13 14.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8" cy="4.5" r="2.5"/>
+<path d="M3 14.5A5 5 0 0 1 13 14.5"/>
+</svg></div><div class="txt"><b>glifo-origen-propia</b><span>tinta / superficie</span><span>N6 14,91:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="2.5" y="2.5" width="2" height="2"/>
+<rect x="2.5" y="7.5" width="2" height="2"/>
+<rect x="2.5" y="12.5" width="2" height="2"/>
+<path d="M7.5 3.5H13.5M7.5 8.5H13.5M7.5 13.5H11.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="2.5" y="2.5" width="2" height="2"/>
+<rect x="2.5" y="7.5" width="2" height="2"/>
+<rect x="2.5" y="12.5" width="2" height="2"/>
+<path d="M7.5 3.5H13.5M7.5 8.5H13.5M7.5 13.5H11.5"/>
+</svg></div><div class="txt"><b>glifo-practicar</b><span>tinta / superficie</span><span>N6 14,91:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<path d="M6 8.5H10M6 11.5H9"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<path d="M6 8.5H10M6 11.5H9"/>
+</svg></div><div class="txt"><b>glifo-examen</b><span>tinta / superficie</span><span>N6 14,91:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8.5" cy="8.5" r="4"/>
+<circle cx="8.5" cy="8.5" r="1"/>
+<path d="M8.5 2.5V5.5M8.5 11.5V14.5M2.5 8.5H5.5M11.5 8.5H14.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8.5" cy="8.5" r="4"/>
+<circle cx="8.5" cy="8.5" r="1"/>
+<path d="M8.5 2.5V5.5M8.5 11.5V14.5M2.5 8.5H5.5M11.5 8.5H14.5"/>
+</svg></div><div class="txt"><b>glifo-repasar</b><span>tinta / superficie</span><span>N6 14,91:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5V13.5H13.5"/>
+<path d="M5.5 13.5V10M8.5 13.5V7M11.5 13.5V4"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5V13.5H13.5"/>
+<path d="M5.5 13.5V10M8.5 13.5V7M11.5 13.5V4"/>
+</svg></div><div class="txt"><b>glifo-estadisticas</b><span>tinta / superficie</span><span>N6 14,91:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="2.5" y="2.5" width="11" height="11"/>
+<path d="M8 5.5V10.5M5.5 8H10.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="2.5" y="2.5" width="11" height="11"/>
+<path d="M8 5.5V10.5M5.5 8H10.5"/>
+</svg></div><div class="txt"><b>glifo-agregar</b><span>tinta / superficie</span><span>N6 14,91:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M1.5 4.5H8.5M12.5 4.5H14.5M1.5 11.5H3.5M7.5 11.5H14.5"/>
+<rect x="8.5" y="2.5" width="4" height="4"/>
+<rect x="3.5" y="9.5" width="4" height="4"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M1.5 4.5H8.5M12.5 4.5H14.5M1.5 11.5H3.5M7.5 11.5H14.5"/>
+<rect x="8.5" y="2.5" width="4" height="4"/>
+<rect x="3.5" y="9.5" width="4" height="4"/>
+</svg></div><div class="txt"><b>glifo-ajustes</b><span>tinta / superficie</span><span>N6 14,91:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="1.5" y="1.5" width="13" height="13"/>
+<circle cx="5" cy="5" r="0.75"/>
+<circle cx="11" cy="5" r="0.75"/>
+<circle cx="8" cy="8" r="0.75"/>
+<circle cx="5" cy="11" r="0.75"/>
+<circle cx="11" cy="11" r="0.75"/>
+</svg></div><div class="cel g" style="color:var(--acento);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="1.5" y="1.5" width="13" height="13"/>
+<circle cx="5" cy="5" r="0.75"/>
+<circle cx="11" cy="5" r="0.75"/>
+<circle cx="8" cy="8" r="0.75"/>
+<circle cx="5" cy="11" r="0.75"/>
+<circle cx="11" cy="11" r="0.75"/>
+</svg></div><div class="txt"><b>glifo-aleatorio</b><span>acento / superficie</span><span>N18 8,84:1 · grande</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="3.5" y="2.5" width="9" height="12"/>
+<path d="M6.5 1.5H9.5"/>
+<path d="M6 5.5H10M6 8.5H10M6 11.5H10"/>
+</svg></div><div class="cel g" style="color:var(--acento);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="3.5" y="2.5" width="9" height="12"/>
+<path d="M6.5 1.5H9.5"/>
+<path d="M6 5.5H10M6 8.5H10M6 11.5H10"/>
+</svg></div><div class="txt"><b>glifo-revisar</b><span>acento / superficie</span><span>N18 8,84:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--fondo);background:var(--tinta)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 8.5V4.5H11.75M10 2L12.5 4.5L10 7"/>
+<path d="M13.5 7.5V11.5H4.25M6 9L3.5 11.5L6 14"/>
+</svg></div><div class="cel g" style="color:var(--fondo);background:var(--tinta)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 8.5V4.5H11.75M10 2L12.5 4.5L10 7"/>
+<path d="M13.5 7.5V11.5H4.25M6 9L3.5 11.5L6 14"/>
+</svg></div><div class="txt"><b>glifo-reintentar</b><span>fondo / tinta</span><span>T7 15,97:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tinta);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 7.5L8 2L13.5 7.5"/>
+<path d="M3.5 7.25V14.5H12.5V7.25"/>
+<path d="M6.5 14.5V9.5H9.5V14.5"/>
+</svg></div><div class="cel g" style="color:var(--tinta);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 7.5L8 2L13.5 7.5"/>
+<path d="M3.5 7.25V14.5H12.5V7.25"/>
+<path d="M6.5 14.5V9.5H9.5V14.5"/>
+</svg></div><div class="txt"><b>glifo-inicio</b><span>tinta / superficie</span><span>N6 14,91:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M1.5 1.5H14.5V11.5H7.5L4.5 14.5V11.5H1.5Z"/>
+<path d="M4.5 4.5H11.5M4.5 7.5H9.5"/>
+</svg></div><div class="cel g" style="color:var(--acento);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M1.5 1.5H14.5V11.5H7.5L4.5 14.5V11.5H1.5Z"/>
+<path d="M4.5 4.5H11.5M4.5 7.5H9.5"/>
+</svg></div><div class="txt"><b>glifo-mensaje</b><span>acento / superficie</span><span>N18 8,84:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5V13.5H14.5"/>
+<path d="M4.5 3.5L8.5 7.5L10.5 5.5L12.97 7.97"/>
+<path d="M10 8.5H13.5V5"/>
+</svg></div><div class="cel g" style="color:var(--acento);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5V13.5H14.5"/>
+<path d="M4.5 3.5L8.5 7.5L10.5 5.5L12.97 7.97"/>
+<path d="M10 8.5H13.5V5"/>
+</svg></div><div class="txt"><b>glifo-banco-reducido</b><span>acento / superficie</span><span>N18 8,84:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acierto);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M4.5 2.5H11.5L10 8.5H6Z"/>
+<path d="M4.75 4.5H2.5V7.5H5.5M11.25 4.5H13.5V7.5H10.5"/>
+<path d="M8 8.5V13.5M5.5 13.5H10.5"/>
+</svg></div><div class="cel g" style="color:var(--acierto);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M4.5 2.5H11.5L10 8.5H6Z"/>
+<path d="M4.75 4.5H2.5V7.5H5.5M11.25 4.5H13.5V7.5H10.5"/>
+<path d="M8 8.5V13.5M5.5 13.5H10.5"/>
+</svg></div><div class="txt"><b>glifo-trofeo</b><span>acierto / superficie</span><span>N10 9,33:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--fondo);background:var(--tinta)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5H11.5L13.5 4.5V13.5H2.5Z"/>
+<path d="M5.5 2.5V5.5H10.5V2.5"/>
+<path d="M4.5 13.5V9.5H11.5V13.5"/>
+</svg></div><div class="cel g" style="color:var(--fondo);background:var(--tinta)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5H11.5L13.5 4.5V13.5H2.5Z"/>
+<path d="M5.5 2.5V5.5H10.5V2.5"/>
+<path d="M4.5 13.5V9.5H11.5V13.5"/>
+</svg></div><div class="txt"><b>glifo-guardar</b><span>fondo / tinta</span><span>T7 15,97:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--fondo);background:var(--tinta)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M1.5 3.5H6.5L8.5 5.5H14.5V13.5H1.5Z"/>
+</svg></div><div class="cel g" style="color:var(--fondo);background:var(--tinta)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M1.5 3.5H6.5L8.5 5.5H14.5V13.5H1.5Z"/>
+</svg></div><div class="txt"><b>glifo-importar</b><span>fondo / tinta</span><span>T7 15,97:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acento);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="1.5" y="3.5" width="13" height="9"/>
+<path d="M2.09 3.96L8 8.5L13.91 3.96"/>
+</svg></div><div class="cel g" style="color:var(--acento);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<rect x="1.5" y="3.5" width="13" height="9"/>
+<path d="M2.09 3.96L8 8.5L13.91 3.96"/>
+</svg></div><div class="txt"><b>glifo-correo</b><span>acento / fondo</span><span>N17 9,48:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--acento);background:var(--fondo)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M6.5 2.5H2.5V13.5H13.5V9.5"/>
+<path d="M7.5 8.5L12.97 3.03"/>
+<path d="M9.5 2.5H13.5V6.5"/>
+</svg></div><div class="cel g" style="color:var(--acento);background:var(--fondo)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M6.5 2.5H2.5V13.5H13.5V9.5"/>
+<path d="M7.5 8.5L12.97 3.03"/>
+<path d="M9.5 2.5H13.5V6.5"/>
+</svg></div><div class="txt"><b>glifo-externo</b><span>acento / fondo</span><span>N17 9,48:1 · chico</span></div></div>
+<div class="ficha"><div class="cel c" style="color:var(--tintaSec);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M1.5 4.5H14.5"/>
+<path d="M6.5 4.5V2.5H9.5V4.5"/>
+<path d="M2.5 4.5L4.5 14.5H11.5L13.5 4.5"/>
+<path d="M6.5 7.5V11.5M9.5 7.5V11.5"/>
+</svg></div><div class="cel g" style="color:var(--tintaSec);background:var(--superficie)"><svg class="g24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M1.5 4.5H14.5"/>
+<path d="M6.5 4.5V2.5H9.5V4.5"/>
+<path d="M2.5 4.5L4.5 14.5H11.5L13.5 4.5"/>
+<path d="M6.5 7.5V11.5M9.5 7.5V11.5"/>
+</svg></div><div class="txt"><b>glifo-eliminar</b><span>tintaSec / superficie</span><span>N20 7,01:1 · grande</span></div></div></div>
+ 
+<h3>Distinción a 16 px: color y escala de grises</h3>
+<div class="fila"><div class="cel c" style="color:var(--acierto);background:var(--aciertoFondo);"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 7.5L6.5 11.5L13.5 4.5"/>
+</svg></div><div class="cel c" style="color:var(--error);background:var(--errorFondo);"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/>
+</svg></div><div class="cel c" style="color:var(--intermedia);background:var(--fondo);"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 6.5H12.5M3.5 9.5H12.5"/>
+</svg></div><span class="sep"></span><div class="cel c" style="color:var(--acierto);background:var(--aciertoFondo);filter:grayscale(1)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 7.5L6.5 11.5L13.5 4.5"/>
+</svg></div><div class="cel c" style="color:var(--error);background:var(--errorFondo);filter:grayscale(1)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"/>
+</svg></div><div class="cel c" style="color:var(--intermedia);background:var(--fondo);filter:grayscale(1)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 6.5H12.5M3.5 9.5H12.5"/>
+</svg></div></div>
+<div class="fila"><div class="cel c" style="color:var(--acento);background:var(--superficie);"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<circle cx="8" cy="10" r="2"/>
+</svg></div><div class="cel c" style="color:var(--fondo);background:var(--tinta);"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M8 1.5L10 6L14.5 8L10 10L8 14.5L6 10L1.5 8L6 6Z"/>
+</svg></div><div class="cel c" style="color:var(--tinta);background:var(--superficie);"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8" cy="4.5" r="2.5"/>
+<path d="M3 14.5A5 5 0 0 1 13 14.5"/>
+</svg></div><span class="sep"></span><div class="cel c" style="color:var(--acento);background:var(--superficie);filter:grayscale(1)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M3.5 1.5H8.5L12.5 5.5V14.5H3.5Z"/>
+<path d="M8.5 1.5V5.5H12.5"/>
+<circle cx="8" cy="10" r="2"/>
+</svg></div><div class="cel c" style="color:var(--fondo);background:var(--tinta);filter:grayscale(1)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M8 1.5L10 6L14.5 8L10 10L8 14.5L6 10L1.5 8L6 6Z"/>
+</svg></div><div class="cel c" style="color:var(--tinta);background:var(--superficie);filter:grayscale(1)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8" cy="4.5" r="2.5"/>
+<path d="M3 14.5A5 5 0 0 1 13 14.5"/>
+</svg></div></div>
+<h3>Estado vacío, 48 px, trazo 0,5 u (<code>tintaSec</code> sobre <code>fondo</code>)</h3>
+<div class="fila">
+ <div class="cel v" style="color:var(--tintaSec);background:var(--fondo)"><svg class="g48" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<circle cx="8.5" cy="8.5" r="4"/>
+<circle cx="8.5" cy="8.5" r="1"/>
+<path d="M8.5 2.5V5.5M8.5 11.5V14.5M2.5 8.5H5.5M11.5 8.5H14.5"/>
+</svg></div>
+ <div class="cel v" style="color:var(--tintaSec);background:var(--fondo)"><svg class="g48" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M2.5 2.5V13.5H13.5"/>
+<path d="M5.5 13.5V10M8.5 13.5V7M11.5 13.5V4"/>
+</svg></div>
+</div>
+<h3>Giro del chevron (plegables de Ajustes), 16 px, <code>acento</code> sobre <code>superficie</code></h3>
+<div class="fila">
+ <div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M5.5 3L10.5 8L5.5 13"/>
+</svg></div>
+ <div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16 r90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M5.5 3L10.5 8L5.5 13"/>
+</svg></div>
+ <div class="cel c" style="color:var(--acento);background:var(--superficie)"><svg class="g16 r270" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2" aria-hidden="true">
+<path d="M5.5 3L10.5 8L5.5 13"/>
+</svg></div>
+</div>
+
+</section></div>
+</body></html>

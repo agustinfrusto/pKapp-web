@@ -1,8 +1,8 @@
 import './global.css';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { Animated, View, Image, StyleSheet, TouchableOpacity, Text, Platform } from 'react-native';
-import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { Platform } from 'react-native';
+import { DefaultTheme, NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'nativewind';
@@ -22,31 +22,33 @@ import { MateriaProvider, useMateria } from './src/materia/MateriaContext';
 import { linking } from './src/navigation/linking';
 import { injectWebStyles } from './src/utils/webStyles';
 import { TemaProvider } from './src/theme/TemaContext';
-import { colores, oscuro } from './src/theme/colores';
+import { plancha } from './src/theme/colores';
+import { conBarraInterna } from './src/components/BarraInterna';
 import { trackPageview } from './src/utils/track';
+import { cargarFuentes } from './src/theme/fuentes';
+
+// Sin await: el render no espera a las fuentes (design.md D4).
+cargarFuentes();
 
 const Stack = createNativeStackNavigator();
 
-const splashStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1a3f6f',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logo: {
-    width: 260,
-    height: 100,
-  },
-  tagline: {
-    color: '#a8c8e0',
-    fontSize: 14,
-    marginTop: 12,
-    letterSpacing: 0.5,
-  },
-});
+// Las rutas con barra interna, en un solo lugar: su título y el ancho de la hoja de su
+// superficie (comun.md §7.2, tabla de superficies). La barra va dentro de la pantalla y
+// antes del contenido (tarea 3.12): no se usa el `header` del native-stack, que en web
+// queda después del contenido en el DOM. Quiz y MateriaSelect/Home no llevan barra.
+const BARRA = {
+  TopicSelect: { titulo: 'pKapp · Elegir tema', ancho: 'hoja-amplia' },
+  Results: { titulo: 'pKapp · Resultados', ancho: 'hoja', sinVolver: true },
+  AddQuestion: { titulo: 'pKapp · Agregar pregunta', ancho: 'lectura' },
+  Stats: { titulo: 'pKapp · Estadísticas', ancho: 'hoja-amplia' },
+  Settings: { titulo: 'pKapp · Ajustes', ancho: 'hoja' },
+};
 
-const logo = require('./src/assets/logo.png');
+const TopicSelectConBarra = conBarraInterna(TopicSelectScreen, BARRA.TopicSelect);
+const ResultsConBarra = conBarraInterna(ResultsScreen, BARRA.Results);
+const AddQuestionConBarra = conBarraInterna(AddQuestionScreen, BARRA.AddQuestion);
+const StatsConBarra = conBarraInterna(StatsScreen, BARRA.Stats);
+const SettingsConBarra = conBarraInterna(SettingsScreen, BARRA.Settings);
 
 export default function App() {
   return (
@@ -65,11 +67,13 @@ function AppContent() {
   const esOscuro = colorScheme === 'dark';
   // El chrome del navegador vive fuera del árbol de estilos de NativeWind:
   // si no se pinta a mano, queda un borde claro delatando el tema anterior.
-  const chrome = esOscuro
-    ? { cabecera: oscuro.brand.deep, texto: oscuro.brand.ink, fondo: '#0f172a' }
-    : { cabecera: colores.brand.DEFAULT, texto: '#fff', fondo: '#f1f5f9' };
-  const [splashDone, setSplashDone] = useState(false);
-  const opacity = useRef(new Animated.Value(0)).current;
+  const tema = esOscuro ? plancha.oscuro : plancha.claro;
+  const chrome = { cabecera: tema.fondo };
+  // El fondo de navegación por defecto (#f2f2f2) no es de la paleta en ningún tema.
+  const temaNavegacion = useMemo(
+    () => ({ ...DefaultTheme, colors: { ...DefaultTheme.colors, background: tema.fondo } }),
+    [tema.fondo],
+  );
   const navigationRef = useNavigationContainerRef();
   const routeNameRef = useRef();
 
@@ -94,17 +98,6 @@ function AppContent() {
   useEffect(() => {
     injectWebStyles(esOscuro);
     initDatabase().catch((err) => console.error('Error iniciando DB:', err));
-
-    if (Platform.OS === 'web') {
-      setSplashDone(true);
-      return;
-    }
-
-    Animated.sequence([
-      Animated.timing(opacity, { toValue: 1, duration: 900, useNativeDriver: true }),
-      Animated.delay(700),
-      Animated.timing(opacity, { toValue: 0, duration: 900, useNativeDriver: true }),
-    ]).start(() => setSplashDone(true));
   }, []);
 
   // El themeColor de la PWA define el color del chrome del navegador en la app
@@ -116,26 +109,11 @@ function AppContent() {
     if (meta) meta.setAttribute('content', chrome.cabecera);
   }, [chrome.cabecera, esOscuro]);
 
-  if (!splashDone) {
-    return (
-      <View style={splashStyles.container}>
-        <StatusBar style="light" />
-        <Animated.Image
-          source={logo}
-          style={[splashStyles.logo, { opacity }]}
-          resizeMode="contain"
-        />
-        <Animated.Text style={[splashStyles.tagline, { opacity }]}>
-          Entrena y aprueba ESFUNO
-        </Animated.Text>
-      </View>
-    );
-  }
-
   return (
     <NavigationContainer
       ref={navigationRef}
       linking={linking}
+      theme={temaNavegacion}
       onReady={() => {
         // La carga inicial ("/") ya la registra Umami; solo guardamos la ruta actual.
         routeNameRef.current = navigationRef.getCurrentRoute()?.name;
@@ -154,31 +132,16 @@ function AppContent() {
         formatter: () => 'pKapp',
       }}
     >
-      <StatusBar style={esOscuro ? 'light' : 'light'} backgroundColor={chrome.cabecera} />
+      <StatusBar style={esOscuro ? 'light' : 'dark'} backgroundColor={chrome.cabecera} />
       <Stack.Navigator
         initialRouteName="MateriaSelect"
-        screenOptions={({ navigation }) => ({
-          headerStyle: { backgroundColor: chrome.cabecera },
-          headerTintColor: chrome.texto,
-          headerTitleStyle: { fontWeight: 'bold' },
-          contentStyle: { backgroundColor: chrome.fondo },
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: tema.fondo },
           // En web la transición animada de native-stack agrega ~200ms al INP
           // sin aportar mucho visualmente. En nativo se mantiene la default.
           animation: Platform.OS === 'web' ? 'none' : 'default',
-          // Back button custom para garantizar que se vea en web.
-          // createNativeStackNavigator no siempre renderiza el back nativo en web.
-          headerLeft: Platform.OS === 'web' && navigation.canGoBack()
-            ? () => (
-                <TouchableOpacity
-                  onPress={() => navigation.goBack()}
-                  style={{ paddingHorizontal: 12, paddingVertical: 6 }}
-                  activeOpacity={0.7}
-                >
-                  <Text style={{ color: chrome.texto, fontSize: 22, lineHeight: 22 }}>←</Text>
-                </TouchableOpacity>
-              )
-            : undefined,
-        })}
+        }}
       >
         <Stack.Screen
           name="MateriaSelect"
@@ -192,33 +155,33 @@ function AppContent() {
         />
         <Stack.Screen
           name="TopicSelect"
-          component={TopicSelectScreen}
-          options={{ title: 'pKapp · Elegir tema' }}
+          component={TopicSelectConBarra}
+          options={{ title: BARRA.TopicSelect.titulo }}
         />
         <Stack.Screen
           name="Quiz"
           component={QuizScreen}
-          options={{ title: 'pKapp · Quiz', headerBackVisible: false, headerLeft: () => null }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="Results"
-          component={ResultsScreen}
-          options={{ title: 'pKapp · Resultados', headerBackVisible: false, headerLeft: () => null }}
+          component={ResultsConBarra}
+          options={{ title: BARRA.Results.titulo }}
         />
         <Stack.Screen
           name="AddQuestion"
-          component={AddQuestionScreen}
-          options={{ title: 'pKapp · Agregar pregunta' }}
+          component={AddQuestionConBarra}
+          options={{ title: BARRA.AddQuestion.titulo }}
         />
         <Stack.Screen
           name="Stats"
-          component={StatsScreen}
-          options={{ title: 'pKapp · Estadísticas' }}
+          component={StatsConBarra}
+          options={{ title: BARRA.Stats.titulo }}
         />
         <Stack.Screen
           name="Settings"
-          component={SettingsScreen}
-          options={{ title: 'pKapp · Ajustes' }}
+          component={SettingsConBarra}
+          options={{ title: BARRA.Settings.titulo }}
         />
       </Stack.Navigator>
     </NavigationContainer>

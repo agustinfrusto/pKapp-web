@@ -1,19 +1,42 @@
 // Pantalla inicial: el usuario elige con qué materia quiere estudiar.
 // Se presenta SIEMPRE al abrir la app (no se persiste la última).
-import React, { useState, useEffect } from 'react';
-import {
-  View, Text, TouchableOpacity, ScrollView, Image,
-} from 'react-native';
+// Ficha: openspec/changes/rediseno-plancha/diseno/pantallas/MateriaSelect.md (a, y «Escritorio»
+// `ESC-P1` desde el corte `escritorio`: lámina y nota en la región lateral, rejilla de 2
+// columnas, 3 desde `amplio`, y el pedido de donación al pie de la principal). Los avisos
+// (la nota del creador y los que se sumen) salen de `src/avisos/avisos.js`: D11, tarea 3.14c.
+import React, { useState } from 'react';
+import { View, Text, ScrollView } from 'react-native';
 import { MATERIA_LIST } from '../materias';
 import { useMateria } from '../materia/MateriaContext';
+import { useTema } from '../theme/TemaContext';
+import { plancha } from '../theme/colores';
+import { ilustracion as campoDeFilamentos, regla } from '../assets/filamentos';
 import DonationBox from '../components/DonationBox';
 import HeaderMarca from '../components/HeaderMarca';
+import Ilustracion from '../components/Ilustracion';
+import RegionAvisos from '../components/RegionAvisos';
+import {
+  Hoja, Lamina, Regiones, RotuloSeccion, TarjetaNavegable,
+} from '../components/plancha';
 import { track } from '../utils/track';
+import { usoActual } from '../utils/donacion';
 import { avisar } from '../utils/confirm';
-import { sombras } from '../theme/sombras';
+
+// Escala de 4 px por paso (tokens.md c.3, comun.md §8).
+const PX_POR_PASO = 4;
+const ALTO_CAMPO = 28 * PX_POR_PASO;
+const ALTO_REGLA = 2.5 * PX_POR_PASO;
+const LADO_ILUSTRACION = 12 * PX_POR_PASO;
+
+const DETALLE = 'font-plex-mono text-rotulo uppercase';
+const TINTA_SEC = 'text-tintaSec dark:text-tintaSecD';
+const ACENTO = 'text-acento dark:text-acentoD';
+const FILETE = 'border-filete dark:border-fileteD';
 
 export default function MateriaSelectScreen({ navigation }) {
   const { elegirMateria } = useMateria();
+  const { oscuro } = useTema();
+  const tema = oscuro ? plancha.oscuro : plancha.claro;
   // Cuál se está cargando: el banco de preguntas baja como chunk aparte, así que
   // entre el toque y la navegación puede haber un instante visible en redes lentas.
   const [cargandoId, setCargandoId] = useState(null);
@@ -37,115 +60,140 @@ export default function MateriaSelectScreen({ navigation }) {
   }
 
   return (
-    <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900" contentContainerClassName="pb-10">
-      <HeaderMarca>
-        <Text numberOfLines={1} className="text-center text-md text-brand-tint">Tus materias de ESFUNO</Text>
-        <Text numberOfLines={1} className="mt-2 text-center text-sm text-brand-pale">Elegí una para empezar</Text>
-      </HeaderMarca>
+    <ScrollView className="flex-1 bg-fondo dark:bg-fondoD" contentContainerClassName="pb-10">
+      <HeaderMarca ancho="hoja-amplia" izquierda={<RotuloSeccion color="tintaSec">ESFUNO</RotuloSeccion>} />
 
-      <AboutBanner />
+      <Hoja ancho="hoja-amplia">
+        <Regiones>
+          <Regiones.Lateral>
+            <View className="mb-3 mt-1.5">
+              <LaminaDeFilamentos tema={tema} />
+            </View>
 
-      <View className="p-4">
-        {MATERIA_LIST.map((m) => (
-          <MateriaCard
-            key={m.id}
-            materia={m}
-            cargando={cargandoId === m.id}
-            onPress={() => handlePick(m)}
-          />
-        ))}
-      </View>
+            <RegionAvisos pantalla="materias" />
+          </Regiones.Lateral>
 
-      <DonationCard />
+          <Regiones.Principal>
+            {/* Rejilla fila a fila (`ESC-P1`): paso 4 entre celdas, 2 columnas desde
+                `escritorio` y 3 desde `amplio`. Bajo el corte, la lista de siempre. */}
+            <View
+              dataSet={{ nosnippet: '' }}
+              className="mt-1.5 gap-2.5 escritorio:grid escritorio:grid-cols-2 escritorio:gap-4 amplio:grid-cols-3"
+            >
+              {MATERIA_LIST.map((m, i) => (
+                <MateriaCard
+                  key={m.id}
+                  materia={m}
+                  numero={i + 1}
+                  tema={tema}
+                  cargando={cargandoId === m.id}
+                  bloqueada={cargandoId !== null}
+                  onPress={() => handlePick(m)}
+                />
+              ))}
+            </View>
+
+            <DonationCard />
+          </Regiones.Principal>
+        </Regiones>
+      </Hoja>
     </ScrollView>
   );
 }
 
-const ABOUT_KEY = 'pkapp_about_seen_at_v2';
-const ABOUT_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000; // reaparece una vez por semana
-
-function AboutBanner() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (typeof localStorage === 'undefined') { setVisible(true); return; }
-    const seenAt = Number(localStorage.getItem(ABOUT_KEY));
-    if (!seenAt || Date.now() - seenAt >= ABOUT_INTERVAL_MS) setVisible(true);
-  }, []);
-
-  function dismiss() {
-    if (typeof localStorage !== 'undefined') localStorage.setItem(ABOUT_KEY, String(Date.now()));
-    setVisible(false);
-  }
-
-  if (!visible) return null;
-
+// Campo de filamentos, regla graduada y cajetín (MateriaSelect.md a.2).
+function LaminaDeFilamentos({ tema }) {
   return (
-    <View className="mx-4 mt-3 rounded-md border border-slate-200 bg-white p-4 dark:border-brandD-border dark:bg-slate-800">
-      <View className="mb-2 flex-row items-center justify-between">
-        <Text className="flex-1 text-base font-bold text-brand dark:text-brandD-light">👋 Una nota del creador</Text>
-        <TouchableOpacity
-          className="ml-2.5 h-6 w-6 items-center justify-center rounded-md bg-slate-200 dark:bg-brandD-border"
-          onPress={dismiss}
-          activeOpacity={0.7}
-        >
-          <Text className="text-xxs font-bold leading-[13px] text-slate-600 dark:text-brandD-ink">✕</Text>
-        </TouchableOpacity>
+    <Lamina testID="lamina-materias">
+      <Ilustracion
+        datos={campoDeFilamentos}
+        color={tema.filamento}
+        colorAcento={tema.acento}
+        ancho="100%"
+        alto={ALTO_CAMPO}
+      />
+      <Lamina.Divisor />
+      <Ilustracion datos={regla} color={tema.tintaSec} ancho="100%" alto={ALTO_REGLA} />
+      <Lamina.Divisor />
+      <View className="flex-row items-center justify-between gap-3 px-3.5 py-2.5">
+        <Text className="font-plex-sans-semibold text-marca text-tinta dark:text-tintaD">pKapp</Text>
+        <View className="min-w-0 flex-1 items-end">
+          <Text className={`${DETALLE} text-right ${TINTA_SEC}`}>Tus materias de ESFUNO</Text>
+          <Text className={`${DETALLE} text-right ${TINTA_SEC}`}>Elegí una para empezar</Text>
+        </View>
       </View>
-      <Text className="text-sm leading-5 text-slate-600 dark:text-brandD-ink">
-        ¡Hola! Ya están las seis materias. Ahora estoy trabajando en la estética de la página, así que en las próximas semanas vas a ir viendo cambios en el diseño. ¡Gracias por la paciencia!
-      </Text>
-    </View>
+    </Lamina>
   );
 }
 
 function DonationCard() {
   return (
-    <View className="items-center px-4 pb-4 pt-1.5">
-      <View className="mb-[18px] mt-1 h-px w-2/5 bg-slate-300 dark:bg-brandD-border" />
-      <DonationBox origen="materias" />
+    <View className="mt-6">
+      <View className={`mb-4 w-2/5 self-center border-b ${FILETE}`} />
+      <DonationBox origen="materias" uso={usoActual} />
     </View>
   );
 }
 
-function MateriaCard({ materia, onPress, cargando }) {
+function MateriaCard({ materia, numero, tema, onPress, cargando, bloqueada }) {
   // Precalculado en conteos.js: mostrarlo no debe costar cargar el banco entero.
   const totalQs = materia.preguntas || 0;
+  const id = `${materia.shortName} · ${String(numero).padStart(2, '0')}`;
 
+  // El cargando no deshabilita la tarjeta (apagaría marco y fondo): `handlePick` ignora
+  // el toque por `cargandoId` y `bloqueada` lo saca del puntero para que no se invierta
+  // al tocarla, ya que no hay acción que sugerir.
+  // En la rejilla, la celda iguala el alto de su fila: la tarjeta y su caja crecen hasta
+  // llenarla (`grow`, no `flex-1`: bajo el corte la lista conserva el alto del contenido).
   return (
-    <TouchableOpacity
-      className={`mb-3 items-center rounded-md bg-white px-4 py-6 dark:bg-slate-800 ${
-        !materia.available ? 'opacity-[0.55]' : ''
-      }`}
-      style={sombras.card}
-      onPress={onPress}
-      disabled={!materia.available || cargando}
-      activeOpacity={0.7}
+    <View
+      className="escritorio:[&>*]:grow escritorio:[&>*>*]:grow"
+      pointerEvents={bloqueada ? 'none' : 'auto'}
     >
-      <View
-        className="mb-3.5 h-[110px] w-[110px] items-center justify-center overflow-hidden rounded-lg"
-        style={{ backgroundColor: materia.color }}
+      <TarjetaNavegable
+        onPress={onPress}
+        deshabilitado={!materia.available}
+        accessibilityLabel={materia.name}
       >
-        {materia.image ? (
-          <Image source={materia.image} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
-        ) : (
-          <Text className="text-display-sm">{materia.icon}</Text>
-        )}
-      </View>
-      <Text
-        className={`text-center text-md font-semibold ${
-          materia.available ? 'text-brand-ink dark:text-brandD-ink' : 'text-slate-500 dark:text-mutedD'
-        }`}
-      >
-        {materia.name}
-      </Text>
-      {materia.available ? (
-        <Text className="mt-1.5 text-center text-sm text-brand-soft dark:text-brandD-soft">
-          {cargando ? 'Cargando…' : `${totalQs} preguntas`}
-        </Text>
-      ) : (
-        <Text className="mt-1.5 text-center text-sm italic text-muted dark:text-mutedD">Próximamente</Text>
-      )}
-    </TouchableOpacity>
+        {({ texto, ilustracion, invertido, deshabilitado }) => {
+          // Presionada invierte todo y deshabilitada apaga todo: ahí manda el color de la
+          // tarjeta; en reposo, el id va en acento y las leyendas en tintaSec.
+          const propio = invertido || deshabilitado;
+          const colorId = propio ? texto : ACENTO;
+          const colorLeyenda = propio ? texto : TINTA_SEC;
+          return (
+            <>
+              <View className="grow flex-row">
+                <View className={`w-16 items-center justify-center border-r ${FILETE}`}>
+                  <Ilustracion
+                    datos={materia.ilustracion}
+                    color={tema[ilustracion]}
+                    size={LADO_ILUSTRACION}
+                  />
+                </View>
+                <View className="min-w-0 flex-1 gap-1 px-3 py-2">
+                  <Text className={`${DETALLE} ${colorId}`}>{id}</Text>
+                  <Text className={`font-plex-sans-semibold text-item ${texto}`}>{materia.name}</Text>
+                </View>
+              </View>
+              <View className={`flex-row border-t ${FILETE}`}>
+                <View className="min-w-0 flex-1 justify-center px-3 py-1.5">
+                  {!materia.available ? (
+                    <Text className={`${DETALLE} ${texto}`}>Próximamente</Text>
+                  ) : cargando ? (
+                    <Text className={`${DETALLE} ${colorLeyenda}`}>Cargando…</Text>
+                  ) : (
+                    <Text className="font-plex-mono text-rotulo">
+                      <Text className={`font-plex-mono-medium text-rotulo uppercase ${texto}`}>{totalQs}</Text>
+                      <Text className={`${DETALLE} ${colorLeyenda}`}> preguntas</Text>
+                    </Text>
+                  )}
+                </View>
+              </View>
+            </>
+          );
+        }}
+      </TarjetaNavegable>
+    </View>
   );
 }

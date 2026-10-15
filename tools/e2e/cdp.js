@@ -31,12 +31,33 @@ async function conectarNavegador(puerto) {
     }
   };
 
+  // Si Chrome deja de contestar o se cae, un comando sin respuesta dejaría la
+  // corrida colgada para siempre: cada uno tiene su tope y el cierre del
+  // socket rechaza lo que quedó pendiente.
+  const LIMITE_COMANDO_MS = 30000;
+
+  ws.onclose = () => {
+    for (const { falla } of pendientes.values()) {
+      falla(new Error('Chrome cerró la conexión de debugging'));
+    }
+    pendientes.clear();
+  };
+
   function enviar(method, params = {}, sessionId) {
     const id = proximoId++;
     const msg = { id, method, params };
     if (sessionId) msg.sessionId = sessionId;
-    ws.send(JSON.stringify(msg));
-    return new Promise((listo, falla) => pendientes.set(id, { listo, falla }));
+    return new Promise((listo, falla) => {
+      const reloj = setTimeout(() => {
+        pendientes.delete(id);
+        falla(new Error(`Chrome no contestó a ${method} en ${LIMITE_COMANDO_MS / 1000}s`));
+      }, LIMITE_COMANDO_MS);
+      pendientes.set(id, {
+        listo: (r) => { clearTimeout(reloj); listo(r); },
+        falla: (e) => { clearTimeout(reloj); falla(e); },
+      });
+      ws.send(JSON.stringify(msg));
+    });
   }
 
   return {
@@ -47,6 +68,15 @@ async function conectarNavegador(puerto) {
 }
 
 const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// `exceptionDetails.text` de CDP es solo «Uncaught»: la causa real viene en
+// `exception.description`. El mensaje lleva ambas y la expresión que falló.
+function errorDeEvaluacion(detalles, expr) {
+  const causa = (detalles.exception && (detalles.exception.description || detalles.exception.value))
+    || detalles.text;
+  const linea = String(expr).replace(/\s+/g, ' ').trim().slice(0, 120);
+  return new Error(`Runtime.evaluate lanzó ${detalles.text}: ${causa} (en: ${linea})`);
+}
 
 // Busca el elemento clickeable más específico que contenga el texto.
 // react-native-web marca los Touchable con tabindex. Se descartan los de tamaño
@@ -68,16 +98,19 @@ const FN_UBICAR = `(function (t) {
   };
 })`;
 
-async function abrirPagina(navegador, { ancho = 900, alto = 1400 } = {}) {
+// `escala` y `movil` son para quien captura imágenes (scripts/capturar-
+// screenshots.js); los defaults son los de la e2e y no cambian su comportamiento.
+async function abrirPagina(navegador, { ancho = 900, alto = 1400, escala = 1, movil = false } = {}) {
   const { targetId } = await navegador.enviar('Target.createTarget', { url: 'about:blank' });
   const { sessionId } = await navegador.enviar('Target.attachToTarget', { targetId, flatten: true });
 
   await navegador.enviar('Page.enable', {}, sessionId);
   await navegador.enviar('Runtime.enable', {}, sessionId);
   await navegador.enviar('Emulation.setDeviceMetricsOverride',
-    { width: ancho, height: alto, deviceScaleFactor: 1, mobile: false }, sessionId);
+    { width: ancho, height: alto, deviceScaleFactor: escala, mobile: movil }, sessionId);
 
   const pagina = {
+    sessionId,
     dialogos: [],
     errores: [],
     // 'aceptar' | 'cancelar': qué contestar al próximo window.confirm.
@@ -91,8 +124,10 @@ async function abrirPagina(navegador, { ancho = 900, alto = 1400 } = {}) {
     if (m.sessionId !== sessionId) return;
     if (m.method === 'Page.javascriptDialogOpening') {
       pagina.dialogos.push(m.params.message);
+      // Sin dueño, un rechazo (Chrome caído o mudo) mataría el proceso con
+      // unhandledRejection antes del finally que cierra Chrome y el servidor.
       await navegador.enviar('Page.handleJavaScriptDialog',
-        { accept: pagina.respuestaDialogo === 'aceptar' }, sessionId);
+        { accept: pagina.respuestaDialogo === 'aceptar' }, sessionId).catch(() => {});
     }
     if (m.method === 'Page.frameRequestedNavigation' && m.params.reason === 'scriptInitiated') {
       pagina.navegaciones.push(m.params.url);
@@ -106,7 +141,7 @@ async function abrirPagina(navegador, { ancho = 900, alto = 1400 } = {}) {
   pagina.evaluar = async (expr) => {
     const r = await navegador.enviar('Runtime.evaluate',
       { expression: expr, returnByValue: true, awaitPromise: true }, sessionId);
-    if (r.exceptionDetails) throw new Error(r.exceptionDetails.text);
+    if (r.exceptionDetails) throw errorDeEvaluacion(r.exceptionDetails, expr);
     return r.result.value;
   };
 
@@ -115,8 +150,10 @@ async function abrirPagina(navegador, { ancho = 900, alto = 1400 } = {}) {
 
   pagina.ir = (url) => navegador.enviar('Page.navigate', { url }, sessionId);
   pagina.url = () => pagina.evaluar('location.pathname');
+  // Justo después de `ir`, el documento nuevo puede no tener <body> todavía:
+  // ahí no hay texto (''), no una excepción que tire la corrida.
   pagina.texto = (n = 160) =>
-    pagina.evaluar(`document.body.innerText.replace(/\\s+/g,' ').slice(0, ${n})`);
+    pagina.evaluar(`(document.body ? document.body.innerText : '').replace(/\\s+/g,' ').slice(0, ${n})`);
 
   pagina.ubicar = (texto) => pagina.evaluar(`${FN_UBICAR}(${JSON.stringify(texto)})`);
 
@@ -127,6 +164,37 @@ async function abrirPagina(navegador, { ancho = 900, alto = 1400 } = {}) {
         sessionId);
       await esperar(50);
     }
+  };
+
+  // Teclado real (Input.dispatchKeyEvent): dispara la acción por defecto del
+  // navegador, a diferencia de un KeyboardEvent sintético. `key` es el nombre DOM.
+  const TECLAS = {
+    Tab: { code: 'Tab', vk: 9 },
+    Enter: { code: 'Enter', vk: 13, text: '\r' },
+    ' ': { code: 'Space', vk: 32, text: ' ' },
+    ArrowLeft: { code: 'ArrowLeft', vk: 37 },
+    ArrowUp: { code: 'ArrowUp', vk: 38 },
+    ArrowRight: { code: 'ArrowRight', vk: 39 },
+    ArrowDown: { code: 'ArrowDown', vk: 40 },
+  };
+
+  pagina.tecla = async (key, { shift = false } = {}) => {
+    const def = TECLAS[key];
+    if (!def) throw new Error(`tecla sin definir: ${JSON.stringify(key)}`);
+    const base = { key, code: def.code, windowsVirtualKeyCode: def.vk,
+      nativeVirtualKeyCode: def.vk, modifiers: shift ? 8 : 0 };
+    await navegador.enviar('Input.dispatchKeyEvent',
+      { ...base, type: def.text ? 'keyDown' : 'rawKeyDown', ...(def.text ? { text: def.text } : null) },
+      sessionId);
+    await navegador.enviar('Input.dispatchKeyEvent', { ...base, type: 'keyUp' }, sessionId);
+    await esperar(50);
+  };
+
+  // Mueve el puntero sin presionar: dispara hover real.
+  pagina.moverA = async (x, y) => {
+    await navegador.enviar('Input.dispatchMouseEvent',
+      { type: 'mouseMoved', x, y, button: 'none', buttons: 0 }, sessionId);
+    await esperar(50);
   };
 
   // Dos pasadas a propósito: la primera acomoda el scroll, la segunda mide.
@@ -154,8 +222,11 @@ async function abrirPagina(navegador, { ancho = 900, alto = 1400 } = {}) {
   pagina.esperarUrl = (esperada, opts) =>
     pagina.esperarA(async () => await pagina.url() === esperada, opts);
 
+  // Sin distinguir mayúsculas: la mayúscula de un rótulo es presentación por
+  // CSS (innerText la devuelve ya aplicada), no contenido.
   pagina.esperarTexto = (txt, opts) =>
-    pagina.esperarA(async () => (await pagina.texto(4000)).includes(txt), opts);
+    pagina.esperarA(async () =>
+      (await pagina.texto(4000)).toLowerCase().includes(String(txt).toLowerCase()), opts);
 
   pagina.cerrar = () => navegador.enviar('Target.closeTarget', { targetId });
 

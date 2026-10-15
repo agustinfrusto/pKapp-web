@@ -1,0 +1,77 @@
+{
+  "tolerancia_medio_tono": 24,
+  "propuestas": {
+    "FAV-1X-P0": {
+      "nombre": "Vigente (4.2c): PNG de 32 y de 16 px",
+      "cableado": "dos <link> de PNG: 32x32 y 16x16",
+      "1x": {
+        "medios_tonos": 40,
+        "pixeles_de_trazo": 107,
+        "dif_media_vs_maestro_16": 22.46,
+        "pixeles_a_mas_de_24": 44,
+        "sha256": "9b7686f1ad8be49177995fd9035bf81959ad484757c4c227f203e9005b461960"
+      },
+      "2x": {
+        "medios_tonos": 75,
+        "pixeles_de_trazo": 390,
+        "dif_media_vs_maestro_32": 0.0,
+        "pixeles_a_mas_de_24": 0,
+        "sha256": "3afa97c9eb6a9bcf131305bb4d49ad09365682cc0bd8c5541fafbdcd4d681742"
+      }
+    },
+    "FAV-1X-P1": {
+      "nombre": ".ico de 16, 32 y 48 px",
+      "cableado": "<link rel=\"icon\" href=\"/favicon.ico\" sizes=\"16x16 32x32 48x48\"> y los PNG",
+      "1x": {
+        "medios_tonos": 0,
+        "pixeles_de_trazo": 92,
+        "dif_media_vs_maestro_16": 0.0,
+        "pixeles_a_mas_de_24": 0,
+        "sha256": "242ca545c47de7d3db8c6d3130d42004f14f227612d1e0e9c32d4869aef5bfaf"
+      },
+      "2x": {
+        "medios_tonos": 75,
+        "pixeles_de_trazo": 390,
+        "dif_media_vs_maestro_32": 0.0,
+        "pixeles_a_mas_de_24": 0,
+        "sha256": "3afa97c9eb6a9bcf131305bb4d49ad09365682cc0bd8c5541fafbdcd4d681742"
+      }
+    },
+    "FAV-1X-P2": {
+      "nombre": "Solo el PNG de 16 px",
+      "cableado": "se quita el <link> de 32x32",
+      "1x": {
+        "medios_tonos": 0,
+        "pixeles_de_trazo": 92,
+        "dif_media_vs_maestro_16": 0.0,
+        "pixeles_a_mas_de_24": 0,
+        "sha256": "242ca545c47de7d3db8c6d3130d42004f14f227612d1e0e9c32d4869aef5bfaf"
+      },
+      "2x": {
+        "medios_tonos": 0,
+        "pixeles_de_trazo": 368,
+        "dif_media_vs_maestro_32": 16.97,
+        "pixeles_a_mas_de_24": 123,
+        "sha256": "5ffaa9e45d104ddef827ab79a92306cdf72f2415b080d4c8d6710733b22b3c97"
+      }
+    },
+    "FAV-1X-P3": {
+      "nombre": "favicon-32.png = maestro de 16 duplicado",
+      "cableado": "sin cambio de cableado",
+      "1x": {
+        "medios_tonos": 13,
+        "pixeles_de_trazo": 95,
+        "dif_media_vs_maestro_16": 9.54,
+        "pixeles_a_mas_de_24": 13,
+        "sha256": "7716abc834e86fc90bd3f5733476da7f11aa37f7d8e10f3f752ac2e5d74c93e0"
+      },
+      "2x": {
+        "medios_tonos": 0,
+        "pixeles_de_trazo": 368,
+        "dif_media_vs_maestro_32": 16.97,
+        "pixeles_a_mas_de_24": 123,
+        "sha256": "5ffaa9e45d104ddef827ab79a92306cdf72f2415b080d4c8d6710733b22b3c97"
+      }
+    }
+  }
+}

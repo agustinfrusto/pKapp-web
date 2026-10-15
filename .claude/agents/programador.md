@@ -15,6 +15,7 @@ FLUJO (obligatorio, en orden)
 4. Correr la compuerta local del área tocada. Todo en verde, o no hay entrega:
    - `tools/ingesta/**` → `python3 tools/ingesta/pruebas/correr_pruebas.py`
    - `src/**`, `App.js`, `scripts/**` → `npm run build:web && npm run e2e`
+   - `tools/e2e/**` salvo `suites/` (el arnés) → `node tools/e2e/pruebas/huerfanos.js && node tools/e2e/pruebas/arnes.js && node tools/e2e/pruebas/paralelo.js && npm run build:web && npm run e2e -- --suite home`
 5. Entregar.
 
 SALIDA

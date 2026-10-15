@@ -7,18 +7,24 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 const SCRIPT = resolve(import.meta.dirname, '..', '..', 'scripts', 'inject-pwa.js');
-const HTML = '<!doctype html><html><head><title>t</title></head><body></body></html>';
+const COLORES = resolve(import.meta.dirname, '..', '..', 'src', 'theme', 'colores.js');
+const HTML ='<!doctype html><html><head><title>t</title></head><body></body></html>';
 
 function correr(rama, conToken) {
   const raiz = mkdtempSync(join(tmpdir(), 'analitica-'));
   try {
     mkdirSync(join(raiz, 'scripts'));
     mkdirSync(join(raiz, 'dist'));
+    mkdirSync(join(raiz, 'src', 'theme'), { recursive: true });
     copyFileSync(SCRIPT, join(raiz, 'scripts', 'inject-pwa.js'));
+    // inject-pwa.js lee el theme-color de los tokens: se copia lo que requiere.
+    copyFileSync(COLORES, join(raiz, 'src', 'theme', 'colores.js'));
     writeFileSync(join(raiz, 'dist', 'index.html'), HTML);
     const env = { ...process.env };
     delete env.CF_PAGES_BRANCH;
     delete env.CF_ANALYTICS_TOKEN;
+    // El árbol temporal tiene su propio dist/: una PKAPP_DIST exportada no aplica acá.
+    delete env.PKAPP_DIST;
     if (rama !== undefined) env.CF_PAGES_BRANCH = rama;
     if (conToken) env.CF_ANALYTICS_TOKEN = 'token-de-prueba';
     const salida = execFileSync('node', [join(raiz, 'scripts', 'inject-pwa.js')], { env, encoding: 'utf8' });

@@ -125,10 +125,10 @@ Materia sin parciales (examen único).
 
 ```
 pKapp/
-├── App.js                          # Navegación + splash (MateriaProvider)
+├── App.js                          # Navegación (MateriaProvider)
 ├── index.js                        # Entry point Expo
 ├── app.json                        # Config Expo (incluye sección web/PWA)
-├── metro.config.js                 # Excluye expo-sqlite del bundle web
+├── metro.config.js                 # Config de Metro (NativeWind, woff2, shim de decode-uri-component)
 ├── babel.config.js
 ├── package.json
 ├── public/                         # Archivos servidos en la raíz del sitio web
@@ -139,7 +139,7 @@ pKapp/
 ├── scripts/
 │   ├── gen-conteos.mjs             # Pre-build: genera src/materias/conteos.js
 │   ├── inject-pwa.js               # Post-build: inyecta meta tags PWA, CF Analytics y Umami
-│   ├── inject-preload.js           # Post-build: inyecta preload del logo y materias
+│   ├── inject-preload.js           # Post-build: inyecta el preload de las imágenes de materia
 │   └── capturar-screenshots.js     # Captura las imágenes de este README
 ├── tools/                          # Herramientas de desarrollo (fuera del bundle)
 │   ├── ingesta/                    # Pipeline Python: extraer, validar y enriquecer preguntas
@@ -191,15 +191,12 @@ pKapp/
     ├── materia/
     │   └── MateriaContext.js       # Estado: materia activa, getter de data
     ├── db/
-    │   ├── database.native.js      # Implementación nativa (SQLite)
-    │   ├── database.web.js         # Implementación web (localStorage)
-    │   └── sqlite-stub.js          # Stub vacío de expo-sqlite para web
+    │   └── database.web.js         # Persistencia (localStorage)
     ├── components/
     │   ├── DonationBox.js          # Bloque de donación (Mercado Pago)
-    │   └── HeaderMarca.js          # Header compartido (logo, título y control de tema)
+    │   └── HeaderMarca.js          # Header compartido (control de tema y acción izquierda opcional)
     ├── theme/
     │   ├── colores.js              # Tokens de color del sistema visual
-    │   ├── sombras.js              # Elevación y sombras
     │   └── TemaContext.js          # Contexto de tema / preferencias visuales
     ├── utils/
     │   ├── confirm.js              # Confirmaciones cross-platform
@@ -222,16 +219,14 @@ pKapp/
 
 ---
 
-## Diferencias con la versión nativa
+## Plataforma web
 
-| | Nativo (iOS / Android) | Web |
-|--|--|--|
-| **Persistencia** | SQLite (`expo-sqlite`) | `localStorage` |
-| **Confirmaciones** | `Alert.alert` con múltiples botones | `window.confirm` (envuelto en `src/utils/confirm.js`) |
-| **Analytics** | — | Cloudflare Web Analytics (páginas) + Umami (eventos, sin cookies) |
-| **Distribución** | Stores (EAS Build) | Cloudflare Pages (deploy automático en cada `git push`) |
-
-La capa de DB usa los sufijos `.native.js` / `.web.js` para que Metro elija el archivo correcto según la plataforma. Cualquier import desde `'../db/database'` se resuelve automáticamente.
+| | Web |
+|--|--|
+| **Persistencia** | `localStorage` (`src/db/database.web.js`) |
+| **Confirmaciones** | `window.confirm` (envuelto en `src/utils/confirm.js`) |
+| **Analytics** | Cloudflare Web Analytics (páginas) + Umami (eventos, sin cookies) |
+| **Distribución** | Cloudflare Pages (deploy automático en cada `git push`) |
 
 ### Sobre la persistencia en web
 
@@ -323,7 +318,7 @@ Por transparencia, detallo en qué partes del proyecto se usó asistencia de IA 
 
 ### Código
 
-Asistencia para refactors, debugging, configuración del soporte web (PWA, split `database.native.js` / `database.web.js`), deploy en Cloudflare Pages y revisión de patrones.
+Asistencia para refactors, debugging, configuración del soporte web (PWA, capa de persistencia en `database.web.js`), deploy en Cloudflare Pages y revisión de patrones.
 
 ### Lo que NO se delegó a IA
 

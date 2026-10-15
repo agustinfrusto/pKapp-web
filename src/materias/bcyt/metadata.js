@@ -6,6 +6,5 @@ export const metadata = {
   description: 'Preparación para 1er y 2do parcial.',
   icon:        '🧬',
   image:       require('../../assets/materias/bcyt.png'),
-  color:       '#1a3f6f',
   available:   true, // false = "Próximamente", no se puede entrar
 };

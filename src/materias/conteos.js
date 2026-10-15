@@ -8,13 +8,3 @@ export const CONTEOS = {
   neuro: 193,
   ryd: 172,
 };
-
-// Cuántas de esas preguntas son source: 'generated' (hoy ninguna en los bancos publicados).
-export const GENERADAS = {
-  anatomia: 0,
-  bcyt: 0,
-  cyr: 0,
-  dre: 0,
-  neuro: 0,
-  ryd: 0,
-};

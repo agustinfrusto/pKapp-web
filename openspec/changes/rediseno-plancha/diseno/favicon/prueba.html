@@ -1,0 +1,32 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Prueba de los íconos de la app instalada</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;border-radius:0}
+body{width:500px;height:680px;background:#f4f5f6;font-family:'IBM Plex Sans',sans-serif;color:#14181d;padding:28px 36px}
+h1{font:500 13px 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px}
+.lb{font:11px 'IBM Plex Mono',monospace;letter-spacing:.07em;text-transform:uppercase;opacity:.8}
+.right{width:428px}
+.home{display:grid;grid-template-columns:192px 192px;gap:18px 8px;padding:18px;background:#aeb6bf}
+.home figure{font:11px 'IBM Plex Mono',monospace;color:#14181d;letter-spacing:.05em;text-transform:uppercase}
+.home figcaption{margin-top:8px}
+.tile{width:192px;height:192px;display:block}
+.ios{width:180px;height:180px;border-radius:22.37%;overflow:hidden}
+.ios img{width:180px;height:180px;display:block}
+.mask{width:192px;height:192px;overflow:hidden;position:relative}
+.mask.c{border-radius:50%}
+.mask.sq{clip-path:url(#sq)}
+.mask img{width:192px;height:192px;display:block}
+.guide{position:absolute;inset:0;width:192px;height:192px}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><defs><clipPath id="sq" clipPathUnits="objectBoundingBox"><path d="M0.5,0 C0.9545,0 1,0.0455 1,0.5 C1,0.9545 0.9545,1 0.5,1 C0.0455,1 0,0.9545 0,0.5 C0,0.0455 0.0455,0 0.5,0 Z"/></clipPath></defs></svg>
+<h1>pKapp · íconos de la app instalada · prueba de máscaras</h1>
+<section class="right">
+  <div class="home">
+   <figure><img class="tile" src="icon-192.png" alt=""><figcaption>icon-192 · "any"</figcaption></figure>
+   <figure><div class="ios"><img src="apple-touch-icon.png" alt=""></div><figcaption style="margin-top:20px">apple-touch-icon · iOS 180</figcaption></figure>
+   <figure><div class="mask c"><img src="icon-maskable-512.png" alt=""><svg class="guide" viewBox="0 0 192 192" fill="none"><circle cx="96" cy="96" r="76.8" stroke="#5cc3d6" stroke-width="1" stroke-dasharray="3 3"/></svg></div><figcaption>maskable · círculo 80 %</figcaption></figure>
+   <figure><div class="mask sq"><img src="icon-maskable-512.png" alt=""><svg class="guide" viewBox="0 0 192 192" fill="none"><circle cx="96" cy="96" r="76.8" stroke="#5cc3d6" stroke-width="1" stroke-dasharray="3 3"/></svg></div><figcaption>maskable · squircle</figcaption></figure>
+  </div>
+</section>
+<div class="lb" style="margin-top:18px">«any» a 192 px; apple-touch-icon a 180 px con las esquinas de iOS (aproximación, radio 22,4 %); maskable de 512 px recortado en círculo, con la guía del 80 %, y en squircle de Android (aproximación, superelipse de grado 4). El favicon de la pestaña es FAV-P2 (prueba-42.html).</div>
+</body></html>

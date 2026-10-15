@@ -8,43 +8,21 @@
     "splash": {
       "image": "./src/assets/logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#1a3f6f"
-    },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.agustinfrusto.pkapp",
-      "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
-    },
-    "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#6366f1"
-      },
-      "package": "com.agustinfrusto.pkapp"
+      "backgroundColor": "#0b0d10"
     },
     "web": {
       "favicon": "./src/assets/favicon.png",
       "bundler": "metro",
       "name": "pKapp",
       "shortName": "pKapp",
-      "description": "Preparación para ESFUNO (Biología Celular y Tisular, Anatomía, Neurobiología y demás módulos)",
+      "description": "Practicá para ESFUNO con preguntas de examen. Gratis, sin publicidad y en el celular.",
       "lang": "es",
-      "themeColor": "#1a3f6f",
-      "backgroundColor": "#1a3f6f",
+      "themeColor": "#0b0d10",
+      "backgroundColor": "#0b0d10",
       "display": "standalone",
       "orientation": "portrait",
       "startUrl": "/"
     },
-    "icon": "./src/assets/icon.png",
-    "plugins": [
-      "expo-sqlite"
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "d21e263c-476a-45bf-b355-52d5df4e6005"
-      }
-    },
-    "owner": "agustinfrusto"
+    "icon": "./src/assets/icon.png"
   }
 }

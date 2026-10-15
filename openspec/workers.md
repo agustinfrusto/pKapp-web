@@ -14,7 +14,7 @@ esa guía no respalde.
 | Rol | Archivo | Modelo | Effort | Puede editar | git |
 |---|---|---|---|---|---|
 | **Ingeniero Arquitecto** | `ingeniero.md` | `opus` | `high` | `openspec/**`, `CLAUDE.md`, `.claude/agents/**` y el campo de versión (`package.json`, `package-lock.json`, `app.json`) | `add` de la lista, `commit`, `tag` de versión y `push`, con orden (`openspec/commit.md`) |
-| **Diseñador UI/UX** | `disenador.md` | `sonnet` | `max` | `src/screens/**`, `src/components/**`, `src/theme/**`, `src/assets/**`, `referencias-diseno/**` | ninguno |
+| **Diseñador UI/UX** | `disenador.md` | `sonnet` | `max` | `src/screens/**`, `src/components/**`, `src/theme/**`, `src/assets/**`, `referencias-diseno/**`, `openspec/changes/*/diseno/**` | ninguno |
 | **Programador Ejecutor** | `programador.md` | `sonnet` | `low` | lo que su spec nombre | ninguno |
 | **Investigador** | `investigador.md` | `sonnet` | `high` | la carpeta de salida del pipeline (`tools/ingesta/salidas/**`) | ninguno |
 | **Analista de código** | `analista.md` | `sonnet` | `high` | solo su reporte (`.orca/reports/<tarea>-analisis.md`) | solo lectura |
@@ -197,6 +197,7 @@ con la revisión cerrada, y con orden del operador, el Ingeniero commitea.
 |---|---|
 | `tools/ingesta/**` | `python3 tools/ingesta/pruebas/correr_pruebas.py` |
 | `src/**`, `App.js`, `scripts/**` | `npm run build:web && npm run e2e` |
+| `tools/e2e/**` salvo `suites/` (el arnés) | `node tools/e2e/pruebas/huerfanos.js && node tools/e2e/pruebas/arnes.js && node tools/e2e/pruebas/paralelo.js && npm run build:web && npm run e2e -- --suite home` |
 | solo docs y specs | revisión estructural del Ingeniero |
 
 El repo no tiene tests unitarios de la app. En `src/`, el "test que falla primero" del

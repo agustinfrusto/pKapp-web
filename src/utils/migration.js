@@ -1,5 +1,5 @@
 // Utilidades para exportar/importar el progreso del usuario.
-// Soporta migración entre dominios (ej. pkapp-web.vercel.app → pkapp.uy).
+// Soporta migración entre dominios (ej. de pkapp-web.vercel.app a pkapp.uy).
 //
 // Solo funciona en web (en nativo no hay un caso de uso para migrar).
 
@@ -67,6 +67,13 @@ export function downloadBackup() {
   return true;
 }
 
+// Aviso de una importación lograda: 0, 1 o varios datos restaurados.
+function mensajeDeRestauracion(n) {
+  if (n === 0) return 'No había datos nuevos para restaurar.';
+  if (n === 1) return 'Se restauró 1 dato.';
+  return `Se restauraron ${n} datos.`;
+}
+
 /**
  * Importa un backup desde el contenido (string JSON).
  * Devuelve un resumen { ok, message, restoredKeys }.
@@ -77,11 +84,11 @@ export function importBackupFromText(text, { overwrite = false } = {}) {
   try {
     const parsed = JSON.parse(text);
     if (!parsed || typeof parsed !== 'object' || !parsed.data || typeof parsed.data !== 'object') {
-      return { ok: false, message: 'Archivo invalido: no parece un backup de pKapp.' };
+      return { ok: false, message: 'Archivo inválido: no parece un respaldo de pKapp.' };
     }
     if (parsed.version !== VERSION) {
       // Por ahora solo aceptamos v1; en el futuro: migraciones de version
-      return { ok: false, message: `Version de backup no soportada (${parsed.version}).` };
+      return { ok: false, message: `Versión de respaldo no soportada (${parsed.version}).` };
     }
     const keysWritten = [];
     Object.entries(parsed.data).forEach(([key, value]) => {
@@ -94,13 +101,13 @@ export function importBackupFromText(text, { overwrite = false } = {}) {
     });
     return {
       ok: true,
-      message: `Importado: ${keysWritten.length} clave(s) restauradas.`,
+      message: mensajeDeRestauracion(keysWritten.length),
       restoredKeys: keysWritten,
       source: parsed.source,
       exportedAt: parsed.exportedAt,
     };
   } catch (e) {
-    return { ok: false, message: 'No se pudo leer el archivo: ' + e.message };
+    return { ok: false, message: 'No se pudo leer el archivo.' };
   }
 }
 

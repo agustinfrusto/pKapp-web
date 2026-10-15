@@ -3,6 +3,7 @@ node_modules/
 
 # Build / salida
 dist/
+dist-*/
 web-build/
 
 # Expo / EAS
@@ -61,6 +62,8 @@ ESFUNO/
 Imagenes materias/
 # Referencias visuales para el Diseñador: material de terceros, no se distribuye
 referencias-diseno/
+# PNG regenerables por diseno/favicon/generar.py; los publicados viven en public/
+openspec/changes/*/diseno/favicon/*.png
 tools/ingesta/salidas/
 tools/ingesta/.venv/
 .venv/
@@ -77,3 +80,13 @@ skills-lock.json
 .atl/
 .codegraph/
 .orca/
+openspec/changes/*/diseno/maqueta/*.png
+openspec/changes/*/diseno/svg/glifos/*.png
+openspec/changes/*/diseno/banners/capturas/*.png
+# Evidencia del rediseño: se versiona solo el ancho de referencia (390); el resto se regenera con npm run screenshots
+openspec/changes/*/evidencia/**/*.png
+!openspec/changes/*/evidencia/**/*-390-*.png
+openspec/changes/*/diseno/svg/variantes/*.png
+
+# Notas del arquitecto (tarea 6.3): material de lectura personal, fuera del repo
+NOTAS-ARQUITECTO/

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="696" height="224" viewBox="0 0 348 112" preserveAspectRatio="xMidYMid meet" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter" stroke-linecap="butt" style="color:var(--filamento,#14181d)" aria-hidden="true" focusable="false">
+<path d="M-78.8 -20V132M-72.4 -20V132M-66 -20V132M-59.6 -20V132M-53.2 -20V132M-46.8 -20V132M-40.4 -20V132M-34 -20V132M-27.6 -20V132M-21.2 -20V132M-14.8 -20V132M-8.4 -20V132M-2 -20V132M4.4 -20V132M10.8 -20V132M17.2 -20V132M23.6 -20V132M30 -20V132M36.4 -20V132M42.8 -20V132M49.2 -20V132M55.6 -20V132M62 -20V132M68.4 -20V132M74.8 -20V132M81.2 -20V132M87.6 -20V132M94 -20V132M100.4 -20V132M106.8 -20V132M113.2 -20V132M119.6 -20V132M126 -20V132M132.4 -20V132M138.8 -20V132M145.2 -20V132M151.6 -20V132M158 -20V132M164.4 -20V132M170.8 -20V132M177.2 -20V132M183.6 -20V132M190 -20V132M196.4 -20V132M202.8 -20V132M209.2 -20V132M215.6 -20V132M222 -20V132M228.4 -20V132M234.8 -20V132M241.2 -20V132M247.6 -20V132M254 -20V132M260.4 -20V132M266.8 -20V132M273.2 -20V132M279.6 -20V132M286 -20V132M292.4 -20V132M298.8 -20V132M305.2 -20V132M311.6 -20V132M318 -20V132M324.4 -20V132M330.8 -20V132M337.2 -20V132M343.6 -20V132M350 -20V132M356.4 -20V132M362.8 -20V132M-64 -25H412M-64 -18.6H412M-64 -12.2H412M-64 -5.8H412M-64 .6H412M-64 7H412M-64 13.4H412M-64 19.8H412M-64 26.2H412M-64 32.6H412M-64 39H412M-64 45.4H412M-64 51.8H412M-64 58.2H412M-64 64.6H412M-64 71H412M-64 77.4H412M-64 83.8H412M-64 90.2H412M-64 96.6H412M-64 103H412M-64 109.4H412M-64 115.8H412M-64 122.2H412M-64 128.6H412M-64 135H412" stroke-opacity="0.1" stroke-width="0.5"/>
+<path d="M-64 7H412M-64 26.2H412M-64 96.6H412" stroke-opacity="0.3" stroke-width="0.5" stroke-dasharray="3 2"/>
+<path d="M-64 77.4H412" stroke-opacity="0.5" stroke-width="0.6"/>
+<path d="M126 -20V132M138.8 -20V132M177.2 -20V132M183.6 -20V132M196.4 -20V132M222 -20V132" stroke-opacity="0.2" stroke-width="0.5" stroke-dasharray="3 2"/>
+<path d="M126 26.2H138.8V29.6A25.6 25.6 0 1 1 138.8 74V96.6H126Z" stroke-width="1"/>
+<circle cx="151.6" cy="51.8" r="12.8" stroke-width="1"/>
+<circle cx="151.6" cy="51.8" r="14.9" stroke-opacity="0.7" stroke-width="0.6"/>
+<circle cx="151.6" cy="51.8" r="17.1" stroke-opacity="0.4" stroke-width="0.6"/>
+<circle cx="151.6" cy="51.8" r="19.2" stroke-opacity="0.6" stroke-width="0.6"/>
+<circle cx="151.6" cy="51.8" r="21.3" stroke-opacity="0.35" stroke-width="0.6"/>
+<circle cx="151.6" cy="51.8" r="23.5" stroke-opacity="0.55" stroke-width="0.6"/>
+<path d="M127.5 26.2V43.2M127.5 60.4V96.6M129.3 26.2V39.2M129.3 64.4V96.6M131.1 26.2V36.5M131.1 67.1V96.6M132.9 26.2V34.3M132.9 69.3V96.6M134.7 26.2V32.6M134.7 71V96.6M136.5 26.2V31.1M136.5 72.5V96.6" stroke-opacity="0.55" stroke-width="0.6"/>
+<path d="M183.6 7L196.4 7L196.4 19L206 7L222 7L196.4 39L222 77.4L206 77.4L196.4 63L196.4 77.4L183.6 77.4Z" stroke-width="1"/>
+<path d="M190.1 7L190.1 77.4M196.4 26.2L211.8 7M196.4 43.9L218.8 77.4M196.4 60.1L207.9 77.4" stroke-opacity="0.35" stroke-width="0.6"/>
+<path d="M193.7 7L193.7 77.4M184.7 7L184.7 77.4M196.4 20.4L207.2 7M196.4 34.8L218.7 7M196.4 53.6L212.3 77.4" stroke-opacity="0.45" stroke-width="0.6"/>
+<path d="M188.3 7L188.3 77.4M196.4 29.1L214.1 7M196.4 47.1L216.6 77.4" stroke-opacity="0.55" stroke-width="0.6"/>
+<path d="M191.9 7L191.9 77.4M196.4 23.3L209.5 7M196.4 37.7L221 7M196.4 40.6L220.9 77.4M196.4 56.8L210.1 77.4" stroke-opacity="0.6" stroke-width="0.6"/>
+<path d="M195.5 7L195.5 77.4M186.5 7L186.5 77.4M196.4 32L216.4 7M196.4 50.4L214.4 77.4" stroke-opacity="0.7" stroke-width="0.6"/>
+<path d="M126 105.6H222M126 101.6V109.6M222 101.6V109.6M114 7V77.4M110 7H118M110 77.4H118" stroke-opacity="0.6" stroke-width="0.7"/>
+<path d="M98 51.8H250" stroke-opacity="0.65" stroke-width="0.7" stroke-dasharray="7 2 1.2 2"/>
+<path d="M98 46.8V56.8M250 46.8V56.8" stroke-opacity="0.9" stroke-width="1.4"/>
+<path d="M142.6 51.8H160.6M151.6 42.8V60.8" stroke-opacity="0.55" stroke-width="0.5"/>
+<circle cx="151.6" cy="51.8" r="2.6" stroke-width="0.5" fill="currentColor" data-tono="acento" style="stroke:var(--acento,#0b6e80);fill:var(--acento,#0b6e80)"/>
+<circle cx="151.6" cy="51.8" r="5.2" stroke-width="1.2" stroke-opacity="1" data-tono="acento" style="stroke:var(--acento,#0b6e80)"/>
+</svg>

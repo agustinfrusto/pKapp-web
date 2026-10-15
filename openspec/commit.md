@@ -39,6 +39,9 @@ explícita en el mismo pedido.
    `babel.config.js`, `metro.config.js`, `tailwind.config.js` o `global.css`. Si toca
    solo `tools/**`, `openspec/**`, `.claude/**`, `.github/**`, `docs/**` o archivos de
    texto de la raíz (README, CLAUDE.md, licencias), no se bumpea: pasá al paso 5.
+   En la rama `rediseno` tampoco se bumpea ni se tagea, toque lo que toque: un tag en una
+   rama sin mergear choca con los de `main`. El rediseño se versiona una sola vez, en
+   `main`, en el commit que sigue al merge, contando sus `feat` como pendientes del paso b.
    a) Base: `git describe --tags --abbrev=0` (por ejemplo `v1.5.5`). Si no coincide con
       el `version` de `package.json` y de `app.json`, detenete con
       `RECHAZO: versión desfasada (<tag> / <package.json> / <app.json>)` y desstageá.
@@ -62,8 +65,9 @@ explícita en el mismo pedido.
 
 ## Prohibido
 
-Reescribir historia (amend, rebase, reset); mergear ramas, salvo `rediseno` → `main` con
-orden del operador y la sincronización `main` → `rediseno` (abajo); cambiar de rama sin
+Reescribir historia (amend, rebase, reset); mergear ramas, salvo `rediseno` o una rama
+derivada → `main`, con orden del operador, y la sincronización `main` → `rediseno` → ramas derivadas
+(abajo); cambiar de rama sin
 orden; mover o borrar tags; `push --force`.
 
 ## Sincronización de `rediseno`
@@ -81,6 +85,30 @@ conflictos:
    `src/theme/**`, `tailwind.config.js`, `App.js`, `public/` de íconos y manifest). Si un
    arreglo la necesita, se sincroniza a `rediseno` en el mismo momento.
 4. `rediseno` no bumpea ni tagea (paso 4).
+
+### Ramas derivadas de `rediseno`
+
+Convención del operador (2026-10-12): `rediseno-revision-ux` (worktree
+`../pKapp-worktrees/revision-ux`, propuestas de la revisión 5.0b) va siempre por delante de
+`rediseno`, y `rediseno` por delante de `main`: `main` ⊆ `rediseno` ⊆ `rediseno-revision-ux`
+(operador, 2026-10-12). Le aplican los puntos 2 y 4 de arriba con `rediseno-revision-ux` en
+lugar de `rediseno`, y además:
+
+1. Después de cada push a `main`, se mergea `main` en `rediseno` (punto 1 de arriba) y, en el
+   mismo momento, `rediseno` en `rediseno-revision-ux`, en su worktree y en ese orden; `main`
+   no se mergea directo en la rama. Después de cada commit en `rediseno`, también se mergea
+   `rediseno` en `rediseno-revision-ux`.
+2. Antes de cada commit en la rama, `git merge-tree --write-tree --name-only main
+   rediseno-revision-ux`.
+3. Invariantes verificables: `git merge-base --is-ancestor main rediseno` y
+   `git merge-base --is-ancestor rediseno rediseno-revision-ux` salen con 0. Si alguno falla,
+   la sincronización está pendiente y va antes de cualquier otro commit en la rama.
+4. Se mergea directo a `main` (operador, 2026-10-12). Como contiene todo `rediseno`, ese merge
+   lleva también el rediseño y reemplaza al de `rediseno` → `main`; la versión se resuelve igual,
+   una sola vez, en el commit de `main` que sigue al merge (paso 4). Su merge requiere orden del operador, y
+   antes la auditoría visual y estética del código por el Diseñador senior (agente Fable,
+   última versión) con veredicto APROBADO, o con observaciones que el operador acepte
+   (`tasks.md` 5.0b.14; orden del operador, 2026-10-12).
 
 ## Salida
 

@@ -1,0 +1,506 @@
+# Tokens Plancha · tarea 1.1
+
+| Campo | Valor |
+|---|---|
+| Change | `openspec/changes/rediseno-plancha` (D1, D4, D6, D8, D9) |
+| Rama | `rediseno` |
+| Valores de color | `src/theme/colores.js`, export `plancha`: `claro` y `oscuro` con las mismas 19 claves |
+| Valores de `tailwind.config.js` | sección d; los aplica el Programador en la tarea 2.3 |
+| Insumos | `hibrido.html` (variables, líneas 13–16), `NOTAS.md`, `REFERENCIAS.md`, `NOTAS-FAVICON.md` |
+| Convivencia | `colores` y `oscuro` quedan intactos hasta las tareas 3.x |
+| Escritorio | `ESC-P0` (tarea 3.10), aprobada por el usuario el 2026-10-11: sección c.4 (cortes y anchos) y bloque d.3. Rige desde el corte `escritorio`; teléfono y tablet no cambian en ningún caso |
+
+---
+
+## a. Color
+
+### a.1 Tokens
+
+Nombre = clave en `plancha.claro` y `plancha.oscuro`. En Tailwind: `bg-fondo` y `dark:bg-fondoD` (cableado en d.2).
+
+| Token | Claro | Oscuro | Uso | Por qué |
+|---|---|---|---|---|
+| `fondo` | `#f4f5f6` | `#0b0d10` | Página y cabecera. Texto sobre relleno de tinta | Neutro frío casi blanco / casi negro: sobriedad sin color (REFERENCIAS: «elementos demasiado coloridos» excluidos) |
+| `superficie` | `#ffffff` | `#12161b` | Tarjeta, panel, campo, opción, caja del enunciado | Un solo escalón sobre `fondo`; la elevación la da el marco, no la sombra (D9) |
+| `tinta` | `#14181d` | `#e6e9ed` | Texto principal, glifos y relleno de lo seleccionado (segmento, filtro, botón primario, casillas llenas) | Extremos de la paleta, los mismos del ícono (`NOTAS-FAVICON`) |
+| `tintaSec` | `#4a525c` | `#98a2ae` | Metadatos, rótulos mono, descripciones, placeholder, chevron, regla | ≥ 7:1 en ambos temas: jerarquía por valor, no por color |
+| `linea` | `#14181d` | `#c9d0d8` | Marco de 1 px de tarjeta, panel y cabecera; control seleccionado; acción primaria (2 px) | Marco de la Plancha (`NOTAS`); en oscuro un paso bajo la tinta para que no encandile |
+| `borde` | `#7c848d` | `#6b7684` | Borde en reposo de un control: opción, acción, filtro, campo de texto | Escalón entre marco y filete: delimita sin pesar como el marco y llega a 3:1 (WCAG 1.4.11). Nuevo respecto del boceto |
+| `filete` | `#b9bfc6` | `#2b323a` | Divisor interno decorativo: cajetín, filas, base de barra, casillas vacías | Segundo grosor del boceto (`--hair`); decorativo, nunca delimita un control |
+| `inactivo` | `#7c848d` | `#6b7684` | Texto y glifo de un control deshabilitado (su borde pasa a `filete`) | Estado «deshabilitado» de la matriz; mismo valor que `borde`, distinto rol |
+| `acento` | `#0b6e80` | `#5cc3d6` | Id de materia, etiquetas y chips, rótulo y borde de la nota, panel de mezcla, contorno del campo de filamentos | Único color de marca (eco del contorno de ref1); apagado en claro para no ser «color fuerte» |
+| `foco` | `#095c6b` | `#7fd6e3` | Contorno de foco de teclado: 2 px, separado 2 px del control | Acento reforzado, sin matiz nuevo: ≥ 6,9:1 en ambos temas |
+| `acierto` | `#1f6b3a` | `#7bcb92` | Respuesta correcta, banda de 80 o más, cifra de aciertos | Valor del boceto: verde sobrio |
+| `aciertoFondo` | `#e6f1ea` | `#10231a` | Relleno de la opción correcta | Valor del boceto: apenas teñido |
+| `error` | `#a32424` | `#f08c8c` | Respuesta incorrecta, banda de menos de 60, validación | Valor del boceto: rojo sobrio |
+| `errorFondo` | `#f8e9e9` | `#2a1414` | Relleno de la opción incorrecta | Valor del boceto |
+| `acentoFondo` | `#e2eef0` | `#1d3037` | Relleno del cuerpo y del pie del pedido de donación (solo ahí, CD-8) | Tinte de `acento` con el patrón de `aciertoFondo`/`errorFondo`: 12 % sobre `superficie` en claro, 15 % en oscuro (DON-P5, aprobada por el usuario el 2026-10-11) |
+| `acentoBanda` | `#0b6e80` | `#4692a1` | Banda del encabezado del pedido de donación; título y glifos encima en `fondo` (solo ahí, CD-8) | En claro igual que `acento`; en oscuro 73 % de `acento` sobre `fondo`, para que la banda no compita con la acción primaria (DON-P5, ajuste de oscuro pedido por el usuario) |
+| `intermedia` | `#3f5f7a` | `#8fb4c9` | Banda de 60 a 79 (D6): porcentaje, barra y marca en estadísticas y resultados | Acero: tercer tono frío, ni cálido ni saturado; separable de verde y rojo en protanopía y deuteranopía (a.3) |
+| `filamento` | `#14181d` | `#8fb4c9` | Trazo del campo de filamentos y de las ilustraciones de materia | Valor del boceto (`--fil`): tinta en claro, acero en oscuro |
+| `manifestTema` | `#0b0d10` | `#0b0d10` | `theme_color` de `public/manifest.json`; `themeColor` de `app.json` | D8: tinta del ícono. No depende del tema |
+| `manifestFondo` | `#0b0d10` | `#0b0d10` | `background_color` del manifest; `backgroundColor` de `app.json`. Ya no lo lee `App.js`: el splash de React se retira con `REV-2` (decisión del Ingeniero, 2026-10-12; a.2, bloque «Decisión · `theme-color` inicial») | Splash de la PWA continuo con el ícono, sin franja de otro color |
+| `iconoFondo` | `#0b0d10` | `#0b0d10` | Fondo de los íconos PWA de `public/` (`icon-192`, `icon-512`, `icon-maskable-512` y `apple-touch-icon`) y del favicon, generados desde `diseno/favicon/` (tarea 4.2, `NOTAS-FAVICON.md`); `tools/e2e/suites/pwa.js` afirma que no depende del tema. Sin lector en `app.json` desde la 5.0c (fuente corregida en la 5.0b) | Reemplaza `#6366f1` por la tinta del ícono |
+
+### a.2 Reglas de uso
+
+| Regla | Detalle |
+|---|---|
+| Texto sobre relleno de tinta | Siempre `fondo` (par T7) |
+| Delimitar un control | `borde` en reposo; `linea` si es marco estructural o está seleccionado; `filete` nunca |
+| Estado semántico | El color no es el único portador: la marca o forma de acierto, error e intermedia la fijan las fichas (1.2, 1.3). Evidencia en a.3 |
+| Hover y presionado | Sin token propio: marco de 1 a 2 px o inversión `tinta`/`fondo`; la matriz de estados va en las fichas |
+| Placeholder | `tintaSec` (par T4) |
+| `meta theme-color` | Un solo `<meta>`, sin `media`. Inicial (`scripts/inject-pwa.js`): `claro.fondo`. En ejecución (`App.js`): `fondo` del tema activo. `manifestTema` es del manifest y de `app.json`, no del meta. Decisión y porqué: bloque siguiente |
+| Fondo del documento y `color-scheme` (`REV-2`) | `html` lleva `background-color` = `claro.fondo` y `color-scheme: light`; `html.dark`, `oscuro.fondo` y `color-scheme: dark`, en el `<style>` del `<head>` servido. El lienzo del navegador y su cromo (barras de scroll, diálogos, selector de archivo) siguen al tema de la app. Valores y aceptación: bloque siguiente |
+| `StatusBar` | Contenido oscuro en claro y claro en oscuro |
+| Prohibido | Gradientes, sombras, transparencias de color (el halo `rgba(...)` de `webStyles.js` sale al migrar). Única excepción: `strokeOpacity` del campo de filamentos (CD-24, `CONVENCIONES.md`; `design.md` D2). La ilustración de materia y el resto de la UI no la usan |
+
+#### Decisión · `theme-color` inicial (tarea 4.1, resuelta 2026-10-11)
+
+El valor inicial es el que muestra el navegador desde que parsea el `<head>` hasta que React monta y `App.js` reescribe el meta. La app no sigue al sistema (binario, por defecto `claro`; `TemaContext.js`) y el tema elegido se lee de `localStorage` recién después de montar: el valor inicial no puede deducirse de `prefers-color-scheme`.
+
+| Opción | Veredicto | Porqué |
+|---|---|---|
+| Un `<meta>`, valor `claro.fondo` | **Elegida** | Es lo primero que la app pinta (NativeWind arranca en claro si `<html>` no trae `dark`) y es el tema por defecto: el usuario por defecto no ve ningún cambio de barra durante la carga. El usuario en oscuro ve uno solo, junto con el cambio de la página |
+| Un `<meta>`, valor `manifestTema` (estado tras 4.1) | Descartada | Usuario por defecto: barra en tinta sobre página clara durante toda la carga del bundle y cambio a `claro.fondo` al montar. Usuario en oscuro: hasta dos cambios (tinta → `claro.fondo` → tinta). `manifestTema` es del manifest (lo que el sistema muestra antes de que exista el documento), no del documento |
+| Dos `<meta>` con `media="(prefers-color-scheme: …)"` | Descartada | El esquema del sistema no es el tema de la app: sistema oscuro con app en claro (el caso por defecto) daría barra en tinta hasta montar. Además `App.js` reescribe el primer meta (`querySelector`) y el navegador usa el primero cuyo `media` coincide: con uno de los dos esquemas la reescritura no tendría efecto y la barra quedaría desfasada del tema |
+| Script síncrono en `<head>` que lee el tema guardado y fija meta, clase `dark` y fondo de `html` | Aplazada | Única opción sin cambio de barra ni destello de lienzo para el usuario en oscuro. Acopla el HTML al formato de `pkapp_settings` (`database.web.js`) y exige prueba e2e de arranque: es decisión de arquitectura del Ingeniero, no regla de diseño. No hace falta para cerrar 4.1 |
+
+| Aspecto | Valor | Lo fija / nota |
+|---|---|---|
+| Meta en el HTML servido (antes de montar) | `claro.fondo` | `scripts/inject-pwa.js` |
+| Meta con React montado | `fondo` del tema activo | `App.js`, efecto sobre `chrome.cabecera`; reescribe el único meta |
+| `theme_color` del manifest y `themeColor` de `app.json` | `manifestTema` (igual en ambos temas) | D8; lo que el sistema muestra antes de que exista el documento |
+| Fondo del documento (`REV-2`, aprobada por el usuario el 2026-10-12) | `html { background-color: <claro.fondo> }` y `html.dark { background-color: <oscuro.fondo> }` en un `<style>` del `<head>` servido, con los valores leídos de `plancha` (como ya hace el meta) | `scripts/inject-pwa.js`, `pwaTags`. `TemaContext.aplicar` ya alterna la clase `dark` en `html` (`src/theme/TemaContext.js:20`), así que el fondo acompaña al tema en ejecución. Antes de montar, el lienzo es `claro.fondo` (y en Safari 26, el tinte de la pestaña: H2 de 4.1); quien usa oscuro lo ve hasta montar, como hoy: el script síncrono de la fila «Aplazada» sigue aplazado |
+| `color-scheme` (`REV-2`) | `html { color-scheme: light }` y `html.dark { color-scheme: dark }`, en el mismo `<style>` | Ídem. Barras de scroll (Windows; macOS con barras visibles), `window.confirm` y `window.alert` en Chrome y Edge, el selector de archivo de «Importar respaldo» y el resaltado de selección siguen al tema de la app (hoy quedan claros con el tema oscuro) |
+| Splash de `App.js` (`REV-2`) | Se retira entero: contenedor `splashStyles`, `Animated.sequence`, logo y tagline (`App.js:93` a `155`). Ningún cuadro `manifestFondo` al cargar: el primer cuadro que React pinta es la app, en el tema guardado | Decisión del Ingeniero con `REV-2` (2026-10-12): con nativo retirado (5.0) era código muerto; −0,2 KB en el bundle. `Vacios.md` V19 describe el arranque resultante. `manifestFondo` sigue vivo para el manifest y `app.json` (a.1) |
+| Contraste | Sin pares nuevos | El meta y el fondo del documento tiñen el cromo y el lienzo del navegador, no texto de la app; E1 a E4 no cambian (CD-27) |
+
+Aceptación de `REV-2` (para la spec del Ingeniero y la e2e): (1) la secuencia de cuadros al cargar en claro no contiene ningún cuadro `#0b0d10` (`Page.startScreencast` del arnés); (2) `getComputedStyle(document.documentElement).colorScheme` vale `light` con el tema claro y `dark` con el oscuro, y `backgroundColor` es el `fondo` del tema; (3) la suite `pwa.js` sigue en verde (un solo meta `theme-color`, que no cambia); (4) `rg -n 'Animated\.' src App.js` vacío.
+
+| Id | Qué cambia | Sin el cambio | Tipo | Estado |
+|---|---|---|---|---|
+| `REV-2` (revisión 5.0b, `tasks.md` 5.0b.2) | Las tres filas de arriba: sin cuadro oscuro al cargar (splash retirado), `html` y `html.dark` con `background-color` = `fondo` de su tema y `color-scheme` por tema. ≈ 0,1 KB en el HTML servido; −0,2 KB en el bundle | Cuadro `#0b0d10` en cada carga con el tema claro (y logo invisible en oscuro); lienzo del navegador sin fondo antes de montar; cromo claro con el tema oscuro | visual (bordes de app, D8) | aprobada (usuario, 2026-10-12) |
+
+### a.3 Distinguibilidad de los tres estados
+
+Simulación con las matrices de Machado et al. (2009), severidad 1,0. ΔE en CIE76 sobre sRGB; a menor ΔE, más confundibles. Razón de luminancia: contraste WCAG entre los dos tonos.
+
+| Tema | Par | Razón de luminancia | ΔE visión normal | ΔE protanopía | ΔE deuteranopía | ΔE tritanopía |
+|---|---|---|---|---|---|---|
+| claro | `acierto` y `intermedia` | 1,03 | 51 | 44 | 39 | 11 |
+| claro | `intermedia` y `error` | 1,10 | 75 | 41 | 58 | 91 |
+| claro | `acierto` y `error` | 1,14 | 87 | 13 | 19 | 97 |
+| oscuro | `acierto` y `intermedia` | 1,13 | 46 | 40 | 34 | 13 |
+| oscuro | `intermedia` y `error` | 1,08 | 55 | 24 | 37 | 72 |
+| oscuro | `acierto` y `error` | 1,22 | 75 | 21 | 4 | 82 |
+
+| Hallazgo | Consecuencia |
+|---|---|
+| Luminancia entre estados ≤ 1,22:1 | En escala de grises los tres tonos no se distinguen |
+| `acierto` y `error` en oscuro, deuteranopía: ΔE 4; en claro, protanopía: ΔE 13 | El color solo no basta: la marca o forma es obligatoria (spec `design-system`, «Estados semánticos distinguibles sin color») |
+| `intermedia` frente a los otros dos: ΔE ≥ 24 en protanopía y deuteranopía | La banda 60–79 se separa por color además de por marca; solo en tritanopía se acerca a `acierto` (11–13) |
+
+---
+
+## b. Tipografía
+
+### b.1 Familias (D4)
+
+| Clave Tailwind | Familia registrada | Familia | Peso | Archivo | Uso |
+|---|---|---|---|---|---|
+| `plex-sans` | `PlexSans-Regular` | IBM Plex Sans | 400 | `ttf` en nativo, `woff2` latin en web | Texto corrido |
+| `plex-sans-semibold` | `PlexSans-SemiBold` | IBM Plex Sans | 600 | ídem | Títulos, nombres, botones |
+| `plex-mono` | `PlexMono-Regular` | IBM Plex Mono | 400 | ídem | Rótulos, metadatos, contadores |
+| `plex-mono-medium` | `PlexMono-Medium` | IBM Plex Mono | 500 | ídem | Cifras y datos |
+
+Un archivo por peso y un nombre registrado por archivo: `expo-font` y `@font-face` usan los mismos nombres de la columna «Familia registrada».
+
+### b.2 Escala
+
+Cada paso es un `text-*` (tamaño, interlineado, espaciado) más un `font-plex-*` (familia y peso). Se escriben siempre juntos. Valores en px.
+
+| Paso | Clases | Familia | Peso | Tamaño | Interlineado | Espaciado | Mayúsculas | Uso |
+|---|---|---|---|---|---|---|---|---|
+| `marca` | `text-marca font-plex-sans-semibold` | Plex Sans | 600 | 28 | 28 | −0,28 | no | Wordmark «pKapp» en el cajetín del selector |
+| `titulo` | `text-titulo font-plex-sans-semibold` | Plex Sans | 600 | 18 | 24 | 0 | no | Título de pantalla, nombre de materia en inicio, enunciado de la pregunta, subtítulo de resultado |
+| `item` | `text-item font-plex-sans-semibold` | Plex Sans | 600 | 16 | 22 | 0 | no | Nombre en lista (materia, tema), título de acción y de panel |
+| `cuerpo` | `text-cuerpo font-plex-sans` | Plex Sans | 400 | 15 | 22 | 0 | no | Texto de opción, explicación, mensaje, filtro en reposo |
+| `cuerpo-fuerte` | `text-cuerpo font-plex-sans-semibold` | Plex Sans | 600 | 15 | 22 | 0 | no | Botones, filtro o segmento activo, énfasis |
+| `campo` | `text-campo font-plex-sans` | Plex Sans | 400 | 16 | 22 | 0 | no | Texto escrito y texto de ayuda (placeholder) de todo campo de texto editable |
+| `detalle` | `text-detalle font-plex-sans` | Plex Sans | 400 | 13 | 18 | 0 | no | Descripción secundaria, pie de fila |
+| `rotulo` | `text-rotulo font-plex-mono uppercase` | Plex Mono | 400 | 11 | 16 | +0,66 | sí | Rótulos, metadatos, ids, chips, control de tema, leyendas, contadores |
+| `rotulo-medio` | `text-rotulo font-plex-mono-medium uppercase` | Plex Mono | 500 | 11 | 16 | +0,66 | sí | Valor dentro del cajetín («Preguntas 419») |
+| `dato` | `text-dato font-plex-mono-medium` | Plex Mono | 500 | 16 | 20 | 0 | no | Porcentaje en filas de estadísticas, letra de opción |
+| `cifra` | `text-cifra font-plex-mono-medium` | Plex Mono | 500 | 26 | 28 | 0 | no | Cifras del trío de resultados |
+| `display` | `text-display font-plex-mono-medium` | Plex Mono | 500 | 72 | 72 | −2,16 | no | Porcentaje de resultado |
+
+**Campo editable (D10).** Todo campo de texto editable usa `campo` (16 px) o un paso de 16 px o más, y su placeholder el mismo paso. Safari de iPhone amplía la página al enfocar un campo de menos de 16 px, y el viewport de `dist/index.html` no fija `maximum-scale`: con 16 px no hay ampliación y no se bloquea el zoom del usuario. Es un requisito técnico del Ingeniero; el nombre y el valor del paso son del Diseñador. `campo` no se usa en texto que no se edita: ahí rige la escala de arriba.
+
+### b.3 Reglas
+
+| Regla | Detalle |
+|---|---|
+| Peso | No usar `font-bold`, `font-semibold` ni `font-medium`: el peso lo da la familia. En nativo cada peso es un archivo distinto y `fontWeight` no lo sintetiza |
+| Interlineado | En px absolutos: NativeWind no admite interlineados relativos en nativo (`leading-tight` y similares son solo web) |
+| Mayúsculas | Solo `rotulo` y `rotulo-medio`, con `uppercase`; el texto fuente se escribe en caja normal |
+| Estilos | Sin cursiva (no se carga archivo itálico), sin subrayado ni tachado |
+| Carga | Fuente del sistema mientras cargan; sin pantalla vacía ni error visible si falla (D4) |
+| Mínimo | 11 px, solo en mono mayúsculas con espaciado; el texto corrido parte de 13 px |
+
+---
+
+## c. Radios, grosores de filete y espaciado
+
+### c.1 Radios (D9)
+
+| Clave | Valor | Justificación |
+|---|---|---|
+| `none`, `xs`, `sm`, `DEFAULT`, `md`, `lg`, `xl`, `2xl`, `3xl`, `full` | 0 px | REFERENCIAS excluye «interfaces redondeadas»; el boceto fija `border-radius: 0` global. Ninguna clave distinta de 0, tampoco `full`: la UI no tiene elementos circulares (el aro del ícono es imagen) |
+
+### c.2 Grosores
+
+| px | Clase | Uso |
+|---|---|---|
+| 1 | `border` | Marco de tarjeta, panel y control; divisores; base de barra |
+| 2 | `border-2` | Estado (acierto, error, seleccionado), acción primaria, panel de mezcla, marco `acento` del pedido de donación, contorno de foco |
+| 3 | `border-l-3` | Borde izquierdo de la nota o explicación |
+| 1,5 | Visibles a cualquier tamaño: `stroke-width` del SVG = 1,5 × lado del viewBox / lado en px (con el `0 0 16 16` de 1.4, `24 / lado`) | Trazo de glifos (CD-9, `CONVENCIONES.md`; `svg/glifos/NOTAS-GLIFOS.md` §3) |
+
+Sin otros grosores: `border-4` y `border-8` quedan sin uso.
+
+### c.3 Espaciado
+
+La escala por defecto de Tailwind (base 4 px) ya contiene todos los pasos del boceto: **`spacing` no cambia**. Pasos en uso:
+
+| Paso | px | Rol |
+|---|---|---|
+| `0.5` | 2 | Separación entre casillas de progreso y de la tira de resultados |
+| `1` | 4 | Separación mínima entre rótulo y valor |
+| `1.5` | 6 | Padding vertical de cajetín |
+| `2` | 8 | Separación entre elementos de un grupo; padding de chip |
+| `2.5` | 10 | Separación entre opciones y entre tarjetas |
+| `3` | 12 | Padding horizontal de cajetín y de opción |
+| `3.5` | 14 | Padding interno de tarjeta, panel y nota |
+| `4` | 16 | Padding de botón; padding de lámina con cifra o con acción central (tarjeta de resultado de Results, tarjeta global de Stats, tarjeta «Modo Examen» de TopicSelect); relleno vertical de la barra interna |
+| `5` | 20 | Margen lateral de pantalla |
+| `6` | 24 | Separación entre bloques |
+| `8` | 32 | Separación entre secciones; alto mínimo del encabezado de la nota que reserva el objetivo de descartar (`Banners.md` a.2) |
+| `10` | 40 | Lado del cuadro de glifo |
+| `11` | 44 | Objetivo táctil mínimo (D10, 44 × 44 pt): alto de fila de control, filtro y barra; alto útil de cada opción del control de tema (su contenedor suma el borde); lado del cuadrado de paso; ancho de la celda de letra de una opción |
+| `12` | 48 | Lado de la ilustración de materia en la tarjeta del selector; también el lado de la ilustración del estado vacío |
+| `16` | 64 | Ancho de la celda de ilustración en la tarjeta del selector; lado de la ilustración de materia en la tarjeta de Home |
+| `20` | 80 | Ancho mínimo del valor del temporizador del quiz; alto mínimo del campo multilínea de AddQuestion (enunciado y explicación) |
+| `24` | 96 | Ancho de la celda de ilustración en la tarjeta de materia de Home; relleno inferior del scroll del quiz (más el área segura inferior) |
+| `28` | 112 | Alto del campo de filamentos del selector |
+| `72` | 288 | Alto máximo de la lista plana del desplegable de AddQuestion, la que se publica: deja una fila cortada al pie (tarea 5.2, `E-01`, 2026-10-13; `comun.md` §5.3 y §8) |
+| `80` | 320 | Alto máximo de la lista del desplegable con rótulos de grupo (`ADD-P3`, aprobada el 2026-10-11; `comun.md` §5.3 y §8). Hasta `E-01` lo era también de la lista plana |
+
+Los pasos `11`, `12`, `16`, `20`, `24` y `28` no estaban en la lista original; salen de la escala por defecto de Tailwind y se aceptaron en la corrección de 1.2. Los pasos `72` y `80` salen de la misma escala (`max-h-72` y `max-h-80`): el `80` lo suma `ADD-P3` (2026-10-11) y el `72`, `E-01` (tarea 5.2, 2026-10-13). `spacing` sigue sin cambios.
+
+**Alto máximo del desplegable** (tarea 5.2, `E-01`, 2026-10-13). El valor se elige para que el borde inferior de la región caiga sobre la línea de texto de una fila, no sobre su relleno. Cuenta con filas de 44 px que incluyen su filete, relleno de la región `paso 1` y rótulo de grupo de 33 px (relleno vertical `paso 2` dos veces, `rotulo` de 16 y filete):
+
+| Lista | Cuenta | Región | Visible de la fila cortada | Resultado | Paso |
+|---|---|---|---|---|---|
+| Plana | 4 + 6 × 44 + 20 | 288 | 20 de 44 px | Línea de texto cortada | `72` |
+| Con rótulos de grupo | 4 + 33 + 6 × 44 + 19 | 320 | 19 de 44 px | Línea de texto cortada | `80` |
+| Plana con `80` (hasta `E-01`) | 4 + 7 × 44 + 8 | 320 | 8 de 44 px | Relleno sin texto: la lista parece terminar | — |
+| Con rótulos con `72` | 4 + 33 + 5 × 44 + 31 | 288 | 31 de 44 px | El texto entra entero: sin pista | — |
+| Otros pasos de la escala, lista plana | `60`: 4 + 5 × 44 + 16 · `64`: 4 + 5 × 44 + 32 · `96`: 4 + 8 × 44 + 28 | 240 · 256 · 384 | 16 · 32 · 28 de 44 px | Sin texto, texto entero y solo descendentes | — |
+
+La línea de texto de una fila de 44 px (`cuerpo`, 15/22, centrada) ocupa de 15 a 30 px: ascendentes desde 15, capitales desde 16, línea base en 26,5 y descendentes hasta 29,7 (Chrome 155, IBM Plex Sans). El corte cae sobre las letras, con al menos 3 px de capitales a la vista y sin pasar de la línea base, entre 19 y 26 px visibles; con 27 a 29 solo faltan los descendentes, desde 30 el texto está entero y con 16 o menos no hay tinta. Vale para filas de un renglón; con nombres de dos renglones (61 px) el corte cae donde sumen las alturas, y con la fila elegida lejos la región abre alineada a fila (`E-01b`) y, con nombres de un renglón, el corte cae a 24 px de la fila siguiente, sobre la línea de texto: límites medidos en `AddQuestion.md` j.
+
+| Valor del boceto | Paso final |
+|---|---|
+| 5, 7, 9 | 6, 8, 8 |
+| 11 | 12 |
+| 18 | 16 |
+
+Sin valores arbitrarios `[Npx]`: la deuda actual (`mb-[18px]`, `py-[11px]`) se normaliza al migrar cada pantalla.
+
+**Ancho máximo.** El ancho de la columna de contenido es un token de `maxWidth`, aparte de `spacing`:
+
+| Token | px | Clase | Rol |
+|---|---|---|---|
+| `columna` | 448 | `max-w-columna` | Ancho máximo de la columna única de contenido en tablet (768 px), bajo el corte `escritorio` (c.4), centrada en horizontal y anclada arriba. Los fondos y los filetes de barra van a todo el ancho; el contenido, dentro de la columna. Con ancho de teléfono (390 px) no actúa: la columna es el ancho disponible menos el margen lateral `5` |
+
+Un ancho distinto para escritorio es otro token con nombre propio, no una variante de `columna`: son los de c.4 (`ESC-P0`, aprobada). Ninguna ficha usa una clase `max-w-*` de Tailwind sin token.
+
+### c.4 Anchos de escritorio · `ESC-P0` (tarea 3.10, aprobada por el usuario el 2026-10-11)
+
+| Campo | Valor |
+|---|---|
+| Estado | Aprobada (usuario, 2026-10-11; D10, `CONVENCIONES.md` C2). Rige desde el corte `escritorio`; bajo el corte rige c.3: `columna` en tablet |
+| Alcance | Aditivo desde el corte `escritorio`. Teléfono y tablet no cambian: bajo el corte rige `comun.md` §7.1 tal como estaba |
+| Uso | `comun.md` §7.2 (composición) y la sección «Escritorio» de cada ficha (`ESC-P1` a `ESC-P8` y `ESC-P10` a `ESC-P12`; `ESC-P9` rechazada) |
+| Color, tipografía, radios, grosores | Sin cambios: ningún token ni par de contraste nuevo (E1 a E4 intactas) y los mismos pasos tipográficos en todos los anchos |
+| Peso (D5) | Sin dependencias ni assets: solo clases con prefijo `escritorio:` y `amplio:`. Estimación de CSS adicional: ≤ 2 KB gzip, que 3.11 mide contra D5 |
+
+**Cortes.** El criterio es el ancho de la ventana, no el contenido medido (`comun.md` §1.1).
+
+| Token | Ancho de ventana | Variante | Rol |
+|---|---|---|---|
+| `escritorio` | 1024 px | `escritorio:` | Desde acá rige `comun.md` §7.2: regiones, rejilla y margen lateral `paso 8`. Bajo este ancho rige §7.1 sin cambios |
+| `amplio` | 1440 px | `amplio:` | Desde acá las superficies de rejilla suman una columna y su contenido usa `hoja-amplia` |
+
+**Anchos.**
+
+| Token | px | Clase | Rol |
+|---|---|---|---|
+| `lectura` | 600 | `max-w-lectura` | Columna de lectura (quiz y examen en curso, formulario de AddQuestion, lámina de los estados vacíos) y región principal de escritorio. Es un tope: cede ancho cuando la ventana no alcanza |
+| `lateral` | 320 | `w-lateral` | Región lateral de escritorio. Ancho fijo |
+| `hoja` | 952 | `max-w-hoja` | Contenido de escritorio: `lateral` más `paso 8` más `lectura`. Centrada en horizontal; fondos y filetes de barra a todo el ancho |
+| `hoja-amplia` | 1440 | `max-w-hoja-amplia` | Contenido de las superficies de rejilla desde `amplio` (`comun.md` §7.2) |
+
+**De dónde sale cada valor.**
+
+| Token | Criterio | Comprobación |
+|---|---|---|
+| `lectura` | A lo sumo 80 caracteres por línea en los pasos de texto corrido (WCAG 1.4.8) | Medido en la maqueta con IBM Plex Sans (`NOTAS-MAQUETA.md` §8): enunciado `titulo` 64; opción `cuerpo` 73; nota y revisión `cuerpo` 77; descripción de acción `detalle` 77. Con 640 la nota y la revisión daban 86 |
+| `lateral` | El ancho de columna de un teléfono de 360 con margen lateral `paso 5` (360 − 2 × 20): la lámina con el campo de filamentos y las tarjetas ya están verificadas a ese ancho | El campo se estira 320 / 348 = 0,92× (viewBox de 348): dentro del 0,80× a 1,28× validado (a 768 px la lámina de `columna` mide 408 px, `columna` menos `paso 5` a cada lado: 1,17×) y bajo el ~1,4× de `design.md` D2, así que `encuadre` sigue en `'none'` |
+| `hoja` | `lateral` + `paso 8` + `lectura` | Con el margen lateral `paso 8` a cada lado entra completa desde 1016 px de ventana: en el corte (1024) no hay ajuste |
+| `hoja-amplia` | Tres celdas de rejilla del ancho de una tarjeta de teléfono junto a la región lateral | Con el contenido entero (1440 px): 1440 − `lateral` − `paso 8` = 1088 de región principal; con `paso 4` entre celdas, cada una mide 352 (una tarjeta de un teléfono de 390 mide 350). El contenido entero solo existe desde 1504 px de ventana (1440 más el margen lateral `paso 8` a cada lado): entre 1440 y 1503 px la hoja cede ancho y cada celda mide (ventana − 448) / 3, de 331 px a 1440 a 352 px a 1503, nunca menos que los 280 de una tarjeta de un teléfono de 320 (`REV-7`, variante A, 2026-10-12: corrige la cuenta; el corte `amplio` sigue en 1440) |
+
+| Id | Qué cambia | Sin el cambio | Tipo | Estado |
+|---|---|---|---|---|
+| `REV-7`, variante A (revisión 5.0b, `tasks.md` 5.0b.7) | Solo documentación: la fila `hoja-amplia` de arriba cuenta las celdas entre 1440 y 1503 px de ventana (331 a 352 px) y aclara que los 352 valen desde 1504 px. Ningún token, corte ni clase cambia; 0 B. Sin el cambio: la ficha afirmaba 352 px desde 1440, cuando la fórmula presupone un contenido de 1440 px que solo existe con ventana de 1504 o más; el layout no se rompía, la cuenta estaba mal | Variante B, no elegida: mover el corte `amplio` a 1504 px (una constante `CORTE_AMPLIO` y recapturar 1440), para que las celdas midieran 352 desde el primer píxel del corte | documentación | aprobada (usuario, 2026-10-12; A, la recomendada) |
+
+**Medidas de escritorio con pasos existentes** (`spacing` no cambia).
+
+| Rol | Paso |
+|---|---|
+| Margen lateral de escritorio (HeaderMarca, barras y contenido) | `paso 8` |
+| Separación entre regiones | `paso 8` |
+| Separación entre celdas de una rejilla | `paso 4` |
+| Todo lo demás (relleno de tarjeta, entre opciones, entre bloques apilados de una región, alto de barras y controles) | El del teléfono: no cambia |
+
+| Superficie | Contenido | Escritorio | Amplio |
+|---|---|---|---|
+| MateriaSelect, Home, TopicSelect, Estadísticas | `hoja`; con rejilla o columnas | `hoja` | `hoja-amplia` |
+| Resultados, revisión de respuestas, Ajustes | `hoja`: región lateral y principal | `hoja` | `hoja` |
+| Quiz, examen en curso y Agregar pregunta | `lectura` | `lectura` | `lectura` |
+| Estados vacíos | La barra, en la hoja de su pantalla; la lámina vacía, en `lectura` | La de su pantalla | La de su pantalla |
+
+---
+
+## d. Bloque para `tailwind.config.js`
+
+### d.1 Escalas (van en `theme.extend`)
+
+```js
+fontFamily: {
+  // Una clave por archivo de fuente. En nativo solo se usa la primera de cada
+  // lista; el resto es la pila de respaldo de web (swap con la del sistema, D4).
+  'plex-sans':          ['PlexSans-Regular', 'system-ui', 'sans-serif'],
+  'plex-sans-semibold': ['PlexSans-SemiBold', 'system-ui', 'sans-serif'],
+  'plex-mono':          ['PlexMono-Regular', 'ui-monospace', 'monospace'],
+  'plex-mono-medium':   ['PlexMono-Medium', 'ui-monospace', 'monospace'],
+},
+fontSize: {
+  marca:   ['28px', { lineHeight: '28px', letterSpacing: '-0.28px' }],
+  titulo:  ['18px', { lineHeight: '24px' }],
+  item:    ['16px', { lineHeight: '22px' }],
+  campo:   ['16px', { lineHeight: '22px' }],
+  cuerpo:  ['15px', { lineHeight: '22px' }],
+  detalle: ['13px', { lineHeight: '18px' }],
+  rotulo:  ['11px', { lineHeight: '16px', letterSpacing: '0.66px' }],
+  dato:    ['16px', { lineHeight: '20px' }],
+  cifra:   ['26px', { lineHeight: '28px' }],
+  display: ['72px', { lineHeight: '72px', letterSpacing: '-2.16px' }],
+},
+borderRadius: {
+  none: '0px', xs: '0px', sm: '0px', DEFAULT: '0px', md: '0px', lg: '0px', xl: '0px', '2xl': '0px', '3xl': '0px', full: '0px',
+},
+borderWidth: {
+  DEFAULT: '1px', 0: '0px', 1: '1px', 2: '2px', 3: '3px',
+},
+maxWidth: {
+  // Columna única de contenido en tablet y bajo el corte de escritorio (c.3).
+  // Uso: `w-full max-w-columna self-center`.
+  columna: '448px',
+},
+// spacing: sin cambios (escala por defecto de Tailwind, base 4 px).
+```
+
+Los pasos `cuerpo-fuerte` y `rotulo-medio` reutilizan `text-cuerpo` y `text-rotulo` con otra familia: no necesitan clave de `fontSize`. `campo` sí la lleva (`text-campo`, 16 px con interlineado de 22 px, como `item`) y se escribe con `font-plex-sans`; su nombre no existe en `tailwind.config.js` ni como clave de `colores.js` (`rg -nw campo`: solo comentarios). Los nombres de `fontSize` no chocan con ninguna clave de color ni con las claves actuales (`xxs`, `xs`, `sm`, `base`, `md`, `lg`, `xl`, `display-sm`, `display-md`, `display-lg`), que siguen hasta que las tareas 3.x retiren su último uso. Verificado en seco con Tailwind 3.4.19 y el preset de NativeWind, en una configuración temporal fuera del repo: `text-rotulo` emite `font-size: 11px; line-height: 16px; letter-spacing: 0.66px`, `border-l-3` emite `3px`, `rounded-full` emite `0px`, `font-plex-sans-semibold` emite `PlexSans-SemiBold, system-ui, sans-serif`, `dark:bg-fondoD` resuelve con la variante `.dark` y `max-w-columna` emite `max-width: 448px` (misma comprobación en seco, con `maxWidth.columna` en `theme.extend`).
+
+### d.2 Color (cableado propuesto, lo decide 2.3)
+
+```js
+colors: (() => {
+  const { colores, oscuro, plancha } = require('./src/theme/colores');
+  // Plancha entra plano (`bg-fondo`); la contraparte oscura lleva sufijo D, como
+  // las familias actuales (`dark:bg-fondoD`).
+  const planchaD = Object.fromEntries(
+    Object.entries(plancha.oscuro).map(([k, v]) => [`${k}D`, v]));
+  return { ...colores, ...plancha.claro, ...planchaD,
+           brandD: oscuro.brand, accentD: oscuro.accent, mutedD: oscuro.muted,
+           successD: oscuro.success, dangerD: oscuro.danger,
+           warningD: oscuro.warning, parcialD: oscuro.parcial };
+})(),
+```
+
+Los tres tokens de borde de app (`manifest*`, `iconoFondo`) no se consumen por clase: Tailwind solo emite las clases que se usan.
+
+### d.3 Bloque para escritorio (`ESC-P0`, aprobada; lo aplica 3.11)
+
+Va en `theme.extend`, junto a d.1. No cambia nada por defecto: solo se activa con los prefijos `escritorio:` y `amplio:`. Hoy ninguna clase usa `sm:` a `2xl:`, así que las claves nuevas no se pisan con las de Tailwind. Los valores son el contrato; la implementación puede usar las variantes o `useWindowDimensions` con los mismos cortes (precedente: `comun.md` §1.1).
+
+```js
+screens: {
+  // Cortes de escritorio (c.4). Ascendentes.
+  escritorio: '1024px',   // escritorio:flex-row
+  amplio: '1440px',       // amplio:columns-3
+},
+maxWidth: {
+  columna: '448px',          // c.3, sin cambio: teléfono y tablet
+  lectura: '600px',          // c.4: max-w-lectura
+  hoja: '952px',             // c.4: max-w-hoja
+  'hoja-amplia': '1440px',   // c.4: max-w-hoja-amplia
+},
+width: {
+  lateral: '320px',          // c.4: w-lateral
+},
+```
+
+---
+
+## e. Contraste
+
+| Campo | Valor |
+|---|---|
+| Fórmula | WCAG 2.x: razón = (L1 + 0,05) / (L2 + 0,05), con L = 0,2126 R + 0,7152 G + 0,0722 B sobre sRGB linealizado |
+| Redondeo | Truncada a 2 decimales; nunca se redondea hacia arriba |
+| Fuente de los valores | `src/theme/colores.js`, export `plancha`; las tablas E1 a E4 las genera un script que lee ese archivo |
+| Umbral de texto | 4,5:1 en todos los pares, incluidos `display`, `cifra` y `marca` (texto grande): ninguno depende de la excepción de 3:1 |
+| Umbral no textual | 3:1 contra el fondo adyacente (1.4.11): borde de campo, selección del control de tema, foco, marcas de estado |
+| Fuera de umbral | Filetes decorativos, ilustración y componente inactivo: tabla E3, marcados como tales. También el tramo de un trazo que otro tramo del mismo trazo identifica (X6, X8) |
+
+Reproducir una razón:
+
+```sh
+node -e "const {plancha:p}=require('./src/theme/colores');const l=h=>{const c=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return .2126*c[0]+.7152*c[1]+.0722*c[2]};const r=(a,b)=>{const[x,y]=[l(a),l(b)].sort((m,n)=>n-m);return(x+.05)/(y+.05)};console.log(r(p.claro.tinta,p.claro.fondo))"
+```
+
+
+### E1 · Texto (umbral 4,5:1)
+
+| # | Par (frente sobre fondo) | Uso | Claro | Oscuro | Cumple |
+|---|---|---|---|---|---|
+| T1 | `tinta` sobre `fondo` | Texto principal sobre la página: títulos, cuerpo, nombres | 16,32 | 15,97 | sí |
+| T2 | `tinta` sobre `superficie` | Texto principal en tarjeta, panel, campo y opción | 17,82 | 14,91 | sí |
+| T3 | `tintaSec` sobre `fondo` | Metadatos, rótulos y descripciones sobre la página | 7,25 | 7,51 | sí |
+| T4 | `tintaSec` sobre `superficie` | Rótulos y descripciones en tarjeta o panel; placeholder del campo | 7,91 | 7,01 | sí |
+| T5 | `acento` sobre `fondo` | Etiqueta de acento sobre la página | 5,40 | 9,48 | sí |
+| T6 | `acento` sobre `superficie` | Id de materia, chip, botón secundario, rótulo de nota y de mezcla | 5,90 | 8,84 | sí |
+| T7 | `fondo` sobre `tinta` | Texto sobre relleno de tinta: botón primario, segmento y filtro activos | 16,32 | 15,97 | sí |
+| T8 | `fondo` sobre `acierto` | Letra de la opción correcta (texto sobre relleno de acierto) | 5,97 | 10,00 | sí |
+| T9 | `fondo` sobre `error` | Letra de la opción incorrecta (texto sobre relleno de error) | 6,78 | 8,18 | sí |
+| T10 | `acierto` sobre `fondo` | Porcentaje de acierto sobre la página; cifra de resultado | 5,97 | 10,00 | sí |
+| T11 | `acierto` sobre `superficie` | Cifra de aciertos en la tarjeta de resultados | 6,51 | 9,33 | sí |
+| T12 | `acierto` sobre `aciertoFondo` | Rótulo de estado en la opción correcta | 5,62 | 8,45 | sí |
+| T13 | `tinta` sobre `aciertoFondo` | Texto de la opción correcta | 15,39 | 13,49 | sí |
+| T14 | `error` sobre `fondo` | Porcentaje de error sobre la página; mensaje de validación | 6,78 | 8,18 | sí |
+| T15 | `error` sobre `superficie` | Cifra de errores en la tarjeta; mensaje de validación en el campo | 7,40 | 7,64 | sí |
+| T16 | `error` sobre `errorFondo` | Rótulo de estado en la opción incorrecta | 6,28 | 7,31 | sí |
+| T17 | `tinta` sobre `errorFondo` | Texto de la opción incorrecta | 15,12 | 14,26 | sí |
+| T18 | `intermedia` sobre `fondo` | Porcentaje de la banda 60–79 sobre la página | 6,14 | 8,83 | sí |
+| T19 | `intermedia` sobre `superficie` | Cifra o rótulo de la banda intermedia en tarjeta | 6,71 | 8,25 | sí |
+| T20 | `tinta` sobre `acentoFondo` | Texto del aviso del pedido de donación | 15,04 | 11,26 | sí |
+| T21 | `tintaSec` sobre `acentoFondo` | Pie «Vía Mercado Pago» | 6,68 | 5,30 | sí |
+| T22 | `fondo` sobre `acentoBanda` | Título sobre la banda del pedido de donación | 5,40 | 5,45 | sí |
+
+### E2 · No textual (umbral 3:1, WCAG 1.4.11)
+
+| # | Par (frente sobre fondo) | Uso | Claro | Oscuro | Cumple |
+|---|---|---|---|---|---|
+| N1 | `linea` sobre `fondo` | Marco de tarjeta, panel y cabecera sobre la página | 16,32 | 12,50 | sí |
+| N2 | `linea` sobre `superficie` | Marco de un control anidado en un panel | 17,82 | 11,67 | sí |
+| N3 | `borde` sobre `fondo` | Borde de control en reposo sobre la página: opción, acción, filtro | 3,47 | 4,21 | sí |
+| N4 | `borde` sobre `superficie` | Borde de campo de texto y de opción sobre superficie | 3,78 | 3,93 | sí |
+| N5 | `tinta` sobre `fondo` | Relleno de lo seleccionado (segmento activo del control de tema, filtro activo) contra la página; glifos de acción | 16,32 | 15,97 | sí |
+| N6 | `tinta` sobre `superficie` | Relleno de lo seleccionado dentro de un panel | 17,82 | 14,91 | sí |
+| N7 | `foco` sobre `fondo` | Indicador de foco sobre la página | 6,98 | 11,70 | sí |
+| N8 | `foco` sobre `superficie` | Indicador de foco sobre tarjeta o panel | 7,62 | 10,92 | sí |
+| N9 | `acierto` sobre `fondo` | Borde y marca de acierto sobre la página | 5,97 | 10,00 | sí |
+| N10 | `acierto` sobre `superficie` | Borde, barra y marca de acierto sobre superficie | 6,51 | 9,33 | sí |
+| N11 | `acierto` sobre `aciertoFondo` | Marca de acierto dentro de la fila | 5,62 | 8,45 | sí |
+| N12 | `error` sobre `fondo` | Borde y marca de error sobre la página | 6,78 | 8,18 | sí |
+| N13 | `error` sobre `superficie` | Borde, barra y marca de error sobre superficie; campo con error | 7,40 | 7,64 | sí |
+| N14 | `error` sobre `errorFondo` | Marca de error dentro de la fila | 6,28 | 7,31 | sí |
+| N15 | `intermedia` sobre `fondo` | Barra y marca de la banda intermedia sobre la página | 6,14 | 8,83 | sí |
+| N16 | `intermedia` sobre `superficie` | Barra y marca de la banda intermedia sobre superficie | 6,71 | 8,25 | sí |
+| N17 | `acento` sobre `fondo` | Contorno de chip y marco de 2 px del panel de mezcla sobre la página | 5,40 | 9,48 | sí |
+| N18 | `acento` sobre `superficie` | Borde izquierdo de la nota y marco del panel de mezcla sobre superficie | 5,90 | 8,84 | sí |
+| N19 | `tintaSec` sobre `fondo` | Chevron y regla graduada (trazo 1,5 px) sobre la página | 7,25 | 7,51 | sí |
+| N20 | `tintaSec` sobre `superficie` | Chevron de acción en tarjeta o panel; cerrar de notas y donación (trazo 1,5 px) sobre superficie | 7,91 | 7,01 | sí |
+| N21 | `fondo` sobre `acentoBanda` | `glifo-cerrar` y `glifo-trofeo` sobre la banda; hover y foco del descartar | 5,40 | 5,45 | sí |
+| N22 | `acento` sobre `acentoFondo` | Borde interior del marco y de las celdas de monto | 4,98 | 6,68 | sí |
+| N23 | `acentoBanda` sobre `fondo` | Banda contra la página | 5,40 | 5,45 | sí |
+| N24 | `foco` sobre `acentoFondo` | Foco de un monto | 6,43 | 8,25 | sí |
+
+### E3 · Fuera de umbral por regla (informativo)
+
+| # | Par | Condición | Uso | Claro | Oscuro |
+|---|---|---|---|---|---|
+| X1 | `filete` sobre `fondo` | Decorativo | Divisor interno de lista y de cajetín sobre la página | 1,69 | 1,50 |
+| X2 | `filete` sobre `superficie` | Decorativo | Divisor dentro de tarjeta y panel; borde de casillas vacías de progreso | 1,85 | 1,40 |
+| X3 | `filamento` sobre `superficie` | Decorativo | Campo de filamentos e ilustración de materia (`aria-hidden`) | 17,82 | 8,25 |
+| X4 | `inactivo` sobre `fondo` | Exento (inactivo) | Texto y glifo de un control deshabilitado sobre la página | 3,47 | 4,21 |
+| X5 | `inactivo` sobre `superficie` | Exento (inactivo) | Texto y glifo de un control deshabilitado sobre superficie | 3,78 | 3,93 |
+| X6 | `superficie` sobre `acentoFondo` | Exento (lo delimita su borde) | Celda de monto contra el panel | 1,18 | 1,32 |
+| X7 | `filete` sobre `acentoFondo` | Decorativo | Filete del pie del pedido de donación | 1,56 | 1,05 |
+| X8 | `linea` sobre `acierto`, `intermedia` o `error` | Exento (lo identifica su sobresalido) | Tramo de la marca de umbral de Stats (60 % y 80 %, `w-px`: 1 px, el `border` de c.2) que cruza el relleno de la barra. El mismo trazo sobresale 3 px por encima y por debajo de la barra y ahí es N1 (sobre `fondo`) y N2 (sobre `superficie`): ese sobresalido la identifica, y el valor y la leyenda de bandas dicen lo mismo con texto. Tarea 5.2, `C-05`, 2026-10-13 | 2,73 · 2,65 · 2,40 | 1,24 · 1,41 · 1,52 |
+
+### E4 · Bordes de app (independientes del tema)
+
+| # | Par | Umbral | Uso | Razón | Cumple |
+|---|---|---|---|---|---|
+| A1 | `oscuro.tintaSec` sobre `iconoFondo` | 4,50:1 | Sin uso tras `REV-2` (retira el splash de `App.js` con su tagline: a.2, fila «Splash de `App.js`»). Se conserva como informativo | 7,51 | sí |
+| A2 | `oscuro.tinta` sobre `iconoFondo` | 3,00:1 | Trazo de la "pK" del ícono sobre su fondo (logotipo: informativo) | 15,97 | sí |
+| A3 | `oscuro.acento` sobre `iconoFondo` | 3,00:1 | Punto teal del ícono sobre su fondo (informativo) | 9,48 | sí |
+
+
+### Resumen de e
+
+| Medida | Resultado |
+|---|---|
+| Filas de texto (T1–T22) bajo 4,5:1 | 0 |
+| Filas no textuales (N1–N24) bajo 3:1 | 0 |
+| Filas fuera de umbral por regla (X1–X8) | 8, todas marcadas: decorativas (X1, X2, X3, X7), inactivas (X4, X5) y exentas porque otro elemento las identifica (X6, el borde de la celda de monto; X8, el sobresalido de la marca de umbral) |
+| Filas de borde de app (A1–A3) bajo su umbral | 0 |
+| Holgura mínima | `borde` sobre `fondo` en claro: 3,47 contra 3,00 (N3) |
+| Valor del boceto que no pasa y se cambió | Ninguno de color de texto ni de marca. `--hair` no pasa 3:1 como borde de control: se separa `borde` (f, fila 3) |
+
+---
+
+## f. Cambios respecto del boceto
+
+| # | Boceto | Final | Motivo |
+|---|---|---|---|
+| 1 | Variables `[data-theme]` | Sin cambios en `fondo`, `superficie`, `tinta`, `tintaSec`, `linea`, `filete`, `acento`, `acierto`, `aciertoFondo`, `error`, `errorFondo`, `filamento` | Todos cumplen su umbral (e) |
+| 2 | `--stage` y `--frame` | No se exportan | Son del tablero de presentación, no de la app |
+| 3 | Borde de opción (`.opt`) y de acción (`.act`) en `--hair` | `borde` | Delimita un control: 3:1 (1.4.11). `filete` queda para divisores internos |
+| 4 | Banda intermedia = tinta neutra; corte rojo en 65 | `intermedia` (acero); cortes 80 y 60 | D6: manda el código y la banda 60–79 debe distinguirse |
+| 5 | Foco sin definir | `foco` | WCAG 1.4.11 |
+| 6 | Deshabilitado = `--hair` y `--ink2` (`.sq.off`) | Borde `filete`, texto `inactivo` | Estado propio de la matriz |
+| 7 | Tamaños 10,5 · 12 · 12,5 · 13,5 · 14 · 14,5 · 15,5 · 17 · 19 | 11 · 11 · 13 · 13 · 15 · 15 · 16 · 18 · 18 | Escala de enteros, mínimo 11 px |
+| 8 | Porcentaje de resultado en 72 px y 60 px (`.big.am`) | 72 px único | El tamaño no codifica estado |
+| 9 | Interlineado proporcional (1,25 a 1,5) | px absolutos | NativeWind no admite relativos en nativo |
+| 10 | Espaciado de letras .04 a .08 em | +0,66 px (≈ .06 em) | Un valor para todos los rótulos |
+| 11 | Fuentes desde Google Fonts | `expo-font` por plataforma | D4 |
+| 12 | Radio 0 | 0 en todas las claves | D9 |
+
+---
+
+## g. Lo que queda para otras tareas
+
+| Tema | Tarea |
+|---|---|
+| Marca o forma de acierto, error e intermedia; hover web; estado presionado | 1.2 |
+| Distinción de 1.er y 2.do parcial sin pasteles | 1.3 |
+| Glifos de trazo de 1,5 px | 1.4 |
+| Aplicar los bloques d.1 y d.2 a `tailwind.config.js` y retirar `sombras.js` | 2.3 |
+| `StatusBar`, splash nativo, `meta theme-color` y literales de `App.js` | Tareas de bordes de app (D8) |
+| Aplicar c.4 y d.3 (cortes, anchos de escritorio y sus clases) | 3.11 (`ESC-P0` aprobada por el usuario el 2026-10-11) |
