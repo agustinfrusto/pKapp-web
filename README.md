@@ -125,7 +125,7 @@ Materia sin parciales (examen único).
 
 ```
 pKapp/
-├── App.js                          # Navegación + splash (MateriaProvider)
+├── App.js                          # Navegación (MateriaProvider)
 ├── index.js                        # Entry point Expo
 ├── app.json                        # Config Expo (incluye sección web/PWA)
 ├── metro.config.js                 # Config de Metro (NativeWind, woff2, shim de decode-uri-component)
@@ -139,7 +139,7 @@ pKapp/
 ├── scripts/
 │   ├── gen-conteos.mjs             # Pre-build: genera src/materias/conteos.js
 │   ├── inject-pwa.js               # Post-build: inyecta meta tags PWA, CF Analytics y Umami
-│   ├── inject-preload.js           # Post-build: inyecta preload del logo y materias
+│   ├── inject-preload.js           # Post-build: inyecta el preload de las imágenes de materia
 │   └── capturar-screenshots.js     # Captura las imágenes de este README
 ├── tools/                          # Herramientas de desarrollo (fuera del bundle)
 │   ├── ingesta/                    # Pipeline Python: extraer, validar y enriquecer preguntas

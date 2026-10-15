@@ -76,7 +76,10 @@ export default function MateriaSelectScreen({ navigation }) {
           <Regiones.Principal>
             {/* Rejilla fila a fila (`ESC-P1`): paso 4 entre celdas, 2 columnas desde
                 `escritorio` y 3 desde `amplio`. Bajo el corte, la lista de siempre. */}
-            <View className="mt-1.5 gap-2.5 escritorio:grid escritorio:grid-cols-2 escritorio:gap-4 amplio:grid-cols-3">
+            <View
+              dataSet={{ nosnippet: '' }}
+              className="mt-1.5 gap-2.5 escritorio:grid escritorio:grid-cols-2 escritorio:gap-4 amplio:grid-cols-3"
+            >
               {MATERIA_LIST.map((m, i) => (
                 <MateriaCard
                   key={m.id}
@@ -180,7 +183,7 @@ function MateriaCard({ materia, numero, tema, onPress, cargando, bloqueada }) {
                   ) : cargando ? (
                     <Text className={`${DETALLE} ${colorLeyenda}`}>Cargando…</Text>
                   ) : (
-                    <Text className="text-rotulo">
+                    <Text className="font-plex-mono text-rotulo">
                       <Text className={`font-plex-mono-medium text-rotulo uppercase ${texto}`}>{totalQs}</Text>
                       <Text className={`${DETALLE} ${colorLeyenda}`}> preguntas</Text>
                     </Text>

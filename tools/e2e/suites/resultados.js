@@ -63,8 +63,8 @@ const BAJO = { estado: 'error', glifo: 'glifo-error' };
 
 // Cortes de D6: 90, 75, 60 y 50; el color cambia en 75 y en 50 (Results.md d.1).
 const TRAMOS = [
-  { total: 10, aciertos: 10, pct: 100, mensaje: '¡Excelente!.', ...ALTO },
-  { total: 10, aciertos: 9, pct: 90, mensaje: '¡Excelente!.', ...ALTO },
+  { total: 10, aciertos: 10, pct: 100, mensaje: '¡Excelente!', ...ALTO },
+  { total: 10, aciertos: 9, pct: 90, mensaje: '¡Excelente!', ...ALTO },
   { total: 19, aciertos: 17, pct: 89, mensaje: 'Muy bien. Vas por buen camino.', ...ALTO },
   { total: 4, aciertos: 3, pct: 75, mensaje: 'Muy bien. Vas por buen camino.', ...ALTO },
   { total: 50, aciertos: 37, pct: 74, mensaje: 'A repasar solo un poco más.', ...MEDIO },
@@ -163,6 +163,7 @@ const LEER = EN_MARCO(`
     ancho: s.getAttribute('width'),
     primerD: s.children[0] ? s.children[0].getAttribute('d') : null,
     oculto: s.getAttribute('aria-hidden'),
+    trazo: s.getAttribute('stroke'),
   })) : []);
   const texto = (n) => {
     const h = hoja(n);
@@ -195,6 +196,9 @@ const LEER = EN_MARCO(`
     return {
       caja: caja(n), borde: estilo(n).borderLeftWidth + ' ' + estilo(n).borderLeftColor,
       cifra: texto(cifra), rotulo: texto(rotulo), glifos: glifos(rotulo),
+      rotuloCaja: caja(rotulo), borde1: parseFloat(estilo(n).borderLeftWidth) || 0,
+      glifoCaja: rotulo && rotulo.querySelector('svg') ? caja(rotulo.querySelector('svg')) : null,
+      palabraCaja: caja(hoja(rotulo)),
     };
   };
   const barra = uno('barra-interna');
@@ -229,6 +233,9 @@ const LEER = EN_MARCO(`
     porcentaje: uno('resultados-porcentaje') ? {
       caja: caja(uno('resultados-porcentaje')), texto: texto(uno('resultados-porcentaje')),
       glifos: glifos(uno('resultados-porcentaje')),
+      glifoCaja: uno('resultados-porcentaje').querySelector('svg')
+        ? caja(uno('resultados-porcentaje').querySelector('svg')) : null,
+      palabraCaja: caja(hoja(uno('resultados-porcentaje'))),
     } : null,
     subtitulo: texto(uno('resultados-subtitulo')),
     subtituloCaja: caja(uno('resultados-subtitulo')),
@@ -296,9 +303,17 @@ const LEER = EN_MARCO(`
         return {
           id, caja: caja(n), texto: txt(n), bordeIzq: e.borderLeftWidth + ' ' + e.borderLeftColor,
           nota: nota ? txt(nota) : null, notaCaja: caja(nota),
+          notaRelleno: nota ? ['Top', 'Right', 'Bottom', 'Left'].map((l) => estilo(nota)['padding' + l]).join(' ') : null,
           reportar: reportar ? {
             caja: caja(reportar), texto: txt(reportar), nombre: reportar.getAttribute('aria-label'),
             glifos: glifos(reportar),
+            familia: estilo(hoja(reportar)).fontFamily, tamano: estilo(hoja(reportar)).fontSize,
+            color: estilo(hoja(reportar)).color,
+          } : null,
+          enunciado: n.children[1] ? {
+            texto: txt(n.children[1]), tamano: estilo(n.children[1]).fontSize,
+            lineHeight: estilo(n.children[1]).lineHeight, familia: estilo(n.children[1]).fontFamily,
+            color: estilo(n.children[1]).color,
           } : null,
           glifos: glifos(n),
         };
@@ -481,6 +496,8 @@ async function tarjetaPorTramo(pagina, base, t) {
     t.ok(`${c.pct}%: marca ${c.glifo} de paso 6 (24 px), oculta a lectores`,
       !!p && p.glifos.length === 1 && `${p.glifos[0].ancho}|${p.glifos[0].primerD}|${p.glifos[0].oculto}`,
       `24|${GLIFOS[c.glifo].elementos[0].props.d}|true`);
+    t.ok(`${c.pct}%: marca y porcentaje separados paso 2 (8 px)`,
+      !!p && !!p.glifoCaja && !!p.palabraCaja && p.palabraCaja.izq - p.glifoCaja.der, 2 * PASO);
     t.ok(`${c.pct}%: subtítulo «${c.aciertos} de ${c.total} correctas»`,
       !!h.subtitulo && h.subtitulo.texto, `${c.aciertos} de ${c.total} correctas`);
     t.ok(`${c.pct}%: mensaje «${c.mensaje}»`, !!h.mensaje && h.mensaje.texto, c.mensaje);
@@ -947,7 +964,7 @@ async function estadosDeRevision(pagina, base, t) {
       reposo: INVERTIDO, hover: { ...INVERTIDO, contorno: contorno('2px', T.linea) },
       presionado: { fondo: rgb(T.superficie), color: rgb(T.tinta), borde: rgb(T.linea) } },
     { nombre: '«Reportar pregunta» (K7)', buscar: POR_TESTID('revision-reportar-1'),
-      reposo: { fondo: SIN_FONDO, color: rgb(T.tinta) },
+      reposo: { fondo: SIN_FONDO, color: rgb(T.tintaSec) },
       hover: { fondo: SIN_FONDO, contorno: contorno('1px', T.linea) },
       presionado: { fondo: rgb(T.tinta), color: rgb(T.fondo) } },
     { nombre: 'filtro «Incorrectas» sin marcar (K4)', buscar: RADIO('Incorrectas'),
@@ -1057,6 +1074,8 @@ async function revisionTarjetas(pagina, base, t) {
   // Nota «Nota / Explicación» (REV-P3): solo con explicación.
   t.ok('con explicación hay nota con rótulo «Nota / Explicación»',
     !!acertada.nota && /Nota \/ Explicación/i.test(acertada.nota), true);
+  t.ok('la nota lleva relleno paso 3.5 (14 px) en las cuatro caras, como la del quiz (CD-17)',
+    acertada.notaRelleno, '14px 14px 14px 14px');
   t.ok('la nota trae el texto de la explicación', !!acertada.nota && acertada.nota.includes('Explicación de prueba 1'), true);
   t.ok('la nota lleva glifo-explicacion delante',
     !!acertada.nota && acertada.glifos.some((g) => g.primerD === GLIFOS['glifo-explicacion'].elementos[0].props.d), true);
@@ -1067,6 +1086,21 @@ async function revisionTarjetas(pagina, base, t) {
     h.tarjetas.every((c) => !!c.reportar && c.reportar.caja.alto >= LADO_TACTIL
       && /Reportar pregunta/.test(c.reportar.texto)
       && c.reportar.glifos[0] && c.reportar.glifos[0].primerD === GLIFOS['glifo-reportar'].elementos[0].props.d), true);
+  t.ok('«Reportar pregunta»: texto y trazo del glifo en `tintaSec` (CC-1)',
+    h.tarjetas.every((c) => !!c.reportar && c.reportar.glifos[0]
+      && c.reportar.glifos[0].trazo === T.tintaSec), true);
+
+  // Peso en la web: lo da la familia (`PlexSans-Regular` 400, `PlexSans-SemiBold` 600); el
+  // `fontWeight` computado queda en 400 en ambos, así que se mide la familia.
+  const familia = (f) => (f || '').split(',')[0].replace(/["']/g, '').trim();
+  // REV-3: «Reportar pregunta» en peso 400 (cuerpo), no en cuerpo-fuerte.
+  t.ok('«Reportar pregunta»: peso 400 (PlexSans-Regular) en cada tarjeta',
+    h.tarjetas.map((c) => c.reportar && familia(c.reportar.familia)).join(','),
+    h.tarjetas.map(() => 'PlexSans-Regular').join(','));
+  // REV-4: enunciado en `item` (16/22, 600), en tinta.
+  t.ok('enunciado de cada tarjeta: 16 px, interlínea 22, peso 600 (PlexSans-SemiBold), tinta',
+    h.tarjetas.map((c) => c.enunciado && `${c.enunciado.tamano}|${c.enunciado.lineHeight}|${familia(c.enunciado.familia)}|${c.enunciado.color}`).join(','),
+    h.tarjetas.map(() => `16px|22px|PlexSans-SemiBold|${rgb(T.tinta)}`).join(','));
 
   // Botones finales: «Volver» (K2) e «Inicio» (K1), en fila de dos celdas iguales.
   const v = h.volverFinal, i = h.inicioFinal;
@@ -1095,7 +1129,7 @@ async function revisionTarjetas(pagina, base, t) {
 
 async function anchos(pagina, base, t) {
   // 1023 es el último ancho bajo el corte `escritorio`: sigue la columna de siempre.
-  for (const ancho of [320, 360, 390, 768, 1023]) {
+  for (const ancho of [320, 360, 375, 390, 768, 1023]) {
     const columna = Math.min(ancho, COLUMNA);
     const izq = (ancho - columna) / 2 + MARGEN;
     t.ok(`${ancho} px: navegar al resumen con 40 respuestas`,
@@ -1114,6 +1148,25 @@ async function anchos(pagina, base, t) {
     t.ok(`${ancho} px: trío con tres celdas de un tercio`,
       !!h.correctas && !!h.incorrectas && !!h.total
         && [h.correctas, h.incorrectas, h.total].every((c) => Math.abs(c.caja.ancho - (columna - 2 * MARGEN) / 3) < 1.5), true);
+    // C3 (sin recorte desde 320): el rótulo de cada celda cae entre sus filetes.
+    t.ok(`${ancho} px: el rótulo del trío no pisa filetes ni la celda vecina`,
+      [h.correctas, h.incorrectas, h.total].every((c) => !!c && !!c.rotuloCaja
+        && c.rotuloCaja.izq >= c.caja.izq + c.borde1 - 0.5 && c.rotuloCaja.der <= c.caja.der + 0.5), true);
+    const cs = [h.correctas, h.incorrectas, h.total];
+    if (ancho < 375) {
+      t.ok(`${ancho} px: «Correctas» e «Incorrectas» apiladas, glifo arriba y palabra abajo`,
+        [h.correctas, h.incorrectas].every((c) => !!c && !!c.glifoCaja && !!c.palabraCaja
+          && c.glifoCaja.abajo <= c.palabraCaja.arriba + 0.5), true);
+      t.ok(`${ancho} px: las tres palabras comparten línea`,
+        cs.every((c) => !!c && !!c.palabraCaja)
+          && cs.every((c) => Math.abs(c.palabraCaja.arriba - cs[0].palabraCaja.arriba) <= 0.5), true);
+    } else {
+      t.ok(`${ancho} px: glifo y palabra en una línea, «Total» a la altura de las otras`,
+        [h.correctas, h.incorrectas].every((c) => !!c && !!c.glifoCaja && !!c.palabraCaja
+          && Math.abs((c.glifoCaja.arriba + c.glifoCaja.abajo) / 2
+            - (c.palabraCaja.arriba + c.palabraCaja.abajo) / 2) <= 1)
+          && !!h.total && Math.abs(h.total.palabraCaja.arriba - h.correctas.palabraCaja.arriba) <= 4, true);
+    }
     t.ok(`${ancho} px: nada del trío ni de los botones queda fuera de la columna`,
       !!h.trio && h.trio.caja.der <= izq + columna - 2 * MARGEN + 0.5, true);
 
@@ -1447,6 +1500,10 @@ async function temaOscuro(pagina, base, t) {
   t.ok('oscuro: borde izquierdo aciertoD y errorD',
     !!acertada && !!fallada && `${acertada.bordeIzq}|${fallada.bordeIzq}`, `3px ${rgb(T.acierto)}|3px ${rgb(T.error)}`);
   t.ok('oscuro: título en tintaD', !!h.revision && !!h.revision.titulo && h.revision.titulo.color, rgb(T.tinta));
+  const rep = h.tarjetas.find((c) => c.id === 'revision-tarjeta-1');
+  t.ok('oscuro: «Reportar pregunta» en tintaSecD (texto y trazo)',
+    !!rep && !!rep.reportar && !!rep.reportar.glifos[0]
+      && `${rep.reportar.color}|${rep.reportar.glifos[0].trazo}`, `${rgb(T.tintaSec)}|${T.tintaSec}`);
   t.ok('oscuro: «Volver» de arriba en tintaD con borde lineaD',
     !!h.volverArriba && `${h.volverArriba.color}|${h.volverArriba.borde}`, `${rgb(T.tinta)}|${rgb(T.linea)}`);
 }
@@ -1493,9 +1550,35 @@ async function fuenteDeLaPantalla(pagina, base, t) {
   // Escritorio: las piezas de `plancha/`, sin cortes ni anchos propios (3.11a).
   t.ok('usa Hoja y Regiones de plancha',
     /<Hoja[\s>]/.test(sinComentarios) && /<Regiones[\s>]/.test(sinComentarios), true);
-  t.ok('sin max-w-*, escritorio:, amplio: ni useWindowDimensions propios',
-    /max-w-|escritorio:|amplio:|useWindowDimensions|\b1024\b/.test(sinComentarios), false);
+  // `useWindowDimensions` queda acotado a un solo uso: el rótulo del trío se apila bajo
+  // 375 px de ventana (Results.md a.3, C-01), criterio por ancho de ventana (comun.md §1.1).
+  t.ok('sin max-w-*, escritorio:, amplio: ni cortes de escritorio propios',
+    /max-w-|escritorio:|amplio:|\b1024\b/.test(sinComentarios), false);
+  t.ok('useWindowDimensions: un solo uso, el del rótulo del trío (C-01), con corte en 375',
+    (sinComentarios.match(/useWindowDimensions\(/g) || []).length === 1
+      && /useWindowDimensions\(\)\.width < ANCHO_ROTULO_EN_LINEA\b/.test(sinComentarios)
+      && /ANCHO_ROTULO_EN_LINEA = 375\b/.test(sinComentarios), true);
   t.ok('sin los nombres legados de tono (warning, success, danger)', /warning|success|danger/.test(sinComentarios), false);
+}
+
+// Capturas de la revisión (solo con PKAPP_CAPTURAS_DIR): 390 y 1366, claro y oscuro. No afirma nada.
+async function capturasDeRevision(pagina, base, t) {
+  const dir = process.env.PKAPP_CAPTURAS_DIR;
+  if (!process.env.PKAPP_CAPTURAS || !dir) return;
+  fs.mkdirSync(dir, { recursive: true });
+  const ALTO = { 390: 900, 1366: 768 };
+  for (const ancho of [390, 1366]) {
+    for (const oscuro of [false, true]) {
+      const ok = await abrirRevision(pagina, base,
+        { ancho, alto: ALTO[ancho], answers: respuestas(4, [1]), oscuro });
+      t.ok(`captura revisión ${ancho} ${oscuro ? 'oscuro' : 'claro'}: abrió`, ok, true);
+      if (!ok) continue;
+      await new Promise((r) => setTimeout(r, 400));
+      const r = await pagina.enviar('Page.captureScreenshot', { format: 'png' });
+      fs.writeFileSync(path.join(dir, `revision-${ancho}-${oscuro ? 'oscuro' : 'claro'}.png`),
+        Buffer.from(r.data, 'base64'));
+    }
+  }
 }
 
 module.exports = [
@@ -1518,4 +1601,5 @@ module.exports = [
   { nombre: 'Revisión: escritorio, lateral y principal (ESC-P6)', correr: escritorioRevision },
   { nombre: 'Results: tema oscuro', correr: temaOscuro },
   { nombre: 'Results: fuente sin legado y con D6 intacto', correr: fuenteDeLaPantalla },
+  { nombre: 'Revisión: capturas de la 5.0b.3 y 5.0b.4 (solo con PKAPP_CAPTURAS)', correr: capturasDeRevision },
 ];

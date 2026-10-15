@@ -7,7 +7,7 @@
 | Insumos | `pantallas/comun.md` §8 y §9; `tokens.md` a.1, c.2 y e; `hibrido.html` (flechas, chevron, aspa, tilde, más, menos, practicar, examen, repasar, estadísticas); `REFERENCIAS.md`; `svg/<materia>.svg` |
 | Entrega | 37 archivos `<id>.svg` en esta carpeta (34 de 1.4, `glifo-eliminar` de 1.4b y `glifo-pausar` y `glifo-reanudar` de 3.14b, `BAN-P2`); `glifos-prueba.html` y `glifos-prueba.png` (los 35 de 1.4 y 1.4b); este archivo |
 | Fuera de alcance | Ninguno. `glifo-eliminar` (fila de 1.3 en §9) se dibujó en 1.4b con las reglas de este archivo |
-| Reglas del coordinador (C5) | `viewBox` común; `stroke-width` una sola vez en la raíz, en unidades del `viewBox`; un archivo por glifo, sin variantes grande o vacío; sin `g`, `use`, `defs` ni `transform`; puntos como círculo con trazo de radio ≥ 0,75; `glifo-reportar` en `tinta` |
+| Reglas del coordinador (C5) | `viewBox` común; `stroke-width` una sola vez en la raíz, en unidades del `viewBox`; un archivo por glifo, sin variantes grande o vacío; sin `g`, `use`, `defs` ni `transform`; puntos como círculo con trazo de radio ≥ 0,75; `glifo-reportar` en `tintaSec` (`CC-1`, 2026-10-14; hasta entonces `tinta`) |
 
 ---
 
@@ -75,7 +75,7 @@ Orden de §9. «Color» es el de §9; el SVG no lo lleva.
 | `glifo-oscuro` | chico | Creciente de dos arcos (r 5,5 y r 4,25) que cierran en puntas biseladas | Igual que `claro` | Sin estrellas |
 | `glifo-explicacion` | chico | Bulbo de r 4,5, cuello de 3 u, cierre y trazo de base | `acento` (N18) | Sin rayos: `claro` los lleva |
 | `glifo-reloj` | chico | Círculo de r 5, dos manecillas a 90° y corona en T | `tinta` (N5); con menos de 120 s `error` (N12) | La corona lo separa de `repasar` |
-| `glifo-reportar` | chico | Asta y banderín rectangular de 10 × 7 u | `tinta` (N6) | — |
+| `glifo-reportar` | chico | Asta y banderín rectangular de 10 × 7 u | `tintaSec` (N20; `CC-1`, 2026-10-14; antes `tinta`, N6). `glifos-prueba.png` no se regeneró: muestra todavía `tinta` | — |
 | `glifo-origen-examen` | chico | Hoja de 9 × 13 u con esquina doblada y sello circular | `acento` (N18), chip de marco `acento` | Contorno cerrado con sello; `generada` es maciza y `propia` es círculo sobre arco |
 | `glifo-origen-generada` | chico | Destello de cuatro puntas, 13 u | `fondo` sobre `tinta` (T7), chip relleno | Silueta de estrella: ni hoja ni busto |
 | `glifo-origen-propia` | chico | Cabeza (círculo de r 2,5) y hombros (arco abierto de r 5) | `tinta` (N6), chip de marco `linea` | Busto: círculo sobre arco |

@@ -7,7 +7,7 @@
 //     y sin `reaparece`, sin `localStorage`;
 //   - `descartarAviso`: guarda `Date.now()` en la clave y no escribe en los no descartables;
 //   - `esperaPorDefecto`: 4 s + 0,35 s por palabra, entre 8 y 25 s;
-//   - la lista real (`AVISOS`) es válida y conserva la nota del creador de hoy.
+//   - la lista real (`AVISOS`) es válida y conserva los avisos de hoy.
 //
 // Las fechas son en hora local: el chequeo fija una zona distinta de UTC (Buenos Aires, -03:00,
 // sin horario de verano) antes de crear ningún `Date`, para que una versión que tome el día en
@@ -61,20 +61,49 @@ const local = (a, m, d, h = 12, mi = 0, s = 0, ms = 0) => new Date(a, m - 1, d, 
 
 // ---- lista real ----
 valida('la lista real AVISOS', AVISOS);
-const nota = AVISOS.find((a) => a.id === 'nota-del-creador');
-ok('nota-del-creador existe', !!nota);
+const POR_ID = (id) => AVISOS.find((a) => a.id === id);
+const estetica = POR_ID('nueva-estetica');
+ok('nueva-estetica existe y va primero', !!estetica && AVISOS[0] === estetica);
+if (estetica) {
+  igual('estetica: clave por defecto', claveDe(estetica), 'pkapp_aviso_nueva-estetica_visto');
+  igual('estetica: rótulo', estetica.rotulo, 'Nota de pKapp');
+  igual('estetica: glifo', estetica.glifo, 'glifo-mensaje');
+  igual('estetica: pantallas', estetica.pantallas, ['materias']);
+  igual('estetica: descartable', estetica.descartable, true);
+  igual('estetica: reaparece', estetica.reaparece, 7);
+  igual('estetica: párrafos', estetica.parrafos,
+    ['¡Hola! Soy pKapp y estrené una nueva estética. No sean malos conmigo: las apps también queremos cambiar de look a veces.']);
+}
+const nota = POR_ID('nota-del-creador');
+ok('nota-del-creador existe y va segunda', !!nota && AVISOS[1] === nota);
 if (nota) {
-  igual('nota: clave', nota.clave, 'pkapp_about_seen_at_v2');
-  igual('nota: rótulo', nota.rotulo, 'Una nota del creador');
+  igual('nota: clave', nota.clave, 'pkapp_about_seen_at_v3');
+  igual('nota: rótulo', nota.rotulo, 'Nota de pKapp');
   igual('nota: glifo', nota.glifo, 'glifo-mensaje');
   igual('nota: pantallas', nota.pantallas, ['materias']);
   igual('nota: descartable', nota.descartable, true);
   igual('nota: reaparece', nota.reaparece, 7);
-  igual('nota: un párrafo', nota.parrafos.length, 1);
-  ok('nota: el párrafo vigente',
-    nota.parrafos[0] === '¡Hola! Ya están las seis materias. Ahora estoy trabajando en la estética de la página, así que en las próximas semanas vas a ir viendo cambios en el diseño. ¡Gracias por la paciencia!');
+  igual('nota: párrafos', nota.parrafos, [
+    'Mi creador lleva meses trabajando en mí. ¡Estamos sorprendidos porque miles de personas han usado pKapp!',
+    '¡Gracias a todos los que donaron! Sigo gratis y sin publicidad gracias a sus donaciones y aportes.',
+  ]);
 }
-igual('hoy hay un solo aviso', AVISOS.length, 1);
+const contenido = POR_ID('aviso-contenido');
+ok('aviso-contenido existe y va tercero', !!contenido && AVISOS[2] === contenido);
+if (contenido) {
+  igual('contenido: clave por defecto', claveDe(contenido), 'pkapp_aviso_aviso-contenido_visto');
+  igual('contenido: rótulo', contenido.rotulo, 'Nota de pKapp');
+  igual('contenido: glifo', contenido.glifo, 'glifo-mensaje');
+  igual('contenido: contacto', contenido.contacto, 'pkappsoporte@gmail.com');
+  igual('contenido: pantallas', contenido.pantallas, ['materias']);
+  igual('contenido: descartable', contenido.descartable, true);
+  igual('contenido: reaparece', contenido.reaparece, 7);
+  igual('contenido: párrafos', contenido.parrafos, [
+    'Mi creador es informático, no del área de la salud, así que puedo tener errores en las explicaciones: se generan analizando material de estudio público con ayuda de IA. Sus aportes serán recibidos en este correo:',
+  ]);
+}
+igual('hoy hay tres avisos', AVISOS.length, 3);
+igual('tres vigentes en materias (el tope)', avisosVigentes(AVISOS, 'materias', local(2026, 10, 11), undefined).length, 3);
 ok('la zona fijada no es UTC', new Date(2026, 0, 1, 12).getTimezoneOffset() === 180,
   `desfase ${new Date(2026, 0, 1, 12).getTimezoneOffset()} min`);
 igual('ninguno para home', avisosVigentes(AVISOS, 'home', local(2026, 10, 11), undefined).length, 0);

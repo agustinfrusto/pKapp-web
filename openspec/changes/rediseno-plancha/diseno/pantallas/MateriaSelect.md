@@ -45,7 +45,7 @@ La regla graduada es el dibujo `regla` de `src/assets/filamentos.js`, con `encua
 | Capas | Fascículos: cinco, de fibras con huecos entre ellos; el central, de tres, sigue como tendón y la onda cambia de fase entre fascículos (`filamento`, con el ritmo de opacidad y grosor de V0). Capa profunda: cuatro fibras cortas y tenues en los huecos, que dan volumen (`filamento`, trazo fino). Extremos: las fibras se despegan del tendón de a una, a distancias distintas. Contorno: una fibra del fascículo superior que converge sobre el tendón en los extremos y cruza el campo de borde a borde (`acento`) |
 | Datos (D3) | 27 elementos, lista plana de `path` y `circle`; sin color en los datos; un solo `tono: 'acento'` (CD-16) |
 | Encuadre | `none`, como V0 (C7, CD-16): el dibujo se estira al ancho de la lámina. viewBox de 348 × 118 sobre el alto `paso 28` (factor vertical 0,95, el de V0) |
-| Estiramiento horizontal | 0,80× a 320; 0,92× con la lámina `lateral` de escritorio; 1,00× a 390; 1,28× con `columna`. Dentro del 1,4× de `design.md` D2: las ondas y los tendones conservan su lectura |
+| Estiramiento horizontal | Ancho de la lámina sobre el viewBox de 348: 0,80× a 320 (280 / 348); 0,92× con la lámina `lateral` de escritorio (320 / 348); 1,00× a 390 (350 / 348); 1,17× con `columna` (408 / 348: la lámina es `columna`, 448, menos `paso 5` a cada lado; 5.2, `A1-05`, corrige el 1,28× de 448 / 348). Dentro del 1,4× de `design.md` D2: las ondas y los tendones conservan su lectura |
 | «pKapp» y el trazo | «pKapp» es texto real en el cajetín y nunca va sobre el trazo (CD-16): T2 vale 17,82 en claro y 14,91 en oscuro; sobre el trazo valdría 1,75 y 2,50, que no cumple |
 | Pares del dibujo | X3 (trazo, informativo) y N18 (contorno `acento`); ningún par nuevo, E1 a E4 intactas |
 | Peso (D5) | Datos: 15.307 B crudos y 3.638 B gzip, +2.316 B gzip sobre V0 (`marca-prototipos.md` b). El shell lo mide la tarea con el método de `evidencia/base.md` (`.orca/reports/marca-v5.md`) |
@@ -140,12 +140,14 @@ Hoy las seis materias tienen `available` en verdadero; el estado «Próximamente
 
 ### d.3 Eventos `track(...)`
 
-`rg -n 'track\(' src/screens/MateriaSelectScreen.js src/components/DonationBox.js`
+`rg -n 'track\(' src/screens/MateriaSelectScreen.js src/components/DonationBox.js src/utils/donacion.js`
 
 | Evento | Línea | Payload | Cuándo | Fila que lo cubre |
 |---|---|---|---|---|
-| `materia_elegida` | `MateriaSelectScreen.js:23` | `{ materia: materia.id }` | Al tocar una tarjeta disponible sin carga en curso, antes de `setCargandoId` | Tarjeta de materia (c, d.2). No se mueve |
-| `donacion_click` | `DonationBox.js:10` (componente; ficha en `DonationBox.md` d.4) | `{ origen: 'materias', monto: amt }` | Al tocar un monto del bloque de donación | Bloque de donación (b, c). No se toca |
+| `materia_elegida` | `MateriaSelectScreen.js:46` (`handlePick`) | `{ materia: materia.id }` | Al tocar una tarjeta disponible sin carga en curso, antes de `setCargandoId` | Tarjeta de materia (c, d.2). No se mueve |
+| `donacion_click` | `DonationBox.js:107` (`handleDonate`; componente, ficha en `DonationBox.md` d.4) | `{ origen: 'materias', monto: amt }` y, del embudo de donación, `variante` y `uso` (`datos()` en `DonationBox.js`; `DonationBox.md` d.4) | Al tocar un monto del bloque de donación | Bloque de donación (b, c). No se toca |
+| `donacion_cerrada` | `DonationBox.js:113` (`handleCerrar`) | — | Al descartar el pedido: solo en la variante `descartable`, que esta pantalla no usa | No es de esta ficha: es del componente, `DonationBox.md` d.4 |
+| `donacion_vista` | `src/utils/donacion.js:72` (`useDonacionVista`, montado por `DonationBox.js`) | — | Al quedar el bloque visible al menos 50 % durante 1 s (solo web) | No es de esta ficha: es del componente, `DonationBox.md` d.4 |
 
 ---
 

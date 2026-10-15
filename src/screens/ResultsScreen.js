@@ -3,7 +3,7 @@
 // Escritorio (ESC-P5, ESC-P6): resumen y revisión comparten la hoja; la región lateral va
 // primero en el DOM, así que queda a la izquierda y el orden de foco es el visual.
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, Platform } from 'react-native';
+import { View, Text, ScrollView, Platform, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { track } from '../utils/track';
 import { reportQuestion } from '../utils/report';
@@ -14,7 +14,7 @@ import Glifo from '../components/Glifo';
 import {
   BotonMarco, BotonRelleno, FilaLista, Hoja, Lamina, MarcaEstado, Regiones, RotuloSeccion, Segmento,
 } from '../components/plancha';
-import { Contenido, GLIFO_CHICO, useTokens } from '../components/plancha/Control';
+import { Contenido, GLIFO_CHICO, GLIFO_GRANDE, useTokens } from '../components/plancha/Control';
 
 // Umbral de "buen resultado" para analítica (evento simulacro_aprobado).
 const APROBADO_MIN_SCORE = 60;
@@ -27,6 +27,9 @@ const DONATION_EVERY = 3;               // muestra el pedido en 1 de cada 3 apro
 
 // Con más respuestas las casillas de la tira quedan demasiado finas (RESULTS-P3).
 const TIRA_MAX = 40;
+
+// Bajo este ancho de ventana el rótulo del trío se apila (Results.md a.3, C-01).
+const ANCHO_ROTULO_EN_LINEA = 375;
 
 const TEMAS_TODOS = 'Todos los temas';
 
@@ -47,6 +50,7 @@ function shouldShowDonation(percentage) {
 }
 
 export default function ResultsScreen({ route, navigation }) {
+  const apilado = useWindowDimensions().width < ANCHO_ROTULO_EN_LINEA;
   // Igual que en Quiz: /resultados es una URL alcanzable en frio y ahi no hay
   // respuestas que mostrar. Se calcula sobre una lista vacia para no romper y se
   // sale por el efecto de mas abajo.
@@ -211,10 +215,10 @@ export default function ResultsScreen({ route, navigation }) {
                     <View className="mb-3">
                       <RotuloSeccion testID="resultados-rotulo">Resultado</RotuloSeccion>
                     </View>
-                    <MarcaEstado
+                    <MarcaDeResultados
                       testID="resultados-porcentaje"
                       estado={estado}
-                      paso="display"
+                      display
                       texto={`${percentage}%`}
                     />
                     <Text
@@ -300,11 +304,11 @@ export default function ResultsScreen({ route, navigation }) {
                       cifra={correctCount}
                       colorCifra="text-acierto dark:text-aciertoD"
                       rotulo={(
-                        <MarcaEstado
+                        <MarcaDeResultados
                           testID="resultados-trio-correctas-rotulo"
                           estado="acierto"
                           texto="Correctas"
-                          colorTexto="tintaSec"
+                          apilado={apilado}
                         />
                       )}
                     />
@@ -314,11 +318,11 @@ export default function ResultsScreen({ route, navigation }) {
                       colorCifra="text-error dark:text-errorD"
                       divisor
                       rotulo={(
-                        <MarcaEstado
+                        <MarcaDeResultados
                           testID="resultados-trio-incorrectas-rotulo"
                           estado="error"
                           texto="Incorrectas"
-                          colorTexto="tintaSec"
+                          apilado={apilado}
                         />
                       )}
                     />
@@ -327,7 +331,12 @@ export default function ResultsScreen({ route, navigation }) {
                       cifra={total}
                       colorCifra="text-tinta dark:text-tintaD"
                       divisor
-                      rotulo={<RotuloSeccion testID="resultados-trio-total-rotulo">Total</RotuloSeccion>}
+                      rotulo={(
+                        <View className="items-center gap-1">
+                          {apilado && <View aria-hidden className="h-4" />}
+                          <RotuloSeccion testID="resultados-trio-total-rotulo">Total</RotuloSeccion>
+                        </View>
+                      )}
                     />
                   </View>
                 </Lamina>
@@ -378,6 +387,35 @@ export default function ResultsScreen({ route, navigation }) {
   );
 }
 
+// Marca de estado de esta pantalla (comun.md §4) con las dos medidas que sólo Results fija:
+//   `display`  porcentaje: glifo `paso 6`, separado `paso 2` del texto (Results.md a.2)
+//   `apilado`  rótulo del trío: texto `tintaSec`; en línea, o con el glifo arriba y la
+//              palabra abajo (`paso 1`) bajo 375 px de ventana (C3, sin recorte desde 320 px)
+// `MarcaEstado` conserva su separación `paso 1.5` para el resto de las pantallas.
+const MARCA = {
+  acierto: { glifo: 'glifo-acierto', color: 'acierto', texto: 'text-acierto dark:text-aciertoD' },
+  error: { glifo: 'glifo-error', color: 'error', texto: 'text-error dark:text-errorD' },
+  intermedia: { glifo: 'glifo-intermedia', color: 'intermedia', texto: 'text-intermedia dark:text-intermediaD' },
+};
+
+function MarcaDeResultados({ testID, estado, texto, display, apilado }) {
+  const tema = useTokens();
+  const m = MARCA[estado];
+  const tipografia = display
+    ? 'font-plex-mono-medium text-display'
+    : 'font-plex-mono text-rotulo uppercase';
+  const rotulo = apilado !== undefined;
+  const color = rotulo ? 'text-tintaSec dark:text-tintaSecD' : m.texto;
+  let caja = 'flex-row items-center gap-2';
+  if (rotulo) caja = apilado ? 'flex-col items-center gap-1' : 'flex-row items-center gap-1.5';
+  return (
+    <View testID={testID} className={caja}>
+      <Glifo id={m.glifo} size={display ? GLIFO_GRANDE : GLIFO_CHICO} color={tema[m.color]} />
+      <Text className={`${tipografia} ${color}`}>{texto}</Text>
+    </View>
+  );
+}
+
 // Celda del trío (Results.md a.3): cifra arriba y rótulo debajo, centrados; filete vertical
 // entre celdas.
 function CeldaTrio({ id, cifra, colorCifra, rotulo, divisor }) {
@@ -418,7 +456,7 @@ function TarjetaRespuesta({ answer, n, onReportar }) {
         />
       </View>
 
-      <Text className="mb-3 font-plex-sans text-cuerpo text-tinta dark:text-tintaD">
+      <Text className="mb-3 font-plex-sans-semibold text-item text-tinta dark:text-tintaD">
         {question.question}
       </Text>
 
@@ -440,7 +478,7 @@ function TarjetaRespuesta({ answer, n, onReportar }) {
       {question.explanation ? (
         <View
           testID={`revision-nota-${n}`}
-          className="mt-3 border border-l-3 border-filete border-l-acento bg-superficie p-3 dark:border-fileteD dark:border-l-acentoD dark:bg-superficieD"
+          className="mt-3 border border-l-3 border-filete border-l-acento bg-superficie p-3.5 dark:border-fileteD dark:border-l-acentoD dark:bg-superficieD"
         >
           <View className="flex-row items-center gap-1.5">
             <Glifo id="glifo-explicacion" size={GLIFO_CHICO} color={tema.acento} />
@@ -452,12 +490,12 @@ function TarjetaRespuesta({ answer, n, onReportar }) {
         </View>
       ) : null}
 
-      <FilaLista testID={`revision-reportar-${n}`} onPress={onReportar} className="mt-2 self-start">
+      <FilaLista testID={`revision-reportar-${n}`} tono="sec" onPress={onReportar} className="mt-2 self-start">
         <View className="flex-row items-center gap-2 px-1">
           <Contenido
             glifo="glifo-reportar"
             etiqueta="Reportar pregunta"
-            tipografia="font-plex-sans-semibold text-cuerpo"
+            tipografia="font-plex-sans text-cuerpo"
           />
         </View>
       </FilaLista>
@@ -528,7 +566,7 @@ function OpcionRevision({ letra, texto, estado }) {
 // la marca de estado, no de un literal.
 function getResultFeedback(percentage) {
   if (percentage >= 90) {
-    return { message: '¡Excelente!.', estado: 'acierto' };
+    return { message: '¡Excelente!', estado: 'acierto' };
   }
   if (percentage >= 75) {
     return { message: 'Muy bien. Vas por buen camino.', estado: 'acierto' };

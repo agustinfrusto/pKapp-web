@@ -1,6 +1,7 @@
 // Suite «quiz» del arnés end-to-end (ver ../README.md).
 
 const { plancha } = require('../../../src/theme/colores');
+const { GLIFOS } = require('../../../src/assets/glifos');
 const { abrirPagina, conectarNavegador } = require('../cdp');
 const { EN_MARCO, LADO_TACTIL, MATERIA, PASO, TITULO_DEL_QUIZ, abrirMarco, cerrarNota, clicEnMarco, entrarAMateria } = require('./comunes');
 
@@ -206,8 +207,95 @@ const LEER = (s) => EN_MARCO(`
   };
 `);
 
+// «Reportar pregunta» (K7, REV-3): sin marco en la caja ni en el contenedor, texto Plex Sans 400/15 en
+// `tintaSec` (CC-1), centrado en la columna y de 44 de alto como mínimo, con `glifo-reportar` delante (separado
+// `paso 2`, trazo `tintaSec`) y relleno horizontal `paso 4` entre el borde del botón y su contenido.
+// Celda de texto de la opción (el padre del texto): su ancho y la distancia de su borde
+// derecho al borde derecho de la opción. Reposo y respondida deben coincidir (B-01).
+const LEER_CELDA_TEXTO = (k) => EN_MARCO(`
+  const t = visibles(${JSON.stringify(sel(`texto-opcion-quiz-${k}`))})[0];
+  const o = visibles(${JSON.stringify(sel(`opcion-quiz-${k}`))})[0];
+  if (!t || !o || !t.parentElement) return null;
+  const c = t.parentElement.getBoundingClientRect(), r = o.getBoundingClientRect();
+  return { ancho: c.width, derecha: r.right - c.right };
+`);
+
+const LEER_REPORTAR = EN_MARCO(`
+  const el = visibles('[data-testid="boton-reportar"]')[0];
+  const enun = visibles('[data-testid="enunciado-quiz"]')[0];
+  if (!el) return null;
+  const caja = el.firstElementChild || el;
+  const lados = (n) => ['Top', 'Right', 'Bottom', 'Left'].map((l) => w.getComputedStyle(n)['border' + l + 'Width']);
+  const hoja = (() => {
+    const it = d.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let t;
+    while ((t = it.nextNode())) if (t.textContent.trim()) return t.parentElement;
+    return null;
+  })();
+  const r = el.getBoundingClientRect(), e = enun ? enun.getBoundingClientRect() : null;
+  const h = hoja ? w.getComputedStyle(hoja) : null;
+  const svg = el.querySelector('svg');
+  const rs = svg ? svg.getBoundingClientRect() : null, rt = hoja ? hoja.getBoundingClientRect() : null;
+  return {
+    glifo: svg ? {
+      primerD: svg.children[0] ? svg.children[0].getAttribute('d') : null,
+      trazo: svg.getAttribute('stroke'),
+      visible: !!rs && rs.width > 0 && rs.height > 0,
+      delante: !!rs && !!rt && rs.right <= rt.left,
+      separacion: rs && rt ? rt.left - rs.right : null,
+      rellenoIzq: rs ? rs.left - r.left : null,
+      rellenoDer: rt ? r.right - rt.right : null,
+    } : null,
+    bordes: lados(el).concat(lados(caja)).join(' '),
+    peso: h && h.fontWeight, tamano: h && h.fontSize, color: h && h.color,
+    alto: r.height, descentrado: e ? Math.abs((r.left + r.width / 2) - (e.left + e.width / 2)) : null,
+  };
+`);
+
+async function reportarK7(ctx, nombre) {
+  const { pagina, t, T } = ctx;
+  await pagina.moverA(1, 1);
+  await espera(150);
+  const r = await pagina.evaluar(LEER_REPORTAR);
+  t.ok(`${nombre}: «Reportar pregunta» sin borde en reposo (K7)`, r !== null && r.bordes, Array(8).fill('0px').join(' '));
+  t.ok(`${nombre}: «Reportar pregunta» Plex Sans 400, 15 px, \`tintaSec\``,
+    r !== null && `${r.peso} ${r.tamano} ${r.color}`, `400 15px ${rgb(T.tintaSec)}`);
+  t.ok(`${nombre}: «Reportar pregunta» de 44 de alto como mínimo`, r !== null && r.alto >= LADO_TACTIL, true);
+  t.ok(`${nombre}: «Reportar pregunta» centrado en la columna`, r !== null && r.descentrado !== null && r.descentrado <= 1, true);
+  const g = r !== null ? r.glifo : null;
+  t.ok(`${nombre}: «Reportar pregunta» lleva glifo-reportar`,
+    !!g && g.visible && g.primerD === GLIFOS['glifo-reportar'].elementos[0].props.d, true);
+  t.ok(`${nombre}: glifo-reportar delante del texto`, !!g && g.visible && g.delante, true);
+  t.ok(`${nombre}: glifo-reportar con trazo \`tintaSec\``, !!g && g.trazo, T.tintaSec);
+  t.ok(`${nombre}: separación glifo-texto \`paso 2\` (8 px)`,
+    !!g && g.separacion !== null && Math.abs(g.separacion - 2 * PASO) <= 0.5, true);
+  t.ok(`${nombre}: relleno horizontal \`paso 4\` (16 px)`,
+    !!g && g.rellenoIzq !== null && g.rellenoDer !== null
+      && Math.abs(g.rellenoIzq - 4 * PASO) <= 0.5 && Math.abs(g.rellenoDer - 4 * PASO) <= 0.5, true);
+}
+
+// Insignia de parcial (PAR-P1): sus casillas, con borde y relleno computados, y su texto.
+const MEDIR_INSIGNIA = EN_MARCO(`
+  const ins = visibles('[data-testid="insignia-parcial"]')[0];
+  if (!ins) return null;
+  const marca = ins.querySelector('[aria-hidden="true"]');
+  const casillas = marca ? Array.from(marca.children).map((c) => {
+    const e = w.getComputedStyle(c);
+    return { borde: e.borderTopColor, relleno: e.backgroundColor };
+  }) : [];
+  return { texto: ins.innerText.trim().toLowerCase(), casillas };
+`);
+
 const CONTAR = (s) => EN_MARCO(`return visibles(${JSON.stringify(s)}).length;`);
 const TEXTO = EN_MARCO('return d.body.innerText;');
+const TEXTO_SIN_PREGUNTA = EN_MARCO(`
+  const ocultos = Array.from(d.querySelectorAll('[data-testid="enunciado-quiz"], [data-testid^="opcion-quiz-"]'));
+  const previos = ocultos.map((n) => n.style.display);
+  ocultos.forEach((n) => { n.style.display = 'none'; });
+  const texto = d.body.innerText;
+  ocultos.forEach((n, i) => { n.style.display = previos[i]; });
+  return texto;
+`);
 const DESBORDA = EN_MARCO('return desbordes().length;');
 const RUTA = EN_MARCO('return w.location.pathname;');
 const ESTA_OSCURO = EN_MARCO("return d.documentElement.classList.contains('dark');");
@@ -292,10 +380,12 @@ function limpiarAjustes(pagina) {
 // materia. `ocultar` activa «Ocultar resultado hasta el final»; `temporizador` suma un paso
 // al temporizador y deja el reloj del iframe controlable (`w.__ticks`): con él, el reloj
 // real no corre y solo avanzan los ticks que da la prueba. `semilla` fija `Math.random` del
-// iframe antes de armar el examen: sale siempre el mismo orden de preguntas.
+// iframe antes de armar el examen: sale siempre el mismo orden de preguntas. `vigilarCasillas`
+// deja en `w.__casillasVistas` el máximo de casillas de progreso que hubo en el DOM desde el
+// montaje: el observador corre tras cada commit y antes de pintar, sin perder el primero.
 async function entrarAlQuiz(pagina, base, {
   ancho = 390, alto = 800, materia = MATERIA, oscuro = false, ocultar = false, temporizador = false,
-  semilla = null,
+  semilla = null, parcial = null, vigilarCasillas = false,
 } = {}) {
   await limpiarAjustes(pagina).catch(() => {});
   await abrirMarco(pagina, base, ancho, alto);
@@ -319,6 +409,13 @@ async function entrarAlQuiz(pagina, base, {
       if (ms === 1000) { w.__ticks.push(f); if (congelar) return 0; }
       return original(f, ms, ...a);
     };
+    w.__casillasVistas = 0;
+    if (${JSON.stringify(vigilarCasillas)}) {
+      new w.MutationObserver(() => {
+        const n = d.querySelectorAll('[data-testid="casilla-llena"], [data-testid="casilla-vacia"]').length;
+        if (n > w.__casillasVistas) w.__casillasVistas = n;
+      }).observe(d.documentElement, { childList: true, subtree: true });
+    }
     const semilla = ${JSON.stringify(semilla)};
     if (semilla !== null) {
       let s = semilla >>> 0;
@@ -335,6 +432,7 @@ async function entrarAlQuiz(pagina, base, {
   if (!await esperarRuta(pagina, '/inicio')) return false;
   await tocarTexto(pagina, 'modo examen');
   if (!await esperarRuta(pagina, '/temas/exam')) return false;
+  if (parcial) await tocarTexto(pagina, parcial);
   if (temporizador) {
     const p = await pagina.evaluar(MAS_TEMPORIZADOR);
     if (!p) return false;
@@ -457,7 +555,9 @@ async function probarQuiz(pagina, base, t, navegador, { tema, preguntas }) {
     contador !== null && /^01 \/ \d{2,3}$/.test(contador.texto), true);
   t.ok(nombre('contador en `tinta`'), contador && contador.textoColor, rgb(T.tinta));
   t.ok(nombre('sin barra interna del Stack'), await existe(pagina, sel('barra-interna')), false);
-  const cuerpo = await pagina.evaluar(TEXTO);
+  // El cromo de la app, sin el enunciado ni las opciones: el texto de la pregunta sorteada puede
+  // traer `→` o símbolos propios del contenido y no es lo que estas dos aserciones prueban.
+  const cuerpo = await pagina.evaluar(TEXTO_SIN_PREGUNTA);
   t.ok(nombre('sin emojis ni símbolos de texto'), EMOJI.test(cuerpo), false);
   t.ok(nombre('sin «Siguiente →» de texto'), cuerpo.includes('→'), false);
   t.ok(nombre('sin título «pKapp · Quiz»'), cuerpo.includes(TITULO_DEL_QUIZ), false);
@@ -477,6 +577,35 @@ async function probarQuiz(pagina, base, t, navegador, { tema, preguntas }) {
   const caja = await pagina.evaluar(LEER(sel('enunciado-quiz')));
   t.ok(nombre('caja del enunciado: superficie y marco `linea`, border'),
     caja !== null && `${caja.fondoEl} ${caja.bordeEl} ${caja.bordeElAncho}`, `${rgb(T.superficie)} ${rgb(T.linea)} 1px`);
+  // B-05 (CD-17): relleno paso 3.5 en las cuatro caras; paso 2 entre el chip y la meta.
+  const relleno = await pagina.evaluar(EN_MARCO(`
+    const n = visibles('[data-testid="enunciado-quiz"]')[0];
+    if (!n) return null;
+    const c = w.getComputedStyle(n);
+    return [c.paddingTop, c.paddingRight, c.paddingBottom, c.paddingLeft].join(' ');
+  `));
+  t.ok(nombre('enunciado: relleno de paso 3.5 en las cuatro caras'), relleno, `${3.5 * PASO}px `.repeat(4).trim());
+  // La separación no depende del tema sorteado: se inyecta una meta que cabe al lado del grupo
+  // (se mide en horizontal) y la más larga de los bancos, que baja a su línea (en vertical).
+  const separacionDe = (texto) => pagina.evaluar(EN_MARCO(`
+    const chip = visibles('[data-testid="chip-origen"]')[0];
+    const meta = visibles('[data-testid="meta-pregunta"]')[0];
+    if (!chip || !meta) return null;
+    const original = meta.textContent;
+    meta.textContent = ${JSON.stringify(texto)};
+    const rg = chip.parentElement.getBoundingClientRect(), rm = meta.getBoundingClientRect();
+    const r = { alLado: rm.top < rg.bottom - 0.5, horizontal: rm.left - rg.right, vertical: rm.top - rg.bottom };
+    meta.textContent = original;
+    return r;
+  `));
+  const alLado = await separacionDe(META_CORTA);
+  t.ok(nombre('meta corta: en la misma línea que el chip'), alLado !== null && alLado.alLado, true);
+  t.ok(nombre('chip de origen y meta al lado: separados por paso 2'),
+    alLado !== null && cerca(alLado.horizontal, 2 * PASO, 0.6), true);
+  const envuelta = await separacionDe(META_MAS_LARGA);
+  t.ok(nombre('meta larga: en su propia línea bajo el grupo'), envuelta !== null && !envuelta.alLado, true);
+  t.ok(nombre('chip de origen y meta debajo: separados por paso 2'),
+    envuelta !== null && cerca(envuelta.vertical, 2 * PASO, 0.6), true);
   const rotulo = await pagina.evaluar(LEER(sel('rotulo-enunciado')));
   t.ok(nombre('rótulo «Enunciado» en `tintaSec`'),
     rotulo !== null && rotulo.texto.toLowerCase() === 'enunciado' && rotulo.textoColor === rgb(T.tintaSec), true);
@@ -497,6 +626,8 @@ async function probarQuiz(pagina, base, t, navegador, { tema, preguntas }) {
   const letra = await pagina.evaluar(LEER(sel('letra-opcion-quiz-0')));
   t.ok(nombre('celda de letra: ancho paso 11, letra A'),
     letra !== null && Math.round(letra.rect.ancho) === LADO_TACTIL && letra.texto === 'A', true);
+  t.ok(nombre('celda de letra: pegada al marco (1 px), sin relleno de botón'),
+    letra !== null && reposo !== null && cerca(letra.rect.x - reposo.rect.x, 1, 0.6), true);
   t.ok(nombre('celda de letra: filete derecho `filete`'),
     letra !== null && letra.bordeElInfAncho !== undefined && await pagina.evaluar(EN_MARCO(`
       const n = visibles('[data-testid="letra-opcion-quiz-0"]')[0];
@@ -579,12 +710,31 @@ async function probarQuiz(pagina, base, t, navegador, { tema, preguntas }) {
           return s.borderLeftWidth + ' ' + s.borderLeftColor + ' ' + s.backgroundColor;
         `)), `3px ${rgb(T.acento)} ${rgb(T.superficie)}`);
     }
-    if (await existe(pagina, sel('insignia-parcial'))) vistos.parcial++;
+    if (await existe(pagina, sel('insignia-parcial'))) {
+      vistos.parcial++;
+      // BCYT tiene dos parciales: dos casillas, la llena en `tinta` y la vacía con borde `tinta`.
+      const ins = await pagina.evaluar(MEDIR_INSIGNIA);
+      const pos = ins && ins.texto.startsWith('1er') ? 0 : (ins && ins.texto.startsWith('2do') ? 1 : -1);
+      const cas = ins ? ins.casillas : [];
+      t.ok(nombre('insignia: dos casillas (una por parcial de BCYT)'), cas.length, 2);
+      t.ok(nombre('insignia: solo la casilla del parcial está llena'),
+        cas.map((c) => c.relleno !== TRANSPARENTE).join('|'), [0, 1].map((k) => k === pos).join('|'));
+      t.ok(nombre('insignia: la casilla llena es `tinta`'),
+        pos >= 0 && cas[pos] ? `${cas[pos].borde} ${cas[pos].relleno}` : null, `${rgb(T.tinta)} ${rgb(T.tinta)}`);
+      t.ok(nombre('insignia: la casilla vacía lleva borde `tinta` y sin relleno'),
+        pos >= 0 && cas[1 - pos] ? `${cas[1 - pos].borde} ${cas[1 - pos].relleno}` : null,
+        `${rgb(T.tinta)} ${TRANSPARENTE}`);
+    }
     const reportar = await pagina.evaluar(LEER(sel('boton-reportar')));
     t.ok(nombre('reportar: aparece tras responder, 44 × 44'),
       reportar !== null && reportar.rect.alto >= LADO_TACTIL && reportar.rect.ancho >= LADO_TACTIL
       && reportar.texto.toLowerCase().includes('reportar pregunta'), true);
     const sig = await pagina.evaluar(LEER(sel('boton-siguiente')));
+    const flecha = await pagina.evaluar(EN_MARCO(`
+      const g = visibles('[data-testid="boton-siguiente"] svg');
+      return g.length ? g[g.length - 1].getBoundingClientRect().width : null;
+    `));
+    t.ok(nombre('siguiente: flecha a paso 6 (24 px)'), flecha, 6 * PASO);
     t.ok(nombre('siguiente: botón K1 `tinta` con texto `fondo`, 44 de alto'),
       sig !== null && sig.fondo === rgb(T.tinta) && sig.rect.alto >= LADO_TACTIL, true);
     const bi = await pagina.evaluar(LEER(sel('barra-inferior')));
@@ -592,10 +742,11 @@ async function probarQuiz(pagina, base, t, navegador, { tema, preguntas }) {
       bi !== null && `${bi.bordeElAncho} ${bi.bordeEl} ${bi.fondoEl}`, `1px ${rgb(T.linea)} ${rgb(T.fondo)}`);
     if (primera) {
       primera = false;
-      await estadosK(ctx, 'Reportar pregunta (K3)', sel('boton-reportar'), {
-        reposo: { fondo: rgb(T.superficie), borde: rgb(T.borde), textoColor: rgb(T.tinta) },
-        hover: { fondo: rgb(T.superficie), borde: rgb(T.linea) },
-        presionado: { fondo: rgb(T.tinta), borde: rgb(T.tinta) },
+      await reportarK7(ctx, `${tema} · quiz`);
+      await estadosK(ctx, 'Reportar pregunta (K7)', sel('boton-reportar'), {
+        reposo: { fondo: TRANSPARENTE, textoColor: rgb(T.tintaSec) },
+        hover: { fondo: TRANSPARENTE, contorno: { ancho: '1px', color: rgb(T.linea), sep: '0px' } },
+        presionado: { fondo: rgb(T.tinta), textoColor: rgb(T.fondo) },
       }).catch(() => {});
       await estadosK(ctx, 'Siguiente (K1)', sel('boton-siguiente'), {
         reposo: { fondo: rgb(T.tinta), borde: rgb(T.tinta), textoColor: rgb(T.fondo), glifo: T.fondo },
@@ -772,6 +923,8 @@ async function examenEnCurso(pagina, base, t) {
     t.ok('la semilla repite la misma primera pregunta', enunciado && enunciado.texto, previa.enunciado);
     t.ok('sin responder: no hay aviso', await existe(pagina, sel('aviso-resultado-oculto')), false);
     const antes = await pagina.evaluar(LEER(sel(`opcion-quiz-${idx}`)));
+    const letraAntes = await pagina.evaluar(LEER(sel(`letra-opcion-quiz-${idx}`)));
+    const celdaAntes = await pagina.evaluar(LEER_CELDA_TEXTO(idx));
     t.ok('hay opción para responder', antes !== null, true);
     t.ok('respondió una opción que no es la correcta', await responder(pagina, idx), true);
     const aviso = await pagina.evaluar(LEER(sel('aviso-resultado-oculto')));
@@ -788,6 +941,21 @@ async function examenEnCurso(pagina, base, t) {
     t.ok('elegida: el layout no se mueve al responder',
       elegida !== null && antes !== null && cerca(elegida.rect.alto, antes.rect.alto, 0.6), true);
     t.ok('elegida: estado accesible seleccionado', elegida && elegida.presionado, 'true');
+    const letraDespues = await pagina.evaluar(LEER(sel(`letra-opcion-quiz-${idx}`)));
+    t.ok('elegida: la celda de letra no salta al responder (queda pegada al marco)',
+      letraAntes !== null && letraDespues !== null && elegida !== null
+        && cerca(letraDespues.rect.x, letraAntes.rect.x, 0.6)
+        && cerca(letraDespues.rect.x - elegida.rect.x, 1, 0.6), true);
+    // B-01 por los dos lados: la celda de texto en reposo mide lo mismo y termina en el
+    // mismo borde derecho que la de una opción respondida (la elegida comparte el
+    // componente del reposo, así que se mide otra, ya apagada): perder la compensación
+    // derecha de `-mx-4` la dejaría 16 px más angosta.
+    const otra = idx === 0 ? 1 : 0;
+    const celdaDespues = await pagina.evaluar(LEER_CELDA_TEXTO(otra));
+    t.ok('respondida: la celda de texto de una opción en reposo coincide con la de una respondida (ancho y borde derecho)',
+      celdaAntes !== null && celdaDespues !== null
+        && cerca(celdaDespues.ancho, celdaAntes.ancho, 0.6)
+        && cerca(celdaDespues.derecha, celdaAntes.derecha, 0.6), true);
 
     // La correcta no se revela (EXA-C1): marco `filete`, texto `tintaSec`, sin opacidad ni
     // línea de estado. Se mira la correcta aparte, con su índice, y después todas las demás.
@@ -806,6 +974,7 @@ async function examenEnCurso(pagina, base, t) {
     }
     t.ok('las demás: marco `filete`, texto `tintaSec` y sin opacidad', apagadas, true);
     t.ok('«Reportar pregunta» sigue disponible', await existe(pagina, sel('boton-reportar')), true);
+    await reportarK7({ pagina, t, T }, 'examen en curso');
     t.ok('«Siguiente» o «Ver resultados» disponible', await existe(pagina, sel('boton-siguiente')), true);
 
     // Un solo toque (c.2): la elegida sigue siendo pulsable (`ControlMarco`), así que lo que
@@ -840,10 +1009,11 @@ async function examenEnCurso(pagina, base, t) {
 // Anchos: 320 y 360 sin recorte ni scroll horizontal; 768 en columna (desde 1024 rige
 // `lectura`: lo cubren `escritorioDelQuiz` y `escritorioDelExamenEnCurso`).
 
-// La meta «{shortName} · {tema}» (QUIZ-P8) no pierde el tema (D10 manda sobre «hasta dos
-// líneas»): a la derecha del contexto si entra; si no, en su propia línea debajo, a todo el
-// ancho y sin límite de líneas. El tema más largo de los bancos (59 caracteres con el
-// prefijo) se inyecta en el nodo: el sorteo no decide si la prueba ve el caso malo.
+// La meta «{shortName} · {tema}» (QUIZ-P8) no pierde el tema ni se recorta (Quiz.md a.4 y c.3):
+// sin tope de líneas; a la derecha del contexto si entra; si no, en su propia línea debajo, a
+// todo el ancho. Con el tema más largo ocupa hasta dos líneas desde 360 px y tres a 320 px. El
+// tema más largo de los bancos (59 caracteres con el prefijo) se inyecta en el nodo: el sorteo no
+// decide si la prueba ve el caso malo.
 const META_MAS_LARGA = 'RyD · Eje hipotálamo-hipófiso-testicular y respuesta sexual';
 const META_CORTA = 'BCYT · Enzimas';
 
@@ -856,6 +1026,7 @@ const MEDIR_META = (texto) => EN_MARCO(`
   const rm = meta.getBoundingClientRect(), ri = izq.getBoundingClientRect(), re = e.getBoundingClientRect();
   return {
     recorte: meta.scrollHeight - meta.clientHeight, clamp: w.getComputedStyle(meta).webkitLineClamp,
+    interlineado: parseFloat(w.getComputedStyle(meta).lineHeight),
     arriba: rm.top, x: rm.left, der: rm.right, ancho: rm.width, alto: rm.height,
     izqAbajo: ri.bottom, izqDer: ri.right, columna: re.width, columnaDer: re.right,
     desborda: desbordes().length,
@@ -871,11 +1042,48 @@ async function metaSinRecorte(pagina, t, ancho) {
   t.ok(`${ancho}: la meta que no entra al lado pasa a su propia línea`, m.arriba >= m.izqAbajo - 0.5, true);
   t.ok(`${ancho}: la meta en su línea va a todo el ancho de la columna`, cerca(m.ancho, m.columna, 1), true);
   t.ok(`${ancho}: la meta más larga no abre scroll horizontal`, m.desborda, 0);
+  const lineas = Number.isFinite(m.interlineado) && m.interlineado > 0 ? Math.round(m.alto / m.interlineado) : null;
+  const tope = ancho <= 320 ? 3 : 2;
+  t.ok(`${ancho}: la meta más larga ocupa como mucho ${tope} líneas`, lineas !== null && lineas <= tope, true);
+}
+
+// B-04 (QUIZ-P4), borde de la cuenta: con temporizador el progreso mide `ancho - 192`, y `n`
+// casillas piden `4n - 2` px. Las 40 de BCYT caben justo en 158 px (viewport 350) y no en 157
+// (349): `+2` → `+4` o `<=` → `<` cambian uno de los dos.
+async function bordeDeLaCuenta(pagina, base, t) {
+  for (const [ancho, conCasillas] of [[350, true], [349, false]]) {
+    t.ok(`${ancho}: llegó al quiz`,
+      await entrarAlQuiz(pagina, base, { ancho, temporizador: true, parcial: '1er parcial' }), true);
+    const m = await pagina.evaluar(EN_MARCO(`
+      const p = visibles('[data-testid="progreso-quiz"]')[0];
+      return { progreso: p ? p.getBoundingClientRect().width : null,
+        casillas: visibles('[data-testid="casilla-llena"], [data-testid="casilla-vacia"]').length,
+        barra: visibles('[data-testid="barra-progreso"]').length };
+    `));
+    t.ok(`${ancho}: el progreso mide ${ancho - 192} px`, m.progreso !== null && cerca(m.progreso, ancho - 192, 0.1), true);
+    if (conCasillas) {
+      t.ok(`${ancho}: 40 casillas en ${ancho - 192} px (4n - 2 = 158) y sin barra`,
+        m.casillas === 40 && m.barra === 0, true);
+    } else {
+      t.ok(`${ancho}: 40 casillas no caben en ${ancho - 192} px: barra continua y sin casillas`,
+        m.casillas === 0 && m.barra === 1, true);
+    }
+  }
+}
+
+// B-04: sin salto de casillas a barra al arrancar. A 320 px con temporizador, 40 preguntas
+// piden barra: ningún commit desde el montaje puede haber dibujado casillas.
+async function sinSaltoAlEntrar(pagina, base, t) {
+  t.ok('320: llegó al quiz',
+    await entrarAlQuiz(pagina, base, { ancho: 320, temporizador: true, parcial: '1er parcial', vigilarCasillas: true }), true);
+  t.ok('320: arranca con barra continua', await existe(pagina, sel('barra-progreso')), true);
+  t.ok('320: ningún commit dibujó casillas desde el montaje',
+    await pagina.evaluar(EN_MARCO('return w.__casillasVistas;')), 0);
 }
 
 async function anchosDelQuiz(pagina, base, t) {
   for (const ancho of [320, 360]) {
-    t.ok(`${ancho}: llegó al quiz`, await entrarAlQuiz(pagina, base, { ancho, temporizador: true }), true);
+    t.ok(`${ancho}: llegó al quiz`, await entrarAlQuiz(pagina, base, { ancho, temporizador: true, parcial: '1er parcial' }), true);
     t.ok(`${ancho}: sin scroll horizontal antes de responder`, await pagina.evaluar(DESBORDA), 0);
     const mide = await pagina.evaluar(EN_MARCO(`
       const caja = (s) => { const n = visibles(s)[0]; if (!n) return null; const r = n.getBoundingClientRect();
@@ -892,6 +1100,26 @@ async function anchosDelQuiz(pagina, base, t) {
       mide.progreso && mide.contador && mide.contador.x >= mide.progreso.der + 2 * PASO - 0.5, true);
     t.ok(`${ancho}: el tiempo cabe en la pantalla`,
       mide.tiempo && mide.tiempo.der <= mide.vista + 0.5, true);
+    // B-04 (QUIZ-P4): BCYT trae 40 preguntas. A 320 px el progreso mide 128 px y 40 casillas
+    // piden 158: barra continua que no pasa del reloj. A 360 px caben 42: 40 casillas.
+    const prog = await pagina.evaluar(EN_MARCO(`
+      const caja = (n) => { const r = n.getBoundingClientRect(); return { x: r.left, der: r.right }; };
+      const casillas = visibles('[data-testid="casilla-llena"], [data-testid="casilla-vacia"]').map(caja);
+      const barra = visibles('[data-testid="barra-progreso"]')[0];
+      return { casillas, barra: barra ? caja(barra) : null };
+    `));
+    if (ancho === 320) {
+      t.ok('320: 40 preguntas con temporizador: barra continua y sin casillas',
+        prog.barra !== null && prog.casillas.length === 0, true);
+      t.ok('320: la barra no pasa del reloj',
+        prog.barra && mide.tiempo && prog.barra.der <= mide.tiempo.x + 0.5, true);
+    } else {
+      t.ok('360: 40 preguntas con temporizador: 40 casillas y sin barra',
+        prog.barra === null && prog.casillas.length === 40, true);
+      const ultima = prog.casillas[prog.casillas.length - 1];
+      t.ok('360: la última casilla queda dentro del progreso',
+        ultima && mide.progreso && ultima.der <= mide.progreso.der + 0.5, true);
+    }
     await responder(pagina, 0);
     t.ok(`${ancho}: sin scroll horizontal después de responder`, await pagina.evaluar(DESBORDA), 0);
     const sig = await pagina.evaluar(LEER(sel('boton-siguiente')));
@@ -1167,6 +1395,372 @@ function conNavegadorAncho(fn, { ancho, alto }) {
 // GRUPO A · corrección de 3.1 (teclado del control de tema, desborde, hover)
 // ===========================================================================
 
+// ===========================================================================
+// Movimiento del quiz (REV-1, Quiz.md c.5) y foco tras «Siguiente» (REV-9, Quiz.md d.2).
+// ===========================================================================
+
+// Propiedades de un keyframe que no son estilo: `getKeyframes()` las agrega a cada cuadro.
+const META_KEYFRAME = ['offset', 'computedOffset', 'easing', 'composite'];
+
+// Espera, dentro del iframe, a que `getAnimations()` tenga al menos una animación y devuelve
+// la foto de ese instante (o la foto vacía si pasan `ms`). Se lanza en paralelo con el toque:
+// ve las animaciones en el primer cuadro en que existen.
+const OBSERVAR_ANIMACIONES = (ms) => EN_MARCO(`
+  return new Promise((resolver) => {
+    const meta = ${JSON.stringify(META_KEYFRAME)};
+    const foto = () => d.getAnimations().map((a) => {
+      const destino = a.effect.target;
+      const marca = destino.closest('[data-testid]');
+      return {
+        duracion: a.effect.getTiming().duration,
+        curva: a.effect.getTiming().easing,
+        props: Array.from(new Set(a.effect.getKeyframes().flatMap((k) => Object.keys(k))))
+          .filter((p) => !meta.includes(p)),
+        objetivo: marca ? marca.getAttribute('data-testid') : null,
+        desde: a.effect.getKeyframes()[0].transform || null,
+        contiene: Array.from(destino.querySelectorAll('[data-testid]')).map((n) => n.getAttribute('data-testid')),
+        // La barra del quiz no se anima: ni ella, ni algo dentro, ni un ancestro que la contenga.
+        enBarra: !!destino.closest('[data-testid="barra-quiz"]')
+          || !!destino.querySelector('[data-testid="barra-quiz"]'),
+      };
+    });
+    const hasta = w.performance.now() + ${ms};
+    const paso = () => {
+      const f = foto();
+      if (f.length > 0 || w.performance.now() > hasta) return resolver(f);
+      w.setTimeout(paso, 0);
+    };
+    paso();
+  });
+`);
+
+const ANIMACIONES_EN_CURSO = EN_MARCO('return d.getAnimations().length;');
+const FUERA_DE_OPACIDAD_1 = EN_MARCO(`
+  return Array.from(d.querySelectorAll('*'))
+    .filter((n) => w.getComputedStyle(n).opacity !== '1')
+    .map((n) => n.getAttribute('data-testid') || n.tagName).slice(0, 5).join(',');
+`);
+const SCROLL_DEL_QUIZ = EN_MARCO(`
+  let n = d.querySelector('[data-testid="enunciado-quiz"]');
+  while (n && !(n.scrollHeight > n.clientHeight + 1 && /auto|scroll/.test(w.getComputedStyle(n).overflowY))) {
+    n = n.parentElement;
+  }
+  return n ? n.scrollTop : null;
+`);
+const BAJAR_EL_QUIZ = EN_MARCO(`
+  let n = d.querySelector('[data-testid="enunciado-quiz"]');
+  while (n && !(n.scrollHeight > n.clientHeight + 1 && /auto|scroll/.test(w.getComputedStyle(n).overflowY))) {
+    n = n.parentElement;
+  }
+  if (!n) return null;
+  n.scrollTop = n.scrollHeight;
+  return n.scrollTop;
+`);
+
+// Achica el marco para que la pregunta desborde y el contenedor del quiz sea desplazable.
+const ACHICAR_MARCO = EN_MARCO("m.style.height = '320px'; return m.clientHeight;");
+
+// Dos «Siguiente» seguidos dentro de la ventana del fundido del bloque (150 ms): el segundo
+// cambia la clave con la animación del primero en curso. Con `cancel()` en la limpieza queda
+// una sola animación por nodo; sin él, dos. Devuelve cuánto tardó el segundo cambio de pregunta
+// desde el primero y el máximo de animaciones sobre un mismo nodo en ese instante.
+const DOBLE_SIGUIENTE = EN_MARCO(`
+  return new Promise((resolver) => {
+    const q = (id) => d.querySelector('[data-testid="' + id + '"]');
+    const contador = () => (q('contador-quiz') ? q('contador-quiz').textContent : null);
+    const maxPorNodo = () => {
+      const por = new Map();
+      d.getAnimations().forEach((a) => por.set(a.effect.target, (por.get(a.effect.target) || 0) + 1));
+      return Math.max(0, ...por.values());
+    };
+    const hasta = w.performance.now() + 8000;
+    const inicial = contador();
+    let fase = 0;
+    let previo = inicial;
+    let t0 = 0;
+    q('boton-siguiente').click();
+    const paso = () => {
+      const ahora = w.performance.now();
+      if (fase === 0 && contador() !== inicial) {
+        t0 = ahora; previo = contador(); fase = 1;
+        if (q('opcion-quiz-0')) q('opcion-quiz-0').click();
+      } else if (fase === 1 && q('boton-siguiente')) {
+        fase = 2; q('boton-siguiente').click();
+      } else if (fase === 2 && contador() !== previo) {
+        return resolver({ tardo: ahora - t0, max: maxPorNodo(), total: d.getAnimations().length });
+      }
+      if (ahora > hasta) return resolver(null);
+      w.setTimeout(paso, 0);
+    };
+    paso();
+  });
+`);
+
+const abarca = (foto, id) => foto.some((a) => a.objetivo === id || a.contiene.includes(id));
+const soloOpacityYTransform = (foto) => foto.every((a) => a.props.every((p) => p === 'opacity' || p === 'transform'));
+const todasBreves = (foto) => foto.every((a) => a.duracion > 0 && a.duracion <= 200);
+// Quiz.md c.5: 150 ms con la curva cubic-bezier(0, 0, 0.2, 1) (el navegador la normaliza con espacios).
+const CURVA_C5 = 'cubic-bezier(0, 0, 0.2, 1)';
+const conLaDuracionYLaCurvaDeC5 = (foto) =>
+  foto.length > 0 && foto.every((a) => a.duracion === 150 && a.curva === CURVA_C5);
+
+// Responde la opción `idx` y devuelve la foto de las animaciones del primer cuadro.
+async function responderObservando(pagina, idx) {
+  const [foto, tocado] = await Promise.all([
+    pagina.evaluar(OBSERVAR_ANIMACIONES(1500)),
+    tocar(pagina, sel(`opcion-quiz-${idx}`)),
+  ]);
+  return tocado ? foto : null;
+}
+
+async function siguienteObservando(pagina) {
+  const [foto] = await Promise.all([
+    pagina.evaluar(OBSERVAR_ANIMACIONES(1500)),
+    siguiente(pagina),
+  ]);
+  return foto;
+}
+
+const FOCO_EN_OPCION = (i) => EN_MARCO(`
+  const a = d.activeElement;
+  return !!a && !!a.closest('[data-testid="opcion-quiz-${i}"]');
+`);
+const FOCO_VISIBLE_EN_OPCION = (i) => EN_MARCO(`
+  const a = d.activeElement;
+  const o = d.querySelector('[data-testid="opcion-quiz-${i}"]');
+  return !!a && !!o && o.contains(a) && a.matches(':focus-visible');
+`);
+
+async function movimientoDelQuiz(pagina, base, t) {
+  const T = plancha.claro;
+  try {
+    t.ok('llegó al quiz', await entrarAlQuiz(pagina, base, { semilla: SEMILLA }), true);
+    await espera(300);
+    t.ok('c.5: sin responder no hay animaciones en curso', await pagina.evaluar(ANIMACIONES_EN_CURSO), 0);
+
+    // 1 y 3: al responder, las piezas nuevas entran con fundido; la opción tocada, no.
+    const foto = await responderObservando(pagina, 0);
+    t.ok('c.5 #1: respondió y hay animaciones en el primer cuadro', foto !== null && foto.length > 0, true);
+    if (foto === null) return;
+    const estados = await pagina.evaluar(EN_MARCO(
+      "return Array.from(d.querySelectorAll('[data-testid^=\"estado-opcion-\"]')).map((n) => n.getAttribute('data-testid'));"));
+    t.ok('c.5 #1: hay línea de estado y nota', estados.length > 0 && await existe(pagina, sel('nota-explicacion')), true);
+    for (const id of [...estados, 'nota-explicacion', 'boton-reportar', 'barra-inferior']) {
+      t.ok(`c.5 #1: ${id} entra con una animación`, abarca(foto, id), true);
+    }
+    t.ok('c.5 #1: todas duran 200 ms como máximo', todasBreves(foto), true);
+    t.ok('c.5 #1: los keyframes solo tocan opacity y transform', soloOpacityYTransform(foto), true);
+    t.ok('c.5: todas duran 150 ms con la curva cubic-bezier(0, 0, 0.2, 1)',
+      conLaDuracionYLaCurvaDeC5(foto), true);
+    // La lámina de la barra solo se funde; su contenido interior se desplaza (alto reservado).
+    const barra = foto.filter((a) => a.objetivo === 'barra-inferior');
+    t.ok('c.5: el contenedor de la barra inferior anima solo opacity',
+      barra.length > 0 && barra.every((a) => a.props.join() === 'opacity'), true);
+    const contenido = foto.filter((a) => a.objetivo === 'barra-inferior-contenido');
+    t.ok('c.5: el contenido de la barra inferior anima transform',
+      contenido.length > 0 && contenido.every((a) => a.props.includes('transform')), true);
+    t.ok('c.5: el keyframe 0 del contenido es translateY(8px)',
+      contenido.length > 0 && contenido.every((a) => a.desde === 'translateY(8px)'), true);
+    t.ok('c.5: lo demás es solo opacity',
+      foto.filter((a) => !['barra-inferior-contenido'].includes(a.objetivo))
+        .every((a) => a.props.join() === 'opacity'), true);
+    t.ok('c.5: la barra del quiz no se anima', foto.some((a) => a.enBarra), false);
+    t.ok('c.5 #3: la letra y el texto de la opción tocada no se animan',
+      abarca(foto, 'letra-opcion-quiz-0') || abarca(foto, 'texto-opcion-quiz-0'), false);
+    const tocada = await pagina.evaluar(LEER(sel('opcion-quiz-0')));
+    t.ok('c.5 #3: la opción tocada ya está en su estado final, sin opacidad',
+      tocada !== null && `${tocada.bordeAncho} ${tocada.opacidad}`, '2px 1');
+    t.ok('c.5 #3: marco `acierto` o `error`',
+      tocada !== null && [rgb(T.acierto), rgb(T.error)].includes(tocada.borde), true);
+
+    // 5: en reposo nada queda animando ni a medias.
+    await espera(300);
+    t.ok('c.5 #5: respondida y en reposo, sin animaciones', await pagina.evaluar(ANIMACIONES_EN_CURSO), 0);
+    t.ok('c.5 #5: ningún elemento con opacity distinta de 1', await pagina.evaluar(FUERA_DE_OPACIDAD_1), '');
+
+    // 4: «Siguiente» sube el scroll y el bloque de la pregunta entra con fundido. Con el marco
+    // achicado el contenedor desborda, también con la pregunta nueva: sin el `scrollTo` queda abajo.
+    await pagina.evaluar(ACHICAR_MARCO);
+    const bajo = await pagina.evaluar(BAJAR_EL_QUIZ);
+    t.ok('c.5 #4: el contenedor del quiz es desplazable y quedó bajado (si falla: el marco no quedó achicado y la pregunta nueva no desborda)', typeof bajo === 'number' && bajo > 0, true);
+    const fotoNext = await siguienteObservando(pagina);
+    t.ok('c.5 #4: pasó de pregunta con animaciones', fotoNext.length > 0, true);
+    t.ok('c.5 #4: el bloque de contexto, enunciado y opciones entra', abarca(fotoNext, 'enunciado-quiz'), true);
+    t.ok('c.5 #4: duran 200 ms como máximo y solo tocan opacity',
+      todasBreves(fotoNext) && fotoNext.every((a) => a.props.join() === 'opacity'), true);
+    t.ok('c.5 #4: la barra del quiz no se anima', fotoNext.some((a) => a.enBarra), false);
+    const scroll = await pagina.evaluar(SCROLL_DEL_QUIZ);
+    t.ok('c.5 #4: el scroll vuelve arriba (scrollTop 0 en un contenedor desplazable)', scroll, 0);
+    t.ok('c.5 #4: duran 150 ms con la curva cubic-bezier(0, 0, 0.2, 1)',
+      conLaDuracionYLaCurvaDeC5(fotoNext), true);
+    await espera(300);
+    t.ok('c.5 #5: tras «Siguiente» y en reposo, sin animaciones', await pagina.evaluar(ANIMACIONES_EN_CURSO), 0);
+    t.ok('c.5 #5: tras «Siguiente», ningún elemento con opacity distinta de 1',
+      await pagina.evaluar(FUERA_DE_OPACIDAD_1), '');
+  } finally {
+    await limpiarAjustes(pagina);
+  }
+}
+
+async function movimientoReducido(pagina, base, t) {
+  try {
+    await pagina.enviar('Emulation.setEmulatedMedia',
+      { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+    t.ok('llegó al quiz', await entrarAlQuiz(pagina, base, { semilla: SEMILLA }), true);
+    t.ok('el marco ve prefers-reduced-motion: reduce',
+      await pagina.evaluar(EN_MARCO("return w.matchMedia('(prefers-reduced-motion: reduce)').matches;")), true);
+
+    const foto = await responderObservando(pagina, 0);
+    t.ok('c.5 #2: respondió', foto !== null && await existe(pagina, sel('barra-inferior')), true);
+    t.ok('c.5 #2: al responder no hay ninguna animación', foto !== null && foto.length, 0);
+    const siguienteFoto = await siguienteObservando(pagina);
+    t.ok('c.5 #2: pasó de pregunta', await pagina.evaluar(LEER(sel('contador-quiz'))) !== null
+      && (await pagina.evaluar(LEER(sel('contador-quiz')))).texto.startsWith('02 /'), true);
+    t.ok('c.5 #2: tras «Siguiente» no hay ninguna animación', siguienteFoto.length, 0);
+  } finally {
+    await pagina.enviar('Emulation.setEmulatedMedia',
+      { features: [{ name: 'prefers-reduced-motion', value: 'no-preference' }] }).catch(() => {});
+    await limpiarAjustes(pagina);
+  }
+}
+
+async function movimientoDelExamenEnCurso(pagina, base, t) {
+  try {
+    t.ok('llegó al quiz con el resultado oculto',
+      await entrarAlQuiz(pagina, base, { ocultar: true, semilla: SEMILLA }), true);
+    await espera(300);
+    const foto = await responderObservando(pagina, 0);
+    t.ok('EXA-P1: respondió y hay animaciones', foto !== null && foto.length > 0, true);
+    if (foto === null) return;
+    for (const id of ['aviso-resultado-oculto', 'boton-reportar', 'barra-inferior']) {
+      t.ok(`EXA-P1: ${id} entra con una animación`, abarca(foto, id), true);
+    }
+    t.ok('EXA-P1: sin nota de explicación', await existe(pagina, sel('nota-explicacion')), false);
+    t.ok('EXA-P1: duran 200 ms como máximo y solo tocan opacity y transform',
+      todasBreves(foto) && soloOpacityYTransform(foto), true);
+    t.ok('EXA-P1: duran 150 ms con la curva cubic-bezier(0, 0, 0.2, 1)',
+      conLaDuracionYLaCurvaDeC5(foto), true);
+    t.ok('EXA-P1: la barra del quiz no se anima', foto.some((a) => a.enBarra), false);
+    t.ok('EXA-P1: la opción elegida no se anima', abarca(foto, 'letra-opcion-quiz-0')
+      || abarca(foto, 'texto-opcion-quiz-0'), false);
+    await espera(300);
+    t.ok('EXA-P1: en reposo, sin animaciones ni opacity distinta de 1',
+      `${await pagina.evaluar(ANIMACIONES_EN_CURSO)} ${await pagina.evaluar(FUERA_DE_OPACIDAD_1)}`, '0 ');
+  } finally {
+    await limpiarAjustes(pagina);
+  }
+}
+
+// Enter o Espacio sobre «Siguiente»: la barra se desmonta y el foco pasa a la primera opción.
+async function teclaSobreSiguiente(pagina, t, n, tecla = 'Enter') {
+  const nombre = tecla === ' ' ? 'Espacio' : tecla;
+  t.ok(`${n}: Tab llega a «Siguiente»`, await enfocarConTab(pagina, sel('boton-siguiente')), true);
+  const antes = (await pagina.evaluar(LEER(sel('contador-quiz')))).texto;
+  await pagina.tecla(tecla);
+  t.ok(`${n}: ${nombre} pasa de pregunta`, await pagina.esperarA(async () =>
+    (await pagina.evaluar(LEER(sel('contador-quiz')))).texto !== antes, { limite: 5000 }), true);
+  t.ok(`${n}: el foco queda dentro de opcion-quiz-0`,
+    await pagina.esperarA(() => pagina.evaluar(FOCO_EN_OPCION(0)), { limite: 3000 }), true);
+  await pagina.tecla('Tab');
+  t.ok(`${n}: el Tab siguiente va a la opción B`, await pagina.evaluar(FOCO_EN_OPCION(1)), true);
+}
+
+async function focoTrasSiguiente(pagina, base, t) {
+  try {
+    t.ok('llegó al quiz', await entrarAlQuiz(pagina, base, { semilla: SEMILLA }), true);
+    t.ok('respondió con el teclado de fondo', await responder(pagina, 0), true);
+    await teclaSobreSiguiente(pagina, t, 'REV-9 teclado');
+
+    // Con puntero el foco no se mueve y no aparece contorno.
+    t.ok('respondió la segunda', await responder(pagina, 0), true);
+    t.ok('«Siguiente» con puntero', await siguiente(pagina), true);
+    await espera(300);
+    t.ok('REV-9 puntero: la opción 0 no recibe foco visible', await pagina.evaluar(FOCO_VISIBLE_EN_OPCION(0)), false);
+    t.ok('REV-9 puntero: el foco no queda dentro de la opción 0', await pagina.evaluar(FOCO_EN_OPCION(0)), false);
+
+    // Con Espacio pasa lo mismo que con Enter.
+    t.ok('respondió la tercera', await responder(pagina, 0), true);
+    await teclaSobreSiguiente(pagina, t, 'REV-9 teclado (Espacio)', ' ');
+  } finally {
+    await limpiarAjustes(pagina);
+  }
+}
+
+async function focoTrasSiguienteEnElExamen(pagina, base, t) {
+  try {
+    t.ok('llegó al quiz con el resultado oculto',
+      await entrarAlQuiz(pagina, base, { ocultar: true, semilla: SEMILLA }), true);
+    t.ok('respondió', await responder(pagina, 0), true);
+    await teclaSobreSiguiente(pagina, t, 'REV-9 examen');
+  } finally {
+    await limpiarAjustes(pagina);
+  }
+}
+
+// «Ver resultados» (última pregunta) no es «Siguiente»: no mueve el foco a una opción.
+const ESPIA_DE_FOCO = EN_MARCO(`
+  const proto = w.HTMLElement.prototype, original = proto.focus;
+  w.__enfocados = [];
+  proto.focus = function (...args) {
+    const dueno = this.closest && this.closest('[data-testid]');
+    w.__enfocados.push(dueno ? dueno.getAttribute('data-testid') : '');
+    return original.apply(this, args);
+  };
+  return Array.isArray(w.__enfocados);
+`);
+const LEER_ESPIA_DE_FOCO = EN_MARCO('return w.__enfocados || [];');
+
+async function focoEnVerResultados(pagina, base, t) {
+  try {
+    t.ok('llegó al quiz', await entrarAlQuiz(pagina, base, { semilla: SEMILLA }), true);
+    let ultima = false;
+    for (let i = 0; i < 80 && !ultima; i++) {
+      if (!await responder(pagina, 0)) break;
+      const boton = await pagina.evaluar(LEER(sel('boton-siguiente')));
+      ultima = !!boton && boton.texto.toLowerCase().includes('ver resultados');
+      if (!ultima && !await siguiente(pagina)) break;
+    }
+    t.ok('llegó a la última pregunta («Ver resultados»)', ultima, true);
+    if (!ultima) return;
+    t.ok('REV-9 última: Tab llega a «Ver resultados»', await enfocarConTab(pagina, sel('boton-siguiente')), true);
+    // El quiz se desmonta al navegar, así que mirar el foco después no prueba nada: un espía de
+    // `focus()` anota el `data-testid` de cada llamada, antes del `Enter`.
+    t.ok('REV-9 última: espía de focus() instalado', await pagina.evaluar(ESPIA_DE_FOCO), true);
+    await pagina.tecla('Enter');
+    t.ok('REV-9 última: Enter lleva a /resultados', await esperarRuta(pagina, '/resultados'), true);
+    const enfocados = await pagina.evaluar(LEER_ESPIA_DE_FOCO);
+    t.ok('REV-9 última: ningún focus() apuntó a una opción',
+      enfocados.filter((id) => /^opcion-quiz-/.test(id)).join(','), '');
+  } finally {
+    await limpiarAjustes(pagina);
+  }
+}
+
+// Dos «Siguiente» dentro de los 150 ms del fundido del bloque: el `cancel()` de la limpieza
+// (c.5, mecanismo) deja una sola animación por nodo y nada colgado en reposo. Si la máquina
+// está tan cargada que el segundo cambio cae fuera de la ventana, repite con la pregunta siguiente.
+async function siguienteDuranteElFundido(pagina, base, t) {
+  try {
+    t.ok('llegó al quiz', await entrarAlQuiz(pagina, base, { semilla: SEMILLA }), true);
+    let res = null;
+    for (let intento = 0; intento < 4; intento++) {
+      if (!await responder(pagina, 0)) break;
+      await espera(300);
+      res = await pagina.evaluar(DOBLE_SIGUIENTE);
+      if (res === null || res.tardo < 150) break;
+    }
+    t.ok('dos «Siguiente» cayeron dentro de los 150 ms del fundido', res !== null && res.tardo < 150, true);
+    if (res === null) return;
+    t.ok('c.5 mecanismo: ningún nodo con dos animaciones a la vez', res.max <= 1, true);
+    await espera(300);
+    t.ok('c.5 mecanismo: en reposo, sin animaciones colgadas', await pagina.evaluar(ANIMACIONES_EN_CURSO), 0);
+    t.ok('c.5 mecanismo: en reposo, ningún elemento con opacity distinta de 1',
+      await pagina.evaluar(FUERA_DE_OPACIDAD_1), '');
+  } finally {
+    await limpiarAjustes(pagina);
+  }
+}
+
 module.exports = [
   { nombre: 'confirmación al abandonar un quiz', correr: confirmarAlSalirDelQuiz },
   { nombre: 'la X del quiz pregunta una sola vez', correr: laXDelQuizPreguntaUnaVez },
@@ -1180,6 +1774,15 @@ module.exports = [
   { nombre: 'Quiz Plancha: temporizador y alerta bajo 120 s', correr: conNavegador(temporizadorYAlerta) },
   { nombre: 'Quiz Plancha: examen en curso (resultado oculto)', correr: conNavegador(examenEnCurso) },
   { nombre: 'Quiz Plancha: anchos 320, 360 y 768', correr: conNavegador(anchosDelQuiz) },
+  { nombre: 'Quiz Plancha: borde de la cuenta de casillas (B-04)', correr: conNavegador(bordeDeLaCuenta) },
+  { nombre: 'Quiz Plancha: sin salto de casillas a barra al entrar (B-04)', correr: conNavegador(sinSaltoAlEntrar) },
   { nombre: 'Quiz Plancha: escritorio 1023, 1024, 1280, 1366 y 1920 (lectura)', correr: conNavegadorAncho(escritorioDelQuiz, { ancho: 1920, alto: 1200 }) },
   { nombre: 'Quiz Plancha: examen en curso en escritorio 1024, 1366 y 1920', correr: conNavegadorAncho(escritorioDelExamenEnCurso, { ancho: 1920, alto: 1200 }) },
+  { nombre: 'Quiz Plancha: movimiento de entrada (REV-1, c.5)', correr: conNavegador(movimientoDelQuiz) },
+  { nombre: 'Quiz Plancha: movimiento reducido (REV-1, c.5 #2)', correr: conNavegador(movimientoReducido) },
+  { nombre: 'Quiz Plancha: movimiento del examen en curso (REV-1, EXA-P1)', correr: conNavegador(movimientoDelExamenEnCurso) },
+  { nombre: 'Quiz Plancha: foco tras «Siguiente» (REV-9)', correr: conNavegador(focoTrasSiguiente) },
+  { nombre: 'Quiz Plancha: foco tras «Siguiente» en el examen en curso (REV-9)', correr: conNavegador(focoTrasSiguienteEnElExamen) },
+  { nombre: 'Quiz Plancha: «Ver resultados» no mueve el foco (REV-9)', correr: conNavegador(focoEnVerResultados) },
+  { nombre: 'Quiz Plancha: «Siguiente» durante el fundido (REV-1, c.5)', correr: conNavegador(siguienteDuranteElFundido) },
 ];

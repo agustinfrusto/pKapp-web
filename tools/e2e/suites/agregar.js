@@ -50,7 +50,9 @@ const INFO = `
     for (let t; (t = it.nextNode());) if (t.textContent.trim()) { hoja = t.parentElement; break; }
     const tf = hoja ? w.getComputedStyle(hoja) : k;
     const svg = el.querySelector('svg');
+    const sr = svg ? svg.getBoundingClientRect() : null;
     return {
+      glifoCaja: sr ? { ancho: sr.width, alto: sr.height, dx: (sr.left + sr.width / 2) - (r.left + r.width / 2), dy: (sr.top + sr.height / 2) - (r.top + r.height / 2) } : null,
       x: r.left, y: r.top, ancho: r.width, alto: r.height, der: r.right, abajo: r.bottom,
       fondo: k.backgroundColor, borde: k.borderTopColor, bordeAncho: k.borderTopWidth,
       relleno: k.paddingLeft + ' ' + k.paddingTop,
@@ -404,7 +406,7 @@ async function desplegableAbrirYElegir(pagina, base, t, tema) {
   t.ok(c('exactamente una option aria-selected="true": la del tema actual'),
     JSON.stringify(l.opciones.filter((o) => o.seleccionada === 'true').map((o) => o.texto)),
     JSON.stringify([TEMAS_BCYT[0].nombre]));
-  t.ok(c('la región mide a lo sumo 320 px (paso 80)'), l.lista.alto <= 320 + 0.5, true);
+  t.ok(c('la región mide a lo sumo 288 px (paso 72, lista plana)'), l.lista.alto <= 288 + 0.5, true);
   t.ok(c('la lista empuja al formulario: el enunciado queda debajo de ella'),
     !!l.enunciado && l.enunciado.arriba >= l.lista.marco.abajo, true);
   t.ok(c('la lámina: fondo superficie y marco linea 1 px'),
@@ -452,7 +454,7 @@ async function desplegableAbrirYElegir(pagina, base, t, tema) {
   t.ok(c('elegir la ya elegida cierra y conserva el tema'),
     `${igual.nListasEnDom}|${igual.disp && igual.disp.texto}`, `0|${tercero}`);
 
-  // Centrado al abrir (d.2, F09): solo si la elegida no está a la vista con su contorno.
+  // Alineada a fila al abrir (d.4, E-01b): solo si la elegida no está a la vista con su contorno.
   // Fila 5: cabe en la región sin desplazar → la región queda en 0.
   const filaVista = 5;
   await abrirDesplegable(pagina);
@@ -462,7 +464,7 @@ async function desplegableAbrirYElegir(pagina, base, t, tema) {
   t.ok(c(`elegida a la vista (fila ${filaVista + 1}): la región no se desplaza al abrir`),
     `${vista.disp && vista.disp.texto}|${vista.lista && vista.lista.scrollTop}`,
     `${TEMAS_BCYT[filaVista].nombre}|0`);
-  // Fila 20: fuera de la región → al abrir queda dentro y centrada.
+  // Fila 20: fuera de la región → al abrir queda tercera, con dos filas de contexto y la siguiente a las tres enteras cortada al pie.
   const filaLejos = 19;
   await pagina.evaluar(EN_MARCO(`
     visibles('[role="listbox"]')[0].scrollTop = 600;
@@ -477,8 +479,31 @@ async function desplegableAbrirYElegir(pagina, base, t, tema) {
     `${TEMAS_BCYT[filaLejos].nombre}|${TEMAS_BCYT[filaLejos].nombre}`);
   t.ok(c('al abrir, la elegida queda dentro de la región'),
     !!sel && !!lejos.lista && sel.arriba >= lejos.lista.arriba - 0.5 && sel.abajo <= lejos.lista.abajo + 0.5, true);
-  t.ok(c('al abrir, la elegida queda centrada en la región'),
-    !!sel && !!lejos.lista && Math.abs((sel.arriba + sel.alto / 2) - (lejos.lista.arriba + lejos.lista.alto / 2)) <= 1.5, true);
+  const op = lejos.opciones;
+  const reg = lejos.lista;
+  const previa = op[filaLejos - 2];
+  const asoma = reg && op[filaLejos + 4] ? reg.abajo - op[filaLejos + 4].arriba : null;
+  t.ok(c('al abrir, la fila dos lugares antes queda alineada al borde superior de la región'),
+    !!reg && !!previa && Math.abs(previa.arriba - reg.arriba) <= 1.5, true);
+  t.ok(c('al abrir, la elegida es la tercera: a la altura de las dos filas anteriores del borde'),
+    !!sel && !!reg && !!previa
+      && Math.abs((sel.arriba - reg.arriba) - (previa.alto + op[filaLejos - 1].alto)) <= 1.5, true);
+  t.ok(c('al abrir, tres filas enteras bajo la elegida'),
+    !!reg && op[filaLejos + 3].abajo <= reg.abajo + 0.5, true);
+  t.ok(c('al abrir, la fila siguiente asoma entre 19 y 26 px: la línea de texto cortada'),
+    asoma !== null && asoma >= 19 && asoma <= 26, true);
+  // Elegida entre las últimas (fila 26): la región queda en el final de la lista, sin fila cortada.
+  const filaFinal = 25;
+  await pagina.evaluar(EN_MARCO(`
+    visibles('[role="listbox"]')[0].scrollTop = 99999;
+    return true;`));
+  await pausa(100);
+  await tocarCaja(pagina, (await leerDesp(pagina)).opciones[filaFinal]);
+  await abrirDesplegable(pagina);
+  const alFinal = await leerDesp(pagina);
+  t.ok(c(`elegida entre las últimas (fila ${filaFinal + 1}): la región queda en el final de la lista`),
+    !!alFinal.lista
+      && Math.abs(alFinal.lista.scrollTop - (alFinal.lista.scrollHeight - alFinal.lista.clientHeight)) <= 1, true);
   await teclaSintetica(pagina, 'Escape');
 }
 
@@ -927,6 +952,7 @@ async function estructuraDeOpciones(pagina, base, t, tema) {
     t.ok(c(`celda ${letra}: 44 × 44, letra, marco borde, tinta`),
       cel && `${cel.ancho}×${cel.alto}|${cel.texto}|${cel.bordeAncho} ${cel.borde}|${cel.color}|${cel.tamano}`,
       `${LADO_TACTIL}×${LADO_TACTIL}|${letra}|1px ${rgb(T.borde)}|${rgb(T.tinta)}|16px`);
+    t.ok(c(`celda ${letra}: letra en Plex Mono 500 (dato, D-03)`), cel && cel.familia, 'PlexMono-Medium');
     const q = await porNombre(pagina, quitar(letra));
     t.ok(c(`quitar ${letra}: 44 × 44, glifo-cerrar tintaSec decorativo en fondo`),
       q && `${q.ancho}×${q.alto}|${q.glifo}|${q.texto}`, `${LADO_TACTIL}×${LADO_TACTIL}|${T.tintaSec}|`);
@@ -953,6 +979,7 @@ async function estructuraDeOpciones(pagina, base, t, tema) {
   t.ok(c('«Guardar pregunta»: glifo-guardar en fondo, decorativo, sin emoji'),
     g && g.glifo === T.fondo && g.glifoOculto === 'true' && !EMOJI_O_SIMBOLO.test(g.texto), true);
   t.ok(c('«Guardar pregunta»: 44 de alto como mínimo'), g && g.alto >= LADO_TACTIL - 0.5, true);
+  t.ok(c('«Guardar pregunta»: tamaño grande, 52 de alto (D-02)'), g && Math.round(g.alto), 52);
   t.ok(c('«Guardar pregunta»: mismo ancho que el campo del enunciado'),
     g && Math.abs(g.ancho - ((await porPh(pagina, PH_ENUNCIADO)) || { ancho: -1 }).ancho) < 1, true);
 
@@ -963,8 +990,16 @@ async function estructuraDeOpciones(pagina, base, t, tema) {
     b && `${b.pressed}|${b.fondo}|${b.bordeAncho} ${b.borde}`, `true|${rgb(T.acierto)}|2px ${rgb(T.acierto)}`);
   t.ok(c('celda B marcada: glifo-acierto en fondo, sin letra'),
     b && b.glifo === T.fondo && b.texto === '', true);
+  // E-02: el glifo mide paso 4 (16 × 16) y queda centrado en la celda, sin relleno horizontal.
+  const gc = b && b.glifoCaja;
+  t.ok(c('celda B marcada: glifo-acierto de 16 × 16 (paso 4)'),
+    gc && `${Math.round(gc.ancho)}×${Math.round(gc.alto)}`, '16×16');
+  t.ok(c('celda B marcada: glifo-acierto centrado en la celda'),
+    gc && Math.abs(gc.dx) <= 0.5 && Math.abs(gc.dy) <= 0.5, true);
   const resto = [];
   for (const letra of ['A', 'C', 'D']) resto.push(await porNombre(pagina, celda(letra)));
+  t.ok(c('las demás celdas: letra centrada en la celda'),
+    resto.every((x) => x && x.relleno.startsWith('0px')), true);
   t.ok(c('las demás celdas muestran su letra y no están marcadas'),
     resto.map((x) => (x ? `${x.texto}:${x.pressed}` : 'null')).join('|'), 'A:false|C:false|D:false');
   // Marcar otra desmarca la anterior.
@@ -986,6 +1021,24 @@ async function estructuraDeOpciones(pagina, base, t, tema) {
   await tocar(pagina, porNombre(pagina, quitar('B')));
   t.ok(c('con dos opciones el quitar responde con «Mínimo 2 opciones»'),
     pagina.dialogos.join('|'), 'Mínimo 2 opciones\n\nTiene que haber al menos 2 opciones de respuesta.');
+}
+
+// Con 6 opciones no hay «Agregar opción»: la última fila queda a 24 px del grupo siguiente (a.1, D-05).
+async function seisOpciones(pagina, base, t) {
+  const c = (s) => `390 px · Agregar · 6 opciones · ${s}`;
+  t.ok(c('llega a /agregar'), await abrirAgregar(pagina, base, { ancho: 390 }), true);
+  await tocar(pagina, porTexto(pagina, 'Agregar opción'));
+  await tocar(pagina, porTexto(pagina, 'Agregar opción'));
+  t.ok(c('hay una celda F'), !!(await porNombre(pagina, celda('F'))), true);
+  const hueco = await pagina.evaluar(EN_MARCO(`
+    ${INFO}
+    const f = porNombre(${JSON.stringify(celda('F'))});
+    const fila = f && f.parentElement;
+    const rotulo = hojaConTexto('Explicación (opcional)');
+    if (!fila || !rotulo) return null;
+    return Math.round(rotulo.getBoundingClientRect().top - fila.getBoundingClientRect().bottom);
+  `));
+  t.ok(c('24 px entre la última fila y el grupo siguiente'), hueco, 24);
 }
 
 // El alto de los campos crece con el contenido (a.2): sin scroll interno ni texto recortado.
@@ -1699,6 +1752,7 @@ module.exports = [
   { nombre: 'Agregar: celdas, quitar, agregar y guardar en claro', correr: (p, b, t) => estructuraDeOpciones(p, b, t, 'claro') },
   { nombre: 'Agregar: celdas, quitar, agregar y guardar en oscuro', correr: (p, b, t) => estructuraDeOpciones(p, b, t, 'oscuro') },
   { nombre: 'Agregar: los campos crecen con el contenido a 320', correr: camposCrecen },
+  { nombre: 'Agregar: con 6 opciones, 24 px al grupo siguiente', correr: seisOpciones },
   { nombre: 'Agregar: estados K de los controles', correr: estadosK },
   { nombre: 'Agregar: el hover de los campos solo con puntero', correr: hoverSoloConPuntero },
   { nombre: 'Agregar: quitar una opción anterior a la marcada', correr: quitarAnteriorAMarcada },

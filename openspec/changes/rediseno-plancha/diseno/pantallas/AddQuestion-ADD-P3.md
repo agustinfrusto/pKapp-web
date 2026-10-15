@@ -8,7 +8,7 @@
 | `ADD-P1` | **Rechazada** (usuario, 2026-10-11). Con 27 temas (BCYT) los filtros K4 ponen el rótulo «Enunciado de la pregunta» a 1 174 px del borde superior a 390 px y a 1 382 px a 320 px (`evidencia/despues/3.9/agregar-390-claro.png`) |
 | Variante sin el cambio | Ninguna: `ADD-P1` está rechazada y `ADD-P3` es la vigente (`CONVENCIONES.md` C2) |
 | Cambia | Solo el selector de tema. Enunciado, opciones, explicación, guardado, validaciones y diálogos no cambian (D6) |
-| Anexo | Integrada el 2026-10-11 (Diseñador) en `AddQuestion.md` (a a f e i), `comun.md` (§5.2, §5.3, §8, §9 y §12.3) y `tokens.md` (c.3); sección k. Este archivo queda como **anexo** de `AddQuestion.md`: conserva las alternativas evaluadas, la interacción, el componente, el contraste, las medidas y las figuras. Ante una diferencia rigen la ficha y `comun.md` |
+| Anexo | Integrada el 2026-10-11 (Diseñador) en `AddQuestion.md` (a a f e i), `comun.md` (§5.2, §5.3, §8, §9 y §12.3) y `tokens.md` (c.3); sección k. Este archivo queda como **anexo** de `AddQuestion.md`: conserva las alternativas evaluadas, la interacción, el componente, el contraste, las medidas y las figuras. Ante una diferencia rigen la ficha y `comun.md`. Alto máximo de la lista corregido el 2026-10-13 (tarea 5.2, `E-01`): `paso 72` con la lista plana y `paso 80` con rótulos de grupo; ver `AddQuestion.md` j. Apertura con la elegida fuera de vista corregida el mismo día (`E-01b`, aprobado por el usuario): alineada a fila con la elegida tercera, en vez de centrada; ver `AddQuestion.md` d.4 y j |
 | Insumos | `comun.md` §5 (K3, K7), §6 (lámina), §9 (`glifo-chevron`), §12.2 (marca de parcial); `Settings.md` a.3 (plegable); `src/components/plancha/` |
 | Figuras y medidas | `.orca/reports/add-p3/` (sección i). `maqueta-add-p3.html` reúne las 18; `generar.mjs`, `capturar.mjs` y `contraste.mjs` las regeneran desde `colores.js`, `glifos.js` y `topics.js` |
 
@@ -23,9 +23,9 @@
 | Componente | `Desplegable` en `src/components/plancha/Desplegable.js` (K3 `abierto` + lámina + filas K7); API en el encabezado de `plancha/index.js` |
 | `FilaLista` | Prop `seleccionado` (regla K7 «elegida»: fondo `tinta`, texto `fondo`, `aria-selected`), más `rol`, `onKeyDown`, `registrar` y `tabIndex` |
 | `Control.js` | `aria-haspopup`, `aria-controls` y `aria-selected`, más `tabIndex` (parada de Tab única en la lista); valores por defecto sin efecto en los usuarios actuales |
-| Alto máximo de la lista abierta | `paso 80` (320 px) con la clase `max-h-80` de Tailwind: sin token nuevo |
+| Alto máximo de la lista abierta | `paso 72` (288 px, `max-h-72`) con la lista plana, que es la que se publica, y `paso 80` (320 px, `max-h-80`) con rótulos de grupo: sin token nuevo. Hasta `E-01` (5.2, 2026-10-13) era `paso 80` en los dos casos |
 | Aceptación j.14 (grupos) | Sin el dato del parcial no hay rótulos de grupo: el e2e verifica la lista plana (ningún `group`) y el orden de `TOPICS`. La ruta agrupada de `Desplegable` no tiene consumidor ni e2e hasta que exista el dato |
-| `MarcaParcial` (g.1) | Sin extraer de `QuizScreen.js`: `Desplegable` dibuja su marca internamente (no se tocó `QuizScreen.js`) |
+| `MarcaParcial` (g.1) | Extraída a `src/components/plancha/MarcaParcial.js` en la tarea 5.2 (`B-02`, tanda g4a, 2026-10-13): la usan `Desplegable`, el `Segmento` de TopicSelect y la insignia del quiz. Hasta `B-02` estaba sin extraer: `Desplegable` dibujaba su marca internamente y no se tocaba `QuizScreen.js` |
 
 ---
 
@@ -34,7 +34,7 @@
 | Aspecto | `ADD-P1` (rechazada) | `ADD-P3` |
 |---|---|---|
 | Cerrado | 27 filtros K4 con salto de línea: 20 filas a 390 px, 24 a 320 px | Una fila: un disparador K3 que muestra el tema elegido |
-| Abierto | — | Lámina en línea bajo el disparador, con filas K7, de alto máximo `paso 80` y scroll vertical propio |
+| Abierto | — | Lámina en línea bajo el disparador, con filas K7, de alto máximo `paso 72` (lista plana) o `paso 80` (con rótulos de grupo) y scroll vertical propio |
 | Agrupado | No | Por parcial, si la materia tiene parciales y el dato existe (sección e) |
 | Elegir un tema | Un toque | Dos toques: abrir y elegir (sección l, costo) |
 | Teclado | K4: las 27 opciones son paradas de Tab | Una parada; flechas, Inicio, Fin, letras, Enter, Espacio y Escape |
@@ -72,7 +72,7 @@
 |---|---|---|
 | Disparador (K3, plegable) | Ancho completo de la columna; relleno `paso 3` en las cuatro caras (el del campo de texto: con el interlineado de `cuerpo` mide 48 px, igual que el campo de una opción); alto mínimo `paso 11`; `border`; fila con el nombre a la izquierda (flexible, salta de línea) y el chevron a la derecha, separados `paso 2` y centrado en vertical | Nombre del tema elegido (o el texto de ayuda) y `glifo-chevron` (chico) |
 | Lámina | `comun.md` §6: cuerpo `superficie`, marco `linea` `border` y cuatro marcas de esquina; ancho completo; a `paso 2` del disparador (las marcas sobresalen `paso 1` y no lo tocan) | La región de scroll |
-| Región de scroll | Relleno `paso 1` en las cuatro caras (el contorno de foco, `paso 0.5` de separación más `border-2`, mide justo `paso 1`: no se recorta ni en hover); alto máximo `paso 80`; scroll vertical con indicador visible; el scroll no se encadena a la página (`overscroll-contain`) | Rótulos de grupo y filas |
+| Región de scroll | Relleno `paso 1` en las cuatro caras (el contorno de foco, `paso 0.5` de separación más `border-2`, mide justo `paso 1`: no se recorta ni en hover); alto máximo `paso 72` con la lista plana y `paso 80` con rótulos de grupo; scroll vertical con indicador visible; el scroll no se encadena a la página (`overscroll-contain`) | Rótulos de grupo y filas |
 | Rótulo de grupo | Fila de ancho completo; relleno vertical `paso 2` y horizontal `paso 3`; fondo `fondo`; filete inferior `filete`; marca y texto separados `paso 1.5`; no es un control | Marca de parcial (`comun.md` §12.2: dos casillas de lado `paso 2.5`, separadas `paso 0.5`, llena la del parcial) y el rótulo del parcial |
 | Fila de tema (K7) | Ancho completo; alto mínimo `paso 11`; relleno vertical `paso 2` y horizontal `paso 3` (el del filtro K4 que reemplaza); filete inferior `filete`, salvo en la última de cada grupo; el nombre salta de línea | Nombre del tema |
 
@@ -81,7 +81,7 @@
 | Ancho | Columna | Particularidades |
 |---|---|---|
 | 768 px y 1280 px | `comun.md` §7: una columna `max-w-columna`, centrada y anclada arriba | Disparador y lámina llenan la columna; mismas medidas que a 390 px. Sin scroll horizontal en ningún estado |
-| 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | El nombre salta de línea en el disparador y en las filas; chevron y casillas de la marca conservan su lado. A 320 × 568 la lámina abierta entra completa (borde inferior a 496 px de 568; figura F06) |
+| 360 px y 320 px | Ancho disponible menos margen lateral `paso 5` | El nombre salta de línea en el disparador y en las filas; chevron y casillas de la marca conservan su lado. A 320 × 568 la lámina abierta entra completa (borde inferior a 496 px de 568 con rótulos de grupo, figura F06, y a 464 px con la lista plana de `paso 72`) |
 | Escritorio (desde 1024 px) | Una columna `lectura`, como el quiz (`ESC-P9` rechazada) | Disparador y lámina llenan la columna; abre hacia abajo y empuja el formulario, como a 390 px. Ver la sección «Escritorio» de `AddQuestion.md` |
 
 ---
@@ -114,7 +114,7 @@ Glifo con texto (chevron, marca de parcial): decorativo, oculto a lectores (`ari
 | Chevron `tintaSec` y no `acento` | Señal secundaria junto al nombre (`tinta`); mismo criterio que el chevron de las filas de lista (§9, N20). El `acento` de Ajustes acompaña a la palabra «Ver», que acá no existe |
 | Rótulo de grupo en banda `fondo` | Un escalón bajo `superficie` separa los grupos sin color ni sombra; la marca de parcial es la de `PAR-P2`, que el usuario ya aprobó |
 | Disparador en `cuerpo` regular | Es un valor, no una acción (ver arriba) |
-| `paso 80` de alto máximo | 6 filas completas y la séptima a medias en BCYT: la fila cortada avisa que hay más; la lámina abierta entra en 568 px de alto |
+| Alto máximo que deja una fila cortada al pie: `paso 72` con la lista plana y `paso 80` con rótulos (5.2, `E-01`) | Una fila cortada al pie, con su línea de texto partida, avisa que hay más. Con rótulos de grupo (BCYT con el dato): 4 + 33 + 6 × 44 + 19 = 320, o sea el rótulo, seis filas y 19 px de la séptima. Con la lista plana, que es la que se publica: 4 + 6 × 44 + 20 = 288. Con `paso 80` la lista plana dejaba siete filas y 8 px de relleno, sin texto. La lámina abierta entra en 568 px de alto |
 
 ---
 
@@ -173,8 +173,8 @@ Hover solo con puntero (estado `hovered` de `Pressable`), sin `box-shadow` ni `r
 |---|---|
 | Orden | El de `Object.entries(TOPICS)`. Los grupos son tramos contiguos de ese orden: no reordenan, así el tema inicial sigue siendo el primero de `TOPICS` |
 | Grupos | Un rótulo por parcial de `materia.config.parciales`, solo si el dato existe (sección e). Sin dato o sin parciales: lista plana, sin rótulos |
-| Alto | El del contenido hasta `paso 80`; con más, scroll vertical dentro de la región. Con 27 temas: 1 262 px de contenido, 6 filas completas y la séptima a medias |
-| Al abrir | La región se desplaza hasta la fila elegida y la deja centrada si no está a la vista (F09). Con el tema por defecto queda arriba |
+| Alto | El del contenido hasta `paso 72` con la lista plana y `paso 80` con rótulos de grupo; con más, scroll vertical dentro de la región. El tope deja una fila cortada al pie, con su línea de texto partida (5.2, `E-01`). Con 27 temas y rótulos: 1 262 px de contenido, el rótulo, seis filas y 19 px de la séptima; con la lista plana: 1 196 px, seis filas y 20 px de la séptima |
+| Al abrir | Si la fila elegida no está a la vista, la región se desplaza hasta alinear al borde superior la fila dos lugares antes de la elegida: la elegida queda tercera, con dos filas de contexto arriba (5.2, `E-01b`, aprobado por el usuario, 2026-10-13; hasta entonces la dejaba centrada, F09). Los rótulos de grupo no cuentan como fila. Con el tema por defecto queda arriba |
 | Rótulos de grupo | Se desplazan con la lista: sin posición pegajosa (`comun.md` §7.2, «Anclado») |
 | Nombres largos | Saltan de línea en filas y disparador; nunca se abrevian con puntos suspensivos (`Histología del tubo digestivo…` y `Histología renal…` serían ambiguos) |
 | Por qué sin buscador | El alta en serie conserva el tema: se elige una vez por tanda. El máximo es 27 filas en 2 grupos (12 y 15). El teclado físico busca por letras (d.3) |
@@ -279,8 +279,8 @@ Hace falta uno nuevo: ninguna clase K1 a K7 resuelve «un valor y una lista cort
 | Disparador | `ControlMarco` (K3) con `abierto` y `children` en función | Ninguno de aspecto. Hace falta emitir `aria-haspopup` y `aria-controls` (hoy `Control` solo emite `aria-checked`, `aria-pressed` y `aria-expanded`) |
 | Lámina | `Lamina` | Ninguno |
 | Fila | `FilaLista` (K7) con `filete` y `children` en función | Prop nueva `seleccionado`: aspecto invertido, `aria-selected` y rol `option` (`Control` ya acepta `rol`) |
-| Marca de parcial | Hoy se arma en línea en `QuizScreen.js` (insignia) | Extraerla a un componente `MarcaParcial` para que la usen el quiz, el filtro de TopicSelect y el rótulo de grupo |
-| Región de scroll | — | La define `Desplegable`: `ScrollView` de alto máximo `paso 80` y relleno `paso 1` |
+| Marca de parcial | Hasta `B-02` (5.2, 2026-10-13) se armaba en línea en `QuizScreen.js` (insignia) | Extraerla a un componente `MarcaParcial` para que la usen el quiz, el filtro de TopicSelect y el rótulo de grupo. Hecho en 5.2 (`B-02`): `src/components/plancha/MarcaParcial.js` |
+| Región de scroll | — | La define `Desplegable`: `ScrollView` de alto máximo `paso 72` con `opciones` (lista plana) y `paso 80` con `grupos`, y relleno `paso 1` |
 | Glifo | `glifo-chevron` | Ninguno. Apunta abajo girado 90° y arriba girado 270° (`comun.md` §9, «Indicaciones de forma») |
 
 ### g.2 API
@@ -367,13 +367,13 @@ Medidas con Chrome headless sobre `maqueta-add-p3.html` (BCYT, 27 temas, tema po
 
 | Medida con la lámina abierta | Valor |
 |---|---|
-| Alto de la lámina | 322 px (región de 320 y 2 de marco) |
-| Cuánto empuja al formulario | 330 px (lámina y `paso 2`): el enunciado pasa de 190 a 520 px |
-| Filas visibles en BCYT | Rótulo del 1.er parcial, 6 filas completas y la séptima a medias |
-| Alto de cada fila | 44 px (alto mínimo `paso 11`); 45 px con su filete |
-| Entra completa a 320 × 568 | Sí: borde inferior a 496 px |
-| Materia sin parciales, 320 px (DRE, 9 temas) | Disparador de 70 px (el nombre salta a dos líneas); lámina de 322 px; 5 filas completas |
-| 1280 × 800 | Columna de 408 px útiles; lámina termina a 496 px |
+| Alto de la lámina | 322 px con rótulos (región de 320 y 2 de marco); 290 px con la lista plana (región de 288), desde `E-01` |
+| Cuánto empuja al formulario | 330 px con rótulos (lámina y `paso 2`): el enunciado pasa de 190 a 520 px; 298 px con la lista plana: de 190 a 488 px |
+| Filas visibles en BCYT | Una fila cortada al pie. Con rótulos y `paso 80`: rótulo del 1.er parcial, 6 filas completas y 19 px de la séptima. Con la lista plana y `paso 72`: 6 filas completas y 20 px de la séptima (con `paso 80` eran 7 y 8 px de la octava) |
+| Alto de cada fila | 44 px con su filete (alto mínimo `paso 11`). La maqueta registró 45 con el filete aparte; en la app son 44 (`E-01`) |
+| Entra completa a 320 × 568 | Sí: borde inferior a 496 px con rótulos; 464 px con la lista plana |
+| Materia sin parciales, 320 px (DRE, 9 temas) | Disparador de 70 px (el nombre salta a dos líneas); con `paso 80`, lámina de 322 px y 5 filas completas; con `paso 72` (`E-01`), lámina de 290 px y 4 filas completas más 40 de los 61 px de la quinta, cortada en su segundo renglón |
+| 1280 × 800 | Columna de 408 px útiles; lámina termina a 496 px con rótulos y a 464 px con la lista plana |
 
 ### i.2 Figuras (`.orca/reports/add-p3/`)
 
@@ -387,7 +387,7 @@ Medidas con Chrome headless sobre `maqueta-add-p3.html` (BCYT, 27 temas, tema po
 | F06 | `add-p3-F06-320-claro-abierto.png` | 320 × 568, claro, abierto: entra completa |
 | F07 | `add-p3-F07-320-oscuro-cerrado.png` | 320 × 568, oscuro, cerrado |
 | F08 | `add-p3-F08-320-oscuro-abierto.png` | 320 × 568, oscuro, abierto |
-| F09 | `add-p3-F09-390-claro-abierto-elegido.png` | Abierto con «Genética y herencia» elegida: lista desplazada, rótulo del 2.do parcial a la vista |
+| F09 | `add-p3-F09-390-claro-abierto-elegido.png` | Abierto con «Genética y herencia» elegida: lista desplazada, rótulo del 2.do parcial a la vista. Muestra la apertura centrada, vigente hasta `E-01b` (2026-10-13): no se recaptura |
 | F10 | `add-p3-F10-390-oscuro-abierto-foco.png` | Oscuro, foco de teclado en una fila distinta de la elegida |
 | F11 | `add-p3-F11-320-claro-abierto-sin-parciales.png` | DRE: sin rótulos de grupo y nombres que saltan de línea |
 | F12, F13 | `add-p3-F12-estados-claro.png`, `add-p3-F13-estados-oscuro.png` | Matriz de estados del disparador, del rótulo de grupo y de la fila |
@@ -401,7 +401,7 @@ Medidas con Chrome headless sobre `maqueta-add-p3.html` (BCYT, 27 temas, tema po
 
 ## j. Aceptación observable (para la 3.x y el e2e)
 
-Ejercen el e2e `tools/e2e/suites/agregar.js`: `LEER_TEMAS`, `temasALaVista` y el bloque «K4 filtro de tema» codifican `ADD-P1` (`radiogroup` con todos los temas a la vista) y se reescriben. La versión vigente de esta lista es la de `AddQuestion.md` i: la escribe sin medidas sueltas y suma el escritorio (18) y el orden de foco (19).
+Ejercen el e2e `tools/e2e/suites/agregar.js`: `LEER_TEMAS`, `temasALaVista` y el bloque «K4 filtro de tema» codifican `ADD-P1` (`radiogroup` con todos los temas a la vista) y se reescriben. La versión vigente de esta lista es la de `AddQuestion.md` i: la escribe sin medidas sueltas y suma el escritorio (18), el orden de foco (19) y la fila cortada al pie (20, `E-01` y `E-01b`).
 
 | # | Comprobación | Esperado |
 |---|---|---|
@@ -438,10 +438,10 @@ Ejercen el e2e `tools/e2e/suites/agregar.js`: `LEER_TEMAS`, `temasALaVista` y el
 | `pantallas/AddQuestion.md` | «Escritorio» | `ESC-P9` rechazada; una columna `lectura` | Hecha (Diseñador) |
 | `pantallas/comun.md` | §5.2 | K7: estado «elegida» (fila de selector), regla 2.9-10, y su excepción en la regla 2.9-4 | Hecha (Diseñador) |
 | `pantallas/comun.md` | §5.3 (nueva) | `Desplegable`: disparador K3 abierto, lámina, filas K7; abrir y cerrar, recorrido, teclado, roles y puntero | Hecha (Diseñador) |
-| `pantallas/comun.md` | §8 | `Desplegable`, región de scroll: alto máximo `paso 80` | Hecha (Diseñador) |
+| `pantallas/comun.md` | §8 | `Desplegable`, región de scroll: alto máximo `paso 80`; desde `E-01` (2026-10-13), `paso 72` con la lista plana | Hecha (Diseñador) |
 | `pantallas/comun.md` | §9 y §12.3 | `glifo-chevron`, columna «Lo usa»: AddQuestion (disparador del tema); rótulo de grupo con marca de parcial | Hecha (Diseñador) |
-| `tokens.md` | c.3, lista de pasos en uso | `80` (320 px): alto máximo de la lista del desplegable. Sale de la escala por defecto de Tailwind; `spacing` no cambia | Hecha (Diseñador) |
-| `src/components/plancha/` | — | `Desplegable.js` nuevo y export en `index.js`; `FilaLista.js` con `seleccionado`; `Control.js` con `aria-haspopup`, `aria-controls` y `aria-selected`; `MarcaParcial` extraída de `QuizScreen.js` (recomendado) | Programador (3.9) |
+| `tokens.md` | c.3, lista de pasos en uso | `80` (320 px): alto máximo de la lista del desplegable. Sale de la escala por defecto de Tailwind; `spacing` no cambia. Desde `E-01` (2026-10-13) suma `72` (288 px) para la lista plana, y el `80` queda para los rótulos de grupo | Hecha (Diseñador) |
+| `src/components/plancha/` | — | `Desplegable.js` nuevo y export en `index.js`; `FilaLista.js` con `seleccionado`; `Control.js` con `aria-haspopup`, `aria-controls` y `aria-selected`; `MarcaParcial` extraída de `QuizScreen.js` (recomendado; hecha en 5.2, `B-02`, 2026-10-13) | Programador (3.9) |
 | `src/screens/AddQuestionScreen.js` | `Grupo «Tema»` | `Segmento` por `Desplegable`; el resto no cambia | Programador (3.9) |
 | `tools/e2e/suites/agregar.js` | Temas | Reescribir según `AddQuestion.md` i | Programador (3.9) |
 | `src/materias/*/topics.js` | Dato de parcial | Decisión del Ingeniero (e.2) | Ingeniero |
@@ -457,15 +457,15 @@ Ejercen el e2e `tools/e2e/suites/agregar.js`: `LEER_TEMAS`, `temasALaVista` y el
 | Costo | Detalle |
 |---|---|
 | Dos toques por cambio de tema | Rompe «un toque por tema» de `AddQuestion.md` d.2. Se paga una vez por tanda: «Agregar otra» conserva el tema |
-| Scroll propio de la lista | En materias de más de ~7 temas la lista desplaza dentro de su región (hasta ~4 ventanas de la región en BCYT). Queda acotado a la elección, no al formulario |
-| Un componente nuevo y una regla nueva | `Desplegable` y K7 «elegida»; un paso en uso (`paso 80`) |
+| Scroll propio de la lista | En materias de más de ~6 temas (~7 hasta `E-01`, 2026-10-13) la lista desplaza dentro de su región (hasta ~4 ventanas de la región en BCYT). Queda acotado a la elección, no al formulario |
+| Un componente nuevo y una regla nueva | `Desplegable` y K7 «elegida»; un paso en uso (`paso 80`; desde `E-01`, 2026-10-13, la lista plana usa `paso 72`) |
 | Un dato que no existe | El parcial de cada tema (e.2). Sin él la lista es plana |
 | Reescritura del e2e de temas | Sección j |
 
 | Relación | Detalle |
 |---|---|
 | `ESC-P9` (3.10) | **Rechazada** (usuario, 2026-10-11). Su motivo era `ADD-P1`: «la lista de temas es lo más alto de la pantalla». Con `ADD-P3` el grupo mide una fila y la columna izquierda de `ESC-P9` quedaría con 72 px frente a una derecha de unos 660 px (de 190 a 848 px en F14): AddQuestion va en una columna `lectura`, como el quiz. `ADD-P3` funciona igual en todos los anchos |
-| `ESC-P0` | Sin cambio: ningún token ni ancho nuevo; `paso 80` aplica en todos los anchos |
+| `ESC-P0` | Sin cambio: ningún token ni ancho nuevo; `paso 72` (lista plana) y `paso 80` (rótulos de grupo) aplican en todos los anchos |
 | Variante sin el cambio | Ninguna (cabecera) |
 
 FIN · ejecutar /clear

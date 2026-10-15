@@ -23,42 +23,27 @@ import Glifo from '../Glifo';
 import ControlMarco from './ControlMarco';
 import FilaLista from './FilaLista';
 import Lamina from './Lamina';
+import MarcaParcial from './MarcaParcial';
 import { GLIFO_CHICO, useTokens } from './Control';
 import { avisar } from './guardias';
 
-// Alto máximo de la región de scroll: paso 80 (320 px), escala por defecto de Tailwind.
-const REGION = 'max-h-80 overscroll-contain';
+// Alto máximo de la región de scroll según la variante (escala por defecto de Tailwind):
+// paso 72 (288 px) con la lista plana, paso 80 (320 px) con rótulos de grupo (E-01, medido
+// en AddQuestion.md j).
+const REGION_PLANA = 'max-h-72 overscroll-contain';
+const REGION_CON_ROTULOS = 'max-h-80 overscroll-contain';
 const PAGINA = 7;
 const MS_BUFFER = 800;
 // Contorno de foco de una fila: 2 px de trazo y 2 px de separación (comun.md §5.1, fila
 // «Foco»; la región de scroll no lo recorta, §5.3).
 const MARGEN_FOCO = 4;
+// Filas de contexto sobre la elegida al abrir con ella fuera de vista (comun.md §5.3, «Al abrir»).
+const FILAS_DE_CONTEXTO = 2;
 
 let contador = 0;
 
 const normalizar = (texto) => texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 const ES_CARACTER = /^[\p{L}\p{N} ]$/u;
-
-// Marca de parcial (comun.md §12.2): `de` casillas de lado paso 2.5, llena la `indice`.
-function MarcaParcial({ indice, de }) {
-  return (
-    <View
-      aria-hidden
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-      className="flex-row items-center gap-0.5"
-    >
-      {Array.from({ length: de }, (_, i) => (
-        <View
-          key={i}
-          className={`h-2.5 w-2.5 border border-tintaSec dark:border-tintaSecD ${
-            i === indice ? 'bg-tintaSec dark:bg-tintaSecD' : ''
-          }`}
-        />
-      ))}
-    </View>
-  );
-}
 
 export default function Desplegable({
   accessibilityLabel, opciones, grupos, valor, alCambiar, textoDeAyuda,
@@ -71,7 +56,7 @@ export default function Desplegable({
   const [activo, setActivo] = useState(0);
   const disparador = useRef(null);
   const filas = useRef([]);
-  const centrar = useRef(false);
+  const abriendo = useRef(false);
   const busqueda = useRef({ texto: '', t: 0 });
   const idLista = useRef(null);
   if (idLista.current === null) idLista.current = `desplegable-${++contador}`;
@@ -104,15 +89,16 @@ export default function Desplegable({
 
   // El foco sigue a la fila activa y el desplazamiento lo decide el componente: el
   // navegador alinearía al borde la fila a medias visible y recortaría su contorno. Al abrir,
-  // la región deja centrada la elegida solo si no está a la vista (con su contorno) y la
-  // página se mueve lo mínimo para mostrar la lámina completa; al navegar, la región se
-  // desplaza lo justo para que la fila y su contorno queden dentro.
+  // si la elegida no está a la vista (con su contorno), la región alinea al borde superior la
+  // fila `FILAS_DE_CONTEXTO` lugares antes y la elegida queda tercera; la página se mueve lo
+  // mínimo para mostrar la lámina completa. Al navegar, la región se desplaza lo justo para
+  // que la fila y su contorno queden dentro.
   useEffect(() => {
     if (!abierto) return;
     const fila = filas.current[activo];
     if (!fila || typeof fila.focus !== 'function') return;
-    const alAbrir = centrar.current;
-    centrar.current = false;
+    const alAbrir = abriendo.current;
+    abriendo.current = false;
     fila.focus({ preventScroll: true });
     const region = fila.closest?.('[role="listbox"]');
     if (!region) return;
@@ -122,7 +108,11 @@ export default function Desplegable({
     const falta = rf.bottom + MARGEN_FOCO - rr.bottom;
     const aLaVista = sobra >= 0 && falta <= 0;
     if (alAbrir && !aLaVista) {
-      region.scrollTop += rf.top - rr.top - (region.clientHeight - rf.height) / 2;
+      // Alineada a fila (comun.md §5.3, E-01b): el borde de la fila dos lugares antes de la
+      // activa coincide con el de la región y la activa queda tercera. El navegador acota
+      // `scrollTop` al final de la lista: ahí no hay fila cortada porque no hay más abajo.
+      const ancla = filas.current[Math.max(0, activo - FILAS_DE_CONTEXTO)] ?? fila;
+      region.scrollTop += ancla.getBoundingClientRect().top - rr.top;
     } else if (sobra < 0) {
       region.scrollTop += sobra;
     } else if (falta > 0) {
@@ -151,7 +141,7 @@ export default function Desplegable({
     if (deshabilitado || sinOpciones) return;
     const inicial = hayValor && habilitada(elegida) ? elegida : primeraDesde(0, 1);
     if (inicial === null) return;
-    centrar.current = true;
+    abriendo.current = true;
     setActivo(inicial);
     setAbierto(true);
   }
@@ -286,7 +276,7 @@ export default function Desplegable({
               nativeID={idLista.current}
               role="listbox"
               aria-label={accessibilityLabel}
-              className={REGION}
+              className={grupos ? REGION_CON_ROTULOS : REGION_PLANA}
               contentContainerClassName="p-1"
               showsVerticalScrollIndicator
             >

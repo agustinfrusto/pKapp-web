@@ -138,13 +138,24 @@ export async function resetStats(materiaId) {
 
 // ── Settings: globales, no namespaceados ──────────────────────────────────
 
-export async function getSetting(key, defaultValue = null) {
-  const settings = load(SETTINGS_KEY) || {};
+// Solo un objeto plano es un ajuste válido: cualquier otro valor guardado se trata como vacío.
+function cargarAjustes() {
+  const settings = load(SETTINGS_KEY);
+  return settings && typeof settings === 'object' && !Array.isArray(settings) ? settings : {};
+}
+
+// Lectura síncrona: el tema guardado tiene que estar en el primer render, sin un await.
+export function getSettingSync(key, defaultValue = null) {
+  const settings = cargarAjustes();
   return key in settings ? settings[key] : defaultValue;
 }
 
+export async function getSetting(key, defaultValue = null) {
+  return getSettingSync(key, defaultValue);
+}
+
 export async function saveSetting(key, value) {
-  const settings = load(SETTINGS_KEY) || {};
+  const settings = cargarAjustes();
   settings[key] = String(value);
   save(SETTINGS_KEY, settings);
 }

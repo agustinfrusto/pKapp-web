@@ -2,7 +2,9 @@
 // permite seleccionar respuesta, muestra explicación tras responder,
 // y guarda el resultado en la base de datos.
 // Fichas: openspec/changes/rediseno-plancha/diseno/pantallas/Quiz.md y ExamenEnCurso.md.
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+  useState, useEffect, useLayoutEffect, useRef,
+} from 'react';
 import {
   View, Text, ScrollView, Platform,
 } from 'react-native';
@@ -15,13 +17,17 @@ import { plancha } from '../theme/colores';
 import { reportQuestion } from '../utils/report';
 import Glifo from '../components/Glifo';
 import {
-  BotonRelleno, Columna, ControlMarco, FilaLista, MarcaEstado, RotuloSeccion,
+  BotonRelleno, Columna, ControlMarco, FilaLista, MarcaEstado, MarcaParcial, RotuloSeccion, useEntrada,
 } from '../components/plancha';
+import { Contenido } from '../components/plancha/Control';
 
 // Escala de 4 px por paso (tokens.md c.3, comun.md §8).
 const GLIFO_CHICO = 4 * 4;
 // Hasta este total, una casilla por pregunta; con más, una barra continua (QUIZ-P4).
 const TOPE_DE_CASILLAS = 40;
+// Cada casilla pide 2 px de marco y 2 px de separación, salvo la última (B-04): `n` casillas
+// piden `4n - 2` px, de donde `n <= floor((ancho + 2) / 4)`.
+const PX_POR_CASILLA = 4;
 // Bajo este tiempo restante (en segundos) el reloj pasa a alerta (QUIZ-P3).
 const SEGUNDOS_DE_ALERTA = 120;
 
@@ -79,6 +85,18 @@ function formatTime(seconds) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
+// El foco está en «Siguiente» y llegó ahí con teclado (`:focus-visible`). Sin soporte del
+// selector (Safari < 15.4) se asume teclado: ahí un clic no deja el foco en el botón.
+function focoDeTecladoEnSiguiente() {
+  const el = document.activeElement;
+  if (!el?.closest?.('[data-testid="boton-siguiente"]')) return false;
+  try {
+    return el.matches(':focus-visible');
+  } catch {
+    return true;
+  }
+}
+
 export default function QuizScreen({ route, navigation }) {
   // Con URLs por pantalla se puede entrar a /quiz de cero (recarga, link pegado,
   // adelante del navegador tras un reload). Ahi no hay params: el quiz no existe
@@ -92,6 +110,8 @@ export default function QuizScreen({ route, navigation }) {
   const { materiaId, materia } = useMateria();
   const TOPICS = materia?.TOPICS || {};
   const [currentIndex, setCurrentIndex] = useState(0);
+  // Ancho medido de `progreso-quiz`; hasta la primera medida rige solo el tope de casillas.
+  const [anchoProgreso, setAnchoProgreso] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [answered, setAnswered] = useState(false);
   const [answers, setAnswers] = useState([]); // historial para mostrar al final
@@ -102,6 +122,28 @@ export default function QuizScreen({ route, navigation }) {
   // que el guardia de abajo no vuelva a preguntar.
   const salidaAprobadaRef = useRef(false);
   const scrollRef = useRef(null);
+  // Fundido de entrada (Quiz.md c.5, REV-1): el bloque de la pregunta al cambiar de
+  // pregunta; las piezas que aparecen al responder, al montarse (clave `answered`).
+  const bloqueRef = useRef(null);
+  const progresoRef = useRef(null);
+  const marcaAciertoRef = useRef(null);
+  const marcaErrorRef = useRef(null);
+  const notaRef = useRef(null);
+  const avisoRef = useRef(null);
+  const reportarRef = useRef(null);
+  const barraInferiorRef = useRef(null);
+  const barraInferiorContenidoRef = useRef(null);
+  // REV-9: «Siguiente» se activó con teclado, así que la pregunta nueva recibe el foco.
+  const enfocarPrimeraRef = useRef(false);
+  useEntrada(bloqueRef, currentIndex);
+  useEntrada(marcaAciertoRef, answered);
+  useEntrada(marcaErrorRef, answered);
+  useEntrada(notaRef, answered);
+  useEntrada(avisoRef, answered);
+  useEntrada(reportarRef, answered);
+  // La lámina de la barra (fondo y filete) solo se funde; se desplaza su contenido.
+  useEntrada(barraInferiorRef, answered);
+  useEntrada(barraInferiorContenidoRef, answered, { soloDesplazar: true });
 
   const currentQuestion = preguntas[currentIndex];
   const isLast = currentIndex === preguntas.length - 1;
@@ -175,6 +217,23 @@ export default function QuizScreen({ route, navigation }) {
     answersRef.current = answers;
   }, [answers]);
 
+  // Primera medida del progreso antes del primer pintado: con `onLayout` solo, el primer cuadro
+  // dibuja las casillas y el siguiente la barra (B-04). `onLayout` queda para los cambios de ancho.
+  useLayoutEffect(() => {
+    const nodo = progresoRef.current;
+    if (Platform.OS !== 'web' || !nodo || !nodo.getBoundingClientRect) return;
+    const ancho = nodo.getBoundingClientRect().width;
+    if (ancho > 0) setAnchoProgreso(ancho);
+  }, []);
+
+  // REV-9: la barra inferior se desmonta con «Siguiente» y el foco caería en `body`; con
+  // teclado pasa a la primera opción de la pregunta nueva. Con puntero no se mueve.
+  useLayoutEffect(() => {
+    if (!enfocarPrimeraRef.current) return;
+    enfocarPrimeraRef.current = false;
+    document.querySelector('[data-testid="opcion-quiz-0"]')?.focus({ preventScroll: true });
+  }, [currentIndex]);
+
   async function handleSelectOption(index) {
     if (answered) return; // ya respondió, no hacer nada
     
@@ -210,6 +269,7 @@ export default function QuizScreen({ route, navigation }) {
         topic,
       }));
     } else {
+      enfocarPrimeraRef.current = Platform.OS === 'web' && focoDeTecladoEnSiguiente();
       requestAnimationFrame(() => {
         setCurrentIndex(currentIndex + 1);
         setSelectedIndex(null);
@@ -230,6 +290,8 @@ export default function QuizScreen({ route, navigation }) {
   if (sinQuiz) return null;
 
   const total = preguntas.length;
+  const conCasillas = total <= TOPE_DE_CASILLAS
+    && (anchoProgreso === null || total <= Math.floor((anchoProgreso + 2) / PX_POR_CASILLA));
   const enAlerta = timeLeft !== null && timeLeft < SEGUNDOS_DE_ALERTA;
   const origen = ORIGENES[currentQuestion.source];
   const nombreOrigen = {
@@ -261,8 +323,13 @@ export default function QuizScreen({ route, navigation }) {
               accessibilityLabel="Salir"
               onPress={handleQuit}
             />
-            <View testID="progreso-quiz" className="flex-1">
-              {total > TOPE_DE_CASILLAS ? (
+            <View
+              ref={progresoRef}
+              testID="progreso-quiz"
+              className="flex-1"
+              onLayout={(e) => setAnchoProgreso(e.nativeEvent.layout.width)}
+            >
+              {!conCasillas ? (
                 <View
                   testID="barra-progreso"
                   className="h-2.5 border border-filete bg-fondo dark:border-fileteD dark:bg-fondoD"
@@ -320,145 +387,137 @@ export default function QuizScreen({ route, navigation }) {
           {/* Contexto: parcial, origen y meta. La meta va a la derecha si entra; si no,
               pasa a su propia línea, a todo el ancho y sin límite de líneas (D10: el
               tema nunca se recorta). */}
-          <View className="flex-row flex-wrap items-start justify-between gap-3 pb-3 pt-4">
-            <View className="max-w-full items-start">
-              {currentQuestion.parcial && (
-                <View testID="insignia-parcial" className="mb-1 flex-row items-center gap-1.5">
+          <View ref={bloqueRef}>
+            <View className="flex-row flex-wrap items-start justify-between gap-2 pb-3 pt-4">
+              <View className="max-w-full items-start">
+                {currentQuestion.parcial && (
+                  <View testID="insignia-parcial" className="mb-1 flex-row items-center gap-1.5">
+                    <MarcaParcial indice={llenaParcial} de={casillasParcial} color="tinta" />
+                    <Text className={`font-plex-mono text-rotulo uppercase ${TINTA}`}>{etiquetaParcial}</Text>
+                  </View>
+                )}
+                {verOrigen && (
                   <View
-                    aria-hidden
-                    accessibilityElementsHidden
-                    importantForAccessibility="no-hide-descendants"
-                    className="flex-row items-center gap-0.5"
+                    testID="chip-origen"
+                    className={`max-w-full flex-row items-center gap-1.5 border px-2 py-0.5 ${origen.caja}`}
                   >
-                    {Array.from({ length: casillasParcial }, (_, i) => (
-                      <View
-                        key={i}
-                        className={`h-2.5 w-2.5 border border-tinta dark:border-tintaD ${
-                          i === llenaParcial ? 'bg-tinta dark:bg-tintaD' : ''
-                        }`}
-                      />
-                    ))}
-                  </View>
-                  <Text className={`font-plex-mono text-rotulo uppercase ${TINTA}`}>{etiquetaParcial}</Text>
-                </View>
-              )}
-              {verOrigen && (
-                <View
-                  testID="chip-origen"
-                  className={`max-w-full flex-row items-center gap-1.5 border px-2 py-0.5 ${origen.caja}`}
-                >
-                  <Glifo id={origen.glifo} size={GLIFO_CHICO} color={tokens[origen.color]} />
-                  <Text
-                    numberOfLines={1}
-                    className={`shrink font-plex-mono text-rotulo uppercase ${origen.texto}`}
-                  >
-                    {nombreOrigen}
-                  </Text>
-                </View>
-              )}
-            </View>
-            <Text
-              testID="meta-pregunta"
-              className={`min-w-0 max-w-full shrink grow text-right font-plex-mono text-rotulo uppercase ${TINTA_SEC}`}
-            >
-              {`${materia?.shortName || ''} · ${tema}`}
-            </Text>
-          </View>
-
-          {/* Pregunta */}
-          <View
-            testID="enunciado-quiz"
-            className="mb-4 border border-linea bg-superficie px-3.5 pb-4 pt-3.5 dark:border-lineaD dark:bg-superficieD"
-          >
-            <RotuloSeccion testID="rotulo-enunciado">Enunciado</RotuloSeccion>
-            <Text className={`mt-1.5 font-plex-sans-semibold text-titulo ${TINTA}`}>
-              {currentQuestion.question}
-            </Text>
-          </View>
-
-          {/* Opciones */}
-          <View className="gap-2.5">
-            {currentQuestion.options.map((option, idx) => {
-              const isSelected = selectedIndex === idx;
-              const isCorrect = idx === currentQuestion.correctIndex;
-              const letra = String.fromCharCode(65 + idx);
-
-              // Sin responder, o la elegida sin retroalimentación: es un control (K3).
-              // Con retroalimentación respondida, la opción ya no recibe toque y toma la
-              // caja de su estado (c.2).
-              if (!answered || (hideFeedback && isSelected)) {
-                return (
-                  <ControlMarco
-                    key={idx}
-                    testID={`opcion-quiz-${idx}`}
-                    seleccionado={answered && isSelected}
-                    onPress={() => handleSelectOption(idx)}
-                  >
-                    {({ texto }) => (
-                      <View className="flex-1 flex-row items-stretch">
-                        <View
-                          testID={`letra-opcion-quiz-${idx}`}
-                          className="w-11 items-center justify-center border-r border-filete dark:border-fileteD"
-                        >
-                          <Text className={`font-plex-mono-medium text-dato ${texto}`}>{letra}</Text>
-                        </View>
-                        <View className="flex-1 justify-center px-3 py-3">
-                          <Text
-                            testID={`texto-opcion-quiz-${idx}`}
-                            className={`text-cuerpo ${
-                              answered ? 'font-plex-sans-semibold' : 'font-plex-sans'
-                            } ${texto}`}
-                          >
-                            {option}
-                          </Text>
-                        </View>
-                      </View>
-                    )}
-                  </ControlMarco>
-                );
-              }
-
-              let estado = 'apagada';
-              if (!hideFeedback && isCorrect) estado = 'acierto';
-              else if (!hideFeedback && isSelected) estado = 'error';
-              const e = ESTADOS_DE_OPCION[estado];
-              return (
-                <View key={idx} testID={`opcion-quiz-${idx}`}>
-                  <View className={`min-h-11 flex-row items-stretch ${e.caja}`}>
-                    <View
-                      testID={`letra-opcion-quiz-${idx}`}
-                      className={`w-11 items-center justify-center ${e.celda}`}
+                    <Glifo id={origen.glifo} size={GLIFO_CHICO} color={tokens[origen.color]} />
+                    <Text
+                      numberOfLines={1}
+                      className={`shrink font-plex-mono text-rotulo uppercase ${origen.texto}`}
                     >
-                      <Text className={`font-plex-mono-medium text-dato ${e.letra}`}>{letra}</Text>
-                    </View>
-                    <View className="flex-1 justify-center px-3 py-3">
-                      <Text testID={`texto-opcion-quiz-${idx}`} className={`text-cuerpo ${e.texto}`}>
-                        {option}
-                      </Text>
-                      {estado === 'acierto' && (
-                        <View className="mt-1">
-                          <MarcaEstado testID={`estado-opcion-${idx}`} estado="acierto" texto="Correcta" />
+                      {nombreOrigen}
+                    </Text>
+                  </View>
+                )}
+              </View>
+              <Text
+                testID="meta-pregunta"
+                className={`min-w-0 max-w-full shrink grow text-right font-plex-mono text-rotulo uppercase ${TINTA_SEC}`}
+              >
+                {`${materia?.shortName || ''} · ${tema}`}
+              </Text>
+            </View>
+
+            {/* Pregunta */}
+            <View
+              testID="enunciado-quiz"
+              className="mb-4 border border-linea bg-superficie px-3.5 pb-3.5 pt-3.5 dark:border-lineaD dark:bg-superficieD"
+            >
+              <RotuloSeccion testID="rotulo-enunciado">Enunciado</RotuloSeccion>
+              <Text className={`mt-1.5 font-plex-sans-semibold text-titulo ${TINTA}`}>
+                {currentQuestion.question}
+              </Text>
+            </View>
+
+            {/* Opciones */}
+            <View className="gap-2.5">
+              {currentQuestion.options.map((option, idx) => {
+                const isSelected = selectedIndex === idx;
+                const isCorrect = idx === currentQuestion.correctIndex;
+                const letra = String.fromCharCode(65 + idx);
+
+                // Sin responder, o la elegida sin retroalimentación: es un control (K3).
+                // Con retroalimentación respondida, la opción ya no recibe toque y toma la
+                // caja de su estado (c.2).
+                if (!answered || (hideFeedback && isSelected)) {
+                  return (
+                    <ControlMarco
+                      key={idx}
+                      testID={`opcion-quiz-${idx}`}
+                      seleccionado={answered && isSelected}
+                      onPress={() => handleSelectOption(idx)}
+                    >
+                      {({ texto }) => (
+                        // `-mx-4` anula el `px-4` del control: la celda de letra queda pegada
+                        // al marco, como en la opción respondida (Quiz.md a.3).
+                        <View className="-mx-4 flex-1 flex-row items-stretch">
+                          <View
+                            testID={`letra-opcion-quiz-${idx}`}
+                            className="w-11 items-center justify-center border-r border-filete dark:border-fileteD"
+                          >
+                            <Text className={`font-plex-mono-medium text-dato ${texto}`}>{letra}</Text>
+                          </View>
+                          <View className="flex-1 justify-center px-3 py-3">
+                            <Text
+                              testID={`texto-opcion-quiz-${idx}`}
+                              className={`text-cuerpo ${
+                                answered ? 'font-plex-sans-semibold' : 'font-plex-sans'
+                              } ${texto}`}
+                            >
+                              {option}
+                            </Text>
+                          </View>
                         </View>
                       )}
-                      {estado === 'error' && (
-                        <View className="mt-1">
-                          <MarcaEstado
-                            testID={`estado-opcion-${idx}`}
-                            estado="error"
-                            texto="Incorrecta · tu respuesta"
-                          />
-                        </View>
-                      )}
+                    </ControlMarco>
+                  );
+                }
+
+                let estado = 'apagada';
+                if (!hideFeedback && isCorrect) estado = 'acierto';
+                else if (!hideFeedback && isSelected) estado = 'error';
+                const e = ESTADOS_DE_OPCION[estado];
+                return (
+                  <View key={idx} testID={`opcion-quiz-${idx}`}>
+                    <View className={`min-h-11 flex-row items-stretch ${e.caja}`}>
+                      <View
+                        testID={`letra-opcion-quiz-${idx}`}
+                        className={`w-11 items-center justify-center ${e.celda}`}
+                      >
+                        <Text className={`font-plex-mono-medium text-dato ${e.letra}`}>{letra}</Text>
+                      </View>
+                      <View className="flex-1 justify-center px-3 py-3">
+                        <Text testID={`texto-opcion-quiz-${idx}`} className={`text-cuerpo ${e.texto}`}>
+                          {option}
+                        </Text>
+                        {estado === 'acierto' && (
+                          <View ref={marcaAciertoRef} className="mt-1">
+                            <MarcaEstado testID={`estado-opcion-${idx}`} estado="acierto" texto="Correcta" />
+                          </View>
+                        )}
+                        {estado === 'error' && (
+                          <View ref={marcaErrorRef} className="mt-1">
+                            <MarcaEstado
+                              testID={`estado-opcion-${idx}`}
+                              estado="error"
+                              texto="Incorrecta · tu respuesta"
+                            />
+                          </View>
+                        )}
+                      </View>
                     </View>
                   </View>
-                </View>
-              );
-            })}
+                );
+              })}
+            </View>
+
           </View>
 
           {/* Nota de explicación después de responder (QUIZ-P6) */}
           {answered && !hideFeedback && currentQuestion.explanation ? (
             <View
+              ref={notaRef}
               testID="nota-explicacion"
               className="mt-4 border border-l-3 border-filete border-l-acento bg-superficie p-3.5 dark:border-fileteD dark:border-l-acentoD dark:bg-superficieD"
             >
@@ -475,6 +534,7 @@ export default function QuizScreen({ route, navigation }) {
           {/* Examen en curso (EXA-P1): ocupa el lugar de la nota */}
           {answered && hideFeedback ? (
             <Text
+              ref={avisoRef}
               testID="aviso-resultado-oculto"
               className={`mt-4 font-plex-mono text-rotulo uppercase ${TINTA_SEC}`}
             >
@@ -483,13 +543,20 @@ export default function QuizScreen({ route, navigation }) {
           ) : null}
 
           {answered && (
-            <View className="mt-3.5 items-center">
-              <ControlMarco
+            <View ref={reportarRef} className="mt-3.5 items-center">
+              <FilaLista
                 testID="boton-reportar"
-                etiqueta="Reportar pregunta"
-                glifo="glifo-reportar"
+                tono="sec"
                 onPress={() => reportQuestion(currentQuestion, materia?.name)}
-              />
+              >
+                <View className="flex-row items-center gap-2 px-4">
+                  <Contenido
+                    glifo="glifo-reportar"
+                    etiqueta="Reportar pregunta"
+                    tipografia="font-plex-sans text-cuerpo"
+                  />
+                </View>
+              </FilaLista>
             </View>
           )}
 
@@ -501,18 +568,24 @@ export default function QuizScreen({ route, navigation }) {
       {/* Botón siguiente */}
       {answered && (
         <View
+          ref={barraInferiorRef}
           testID="barra-inferior"
           className="border-t border-linea bg-fondo dark:border-lineaD dark:bg-fondoD"
           style={{ paddingBottom: insets.bottom }}
         >
           <Columna ancho="lectura">
-            <View className="pb-4 pt-3">
+            <View
+              ref={barraInferiorContenidoRef}
+              testID="barra-inferior-contenido"
+              className="pb-4 pt-3"
+            >
               <BotonRelleno
                 testID="boton-siguiente"
                 etiqueta={isLast ? 'Ver resultados' : 'Siguiente'}
                 glifo="glifo-siguiente"
                 glifoPosicion="extremo"
                 tamano="grande"
+                tamanoGlifo="grande"
                 className="w-full"
                 onPress={handleNext}
               />

@@ -32,7 +32,7 @@ const plancha = {
     // Bordes de app (D8): no dependen del tema, mismo valor en los dos objetos.
     manifestTema: '#0b0d10',  // theme_color del manifest
     manifestFondo: '#0b0d10', // background_color del manifest y splash
-    iconoFondo: '#0b0d10',    // fondo del ícono adaptativo
+    iconoFondo: '#0b0d10',    // fondo de los íconos PWA y del favicon
   },
   oscuro: {
     fondo: '#0b0d10',

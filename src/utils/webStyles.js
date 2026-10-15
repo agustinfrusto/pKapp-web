@@ -36,6 +36,13 @@ function css(tema) {
     outline: ${GROSOR_FOCO} solid ${tema.foco} !important;
     outline-offset: ${paso(0.5)} !important;
   }
+
+  /* Contenedor desplazable enfocable (Stats con datos): el mismo contorno foco, hacia
+     adentro porque el contenedor cubre toda el área de contenido. Solo con teclado. */
+  [data-scroller-foco]:focus-visible {
+    outline: ${GROSOR_FOCO} solid ${tema.foco} !important;
+    outline-offset: ${paso(-0.5)} !important;
+  }
 `;
 }
 

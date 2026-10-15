@@ -1,6 +1,9 @@
 // Suite «navegador» del arnés end-to-end (ver ../README.md): la salida del navegador
 // interno de Instagram/Facebook que inyecta scripts/inject-pwa.js (sección 2.6).
 
+const fs = require('fs');
+const path = require('path');
+
 const { entrarAMateria } = require('./comunes');
 
 // Mismo texto que `esperarSelector` de comunes.js: el rótulo sale en mayúsculas por CSS.
@@ -107,17 +110,20 @@ async function avisoDeInstagramIos(pagina, base, t) {
     botones.length >= 3 && botones.every((b) => b.w >= 44 && b.h >= 44), true);
 }
 
-async function facebookIosSoloCopiar(pagina, base, t) {
-  await conUserAgent(pagina, UA_FB_IOS);
-  await cargar(pagina, base + '/');
-  t.ok('facebook ios: muestra el aviso', await esperarAviso(pagina), true);
-  const botones = ((await pagina.evaluar(FN_BOTONES_AVISO)) || []).map((b) => b.texto);
-  t.ok('facebook ios: sin botón «Abrir en tu navegador» (no hay mecanismo)',
-    botones.includes('Abrir en tu navegador'), false);
-  t.ok('facebook ios: queda «Copiar link»', botones.includes('Copiar link'), true);
-  t.ok('facebook ios: queda la instrucción manual',
-    (await pagina.evaluar("document.getElementById('pkapp-salir').innerText")).includes('Abrir en el navegador externo'), true);
-  t.ok('facebook ios: no intenta salir solo', intentos(pagina).length, 0);
+// REV-6, fila 10: el aviso se pinta solo con Instagram. Con Facebook (FBAN, FBAV,
+// FB_IAB) no existe `#pkapp-salir`; la salida automática de Android se conserva.
+// Sin marca previa (`conMarca` falso) la sesión no ha intentado salir: es la única forma
+// de que `intentos === 0` pruebe que `salir()` no corre con Facebook en iOS. Con la marca
+// puesta `salir()` nunca corre, así que solo se afirma el aviso.
+function suiteFacebookSinAviso(nombre, ua, conMarca = true) {
+  return async (pagina, base, t) => {
+    await conUserAgent(pagina, ua, conMarca ? MARCA_INTENTO : '');
+    await cargar(pagina, base + '/');
+    await esperarApp(pagina);
+    await esperarMs(2200);
+    t.ok(`${nombre}: no se pinta el aviso a los 2,2 s`, await hayAviso(pagina), false);
+    if (!conMarca) t.ok(`${nombre}: no intenta salir solo, sin marca previa`, intentos(pagina).length, 0);
+  };
 }
 
 async function chromeComunNoSale(pagina, base, t) {
@@ -163,30 +169,274 @@ const STORAGE_NO_PERSISTE =
 const STORAGE_INACCESIBLE =
   "Object.defineProperty(window, 'sessionStorage', { get() { throw new DOMException('denied', 'SecurityError'); }, configurable: true });";
 
-// A1: «Link copiado» solo cuando la copia se completó; si no, link seleccionable.
+const NOTA_PEGAR = 'Pegalo en la barra de direcciones de tu navegador.';
+const NOTA_A_MANO = 'No se pudo copiar. Mantené presionado el link para copiarlo.';
+// `acento` y `error` claros de plancha (el aviso toma el tema guardado: claro por defecto).
+const RGB_ACENTO = 'rgb(11, 110, 128)';
+const RGB_ERROR = 'rgb(163, 36, 36)';
+// `tinta` y `fondo` claros de plancha: el presionado invierte en toda clase (COMUN-P2, CD-2).
+const RGB_TINTA = 'rgb(20, 24, 29)';
+const RGB_FONDO = 'rgb(244, 245, 246)';
+
+// Estilo de K2 con el botón del mouse abajo y sin soltar (se suelta fuera del botón).
+const FN_RECT_K2 = `(function () {
+  const k2 = Array.from(document.querySelectorAll('#pkapp-salir button'))
+    .find((b) => !b.classList.contains('p') && !b.classList.contains('x'));
+  const r = k2.getBoundingClientRect();
+  return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+})()`;
+const FN_PINTURA_K2 = `(function () {
+  const k2 = Array.from(document.querySelectorAll('#pkapp-salir button'))
+    .find((b) => !b.classList.contains('p') && !b.classList.contains('x'));
+  const e = getComputedStyle(k2);
+  return { fondo: e.backgroundColor, texto: e.color, borde: e.borderTopWidth + ' ' + e.borderTopColor };
+})()`;
+
+async function pinturaK2Presionado(pagina) {
+  const c = await pagina.evaluar(FN_RECT_K2);
+  await pagina.moverA(c.x, c.y);
+  await pagina.enviar('Input.dispatchMouseEvent',
+    { type: 'mousePressed', x: c.x, y: c.y, button: 'left', clickCount: 1, buttons: 1 });
+  await esperarMs(150);
+  const pintura = await pagina.evaluar(FN_PINTURA_K2);
+  await pagina.enviar('Input.dispatchMouseEvent',
+    { type: 'mouseReleased', x: 1, y: 1, button: 'left', clickCount: 1, buttons: 0 });
+  await pagina.moverA(1, 1);
+  await esperarMs(150);
+  return pintura;
+}
+
+const FN_ESTADO_AVISO = `(function () {
+  const raiz = document.getElementById('pkapp-salir');
+  if (!raiz) return null;
+  const li = raiz.querySelector('input');
+  const k2 = Array.from(raiz.querySelectorAll('button'))
+    .find((b) => !b.classList.contains('p') && !b.classList.contains('x'));
+  const estilo = getComputedStyle(k2);
+  const nota = raiz.querySelector('p[role="status"]');
+  const L = raiz.getBoundingClientRect();
+  const desborda = Array.from(raiz.querySelectorAll('button, p, span, .f'))
+    .some((n) => n.getBoundingClientRect().right > L.right + 0.5);
+  return {
+    texto: raiz.innerText,
+    etiqueta: k2.innerText.trim(),
+    nota: nota ? nota.innerText.trim() : null,
+    topK2EnLamina: Math.round(k2.getBoundingClientRect().top - L.top),
+    bordeK2: estilo.borderTopWidth + ' ' + estilo.borderTopColor,
+    colorK2: estilo.color,
+    desborda,
+    link: !!li && !li.hidden && li.offsetWidth > 0 ? li.value : null,
+    linkConFoco: !!li && document.activeElement === li,
+    linkSeleccionado: !!li && li.selectionStart === 0 && li.selectionEnd === li.value.length && li.value.length > 0,
+  };
+})()`;
+
+// A1: «Copiado» solo cuando la copia se completó; si no, link seleccionable.
 function suiteCopiar(nombre, arranque, copiado) {
   return async (pagina, base, t) => {
     await conUserAgent(pagina, UA_IG_IOS, MARCA_INTENTO + arranque);
     await cargar(pagina, base + '/');
     t.ok(`${nombre}: el aviso aparece`, await esperarAviso(pagina), true);
+    const antes = await pagina.evaluar(FN_ESTADO_AVISO);
+    t.ok(`${nombre}: nada pasa el borde derecho en reposo`, antes.desborda, false);
     await clicBotonAviso(pagina, 'Copiar link');
     await esperarMs(400);
-    const estado = await pagina.evaluar(`(function () {
-      const raiz = document.getElementById('pkapp-salir');
-      const li = raiz.querySelector('input');
-      return {
-        texto: raiz.innerText,
-        link: !!li && !li.hidden && li.offsetWidth > 0 ? li.value : null,
-      };
-    })()`);
+    const estado = await pagina.evaluar(FN_ESTADO_AVISO);
+    // La lámina está anclada abajo y crece hacia arriba (link de respaldo, o K2 en otra fila):
+    // el `top` absoluto de K2 no sirve en ningún estado; lo que no debe cambiar es su
+    // posición dentro de la lámina.
+    t.ok(`${nombre}: los botones no cambian de fila`, estado.topK2EnLamina, antes.topK2EnLamina);
+    t.ok(`${nombre}: nada pasa el borde derecho tras copiar`, estado.desborda, false);
     if (copiado) {
-      t.ok(`${nombre}: confirma «Link copiado»`, estado.texto.includes('Link copiado'), true);
+      t.ok(`${nombre}: la etiqueta de K2 dice «Copiado»`, estado.etiqueta, 'Copiado');
+      t.ok(`${nombre}: la nota dice qué sigue`, estado.nota, NOTA_PEGAR);
+      t.ok(`${nombre}: K2 con borde de 2 px acento`, estado.bordeK2, '2px ' + RGB_ACENTO);
+      t.ok(`${nombre}: ya no dice «Link copiado»`, estado.texto.includes('Link copiado'), false);
+      t.ok(`${nombre}: en reposo K2 conserva texto acento`, estado.colorK2, RGB_ACENTO);
+      const p = await pinturaK2Presionado(pagina);
+      t.ok(`${nombre}: presionado, K2 invierte el fondo a tinta`, p.fondo, RGB_TINTA);
+      t.ok(`${nombre}: presionado, K2 invierte el texto a fondo`, p.texto, RGB_FONDO);
+      t.ok(`${nombre}: presionado, K2 conserva 2 px y borde tinta`, p.borde, '2px ' + RGB_TINTA);
     } else {
-      t.ok(`${nombre}: no confirma una copia que falló`, estado.texto.includes('Link copiado'), false);
-      t.ok(`${nombre}: pide copiarlo a mano`, estado.texto.includes('Copialo a mano'), true);
+      t.ok(`${nombre}: no confirma una copia que falló`, estado.etiqueta === 'Copiado', false);
+      t.ok(`${nombre}: la nota pide copiarlo a mano`, estado.nota, NOTA_A_MANO);
+      t.ok(`${nombre}: K2 con borde de 2 px error`, estado.bordeK2, '2px ' + RGB_ERROR);
       t.ok(`${nombre}: muestra el link seleccionable`, estado.link, base + '/');
+      t.ok(`${nombre}: el link tiene el foco`, estado.linkConFoco, true);
+      t.ok(`${nombre}: el link queda seleccionado`, estado.linkSeleccionado, true);
+      t.ok(`${nombre}: en reposo K2 conserva texto error`, estado.colorK2, RGB_ERROR);
+      const p = await pinturaK2Presionado(pagina);
+      t.ok(`${nombre}: presionado, K2 invierte el fondo a tinta`, p.fondo, RGB_TINTA);
+      t.ok(`${nombre}: presionado, K2 invierte el texto a fondo`, p.texto, RGB_FONDO);
+      t.ok(`${nombre}: presionado, K2 conserva 2 px y borde tinta`, p.borde, '2px ' + RGB_TINTA);
     }
   };
+}
+
+// Valores por defecto de button/input de un WebView (WKWebView de Instagram en iOS), que
+// Chrome headless no tiene: sin sembrarlos, quitar el reinicio del aviso no rompe nada.
+// El root queda fuera (ningún WebView redondea un `div`) y sigue medido en `todos`; el
+// `:where` mantiene la especificidad de la hoja en (0,0,1), como la de un valor por defecto.
+const HOJA_WEBVIEW = 'button,input,div:where(:not(#pkapp-salir)){border-radius:8px;box-shadow:0 0 4px #000}';
+const SEMBRAR_HOJA_WEBVIEW =
+  "document.addEventListener('DOMContentLoaded', () => { const s = document.createElement('style'); " +
+  `s.textContent = ${JSON.stringify(HOJA_WEBVIEW)}; document.head.appendChild(s); });`;
+
+// REV-6, filas 2, 8 y 12: marcas de esquina, sin radios ni sombras, sin «✕» de texto.
+async function avisoLamina(pagina, base, t) {
+  await conUserAgent(pagina, UA_IG_IOS, MARCA_INTENTO + SEMBRAR_HOJA_WEBVIEW);
+  await cargar(pagina, base + '/');
+  t.ok('lámina: el aviso aparece', await esperarAviso(pagina), true);
+  const info = await pagina.evaluar(`(function () {
+    const r = document.getElementById('pkapp-salir');
+    const sonda = document.body.appendChild(document.createElement('button'));
+    const semilla = getComputedStyle(sonda).borderRadius === '8px' && getComputedStyle(sonda).boxShadow !== 'none';
+    sonda.remove();
+    const todos = Array.from(r.querySelectorAll('*')).concat([r]);
+    const estilo = (n) => getComputedStyle(n);
+    return {
+      semilla,
+      marcas: r.querySelectorAll('i[aria-hidden="true"]').length,
+      radios: todos.filter((n) => estilo(n).borderRadius !== '0px').length,
+      sombras: todos.filter((n) => estilo(n).boxShadow !== 'none').length,
+      texto: r.innerText,
+      svgCerrar: !!r.querySelector('button[aria-label="Cerrar"] svg'),
+      svgExterno: !!r.querySelector('svg'),
+    };
+  })()`);
+  t.ok('lámina: la hoja de WebView sembrada está activa fuera del aviso',
+    info.semilla, true);
+  t.ok('lámina: cuatro marcas de esquina', info.marcas, 4);
+  t.ok('lámina: ningún descendiente con radio', info.radios, 0);
+  t.ok('lámina: ningún descendiente con sombra', info.sombras, 0);
+  t.ok('lámina: el innerText no lleva «✕»', info.texto.includes('✕'), false);
+  t.ok('lámina: cerrar es un SVG', info.svgCerrar, true);
+  t.ok('lámina: lleva el copy de la ficha',
+    ['Abrí pKapp en tu navegador', 'Así guardás tu progreso y podés instalarla.',
+      'Si no se abre, tocá ⋯ y elegí abrirla en tu navegador.']
+      .every((x) => info.texto.includes(x)), true);
+}
+
+// REV-6, fila 9: el fondo sale del tema guardado de la app, no de prefers-color-scheme.
+function suiteTema(nombre, ajustes, emulado, esperado) {
+  return async (pagina, base, t) => {
+    const siembra = ajustes
+      ? `localStorage.setItem('pkapp_settings', ${JSON.stringify(JSON.stringify(ajustes))});`
+      : "localStorage.removeItem('pkapp_settings');";
+    await conUserAgent(pagina, UA_IG_IOS, MARCA_INTENTO + siembra);
+    await pagina.enviar('Emulation.setEmulatedMedia',
+      { features: [{ name: 'prefers-color-scheme', value: emulado }] });
+    try {
+      await cargar(pagina, base + '/');
+      t.ok(`${nombre}: el aviso aparece`, await esperarAviso(pagina), true);
+      t.ok(`${nombre}: fondo de la lámina`, await pagina.evaluar(
+        "getComputedStyle(document.getElementById('pkapp-salir')).backgroundColor"), esperado);
+    } finally {
+      await pagina.enviar('Emulation.setEmulatedMedia', { features: [] });
+    }
+  };
+}
+
+// REV-6, fila 3: alturas por viewport. Se miden y se registran; solo se afirma cuántas
+// filas de botones hay (una desde 390 px, apilados desde 375 px para abajo).
+const VIEWPORTS = [[320, 568], [360, 740], [375, 667], [390, 844], [430, 932]];
+const FN_FILAS = `(function () {
+  const r = document.getElementById('pkapp-salir');
+  if (!r) return null;
+  const k1 = r.querySelector('button.p');
+  const k2 = Array.from(r.querySelectorAll('button'))
+    .find((b) => !b.classList.contains('p') && !b.classList.contains('x'));
+  return {
+    alto: Math.round(r.getBoundingClientRect().height),
+    unaFila: Math.round(k1.getBoundingClientRect().top) === Math.round(k2.getBoundingClientRect().top),
+  };
+})()`;
+
+async function medirViewports(pagina) {
+  const medidas = [];
+  for (const [w, h] of VIEWPORTS) {
+    await pagina.enviar('Emulation.setDeviceMetricsOverride',
+      { width: w, height: h, deviceScaleFactor: 1, mobile: false });
+    await esperarMs(150);
+    medidas.push({ w, h, ...(await pagina.evaluar(FN_FILAS)) });
+  }
+  return medidas;
+}
+
+const dirEvidencia = process.env.PKAPP_EVIDENCIA_DIR || '';
+
+async function alturasPorViewport(pagina, base, t) {
+  await conUserAgent(pagina, UA_IG_IOS, MARCA_INTENTO + "navigator.clipboard.writeText = () => Promise.resolve();");
+  try {
+    await cargar(pagina, base + '/');
+    t.ok('alturas: el aviso aparece', await esperarAviso(pagina), true);
+    const reposo = await medirViewports(pagina);
+    await clicBotonAviso(pagina, 'Copiar link');
+    await esperarMs(300);
+    const copiado = await medirViewports(pagina);
+
+    await conUserAgent(pagina, UA_IG_IOS, MARCA_INTENTO +
+      "navigator.clipboard.writeText = () => Promise.reject(new Error('x')); document.execCommand = () => false;");
+    await cargar(pagina, base + '/');
+    t.ok('alturas: el aviso aparece (error)', await esperarAviso(pagina), true);
+    await clicBotonAviso(pagina, 'Copiar link');
+    await esperarMs(400);
+    const error = await medirViewports(pagina);
+
+    for (const [w, , ] of VIEWPORTS) {
+      const fila = reposo.find((m) => m.w === w);
+      t.ok(`alturas: ${w} px ${w >= 390 ? 'una fila de botones' : 'botones apilados'}`, fila.unaFila, w >= 390);
+    }
+    if (dirEvidencia) {
+      const linea = (w, h, i) => `| ${w} × ${h} | ${reposo[i].unaFila ? 'una fila' : 'apilados'} | ${reposo[i].alto} | ${copiado[i].alto} | ${error[i].alto} |`;
+      fs.mkdirSync(dirEvidencia, { recursive: true });
+      fs.writeFileSync(path.join(dirEvidencia, 'alturas.md'), [
+        '# Alto de `#pkapp-salir` por viewport (5.0b.6, REV-6, fila 3 de la aceptación)',
+        '',
+        'Medido con `Emulation.setDeviceMetricsOverride` (`mobile: false`, escala 1), margen `paso 5`, tema claro, UA de Instagram en iOS. Alto en px.',
+        '',
+        '| Viewport | Botones | Reposo | Copiado | Error (con link de respaldo) |',
+        '|---|---|---|---|---|',
+        ...VIEWPORTS.map(([w, h], i) => linea(w, h, i)),
+        '',
+      ].join('\n'));
+    }
+  } finally {
+    await pagina.enviar('Emulation.setDeviceMetricsOverride',
+      { width: 900, height: 1400, deviceScaleFactor: 1, mobile: false });
+  }
+}
+
+// Capturas para la auditoría 5.0b.14: solo con PKAPP_EVIDENCIA_DIR.
+async function capturasDelAviso(pagina, base, t) {
+  const ANCHOS = [320, 375, 390];
+  const foto = async (tema, estado, w) => {
+    await pagina.enviar('Emulation.setDeviceMetricsOverride',
+      { width: w, height: 740, deviceScaleFactor: 1, mobile: false });
+    await esperarMs(150);
+    const { data } = await pagina.enviar('Page.captureScreenshot', { format: 'png' });
+    fs.mkdirSync(dirEvidencia, { recursive: true });
+    fs.writeFileSync(path.join(dirEvidencia, `aviso-${tema}-${estado}-${w}.png`), Buffer.from(data, 'base64'));
+  };
+  const OK = 'navigator.clipboard.writeText = () => Promise.resolve();';
+  const FALLA = "navigator.clipboard.writeText = () => Promise.reject(new Error('x')); document.execCommand = () => false;";
+  try {
+    for (const tema of ['claro', 'oscuro']) {
+      const siembra = `localStorage.setItem('pkapp_settings', ${JSON.stringify(JSON.stringify({ tema }))});`;
+      for (const [estado, arranque] of [['copiado', OK], ['error', FALLA]]) {
+        await conUserAgent(pagina, UA_IG_IOS, MARCA_INTENTO + siembra + arranque);
+        await cargar(pagina, base + '/');
+        t.ok(`capturas ${tema} ${estado}: el aviso aparece`, await esperarAviso(pagina), true);
+        if (estado === 'copiado') for (const w of ANCHOS) await foto(tema, 'reposo', w);
+        await clicBotonAviso(pagina, 'Copiar link');
+        await esperarMs(400);
+        for (const w of ANCHOS) await foto(tema, estado, w);
+      }
+    }
+  } finally {
+    await pagina.enviar('Emulation.setDeviceMetricsOverride',
+      { width: 900, height: 1400, deviceScaleFactor: 1, mobile: false });
+  }
 }
 
 // A3: rol y nombre, foco al entrar, Escape cierra y el foco vuelve a la página.
@@ -240,12 +490,18 @@ async function avisoCerradoYAppViva(pagina, base, t) {
   t.ok('el aviso cerrado no vuelve tras recargar la página', await pagina.evaluar(FN_BOTONES_AVISO), null);
 }
 
-module.exports = [
+const SUITES = [
   { nombre: 'navegador interno de Instagram en Android sale solo', correr: suiteSalidaAndroid('instagram android', UA_IG_ANDROID) },
   { nombre: 'navegador interno de Facebook en Android sale solo', correr: suiteSalidaAndroid('facebook android', UA_FB_ANDROID) },
   { nombre: 'navegador interno de Instagram en iOS intenta salir', correr: salirDeInstagramIos },
   { nombre: 'navegador interno de Instagram en iOS: aviso de respaldo', correr: avisoDeInstagramIos },
-  { nombre: 'navegador interno de Facebook en iOS: aviso sin botón de abrir', correr: facebookIosSoloCopiar },
+  { nombre: 'navegador interno de Facebook en iOS: sin aviso', correr: suiteFacebookSinAviso('facebook ios', UA_FB_IOS, false) },
+  { nombre: 'navegador interno de Facebook en Android: sin aviso', correr: suiteFacebookSinAviso('facebook android', UA_FB_ANDROID) },
+  { nombre: 'aviso de salida: lámina con marcas, sin radios ni sombras', correr: avisoLamina },
+  { nombre: 'aviso de salida: tema oscuro guardado', correr: suiteTema('tema oscuro', { tema: 'oscuro' }, 'light', 'rgb(18, 22, 27)') },
+  { nombre: 'aviso de salida: tema claro guardado', correr: suiteTema('tema claro', { tema: 'claro' }, 'dark', 'rgb(255, 255, 255)') },
+  { nombre: 'aviso de salida: sin tema guardado ni prefers-color-scheme', correr: suiteTema('sin tema', null, 'dark', 'rgb(255, 255, 255)') },
+  { nombre: 'aviso de salida: alturas y filas de botones por viewport', correr: alturasPorViewport },
   { nombre: 'página oculta a los 1,5 s: sin aviso', correr: paginaOcultaNoAvisa },
   { nombre: 'sessionStorage que lanza: sin redirección, solo el aviso', correr: suiteStorageRoto('setItem lanza', STORAGE_LANZA) },
   { nombre: 'sessionStorage que no persiste: sin redirección, solo el aviso', correr: suiteStorageRoto('setItem no persiste', STORAGE_NO_PERSISTE) },
@@ -257,3 +513,7 @@ module.exports = [
   { nombre: 'aviso de salida accesible: rol, nombre, foco y Escape', correr: avisoAccesible },
   { nombre: 'aviso de salida cerrado: la app sigue funcionando', correr: avisoCerradoYAppViva },
 ];
+
+module.exports = dirEvidencia
+  ? SUITES.concat([{ nombre: 'aviso de salida: capturas de evidencia', correr: capturasDelAviso }])
+  : SUITES;

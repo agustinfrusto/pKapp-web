@@ -8,7 +8,7 @@
 | Navegador | Barra interna con título «pKapp · Agregar pregunta» y volver (`comun.md` §3.3) |
 | Variantes | De 2 a 6 opciones; con y sin correcta marcada; selector de tema cerrado o abierto; guardando; con teclado abierto |
 | Fuera de alcance | Diálogos del sistema (`confirm`, `avisar`): su texto está en d.2 y e; su aspecto no es del sistema visual |
-| Propuestas | Sección f: `ADD-P2` (aprobada, usuario, 2026-10-10) y `ADD-P3` (aprobada, usuario, 2026-10-11); `ADD-P1`, rechazada (usuario, 2026-10-11). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Propuestas | Sección f: `ADD-P2` (aprobada, usuario, 2026-10-10) y `ADD-P3` (aprobada, usuario, 2026-10-11); `ADD-P1`, rechazada (usuario, 2026-10-11). Sección h: conservado de main (D10). Comunes: `COMUN-P2`. Sección j: cambios de la tarea 5.2 (Diseñador, 2026-10-13) |
 | Anexo | `AddQuestion-ADD-P3.md`: alternativas evaluadas, interacción del desplegable, componente `Desplegable`, contraste, medidas y figuras de `ADD-P3`. Ante una diferencia rige el cuerpo de esta ficha y `comun.md` §5.3 |
 | Escritorio | Sección «Escritorio», al final: `ESC-P9` rechazada (usuario, 2026-10-11); desde el corte `escritorio` el formulario va en una columna `lectura`, como el quiz. Bajo el corte rige a.3 |
 
@@ -34,7 +34,7 @@
 |---|---|---|
 | Disparador del tema (K3, plegable) | Ancho completo de la columna; relleno `paso 3` en las cuatro caras (el del campo de texto: con el interlineado de `cuerpo` queda tan alto como el campo de una opción); alto mínimo `paso 11`; `border`; fila con el nombre a la izquierda (flexible, salta de línea) y el chevron a la derecha, separados `paso 2` y centrado en vertical | Nombre del tema elegido (o el texto de ayuda) y `glifo-chevron` (chico) |
 | Lámina de opciones | `comun.md` §6: cuerpo `superficie`, marco `linea` `border` y cuatro marcas de esquina; ancho completo; a `paso 2` del disparador (las marcas sobresalen `paso 1` y no lo tocan) | La región de scroll |
-| Región de scroll | Relleno `paso 1` en las cuatro caras (el contorno de foco, `paso 0.5` de separación más `border-2`, mide justo `paso 1`: no se recorta ni en hover); alto máximo `paso 80`; scroll vertical con indicador visible; el scroll no se encadena a la página (`overscroll-contain`) | Rótulos de grupo, si el dato existe (d.1), y filas |
+| Región de scroll | Relleno `paso 1` en las cuatro caras (el contorno de foco, `paso 0.5` de separación más `border-2`, mide justo `paso 1`: no se recorta ni en hover); alto máximo `paso 72` con la lista plana y `paso 80` con rótulos de grupo (b y d.4); scroll vertical con indicador visible; el scroll no se encadena a la página (`overscroll-contain`) | Rótulos de grupo, si el dato existe (d.1), y filas |
 | Rótulo de grupo | Fila de ancho completo; relleno vertical `paso 2` y horizontal `paso 3`; fondo `fondo`; filete inferior `filete`; marca y texto separados `paso 1.5`; no es un control | Marca de parcial (`comun.md` §12.2: dos casillas de lado `paso 2.5`, separadas `paso 0.5`, llena la del parcial) y el rótulo del parcial. Solo con el dato del parcial de cada tema (d.1) |
 | Fila de tema (K7) | Ancho completo; alto mínimo `paso 11`; relleno vertical `paso 2` y horizontal `paso 3`; filete inferior `filete`, salvo en la última de cada grupo o de la lista; el nombre salta de línea | Nombre del tema |
 | Campo multilínea | Alto mínimo `paso 20`; relleno `paso 3`; el alto crece con el contenido; texto alineado arriba | Enunciado y explicación |
@@ -96,7 +96,7 @@ Glifo con texto (guardar, agregar opción, ayuda de marcado, chevron del dispara
 | Chevron `tintaSec` y no `acento` | Señal secundaria junto al nombre (`tinta`); mismo criterio que el chevron de las filas de lista (§9, N20). El `acento` de Ajustes acompaña a la palabra «Ver», que acá no existe |
 | Rótulo de grupo en banda `fondo` | Un escalón bajo `superficie` separa los grupos sin color ni sombra; la marca de parcial es la de `PAR-P2`, que el usuario ya aprobó |
 | Disparador en `cuerpo` regular | Es un valor, no una acción |
-| `paso 80` de alto máximo | Seis filas completas y la séptima a medias en la materia de 27 temas: la fila cortada avisa que hay más; la lámina abierta entra en la ventana de 320 × 568 |
+| Alto máximo que deja una fila cortada al pie: `paso 72` con la lista plana y `paso 80` con rótulos de grupo (5.2, `E-01`) | Una fila cortada al pie, con su línea de texto partida, avisa que hay más sin depender del indicador de scroll, que macOS e iOS no muestran en reposo. Con filas de 44 px: 4 + 6 × 44 + 20 = 288 en lista plana; 4 + 33 + 6 × 44 + 19 = 320 con rótulos (el rótulo suma 33 px). Con `paso 80` en lista plana entraban siete filas y 8 px de relleno de la octava: la lista parecía terminar. La lámina abierta entra en la ventana de 320 × 568 |
 
 ---
 
@@ -210,8 +210,8 @@ Origen de la pregunta, aciertos de rendimiento, banco reducido y estado vacío n
 |---|---|
 | Abrir y cerrar, recorrido de la lista, teclado, roles y puntero | `comun.md` §5.3 (`Desplegable`) |
 | Lo propio de esta pantalla | Al guardar, el desplegable cierra y se deshabilita (c.2). Tras «Agregar otra» conserva el tema. Con la lista cerrada, Tab pasa del disparador al enunciado y Shift+Tab a la barra interna. No hay búsqueda por texto: el tema se elige una vez por tanda de altas y el máximo es de 27 filas |
-| Alto de la lista | Hasta `paso 80`; con más contenido, scroll vertical propio. En la materia de 27 temas se ven seis filas completas y la séptima a medias |
-| Al abrir | La región se desplaza hasta la fila elegida y la deja centrada si no está a la vista; con el tema por defecto queda arriba. Si la lámina no entra en la ventana, la página se desplaza lo mínimo para mostrarla completa; a 320 × 568 no hace falta |
+| Alto de la lista | Hasta `paso 72` con la lista plana (la que se publica) y `paso 80` con rótulos de grupo; con más contenido, scroll vertical propio. El tope deja una fila cortada al pie, con su línea de texto partida, que avisa que hay más (5.2, `E-01`; aceptación 20). Rige con la lista abierta arriba o alineada a fila («Al abrir», `E-01b`) y con filas de un renglón; los límites medidos están en j |
+| Al abrir | Si la fila elegida no está a la vista con su contorno de foco, la región se desplaza hasta alinear al borde superior la fila dos lugares antes de la elegida: la elegida queda tercera, con dos filas de contexto arriba y, con filas de un renglón, tres enteras bajo ella y la siguiente cortada al pie (5.2, `E-01b`, aprobado por el usuario, 2026-10-13; antes la dejaba centrada). Los rótulos de grupo no cuentan como fila. Con la elegida a la vista, y con el tema por defecto, la región queda arriba. Si el desplazamiento llega al final de la lista (en BCYT, de la 24.ª fila en adelante), la región se detiene ahí y no hay fila cortada. Si la lámina no entra en la ventana, la página se desplaza lo mínimo para mostrarla completa; a 320 × 568 no hace falta (aceptación 20) |
 | Animación | Ninguna: abre y cierra de inmediato, sin transición de layout |
 
 ---
@@ -239,6 +239,7 @@ Origen de la pregunta, aciertos de rendimiento, banco reducido y estado vacío n
 | Texto de ayuda de una opción | «Opción {letra}» | Igual | — |
 | Texto de ayuda de la explicación | «Explicación que se mostrará después de responder...» | Igual | — |
 | Celda de letra | Sin nombre accesible | «Opción {letra}, marcar como correcta» | Cadena accesible nueva, no visible |
+| Campo de texto (enunciado, cada opción y explicación) | Sin cadena accesible: el nombre accesible es su texto de ayuda | Igual: el nombre accesible de cada campo es su texto de ayuda visible («Escribí la pregunta acá...», «Opción {letra}» o «Explicación que se mostrará después de responder...»); sin cadena accesible aparte | Aceptado, sin código (tarea 5.2, `D-12`, 2026-10-13): una cadena aparte divergiría del texto visible (WCAG 2.5.3, etiqueta en el nombre) |
 | Diálogos | Los de d.2 | Iguales | — |
 
 El texto de ayuda del campo (placeholder) lleva el color del token `tintaSec` en los dos temas.
@@ -260,8 +261,8 @@ Costos que el usuario aceptó con `ADD-P3` (detalle en el anexo, sección l):
 | Costo | Detalle |
 |---|---|
 | Dos toques por cambio de tema | Rompe «un toque por tema» de `main` y de `ADD-P1`. Se paga una vez por tanda: «Agregar otra» conserva el tema |
-| Scroll propio de la lista | En materias de más de siete temas la lista desplaza dentro de su región; queda acotado a la elección y no al formulario |
-| Un componente nuevo, una regla nueva y un paso en uso | `Desplegable`; K7 «elegida» (regla 2.9-10); `paso 80` |
+| Scroll propio de la lista | En materias de más de seis temas (siete hasta `E-01`, 2026-10-13) la lista desplaza dentro de su región; queda acotado a la elección y no al formulario |
+| Un componente nuevo, una regla nueva y un paso en uso | `Desplegable`; K7 «elegida» (regla 2.9-10); `paso 80`. Desde `E-01` (2026-10-13) la lista plana usa `paso 72` y el `80` queda para los rótulos de grupo (j) |
 | Un dato que no existe | El parcial de cada tema (d.1). Sin él la lista es plana |
 | Reescritura del e2e de temas | Sección i |
 
@@ -322,6 +323,33 @@ Para la 3.x y el e2e. El e2e `tools/e2e/suites/agregar.js` codificaba `ADD-P1` (
 | 17 | Estados y colores | Disparador y filas toman los tokens de c.1 en los dos temas |
 | 18 | Escritorio | A 1024, 1366 × 768 y 1920 × 1080: una sola columna `lectura`, centrada y anclada arriba, sin segunda columna ni región lateral; la barra interna con el filete a todo el ancho; sin scroll horizontal; con el selector abierto, la lámina entra completa en la ventana |
 | 19 | Orden de foco | Tab recorre el orden de DOM, que es el visual, en todos los anchos: disparador, enunciado, cada opción, «Agregar opción», explicación y «Guardar pregunta» |
+| 20 | Fila cortada al pie (5.2, `E-01`; con la elegida fuera de vista, `E-01b`) | BCYT (27 temas), lista plana. **(a) Abierta arriba** (tema por defecto, sin desplazar), a 320 × 568, 390 × 844, 768 × 1024, 1366 × 768 y 1920 × 1080, con las barras de scroll ocultas como en el arnés (`--hide-scrollbars`; con barra clásica de 15 px a 320 los nombres saltan antes, j): la región mide 288 px (`clientHeight`) y `scrollHeight > clientHeight`; seis `option` quedan enteras dentro de ella y la séptima asoma entre 19 y 26 px de sus 44 (con `paso 72`, 20: la línea de texto cortada). A 320 × 568 la lámina mide 290 px y su borde inferior queda a 464 px. **(b) Elegida fuera de vista** (de la 7.ª a la 23.ª fila; a 390 × 844, la 20.ª), con las mismas barras: al abrir, la elegida es la tercera `option` de la región; las dos anteriores quedan enteras dentro de ella, la primera con su borde superior en el de la región (±1,5 px) y la elegida a 88 px de ese borde (dos filas de 44); bajo la elegida hay tres `option` enteras y la siguiente asoma entre 19 y 26 px de sus 44 (con `paso 72`, 24: la línea de texto cortada). Con la 20.ª, `scrollTop` vale 752. **(c) Elegida entre las últimas** (de la 24.ª a la 27.ª): la región queda en el final de la lista (`scrollTop` = `scrollHeight` − `clientHeight`, 908) y no hay fila cortada: no hay más abajo. **(d) Con rótulos de grupo** (cuando el dato exista): abierta arriba, la región mide 320 px y, tras el rótulo y seis filas enteras, la séptima asoma entre 19 y 26 px (con `paso 80`, 19); con la elegida fuera de vista rige la misma alineación y la fila cortada asoma 23 px si el rótulo del 2.º parcial está a la vista (sin él, 12 px de relleno sin tinta: límite medido, j) |
+
+---
+
+## j. Cambios de la tarea 5.2
+
+Recorrido final de la rama `rediseno-revision-ux`. No son propuestas nuevas: cierran una medida que faltaba o corrigen la ficha contra el código. Cada fila dice qué había, qué rige ahora y cómo se comprueba.
+
+| Fecha | Id | Cambio | Antes | Después | Aceptación observable (Programador y e2e) |
+|---|---|---|---|---|---|
+| 2026-10-13 | `D-12` (nota) | e: el nombre accesible de los tres campos de texto es su texto de ayuda visible | e listaba las cadenas accesibles del disparador, la lista, la celda de letra y quitar opción; no decía nada del enunciado, las opciones ni la explicación | Sin cadena accesible aparte: el lector anuncia «Escribí la pregunta acá...», «Opción {letra}» o «Explicación que se mostrará después de responder...». Una cadena distinta divergiría del texto visible (WCAG 2.5.3) | Sin cambio de código: los campos no llevan `accessibilityLabel` y conservan su `placeholder` |
+| 2026-10-13 | `E-01` | a.2, b, d.4 y f: el alto máximo de la lista del desplegable pasa de `paso 80` a `paso 72` con la lista plana; con rótulos de grupo sigue `paso 80`. La regla dice «una fila cortada al pie» en lugar de contar filas | `paso 80` (320 px) en los dos casos, con la promesa de seis filas y la séptima a medias. Esa cuenta solo vale con rótulos (4 + 33 + 6 × 44 + 19). Con la lista plana que se publica entraban siete filas y 8 px de la octava, que son relleno sin texto: la lista parecía terminar y la única pista era el indicador de scroll, que macOS e iOS no muestran en reposo | Lista plana: `paso 72` (288 px = 4 + 6 × 44 + 20): seis filas enteras y 20 px de la séptima, con su línea de texto partida. Con rótulos: `paso 80` (320 px = 4 + 33 + 6 × 44 + 19): rótulo, seis filas y 19 px de la séptima. `paso 72` con rótulos deja 31 px (texto entero) y ningún otro paso de la escala corta la línea con la lista plana (`tokens.md` c.3). La cuenta rige con la lista abierta arriba y filas de un renglón; los límites medidos están debajo | Aceptación 20 (i). Código: `max-h-72` con la lista plana y `max-h-80` con grupos; el e2e que topa la región en 320 px («la región mide a lo sumo 320 px», `agregar.js`) pasa a 288 |
+| 2026-10-13 | `E-01b`, aprobado por el usuario | d.4 «Al abrir», `comun.md` §5.3 y aceptación 20: con la elegida fuera de vista, la región se alinea al borde de una fila y la deja tercera, con dos filas de contexto arriba, en vez de centrarla. Reemplaza el «centrada» de `ADD-P3` (F09) | La región se desplazaba hasta dejar la elegida centrada. Con la lista plana el borde inferior caía a 34 de 44 px de una fila, con el texto entero y relleno debajo: 125 de 127 casos sin pista (BCYT, 90 de 90), y la única pista era el indicador de scroll, que macOS e iOS no muestran en reposo | La región alinea al borde superior la fila dos lugares antes de la elegida y la elegida queda tercera. Con `paso 72` y filas de un renglón, bajo ella hay tres filas enteras y la siguiente asoma 24 de sus 44 px (línea de texto partida, 8 px de capitales). Lista plana: 108 de 121 casos con pista (89 %; BCYT 85 de 85, Neuro 18 de 22) y 92 casos más llegan al final de la lista, donde no hay más abajo. Con `paso 80` en la lista plana la alineación deja 12 px sin tinta: las cifras suponen `E-01` | Aceptación 20 (i), casos b a d. Código: `Desplegable.js` alinea al abrir la fila dos lugares antes de la activa; el e2e que fija la elegida «centrada en la región» (`agregar.js`) pasa a «tercera, con dos filas de contexto y la fila cortada al pie». Especificación: `.orca/reports/rediseno-5.2-e01b-ficha.md` |
+
+Límites medidos de `E-01` y `E-01b` (Chrome 155, IBM Plex Sans 15/22, las seis listas reales, barras de scroll ocultas como en el arnés; `.orca/reports/rediseno-5.2-e01-ficha.md` y `rediseno-5.2-e01b-ficha.md`):
+
+| Caso, lista plana con `paso 72` | Qué cae en el borde inferior | Medido |
+|---|---|---|
+| Abre arriba, nombres de un renglón: BCYT y Anatomía a todos los anchos; las seis materias desde 408 px | 20 de 44 px de la séptima: línea de texto cortada | Cumple: 22 de 30 combinaciones materia × ancho |
+| Abre arriba, nombres que saltan a dos renglones (CyR, DRE, Neuro y RyD a 320, 360 y 390 px; filas de 61 px) | Donde sumen las alturas: texto entero, relleno o línea cortada | 4 de 12 casos cortan la línea; el resto, sin pista |
+| Abre con la elegida fuera de vista, alineada a fila (d.4, «Al abrir»; `E-01b`), nombres de un renglón: BCYT a todos los anchos y Neuro desde 320 px de lámina | 24 de 44 px de la fila que sigue a las tres enteras bajo la elegida: línea de texto cortada, 8 px de capitales | Cumple: BCYT 85 de 85 y Neuro 17 de 17. Centrada, como abría hasta `E-01b`: BCYT 0 de 90 y Neuro 1 de 27 |
+| Ídem, nombres que saltan a dos renglones (CyR, DRE, RyD y Neuro a 280 px de lámina) | Donde sumen las alturas: 44 de 61 px (línea cortada), texto entero o relleno | 6 de 19 casos cortan la línea (DRE 3 de 6, CyR 2 de 3, Neuro 1 de 5, RyD 0 de 5); el resto, sin pista |
+| Ídem, la elegida entre las últimas (en BCYT, de la 24.ª a la 27.ª; en Anatomía, de la 7.ª a la 9.ª) | La región se detiene en el final de la lista | Sin fila cortada: no hay más abajo. 92 de 213 casos con la elegida fuera de vista (centrada, 86) |
+| Con rótulos de grupo (`paso 80`, BCYT; cuando el dato exista), alineada a fila | 23 de 44 px de la fila siguiente si el rótulo del 2.º parcial está a la vista; sin él, 12 px sin tinta | 6 de 16 casos cortan la línea (de la 9.ª a la 14.ª fila); centrada, 0 de 17 (3 con solo descendentes) |
+| Barra de scroll clásica de 15 px (Windows y Linux) | Quita 15 px de ancho y los nombres saltan antes: cambian 7 de 30 combinaciones | Abierta arriba: dejan de cortar BCYT a 320 de ancho y CyR a 390; DRE a 360 empieza a cortar: 21 de 30. Alineada a fila: 102 de 123 casos (BCYT 77 de 85: a 280 px de lámina, 9 de 17, porque saltan nombres a dos renglones). La barra es visible y avisa por sí sola |
+
+Donde no hay pista (nombres a dos renglones y, con rótulos de grupo, la elegida cuyo corte no tiene el rótulo del 2.º parcial a la vista) la única pista es el indicador de scroll, que macOS e iOS no muestran en reposo. Ninguno se resuelve con otro paso de la escala (el corte depende de la suma de alturas y de dónde queda el desplazamiento); no hay propuesta vigente. `E-01b` presupone `E-01`: con `paso 80` en la lista plana la alineación deja 12 px de relleno sin tinta en los 90 casos con más abajo.
 
 ---
 
@@ -348,7 +376,7 @@ Para la 3.x y el e2e. El e2e `tools/e2e/suites/agregar.js` codificaba `ADD-P1` (
 | Elemento | Medida |
 |---|---|
 | Columna | `lectura`; margen lateral `paso 8` cuando la ventana no la deja entera (`comun.md` §7.2) |
-| Selector de tema | Disparador a ancho de columna; la lámina abierta llena la columna, abre hacia abajo y empuja el formulario, como a 390 px; alto máximo `paso 80` |
+| Selector de tema | Disparador a ancho de columna; la lámina abierta llena la columna, abre hacia abajo y empuja el formulario, como a 390 px; alto máximo `paso 72` con la lista plana y `paso 80` con rótulos de grupo (`E-01`) |
 | Fila de opción | Celda de letra y quitar de `paso 11`; el campo toma el resto de la columna |
 | «Guardar pregunta» | K1 de ancho de columna, al pie |
 
@@ -359,6 +387,8 @@ Para la 3.x y el e2e. El e2e `tools/e2e/suites/agregar.js` codificaba `ADD-P1` (
 | 1024 (el corte) | Una columna sin ajuste; sin scroll horizontal | 1,4 ventanas |
 | 1366 × 768 | Tema, enunciado y las opciones en la primera ventana; explicación y «Guardar pregunta» piden un poco de desplazamiento. Con el selector abierto la lámina entra completa | 1,4 ventanas; 1,9 con el selector abierto |
 | 1920 × 1080 | Todo en una ventana; abierto, también entra | 0,9 ventanas; 1,3 con el selector abierto |
+
+Los altos con el selector abierto se midieron en 3.10 con `paso 80`. Con la lista plana (`paso 72`, `E-01`, 2026-10-13) la lámina mide 32 px menos (hasta 0,04 ventanas a 768 de alto) y sigue entrando completa.
 
 ### Orden, teclado y foco
 

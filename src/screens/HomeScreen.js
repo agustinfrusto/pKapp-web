@@ -39,7 +39,7 @@ function BotonCambiarMateria({ navigation }) {
     >
       {({ pressed }) => (
         <View
-          className={`h-full flex-row items-center justify-center gap-2 border px-2 ${
+          className={`h-full flex-row items-center justify-center gap-2 border ${soloGlifo ? 'px-2' : 'px-3'} ${
             pressed
               ? 'border-tinta bg-tinta dark:border-tintaD dark:bg-tintaD'
               : 'border-linea bg-fondo dark:border-lineaD dark:bg-fondoD'
@@ -115,11 +115,11 @@ export default function HomeScreen({ navigation }) {
           </Regiones.Lateral>
 
           <Regiones.Principal>
-            <View className="mb-2 mt-4">
+            <View className="mb-2 mt-4 escritorio:mt-1.5">
               <RotuloSeccion testID="home-rotulo-acciones" color="acento">Plano / Acciones</RotuloSeccion>
             </View>
 
-            <View testID="home-acciones" className="gap-2.5 amplio:grid amplio:grid-cols-2 amplio:gap-4">
+            <View testID="home-acciones" className="gap-2.5 amplio:grid amplio:grid-cols-2 amplio:gap-4 amplio:[&>*>*]:grow">
               <Accion
                 clave="practicar"
                 primaria

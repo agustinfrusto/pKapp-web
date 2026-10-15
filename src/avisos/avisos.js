@@ -19,13 +19,37 @@
 
 export const AVISOS = [
   {
-    id: 'nota-del-creador',
-    clave: 'pkapp_about_seen_at_v2',
-    rotulo: 'Una nota del creador',
+    id: 'nueva-estetica',
+    rotulo: 'Nota de pKapp',
     glifo: 'glifo-mensaje',
     parrafos: [
-      '¡Hola! Ya están las seis materias. Ahora estoy trabajando en la estética de la página, así que en las próximas semanas vas a ir viendo cambios en el diseño. ¡Gracias por la paciencia!',
+      '¡Hola! Soy pKapp y estrené una nueva estética. No sean malos conmigo: las apps también queremos cambiar de look a veces.',
     ],
+    pantallas: ['materias'],
+    descartable: true,
+    reaparece: 7,
+  },
+  {
+    id: 'nota-del-creador',
+    clave: 'pkapp_about_seen_at_v3',
+    rotulo: 'Nota de pKapp',
+    glifo: 'glifo-mensaje',
+    parrafos: [
+      'Mi creador lleva meses trabajando en mí. ¡Estamos sorprendidos porque miles de personas han usado pKapp!',
+      '¡Gracias a todos los que donaron! Sigo gratis y sin publicidad gracias a sus donaciones y aportes.',
+    ],
+    pantallas: ['materias'],
+    descartable: true,
+    reaparece: 7,
+  },
+  {
+    id: 'aviso-contenido',
+    rotulo: 'Nota de pKapp',
+    glifo: 'glifo-mensaje',
+    parrafos: [
+      'Mi creador es informático, no del área de la salud, así que puedo tener errores en las explicaciones: se generan analizando material de estudio público con ayuda de IA. Sus aportes serán recibidos en este correo:',
+    ],
+    contacto: 'pkappsoporte@gmail.com',
     pantallas: ['materias'],
     descartable: true,
     reaparece: 7,

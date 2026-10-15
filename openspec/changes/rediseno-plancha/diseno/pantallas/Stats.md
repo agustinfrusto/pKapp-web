@@ -8,7 +8,7 @@
 | Navegador | Barra interna con título «pKapp · Estadísticas» y volver |
 | Variantes | Con datos; fila con práctica o «Sin practicar»; con y sin «Más falladas» |
 | Fuera de alcance | Estado vacío «Sin estadísticas todavía» (`totalAnswered === 0`): su lugar está fijado; su ficha es `Vacios.md` (V1) |
-| Propuestas | Sección f: `STATS-P1`, `STATS-P2` y `STATS-P5`. Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Propuestas | Sección f: `STATS-P1`, `STATS-P2` y `STATS-P5`. Sección h: conservado de main (D10). Comunes: `COMUN-P2`. Sección i: cambios de la tarea 5.2 (Diseñador, 2026-10-13) |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P7`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.5 |
 
 ---
@@ -46,7 +46,7 @@ La vista admite tirar para actualizar (`RefreshControl`); es un control nativo y
 | 2 | Barra | Alto `paso 2`; margen superior `paso 2`, inferior `paso 1.5`; ancho completo | — | Relleno proporcional y dos marcas de umbral |
 | 3 | Detalle | Relleno inferior `paso 3` | — | Resumen de respuestas |
 
-La barra lleva dos marcas verticales, en el 60 % y en el 80 % de su ancho: alto `paso 3.5`, centradas sobre la barra, de modo que sobresalen arriba y abajo.
+La barra lleva dos marcas verticales, en el 60 % y en el 80 % de su ancho: trazo de 1 px (`w-px`, el `border` de `tokens.md` c.2), alto `paso 3.5`, centradas sobre la barra, de modo que sobresalen 3 px arriba y 3 px abajo. Esos dos sobresalidos, sobre `fondo`, son lo que identifica la marca (N1); el tramo que cruza el relleno es exento (X8, `tokens.md` e: `linea` sobre el relleno no llega a 3:1 y en oscuro la marca no se distingue dentro de él). La banda sigue sin depender del color solo: marca de banda, valor y leyenda la dicen con texto y forma (`STATS-P2`).
 
 Fila «Sin practicar» (`accuracy === null`, V7 de `Vacios.md`): sin barra ni marca de banda; a la derecha del nombre, «Sin practicar» en `detalle` y `tintaSec` en el lugar del valor, y debajo, en el detalle de la fila, «{t} preguntas disponibles» (c).
 
@@ -84,7 +84,7 @@ Filete superior `filete`; relleno vertical `paso 3`; primera línea con «#{n}»
 | «Sin practicar» | `tintaSec` | `fondo` | — | `detalle` | — | — | T3 |
 | Pista de la barra | — | `superficie` | `filete`, `border` | — | — | — | X1, X2 |
 | Relleno de la barra | — | `acierto`, `intermedia` o `error` según banda | — | — | — | — | N10, N16, N13 |
-| Marca de umbral (60 y 80) | `linea` | — | — | — | — | — | N1 |
+| Marca de umbral (60 y 80) | `linea`; trazo `w-px` (1 px) y alto `paso 3.5` | — | — | — | — | — | N1 y N2 (sobresalido), X8 (tramo sobre el relleno) |
 | Detalle de fila | `tintaSec` | `fondo` | — | `detalle` | — | — | T3 |
 | Índice de falladas «#{n}» | `tintaSec` | `fondo` | — | `rotulo` | — | — | T3 |
 | Valor de falladas | Color de su banda | `fondo` | — | `rotulo-medio` | — | Marca de banda (chico) | T10, T18, T14 |
@@ -96,7 +96,7 @@ Filete superior `filete`; relleno vertical `paso 3`; primera línea con «#{n}»
 
 ## c. Matriz de estados
 
-Las filas de esta pantalla no son controles: no hay hover, presionado, foco, seleccionado ni deshabilitado salvo en la barra interna.
+Las filas de esta pantalla no son controles: no hay hover, presionado, foco, seleccionado ni deshabilitado salvo en la barra interna y, con datos, en el contenedor desplazable, que es la otra parada de Tab (5.2, `E-03`; ver i).
 
 | Elemento | Reposo | Banda alta (80 o más) | Banda intermedia (60 a 79) | Banda baja (menos de 60) | Sin practicar |
 |---|---|---|---|---|---|
@@ -116,7 +116,9 @@ Las filas de esta pantalla no son controles: no hay hover, presionado, foco, sel
 | Elemento | Reposo | Hover (web) | Presionado | Foco | Seleccionado | Deshabilitado |
 |---|---|---|---|---|---|---|
 | Botón volver de la barra | `comun.md` §3 | `comun.md` §3 | `comun.md` §3 | `comun.md` §3 | — | — |
+| Contenedor desplazable, con datos (5.2, `E-03`) | Sin contorno | — | — | Contorno `foco`, `border-2`, `outline-offset` −`paso 0.5` (hacia adentro), solo `:focus-visible`; par N7 | — | — |
 | Tirar para actualizar | Nativo, sin estilo propio | — | — | — | — | — |
+| (5.0b, sin documentar) Tirar para actualizar en web | Sin efecto: el `RefreshControl` de react-native-web renderiza un `View` sin gesto ni indicador, así que en la única plataforma vigente (web, D10 y retiro de nativo 5.0) el gesto no existe y la pantalla se recarga solo al enfocar (`useFocusEffect`, d.2). Vale igual para V1 de `Vacios.md` (`VAC-C3`). Sin cambio en esta tarea | — | — | — | — | — |
 
 Origen de la pregunta, banco reducido y acierto o error de una opción no aplican (—).
 
@@ -126,7 +128,7 @@ Origen de la pregunta, banco reducido y acierto o error de una opción no aplica
 
 ### d.1 Bandas (D6, leídas de `src/screens/StatsScreen.js`)
 
-Función `acierto(percentage, esOscuro)`, líneas 192 a 197:
+Función de módulo `acierto(percentage)` de `StatsScreen.js` (`rg -n 'function acierto' src/screens/StatsScreen.js`):
 
 | Condición | Banda | Token | Marca |
 |---|---|---|---|
@@ -220,6 +222,18 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 
 ---
 
+## i. Cambios de la tarea 5.2
+
+Recorrido final de la rama `rediseno-revision-ux`. No son propuestas nuevas: cierran una medida que faltaba o corrigen la ficha contra el código. Cada fila dice qué había, qué rige ahora y cómo se comprueba.
+
+| Fecha | Id | Cambio | Antes | Después | Aceptación observable (Programador y e2e) |
+|---|---|---|---|---|---|
+| 2026-10-13 | `C-05` | La marca de umbral se conserva tal como está dibujada y su par sobre el relleno se registra como exento (X8) | b: marca `linea`, solo el par N1; sin grosor. `linea` sobre el relleno no figuraba en `tokens.md` e: 2,73 / 2,65 / 2,40 en claro y 1,24 / 1,41 / 1,52 en oscuro | b: trazo `w-px` y alto `paso 3.5`, pares N1, N2 y X8. `tokens.md` e suma X8 (exento: lo identifica su sobresalido, redundante con el valor y la leyenda). No hay cambio de dibujo ni de código | Sin cambio de código: `stats-umbral-60-*` y `stats-umbral-80-*` siguen midiendo 14 px de alto, 1 px de ancho, `linea`, centrados y sobresaliendo 3 px arriba y abajo (`estadisticas.js`). Descartado: partir la marca en dos muescas fuera de la barra (más DOM y más aserciones para un tramo de 8 px, el alto de la barra, que en claro se ve y en oscuro ya no se distingue) |
+| 2026-10-13 | `C-06` (nota) | d.1 deja de citar números de línea | «Función `acierto(percentage, esOscuro)`, líneas 192 a 197» | `acierto(percentage)`, función de módulo | Sin cambio de código |
+| 2026-10-13 | `E-03` | c y «Orden, teclado y foco» (Escritorio): con datos, el contenedor desplazable es una parada de Tab con contorno propio | «La pantalla no tiene controles salvo el volver de la barra». Chrome 130 o más trata un contenedor desplazable sin controles dentro como parada de Tab: con datos era una segunda parada tras «Volver», con el contorno por defecto del navegador (`auto 1px`, `rgb(0, 95, 204)` en claro y `rgb(153, 200, 255)` en oscuro), fuera de la paleta y de CD-4 | Con datos, dos paradas: el volver de la barra y el contenedor desplazable, que deja desplazar con el teclado. Contorno `foco` (`#095c6b` claro, `#7fd6e3` oscuro), `border-2`, `outline-offset` −`paso 0.5` hacia adentro, solo `:focus-visible`. Las filas siguen sin ser controles. Sin pares nuevos: `foco` sobre `fondo` es N7 | Con datos, Tab desde «Volver» enfoca el contenedor desplazable: contorno `solid 2px` `foco` y `outline-offset: -2px`; con el puntero no aparece; Shift+Tab vuelve a «Volver». Sin datos (`Vacios.md` V1) su acción queda dentro del scroll y no hay segunda parada. Implementado fuera de este árbol (tanda del Programador): sin verificar acá |
+
+---
+
 ## Escritorio · propuesta `ESC-P7` (tarea 3.10, aprobada por el usuario el 2026-10-11)
 
 | Campo | Valor |
@@ -263,7 +277,7 @@ El estado vacío (V1) es `Vacios.md` (`ESC-P12`).
 | Aspecto | Regla |
 |---|---|
 | Orden de DOM | El del teléfono: barra, tarjeta, «Por tema», leyenda, filas, «Más falladas», lista |
-| Foco | La pantalla no tiene controles salvo el volver de la barra; las filas no son controles (c) |
+| Foco | Con datos, dos paradas de Tab: el volver de la barra y, después, el contenedor desplazable (5.2, `E-03`). El contenedor lleva contorno `foco`, `border-2`, `outline-offset` −`paso 0.5` (hacia adentro: ocupa todo el ancho de la ventana y uno hacia afuera se recortaría), solo con `:focus-visible`, y deja desplazar con el teclado. Las filas no son controles (c) |
 | Cambia de lugar | La tarjeta global y la leyenda quedan a la izquierda de las filas, no encima |
 
 ### Propuesta

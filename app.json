@@ -2,7 +2,7 @@
   "expo": {
     "name": "pKapp",
     "slug": "pkapp",
-    "version": "1.9.0",
+    "version": "1.10.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "splash": {
@@ -15,7 +15,7 @@
       "bundler": "metro",
       "name": "pKapp",
       "shortName": "pKapp",
-      "description": "Preparación para ESFUNO (Biología Celular y Tisular, Anatomía, Neurobiología y demás módulos)",
+      "description": "Practicá para ESFUNO con preguntas de examen. Gratis, sin publicidad y en el celular.",
       "lang": "es",
       "themeColor": "#0b0d10",
       "backgroundColor": "#0b0d10",

@@ -11,7 +11,7 @@ import Glifo from '../components/Glifo';
 import {
   BotonRelleno, Columna, ControlMarco, Desplegable, FilaLista, RotuloSeccion,
 } from '../components/plancha';
-import { useTokens } from '../components/plancha/Control';
+import { GLIFO_CHICO, useTokens } from '../components/plancha/Control';
 
 const TINTA_SEC = 'text-tintaSec dark:text-tintaSecD';
 
@@ -178,7 +178,7 @@ export default function AddQuestionScreen({ navigation }) {
   const ayudaDeMarcado = (
     <View className="mt-2 flex-row flex-wrap items-center gap-1">
       <Text className={`font-plex-sans text-detalle ${TINTA_SEC}`}>Marcá con</Text>
-      <Glifo id="glifo-acierto" size={16} color={tema.acierto} />
+      <Glifo id="glifo-acierto" size={GLIFO_CHICO} color={tema.acierto} />
       <Text className={`font-plex-sans text-detalle ${TINTA_SEC}`}>cuál es la correcta</Text>
     </View>
   );
@@ -228,17 +228,18 @@ export default function AddQuestionScreen({ navigation }) {
             {options.map((option, idx) => {
               const letra = String.fromCharCode(65 + idx);
               return (
-                <View key={idx} className="mb-2.5 flex-row items-start gap-2">
+                <View key={idx} className={`flex-row items-start gap-2 ${options.length < 6 || idx < 5 ? 'mb-2.5' : ''}`}>
                   <ControlMarco
                     tono="acierto"
+                    relleno="ninguno"
                     className="w-11"
                     seleccionado={correctIndex === idx}
                     accessibilityLabel={`Opción ${letra}, marcar como correcta`}
                     onPress={() => setCorrectIndex(idx)}
                   >
                     {({ texto, glifo }) => (correctIndex === idx
-                      ? <Glifo id="glifo-acierto" size={16} color={tema[glifo]} />
-                      : <Text className={`font-plex-mono text-dato ${texto}`}>{letra}</Text>)}
+                      ? <Glifo id="glifo-acierto" size={GLIFO_CHICO} color={tema[glifo]} />
+                      : <Text className={`font-plex-mono-medium text-dato ${texto}`}>{letra}</Text>)}
                   </ControlMarco>
 
                   <Campo
@@ -288,6 +289,7 @@ export default function AddQuestionScreen({ navigation }) {
           <BotonRelleno
             etiqueta={saving ? 'Guardando...' : 'Guardar pregunta'}
             glifo={saving ? undefined : 'glifo-guardar'}
+            tamano="grande"
             className="w-full"
             deshabilitado={saving}
             onPress={handleSave}

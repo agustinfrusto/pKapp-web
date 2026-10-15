@@ -367,7 +367,9 @@ const MEDIR_TEMAS = EN_MARCO(`
       const l = lineas(n);
       const nombre = hojas.find((x) => x.textContent.trim() === l[1]);
       const e = nombre ? w.getComputedStyle(nombre) : null;
-      return { lineas: l, caja: caja(n), svg: n.querySelectorAll('svg').length,
+      const glifos = n.querySelectorAll('svg');
+      return { lineas: l, caja: caja(n), svg: glifos.length,
+        chevron: glifos.length ? glifos[glifos.length - 1].getBoundingClientRect().width : null,
         filete: w.getComputedStyle(n.firstElementChild || n).borderBottomWidth,
         nombreFamilia: e ? e.fontFamily : null, nombreTamano: e ? e.fontSize : null };
     });
@@ -389,6 +391,11 @@ const MEDIR_TEMAS = EN_MARCO(`
     valor: valor ? valor.textContent.trim() : null,
     valorCaja: caja(valor),
     lamina: caja(visibles('[data-testid="lamina-vacia"]')[0]),
+    glifoVacio: (() => {
+      const l = visibles('[data-testid="lamina-vacia"]')[0];
+      const g = l && l.querySelector('svg');
+      return g ? g.getBoundingClientRect().width : null;
+    })(),
     barra: caja(visibles('[data-testid="barra-interna"]')[0]),
     barraVolver: caja(visibles('[data-testid="barra-volver"]')[0]),
     barraTitulo: caja(visibles('[data-testid="barra-titulo"]')[0]),
@@ -1036,6 +1043,8 @@ async function mezclaYFilas(pagina, base, t) {
   t.ok('el nombre de cada tema va en `item` semibold de 16 px (b: Nombre de tema)',
     m.filas.every((f) => /PlexSans-SemiBold/.test(f.nombreFamilia) && f.nombreTamano === '16px'), true);
   t.ok('cada fila lleva chevron (svg)', m.filas.every((f) => f.svg >= 1), true);
+  // D-13: el chevron de la fila es `GLIFO_CHICO` (paso 4 = 16 px).
+  t.ok('D-13: el chevron de cada fila mide 16 px (paso 4)', m.filas.every((f) => f.chevron === 16), true);
   t.ok('cada fila mide 44 de alto como mínimo', m.filas.every((f) => f.caja.alto >= LADO_TACTIL), true);
   t.ok('cada fila lleva filete inferior de 1 px', m.filas.every((f) => f.filete === '1px'), true);
   t.ok('las filas llenan la columna: mismo ancho que la mezcla',
@@ -1081,6 +1090,8 @@ async function vaciosV2(pagina, base, t) {
   t.ok('V2: sin filtros ni mezcla debajo (VAC-C1)', v2.fuente === null && v2.mezcla === null && v2.filas.length === 0, true);
   t.ok('V2: sin emoji', EMOJI.test(v2.texto), false);
   t.ok('V2: lámina vacía con sus cuatro marcas de esquina (VAC-P1)', v2.marcas, 4);
+  // D-13: el glifo del vacío es `GLIFO_VACIO` (paso 12 = 48 px).
+  t.ok('V2: D-13 el glifo del vacío mide 48 px (paso 12)', v2.glifoVacio, 48);
   t.ok('V2: «Practicar» mide 44 de alto como mínimo (VAC-P2)', !!v2.practicar && v2.practicar.alto >= LADO_TACTIL, true);
   // a.4 de Vacios.md: anclada arriba, a paso 6 bajo la barra interna.
   t.ok('V2: la lámina arranca a paso 6 bajo la barra interna, no centrada en la pantalla',
@@ -1919,11 +1930,198 @@ async function capturasDeLaTrece(pagina, base, t) {
   });
 }
 
+// B-02 (PAR-P2) · TopicSelect.md sección i, fila 2026-10-13: la marca de parcial en el
+// filtro «Parcial». Los cinco puntos de aceptación, con la materia de parciales de siempre.
+// La marca se reconoce por su forma (fila de casillas sin texto), no por aria-hidden: así
+// «Examen sin marca» y «la marca es decorativa» son dos afirmaciones separadas.
+const MEDIR_MARCAS = EN_MARCO(`
+  const caja = (n) => { const r = n.getBoundingClientRect(); return { izq: r.left, der: r.right, arriba: r.top, abajo: r.bottom, ancho: r.width, alto: r.height }; };
+  const g = visibles('[role="radiogroup"]').find((x) => (x.getAttribute('aria-label') || '') === 'Parcial');
+  if (!g) return null;
+  const radios = Array.from(g.querySelectorAll('[role="radio"]')).map((n) => {
+    const marca = Array.from(n.querySelectorAll('*')).find((x) => x.children.length >= 2
+      && Array.from(x.children).every((c) => c.children.length === 0 && !c.textContent.trim()
+        && c.getBoundingClientRect().width <= 12)) || null;
+    const hoja = Array.from(n.querySelectorAll('*')).find((x) => x.children.length === 0 && x.textContent.trim());
+    const casillas = marca ? Array.from(marca.children).map((c) => {
+      const e = w.getComputedStyle(c);
+      return { caja: caja(c), borde: e.borderTopColor, relleno: e.backgroundColor };
+    }) : [];
+    return { texto: n.innerText.trim(), caja: caja(n), conMarca: !!marca, casillas,
+      oculta: marca ? marca.getAttribute('aria-hidden') : null,
+      textoCaja: hoja ? caja(hoja) : null, colorTexto: hoja ? w.getComputedStyle(hoja).color : null };
+  });
+  return { radios, grupo: caja(g),
+    desborde: Math.max(d.documentElement.scrollWidth, d.body.scrollWidth) > w.innerWidth };
+`);
+
+async function marcaDeParcial(pagina, base, t) {
+  const TRANSPARENTE_ = 'rgba(0, 0, 0, 0)';
+  const casi = (a, b, tol = 1) => Math.abs(a - b) <= tol;
+  t.ok('abrió Elegir tema (BCYT, 390 px)', await abrirTemas(pagina, base, { ancho: 390, alto: 900 }), true);
+  const m = await pagina.evaluar(MEDIR_MARCAS);
+  const radios = m ? m.radios : [];
+  const [examen, ...parciales] = radios;
+  t.ok('hay «Examen» y dos parciales', radios.length === 3 && !!examen && examen.texto === 'Examen', true);
+
+  // (1) Cada parcial: marca aria-hidden con `de` casillas de 10 × 10 y 2 px entre ellas,
+  // la `indice`-ésima llena; «Examen» sin marca.
+  t.ok('1: «Examen» no lleva marca', !!examen && examen.conMarca === false, true);
+  parciales.forEach((r, i) => {
+    t.ok(`1: «${r.texto}» lleva la marca con ${parciales.length} casillas`, r.conMarca && r.casillas.length === parciales.length, true);
+    t.ok(`1: «${r.texto}» la marca es decorativa (aria-hidden)`, r.oculta, 'true');
+    t.ok(`1: «${r.texto}» casillas de 10 × 10 px`,
+      r.casillas.length > 0 && r.casillas.every((c) => casi(c.caja.ancho, 10, 0.5) && casi(c.caja.alto, 10, 0.5)), true);
+    t.ok(`1: «${r.texto}» 2 px entre casillas`,
+      r.casillas.every((c, k) => k === 0 || casi(c.caja.izq - r.casillas[k - 1].caja.der, 2, 0.5)), true);
+    t.ok(`1: «${r.texto}» solo la casilla ${i + 1} está llena`,
+      r.casillas.map((c) => c.relleno !== TRANSPARENTE_).join('|')
+        === r.casillas.map((_, k) => k === i).join('|'), true);
+    // (2) Marca → texto: 8 px.
+    const ultima = r.casillas[r.casillas.length - 1];
+    t.ok(`2: «${r.texto}» 8 px entre la marca y el texto`,
+      !!ultima && !!r.textoCaja && casi(r.textoCaja.izq - ultima.caja.der, 8, 0.5), true);
+  });
+
+  // (4) Anchos y alto (BCYT).
+  t.ok('4: «1er Parcial» mide 128 ± 1 px', parciales[0] ? casi(parciales[0].caja.ancho, 128) : false, true);
+  t.ok('4: «2do Parcial» mide 131,4 ± 1 px', parciales[1] ? casi(parciales[1].caja.ancho, 131.4) : false, true);
+  t.ok('4: los filtros miden 44 de alto', parciales.every((r) => casi(r.caja.alto, 44, 0.5)), true);
+
+  // (5) Sin scroll horizontal a 320, 360 y 390; a 390 el grupo son dos líneas (96 px).
+  t.ok('5: 390 px sin scroll horizontal', m ? !m.desborde : false, true);
+  t.ok('5: 390 px el grupo mide 96 px de alto (dos líneas)', m ? casi(m.grupo.alto, 96) : false, true);
+  for (const ancho of [320, 360]) {
+    const abrio = await abrirTemas(pagina, base, { ancho, alto: 900 });
+    t.ok(`5: ${ancho} px abrió Elegir tema`, abrio, true);
+    const x = abrio ? await pagina.evaluar(MEDIR_MARCAS) : null;
+    t.ok(`5: ${ancho} px sin scroll horizontal`, x ? !x.desborde : false, true);
+  }
+  // 1366: «Parcial» queda en una línea de 358 px (con «Fuente» y «Temporizador»).
+  const escritorio = await abrirTemas(pagina, base, { ancho: 1366, alto: 900, propias: true });
+  t.ok('5: 1366 px abrió Elegir tema', escritorio, true);
+  const e = escritorio ? await pagina.evaluar(MEDIR_MARCAS) : null;
+  // El grupo se estira a su celda (`flex-1`): lo natural es el tramo que cubren los filtros.
+  const tramo = e && e.radios.length ? e.radios[e.radios.length - 1].caja.der - e.radios[0].caja.izq : 0;
+  t.ok('5: 1366 px «Parcial» en una línea de 358 ± 1 px',
+    e ? casi(tramo, 358) && casi(e.grupo.alto, 44, 0.5) : false, true);
+  await pagina.evaluar(LIMPIAR_DATOS);
+
+  // (3) Colores por estado, claro y oscuro: reposo y hover `tinta`; seleccionado y presionado `fondo`.
+  for (const oscuro of [false, true]) {
+    const T = plancha[oscuro ? 'oscuro' : 'claro'];
+    const pre = oscuro ? 'oscuro' : 'claro';
+    t.ok(`3 ${pre}: abrió Elegir tema`, await abrirTemas(pagina, base, { ancho: 390, alto: 900, oscuro }), true);
+    const marca = async (texto) => {
+      const r = ((await pagina.evaluar(MEDIR_MARCAS)) || { radios: [] }).radios.find((x) => x.texto === texto);
+      return r && r.casillas.length ? r : null;
+    };
+    const colores = (r, i) => (r ? { borde: r.casillas[i].borde, relleno: r.casillas[i].relleno } : null);
+    const esperado = (token, llena) => ({ borde: rgb(token), relleno: llena ? rgb(token) : TRANSPARENTE_ });
+
+    const reposo = await marca('1er Parcial');
+    t.ok(`3 ${pre}: reposo, casilla llena en tinta`, JSON.stringify(colores(reposo, 0)), JSON.stringify(esperado(T.tinta, true)));
+    t.ok(`3 ${pre}: reposo, casilla vacía con borde tinta`, JSON.stringify(colores(reposo, 1)), JSON.stringify(esperado(T.tinta, false)));
+
+    const c = reposo ? reposo.caja : { izq: 0, der: 0, arriba: 0, abajo: 0 };
+    await pagina.moverA(Math.round((c.izq + c.der) / 2), Math.round((c.arriba + c.abajo) / 2));
+    await new Promise((r) => setTimeout(r, 150));
+    t.ok(`3 ${pre}: hover, la marca sigue en tinta`, JSON.stringify(colores(await marca('1er Parcial'), 0)), JSON.stringify(esperado(T.tinta, true)));
+    await pagina.evaluar(PRESIONAR(BUSCAR.filtro('1er parcial')));
+    await new Promise((r) => setTimeout(r, 150));
+    t.ok(`3 ${pre}: presionado, la marca pasa a fondo`, JSON.stringify(colores(await marca('1er Parcial'), 0)), JSON.stringify(esperado(T.fondo, true)));
+    t.ok(`3 ${pre}: presionado, la casilla vacía pasa a borde fondo`, JSON.stringify(colores(await marca('1er Parcial'), 1)), JSON.stringify(esperado(T.fondo, false)));
+    await pagina.evaluar(SOLTAR_FUERA);
+    await pagina.moverA(1, 1);
+
+    await clicEnMarco(pagina, '1er parcial');
+    await pagina.esperarA(async () => {
+      const r = await marca('1er Parcial');
+      return !!r && r.casillas[0].borde === rgb(T.fondo);
+    }, { limite: 2000 });
+    const sel = await marca('1er Parcial');
+    t.ok(`3 ${pre}: seleccionado, casilla llena en fondo`, JSON.stringify(colores(sel, 0)), JSON.stringify(esperado(T.fondo, true)));
+    t.ok(`3 ${pre}: seleccionado, casilla vacía con borde fondo`, JSON.stringify(colores(sel, 1)), JSON.stringify(esperado(T.fondo, false)));
+    const otro = await marca('2do Parcial');
+    t.ok(`3 ${pre}: el otro filtro sigue en tinta`, JSON.stringify(colores(otro, 1)), JSON.stringify(esperado(T.tinta, true)));
+  }
+  await pagina.evaluar(LIMPIAR_DATOS);
+}
+
+// Una materia cuyos `parciales[].id` son enteros: JS enumera las claves enteras antes que
+// `all`, así que «Examen» deja de ser la primera entrada del objeto de filtros. El dato se
+// inyecta renombrando los ids de BCYT cuando la app los recorre (`parciales.map`):
+// `primero` → '2' y `segundo` → '1', o sea, el orden de `parciales[]` no es el numérico.
+const IDS_ENTEROS = `(function () {
+  const original = Array.prototype.map;
+  Array.prototype.map = function (...args) {
+    const fuente = this.length === 2 && this[0] && this[0].id === 'primero' && this[1] && this[1].id === 'segundo'
+      ? [Object.assign({}, this[0], { id: '2' }), Object.assign({}, this[1], { id: '1' })]
+      : this;
+    return original.apply(fuente, args);
+  };
+})();`;
+
+async function marcaDeParcialConIdsEnteros(pagina, base, t) {
+  const { identifier } = await pagina.enviar('Page.addScriptToEvaluateOnNewDocument', { source: IDS_ENTEROS });
+  try {
+    t.ok('abrió Elegir tema con parciales de id entero',
+      await abrirTemas(pagina, base, { ancho: 390, alto: 900 }), true);
+    const m = await pagina.evaluar(MEDIR_MARCAS);
+    const radios = m ? m.radios : [];
+    t.ok('ids enteros: los radios van en el orden Examen, 1er Parcial, 2do Parcial',
+      radios.map((r) => r.texto).join('|'), 'Examen|1er Parcial|2do Parcial');
+    const porTexto = (texto) => radios.find((r) => r.texto === texto);
+    t.ok('ids enteros: «Examen» no lleva marca', porTexto('Examen') ? porTexto('Examen').conMarca : null, false);
+    const parciales = ['1er Parcial', '2do Parcial'].map(porTexto).filter(Boolean);
+    t.ok('ids enteros: cada parcial lleva la marca con tantas casillas como parciales',
+      parciales.map((r) => r.casillas.length).join('|'), '2|2');
+    t.ok('ids enteros: «Examen» queda sin marca y los dos parciales con marca', parciales.length, 2);
+    t.ok('ids enteros: la casilla llena es la del lugar del parcial en `parciales[]`',
+      parciales.map((r) => r.casillas.map((c) => c.relleno !== 'rgba(0, 0, 0, 0)' ? '1' : '0').join('')).join('|'),
+      '10|01');
+  } finally {
+    await pagina.enviar('Page.removeScriptToEvaluateOnNewDocument', { identifier });
+    await pagina.evaluar(LIMPIAR_DATOS);
+  }
+}
+
 // ===========================================================================
 // GRUPO B · tarea 2.10, plan B de D2 (Ilustracion.js: <svg> del DOM)
 // ===========================================================================
 
+// E-07: el fondo de navegación de React Navigation (`#f2f2f2` del tema por defecto) no
+// es de la paleta: ningún elemento de la app lo pinta, en ningún tema. El contenedor de
+// navegación toma `fondo` del tema activo, también al cambiar de tema sin recargar.
+const GRIS_DE_REACT_NAVIGATION = 'rgb(242, 242, 242)';
+const PINTADOS_CON = (color) => EN_MARCO(`
+  return Array.from(d.body.querySelectorAll('*'))
+    .filter((n) => w.getComputedStyle(n).backgroundColor === ${JSON.stringify(color)}).length;
+`);
+
+async function fondoDeNavegacionDelTema(pagina, base, t) {
+  const fondo = { claro: rgb(plancha.claro.fondo), oscuro: rgb(plancha.oscuro.fondo) };
+  const contar = (color) => pagina.evaluar(PINTADOS_CON(color));
+  // El fondo del tema activo lo pinta algún elemento y el del otro tema, ninguno.
+  const verificar = async (cuando, activo, otro) => {
+    t.ok(`${cuando}: ningún elemento pinta el gris de React Navigation`,
+      await contar(GRIS_DE_REACT_NAVIGATION), 0);
+    t.ok(`${cuando}: el contenedor pinta el fondo del tema activo`,
+      await contar(fondo[activo]) > 0, true);
+    t.ok(`${cuando}: ningún elemento pinta el fondo del otro tema`, await contar(fondo[otro]), 0);
+  };
+  t.ok('abrió la app en el marco', await abrirMarco(pagina, base, 390), true);
+  await verificar('claro', 'claro', 'oscuro');
+  await clicEnMarco(pagina, 'oscuro');
+  t.ok('oscuro aplicado', await pagina.esperarA(() => pagina.evaluar(ESTA_OSCURO)), true);
+  await verificar('oscuro, sin recargar', 'oscuro', 'claro');
+  await clicEnMarco(pagina, 'claro');
+  t.ok('claro restaurado', await pagina.esperarA(async () => !await pagina.evaluar(ESTA_OSCURO)), true);
+  await verificar('claro de nuevo, sin recargar', 'claro', 'oscuro');
+}
+
 module.exports = [
+  { nombre: 'Navegación: fondo del contenedor sin el gris de React Navigation (E-07)', correr: fondoDeNavegacionDelTema },
   { nombre: 'HeaderMarca: control Claro | Oscuro', correr: controlDeTema },
   { nombre: 'HeaderMarca: sin scroll horizontal y corte de 360 px', correr: sinScrollHorizontalYCorteDe360 },
   { nombre: 'HeaderMarca: teclado del control Claro | Oscuro', correr: tecladoDelControlDeTema },
@@ -1944,6 +2142,8 @@ module.exports = [
   { nombre: 'TopicSelect: carga que rechaza (finally)', correr: cargaQueRechazaMuestraV2 },
   { nombre: 'TopicSelect: V9, temas sin preguntas fuera de la lista', correr: temasSinPreguntasNoSeListan },
   { nombre: 'TopicSelect: estados K4', correr: estadosDeControl },
+  { nombre: 'TopicSelect: marca de parcial en el filtro (B-02, PAR-P2)', correr: marcaDeParcial },
+  { nombre: 'TopicSelect: marca de parcial con ids enteros', correr: marcaDeParcialConIdsEnteros },
   { nombre: 'TopicSelect: estados K de todos los controles', correr: estadosDeTodosLosControles },
   { nombre: 'TopicSelect: sin desborde y 44 × 44 en claro y oscuro', correr: sinDesbordeNiCortes },
   { nombre: 'TopicSelect escritorio: practice, regiones, columnas y foco', correr: escritorioPractice },

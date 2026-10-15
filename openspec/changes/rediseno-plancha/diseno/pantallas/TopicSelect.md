@@ -8,7 +8,7 @@
 | Navegador | Barra interna con título «pKapp · Elegir tema» y volver |
 | Variantes | A: `practice`, o `failed` con fallos. B: `exam`. C: `failed` sin fallos. Cada una con o sin filtro de parcial (`materia.config.parciales`) y con o sin filtro de fuente (la materia tiene o no preguntas propias, `TOPIC-P6`): el panel lleva de uno a tres grupos |
 | Fuera de alcance | Variante C (estado vacío): su lugar está fijado; su ficha es `Vacios.md` (V2) |
-| Propuestas | Sección f: `TOPIC-P1` a `TOPIC-P5` (usuario, 2026-10-10) y `TOPIC-P6`, el grupo «Fuente» (usuario, 2026-10-11; f.1). Sección h: conservado de main (D10). Comunes: `COMUN-P2` |
+| Propuestas | Sección f: `TOPIC-P1` a `TOPIC-P5` (usuario, 2026-10-10) y `TOPIC-P6`, el grupo «Fuente» (usuario, 2026-10-11; f.1). Sección h: conservado de main (D10). Comunes: `COMUN-P2` y `PAR-P2`, la marca de parcial en el filtro (`comun.md` §12, usuario, 2026-10-10; medidas en a.3). Sección i: cambios de la tarea 5.2 (Diseñador, 2026-10-13) |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P3`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.5 |
 
 ---
@@ -43,10 +43,21 @@ Interior de la tarjeta «Modo Examen», de arriba abajo: título (`titulo`), tex
 |---|---|---|---|---|
 | 1 | Marco del panel | Relleno `paso 3.5` en las cuatro caras | — | Los grupos presentes, en orden |
 | 2 | Grupo «Fuente» | Rótulo con margen inferior `paso 2` | Divisor `filete` debajo, margen vertical `paso 3.5` | Dos filtros, «Todas» y «Solo mías»; el grupo no existe si la materia no tiene preguntas propias (`TOPIC-P6`, f.1) |
-| 3 | Grupo «Parcial» | Igual | Divisor `filete` debajo, margen vertical `paso 3.5` | «Examen» y un filtro por parcial; el grupo no existe si la materia no tiene parciales |
+| 3 | Grupo «Parcial» | Igual | Divisor `filete` debajo, margen vertical `paso 3.5` | «Examen» y un filtro por parcial; cada filtro de parcial lleva delante la marca de parcial (`PAR-P2`, tabla «Marca de parcial en el filtro» más abajo) y «Examen» no lleva marca; el grupo no existe si la materia no tiene parciales |
 | 4 | Grupo «Temporizador» | Rótulo con margen inferior `paso 2` | — | Cuadrado menos, valor, cuadrado más; separación `paso 4`. Siempre está y siempre es el último |
 
 Filtros: alto `paso 11`, relleno horizontal `paso 3`, separación `paso 2` en horizontal y en vertical, con salto de línea.
+
+Marca de parcial en el filtro (`PAR-P2`, aprobada por el usuario el 2026-10-10; no se había implementado: hallazgo `B-02` de la tarea 5.2, 2026-10-13). La forma es la de `comun.md` §12.2; acá se fija dónde va y cómo cambia con el estado del filtro:
+
+| Pieza | Regla |
+|---|---|
+| Dónde | Solo en los filtros de parcial del grupo «Parcial», delante del texto. «Examen» no lleva marca; tampoco los filtros del grupo «Fuente» ni los demás `Segmento` de la app |
+| Forma | Una fila de `de` casillas, una por parcial de la materia (`materia.config.parciales`), de lado `paso 2.5`, separadas `paso 0.5`; la vacía con marco `border` y la llena con relleno. La llena es la del parcial del filtro (la `indice`-ésima, en el orden de `parciales`); con dos parciales, «1er Parcial» llena la primera y «2do Parcial» la segunda |
+| Separación | `paso 2` entre la marca y el texto: la del propio filtro, sin otra |
+| Color | El del texto del filtro en cada estado, marco y relleno del mismo color: `tinta` en reposo, hover y foco; `fondo` sobre el relleno `tinta` en seleccionado y presionado. Nunca `acierto`, `error` ni `intermedia` (`comun.md` §12.2) |
+| Medidas | Alto `paso 11` y relleno `paso 3` sin cambio. El filtro crece 30 px (2 × `paso 2.5` + `paso 0.5` + `paso 2`): «1er Parcial» de 98 a 128 px y «2do Parcial» de 101,4 a 131,4 px; «Examen» queda en 82,1 px (medido en el build de 5.0b). Los tres suman 357,5 px con sus separaciones: a 390 px el grupo pasa de una línea (alto 44 px) a dos (96 px), porque el panel deja 320 px; a 360 y a 320 px ya ocupaba dos líneas, y el salto es el de siempre (`TOPIC-P1`) |
+| Accesibilidad | Decorativa: `aria-hidden`, `accessibilityElementsHidden`, `importantForAccessibility="no-hide-descendants"`. El nombre accesible del radio sigue siendo el texto («1er Parcial»). No es un control: sin hover, presionado ni foco propios |
 
 El divisor pertenece al grupo que lo precede: un grupo ausente no deja divisor ni hueco. Con n grupos hay n − 1 divisores; con «Temporizador» solo, ninguno (f.1, tabla 1).
 
@@ -76,6 +87,8 @@ El divisor pertenece al grupo que lo precede: un grupo ausente no deja divisor n
 | Rótulo de grupo | `tintaSec` | `superficie` | — | `rotulo` | — | — | T4 |
 | Filtro en reposo (K4) | `tinta` | `superficie` | `borde`, `border` | `cuerpo` | — | — | T2, N4 |
 | Filtro seleccionado (K4) | `fondo` | `tinta` | `tinta`, `border` | `cuerpo-fuerte` | — | — | T7, N6 |
+| Marca de parcial, filtro en reposo (`PAR-P2`) | `tinta` | `superficie` | Casilla vacía `tinta`, `border`; llena con relleno `tinta` | — | — | — | N6 |
+| Marca de parcial, filtro seleccionado (`PAR-P2`) | `fondo` | `tinta` | Casilla vacía `fondo`, `border`; llena con relleno `fondo` | — | — | — | T7 (mismo par: `fondo` sobre `tinta`), N5 |
 | Cuadrado menos y más (K5) | `tinta` | `superficie` | `linea`, `border` | — | — | `glifo-menos`, `glifo-mas` | N2, N6 |
 | Cuadrado en el extremo (K5) | `inactivo` | `superficie` | `filete`, `border` | — | — | `glifo-menos` o `glifo-mas` | X5 |
 | Valor del temporizador | `tinta` | `superficie` | — | `cuerpo-fuerte` | — | — | T2 |
@@ -100,8 +113,8 @@ El divisor pertenece al grupo que lo precede: un grupo ausente no deja divisor n
 
 | Elemento | Reposo | Hover (web) | Presionado | Foco | Seleccionado | Deshabilitado | Estado de dato |
 |---|---|---|---|---|---|---|---|
-| Filtro de fuente (K4) | Borde `borde`; texto `tinta` | Borde `linea` | Inversión: aspecto de seleccionado | Contorno `foco`, `border-2`, separado `paso 0.5` | Fondo `tinta`; texto `fondo` en `cuerpo-fuerte`; estado accesible seleccionado | — | Origen de la pregunta: «Todas» no filtra la base; «Solo mías» la deja en las preguntas propias del usuario (`source === 'user'`). El grupo existe solo con preguntas propias en la materia (f.1) |
-| Filtro de parcial (K4) | Igual | Igual | Igual | Igual | Igual | — | Insignias de parcial en el quiz: `comun.md` §12.2 y §12.3 |
+| Filtro de fuente (K4) | Borde `borde`; texto `tinta` | Borde `linea` | Inversión de colores: fondo `tinta`, texto `fondo`, borde `tinta`; conserva `cuerpo` (el peso `cuerpo-fuerte` es solo del seleccionado: no hay salto de ancho al presionar; `comun.md` §5.2, 2.9-4) | Contorno `foco`, `border-2`, separado `paso 0.5` | Fondo `tinta`; texto `fondo` en `cuerpo-fuerte`; estado accesible seleccionado | — | Origen de la pregunta: «Todas» no filtra la base; «Solo mías» la deja en las preguntas propias del usuario (`source === 'user'`). El grupo existe solo con preguntas propias en la materia (f.1) |
+| Filtro de parcial (K4) | Igual, con la marca de parcial `tinta` delante del texto (`PAR-P2`) | Igual; la marca sigue `tinta` | Igual; la marca pasa a `fondo` con la inversión | Igual | Igual; la marca `fondo` sobre el relleno `tinta` | — | Insignias de parcial en el quiz: `comun.md` §12.2 y §12.3. La marca no es un control: sin estados propios (a.3) |
 | Cuadrado menos (K5) | Borde `linea`; glifo `tinta` | Contorno web `linea`, `border` | Inversión | Contorno `foco` | — | Borde `filete`; glifo `inactivo`; con el valor en «Sin límite» | — |
 | Cuadrado más (K5) | Igual | Igual | Igual | Igual | — | Igual, con el valor en el máximo de la lista | — |
 | Valor del temporizador | Estático | — | — | — | — | — | «Sin límite» o «{n} min» |
@@ -231,7 +244,7 @@ Figuras de la maqueta (3.13b): 03a (caso 4, con propias), 03b (caso 2, modo exam
 | Aspecto del caso 5 | Regla |
 |---|---|
 | Por qué «Todas» | Un filtro activo sin control a la vista dejaría el banco reducido sin que el usuario pudiera verlo ni deshacerlo (d.2, «Sin selección oculta») |
-| Foco | Si estaba en «Solo mías», pasa al primer control que queda en el panel: el primer filtro de parcial o, sin parciales, el cuadrado «menos» |
+| Foco | Si estaba en «Solo mías», pasa al primer control habilitado que queda en el panel: el primer filtro de parcial o, sin parciales, el cuadrado «menos»; con el temporizador en «Sin límite» (valor inicial) «menos» está deshabilitado y el foco va a «más» (`TopicSelectScreen.js`, `Filters`: enfoca el primer control habilitado) |
 | Aviso | Sin región viva: la lista cambia como con cualquier otro filtro |
 | Cuándo ocurre | Las propias se leen al abrir la pantalla y el borrado vive en Ajustes (`Settings.md`): dentro de un mismo montaje solo pasa si la pantalla recarga las propias estando abierta. La regla es el estado derivado, no un caso aparte: vale igual |
 
@@ -317,6 +330,18 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 | TOPIC-C3 | Las opciones del temporizador (`TIMER_OPTIONS`): «Sin límite» y de 10 a 120 minutos de a 10; el cuadrado del extremo se apaga. El boceto dibuja un solo valor | Dato de `main` (d.1) | dato |
 | TOPIC-C4 | La tarjeta «Modo Examen» de la variante `exam`: título, texto del sorteo según `examSize` o `examSizeParcial`, «Disponibles: {n} preguntas» y «Comenzar examen». Su contenido es de `main`; su lámina es `TOPIC-P5` | Función y copy de `main` (d.1, e) | uso |
 | TOPIC-C5 | El orden de los temas (el de `TOPICS`), solo con los que tienen al menos una pregunta tras los filtros. La cláusula de `main` «“Solo generadas” incluye las preguntas del usuario» la sustituye `TOPIC-P6`: «Solo mías» deja solo las propias | Orden de uso y datos de `main` (c, d.1) | dato |
+
+---
+
+## i. Cambios de la tarea 5.2
+
+Recorrido final de la rama `rediseno-revision-ux`. No son propuestas nuevas: cierran una medida que faltaba, bajan al cuerpo de la ficha una propuesta ya aprobada o corrigen la ficha contra el código. Cada fila dice qué había, qué rige ahora y cómo se comprueba.
+
+| Fecha | Id | Cambio | Antes | Después | Aceptación observable (Programador y e2e) |
+|---|---|---|---|---|---|
+| 2026-10-13 | `B-02` (`PAR-P2`) | La marca de parcial entra al cuerpo de la ficha (a.3, b, c) con su especificación | Filtros de parcial solo con texto: «1er Parcial» 98 px y «2do Parcial» 101,4 px. La marca figuraba en `comun.md` §12.3 y en el ancho de escritorio (358 px, f.1 tabla 5), pero nunca se implementó (`TopicSelectScreen.js`, `Filters`: `Segmento` sin `marca`) | Delante del texto de cada filtro de parcial: `de` casillas de `paso 2.5`, `paso 0.5` entre ellas, la `indice`-ésima llena; `paso 2` hasta el texto; color del estado del filtro (`tinta` / `fondo`); «Examen» sin marca. Filtros de 128 y 131,4 px | (1) Cada radio de parcial contiene una marca `aria-hidden` con `de` casillas de 10 × 10 px y 2 px entre ellas; la `indice`-ésima llena; «Examen» no la tiene. (2) Marca → texto: 8 px. (3) Reposo y hover: marco y relleno `tinta`; seleccionado y presionado: `fondo`. (4) Anchos 128 ± 1 y 131,4 ± 1 px con alto 44 (BCYT). (5) Sin scroll horizontal a 320, 360 y 390 px; a 390 px el grupo mide 96 px de alto (dos líneas) y a 1366 «Parcial» queda en una línea de 358 px. Implementación: `Segmento` recibe `marca: { indice, de }` por opción; extraer `MarcaParcial` (hoy `Desplegable.js:43`, repetida en línea en `QuizScreen.js:372-383`) a `plancha/MarcaParcial.js` con la prop `color` (`tinta`, `fondo`, `tintaSec`); `TopicSelectScreen.js:364-375` arma las opciones con `indice` según `materia.config.parciales` |
+| 2026-10-13 | `B-09` (nota) | El presionado del filtro K4 conserva `cuerpo` | c, columna «Presionado»: «Inversión: aspecto de seleccionado», que lleva `cuerpo-fuerte` | Inversión de colores sin cambio de peso: el código (`Segmento.js`, aspecto `presionado`) ya lo hace y evita el salto de ancho de f.1, tabla 5 | Presionado: texto `fondo`, fondo y borde `tinta`, `font-plex-sans` (400); seleccionado: `font-plex-sans-semibold` |
+| 2026-10-13 | `B-12` (nota) | El foco tras eliminar la última propia va al primer control habilitado | f.1, tabla 3, fila «Foco»: «… el cuadrado “menos”» | «Primer control habilitado»: con «Sin límite» «menos» está deshabilitado y el foco va a «más» | Sin cambio de código |
 
 ---
 

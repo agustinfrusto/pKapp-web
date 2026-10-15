@@ -1,8 +1,8 @@
 import './global.css';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { Animated, View, Image, StyleSheet, Platform } from 'react-native';
-import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { Platform } from 'react-native';
+import { DefaultTheme, NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'nativewind';
@@ -31,27 +31,6 @@ import { cargarFuentes } from './src/theme/fuentes';
 cargarFuentes();
 
 const Stack = createNativeStackNavigator();
-
-const splashStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: plancha.oscuro.manifestFondo,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logo: {
-    width: 260,
-    height: 100,
-  },
-  tagline: {
-    color: plancha.oscuro.tintaSec,
-    fontSize: 14,
-    marginTop: 12,
-    letterSpacing: 0.5,
-  },
-});
-
-const logo = require('./src/assets/logo.png');
 
 // Las rutas con barra interna, en un solo lugar: su título y el ancho de la hoja de su
 // superficie (comun.md §7.2, tabla de superficies). La barra va dentro de la pantalla y
@@ -90,8 +69,11 @@ function AppContent() {
   // si no se pinta a mano, queda un borde claro delatando el tema anterior.
   const tema = esOscuro ? plancha.oscuro : plancha.claro;
   const chrome = { cabecera: tema.fondo };
-  const [splashDone, setSplashDone] = useState(false);
-  const opacity = useRef(new Animated.Value(0)).current;
+  // El fondo de navegación por defecto (#f2f2f2) no es de la paleta en ningún tema.
+  const temaNavegacion = useMemo(
+    () => ({ ...DefaultTheme, colors: { ...DefaultTheme.colors, background: tema.fondo } }),
+    [tema.fondo],
+  );
   const navigationRef = useNavigationContainerRef();
   const routeNameRef = useRef();
 
@@ -116,17 +98,6 @@ function AppContent() {
   useEffect(() => {
     injectWebStyles(esOscuro);
     initDatabase().catch((err) => console.error('Error iniciando DB:', err));
-
-    if (Platform.OS === 'web') {
-      setSplashDone(true);
-      return;
-    }
-
-    Animated.sequence([
-      Animated.timing(opacity, { toValue: 1, duration: 900, useNativeDriver: true }),
-      Animated.delay(700),
-      Animated.timing(opacity, { toValue: 0, duration: 900, useNativeDriver: true }),
-    ]).start(() => setSplashDone(true));
   }, []);
 
   // El themeColor de la PWA define el color del chrome del navegador en la app
@@ -138,26 +109,11 @@ function AppContent() {
     if (meta) meta.setAttribute('content', chrome.cabecera);
   }, [chrome.cabecera, esOscuro]);
 
-  if (!splashDone) {
-    return (
-      <View style={splashStyles.container}>
-        <StatusBar style="light" backgroundColor={plancha.oscuro.manifestFondo} />
-        <Animated.Image
-          source={logo}
-          style={[splashStyles.logo, { opacity }]}
-          resizeMode="contain"
-        />
-        <Animated.Text style={[splashStyles.tagline, { opacity }]}>
-          Entrena y aprueba ESFUNO
-        </Animated.Text>
-      </View>
-    );
-  }
-
   return (
     <NavigationContainer
       ref={navigationRef}
       linking={linking}
+      theme={temaNavegacion}
       onReady={() => {
         // La carga inicial ("/") ya la registra Umami; solo guardamos la ruta actual.
         routeNameRef.current = navigationRef.getCurrentRoute()?.name;
