@@ -15,7 +15,7 @@
 // Ningún valor de color se escribe en este archivo: todo sale de `plancha`.
 // Reutiliza el Chrome y el cliente CDP del arnés e2e.
 //
-// Uso: node openspec/changes/rediseno-plancha/diseno/svg/variantes/variantes.mjs [--sin-png]
+// Uso: node openspec/diseno/svg/variantes/variantes.mjs [--sin-png]
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -24,7 +24,7 @@ import { fileURLToPath } from 'node:url';
 
 const AQUI = path.dirname(fileURLToPath(import.meta.url));
 const SVG = path.resolve(AQUI, '..');
-const RAIZ = path.resolve(AQUI, '..', '..', '..', '..', '..', '..');
+const RAIZ = path.resolve(AQUI, '..', '..', '..', '..');
 const SALIDA_HTML = path.join(AQUI, 'variantes.html');
 const SALIDA_PNG = path.join(AQUI, 'variantes.png');
 const ANCHO_PANEL = 984;

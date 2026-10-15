@@ -1,6 +1,6 @@
 // Convierte los SVG de las ilustraciones de materia a datos (design.md D2/D3, tarea 2.7).
 //
-// Lee openspec/changes/rediseno-plancha/diseno/svg/<id>.svg y escribe
+// Lee openspec/diseno/svg/<id>.svg y escribe
 // src/materias/<id>/ilustracion.js en el contrato de `Ilustracion`. Reutiliza `leerSvg`
 // de convertir-glifos.mjs con `trazoPropio`: el `stroke-width` de cada elemento pasa a
 // `props.strokeWidth` y el de la raíz a `trazo.ancho`.
@@ -15,7 +15,7 @@ import { fileURLToPath } from 'url';
 import { leerSvg } from './convertir-glifos.mjs';
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-export const DIR_SVG = path.join(RAIZ, 'openspec', 'changes', 'rediseno-plancha', 'diseno', 'svg');
+export const DIR_SVG = path.join(RAIZ, 'openspec', 'diseno', 'svg');
 export const MATERIAS = ['bcyt', 'anatomia', 'neuro', 'cyr', 'dre', 'ryd'];
 export const rutaSalida = (id, raiz = RAIZ) => path.join(raiz, 'src', 'materias', id, 'ilustracion.js');
 
@@ -30,10 +30,10 @@ export function generar(id, datos) {
   const inglete = t.limiteInglete !== undefined ? `, limiteInglete: ${t.limiteInglete}` : '';
   const lineas = [
     `// Ilustración de la materia ${id}: datos de trazo, sin JSX ni dependencias de plataforma.`,
-    '// Contrato en openspec/changes/rediseno-plancha/design.md (D2/D3). El color lo pone Ilustracion.',
+    '// Contrato en openspec/changes/archive/2026-10-15-rediseno-plancha/design.md (D2/D3). El color lo pone Ilustracion.',
     '// GENERADO — no editar a mano.',
     `// Regenerar: node tools/ui/convertir-ilustraciones.mjs ${id}`,
-    `// Fuente: openspec/changes/rediseno-plancha/diseno/svg/${id}.svg`,
+    `// Fuente: openspec/diseno/svg/${id}.svg`,
     'export const ilustracion = {',
     `  viewBox: '${datos.viewBox}',`,
     `  trazo: { ancho: ${t.ancho}, union: '${t.union}', extremo: '${t.extremo}'${inglete} },`,

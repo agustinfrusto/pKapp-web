@@ -1,5 +1,5 @@
 // Pantalla principal: muestra los modos de uso disponibles.
-// Ficha: openspec/changes/rediseno-plancha/diseno/pantallas/Home.md (y Banners.md).
+// Ficha: openspec/diseno/pantallas/Home.md (y Banners.md).
 import React, { useMemo } from 'react';
 import { View, Text, Pressable, ScrollView, Platform, Linking, useWindowDimensions } from 'react-native';
 import { useMateria } from '../materia/MateriaContext';

@@ -1,6 +1,6 @@
 # Fuentes IBM Plex
 
-Cuatro pesos, registrados con estos nombres (`openspec/changes/rediseno-plancha/diseno/tokens.md` b.1):
+Cuatro pesos, registrados con estos nombres (`openspec/diseno/tokens.md` b.1):
 
 | Nombre registrado | Familia | Peso |
 |---|---|---|

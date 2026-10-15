@@ -8,7 +8,7 @@ const { plancha } = require('../../../src/theme/colores');
 const { abrirMarco, clicEnMarco, EN_MARCO, esperarSelector } = require('./comunes');
 
 const RAIZ = path.resolve(__dirname, '..', '..', '..');
-const MAESTRO_ICO = path.join(RAIZ, 'openspec', 'changes', 'rediseno-plancha', 'diseno', 'favicon', 'FAV-1X-P1.ico');
+const MAESTRO_ICO = path.join(RAIZ, 'openspec', 'diseno', 'favicon', 'FAV-1X-P1.ico');
 const leerJson = (...partes) => JSON.parse(fs.readFileSync(path.join(RAIZ, ...partes), 'utf8'));
 
 // Ancho y alto de un PNG: los 8 bytes de firma, el chunk IHDR y luego dos enteros de 32 bits.

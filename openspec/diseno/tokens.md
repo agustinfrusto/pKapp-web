@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Change | `openspec/changes/rediseno-plancha` (D1, D4, D6, D8, D9) |
+| Change | `openspec/changes/archive/2026-10-15-rediseno-plancha` (D1, D4, D6, D8, D9) |
 | Rama | `rediseno` |
 | Valores de color | `src/theme/colores.js`, export `plancha`: `claro` y `oscuro` con las mismas 19 claves |
 | Valores de `tailwind.config.js` | sección d; los aplica el Programador en la tarea 2.3 |

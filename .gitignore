@@ -62,8 +62,9 @@ ESFUNO/
 Imagenes materias/
 # Referencias visuales para el Diseñador: material de terceros, no se distribuye
 referencias-diseno/
-# PNG regenerables por diseno/favicon/generar.py; los publicados viven en public/
-openspec/changes/*/diseno/favicon/*.png
+# PNG regenerables por openspec/diseno/favicon/generar.py; los publicados viven en public/
+openspec/diseno/favicon/*.png
+openspec/changes/**/diseno/favicon/*.png
 tools/ingesta/salidas/
 tools/ingesta/.venv/
 .venv/
@@ -80,13 +81,18 @@ skills-lock.json
 .atl/
 .codegraph/
 .orca/
-openspec/changes/*/diseno/maqueta/*.png
-openspec/changes/*/diseno/svg/glifos/*.png
-openspec/changes/*/diseno/banners/capturas/*.png
+openspec/changes/**/diseno/maqueta/*.png
+openspec/changes/**/diseno/svg/glifos/*.png
+openspec/changes/**/diseno/banners/capturas/*.png
 # Evidencia del rediseño: se versiona solo el ancho de referencia (390); el resto se regenera con npm run screenshots
-openspec/changes/*/evidencia/**/*.png
-!openspec/changes/*/evidencia/**/*-390-*.png
-openspec/changes/*/diseno/svg/variantes/*.png
+openspec/changes/**/evidencia/**/*.png
+!openspec/changes/**/evidencia/**/*-390-*.png
+openspec/changes/**/diseno/svg/variantes/*.png
+openspec/diseno/svg/glifos/*.png
+openspec/diseno/svg/variantes/*.png
+openspec/diseno/banners/capturas/*.png
+# Capturas de las suites e2e (solo con PKAPP_CAPTURAS)
+tools/e2e/capturas/
 
 # Notas del arquitecto (tarea 6.3): material de lectura personal, fuera del repo
 NOTAS-ARQUITECTO/

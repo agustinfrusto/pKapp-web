@@ -1,6 +1,6 @@
 // Pantalla inicial: el usuario elige con qué materia quiere estudiar.
 // Se presenta SIEMPRE al abrir la app (no se persiste la última).
-// Ficha: openspec/changes/rediseno-plancha/diseno/pantallas/MateriaSelect.md (a, y «Escritorio»
+// Ficha: openspec/diseno/pantallas/MateriaSelect.md (a, y «Escritorio»
 // `ESC-P1` desde el corte `escritorio`: lámina y nota en la región lateral, rejilla de 2
 // columnas, 3 desde `amplio`, y el pedido de donación al pie de la principal). Los avisos
 // (la nota del creador y los que se sumen) salen de `src/avisos/avisos.js`: D11, tarea 3.14c.

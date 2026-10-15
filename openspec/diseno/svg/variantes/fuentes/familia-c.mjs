@@ -2,7 +2,7 @@
 // Escribe bcyt-c, anatomia-c, neuro-c, dre-c y ryd-c en la carpeta superior. cyr-c se dibujó a mano
 // con el mismo rayado.
 // Dibujo paramétrico: la geometría y el rayado se calculan con geo.mjs; el SVG escrito es la fuente de verdad.
-// Uso: node openspec/changes/rediseno-plancha/diseno/svg/variantes/fuentes/familia-c.mjs
+// Uso: node openspec/diseno/svg/variantes/fuentes/familia-c.mjs
 import fs from 'node:fs';
 import nodePath from 'node:path';
 import { fileURLToPath } from 'node:url';

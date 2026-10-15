@@ -8,7 +8,7 @@
 // Reutiliza el Chrome headless y el cliente CDP del arnés e2e del repo
 // (tools/e2e/entorno.js, tools/e2e/cdp.js); no agrega dependencias.
 //
-// Uso: node openspec/changes/rediseno-plancha/diseno/banners/capturar-banners.mjs [vista ...]
+// Uso: node openspec/diseno/banners/capturar-banners.mjs [vista ...]
 //      (antes: node .../generar-banners.mjs)
 
 import fs from 'node:fs';
@@ -17,7 +17,7 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const AQUI = path.dirname(fileURLToPath(import.meta.url));
-const RAIZ = path.resolve(AQUI, '..', '..', '..', '..', '..');
+const RAIZ = path.resolve(AQUI, '..', '..', '..');
 const require = createRequire(import.meta.url);
 const { lanzarChrome } = require(path.join(RAIZ, 'tools/e2e/entorno.js'));
 const { conectarNavegador, esperar } = require(path.join(RAIZ, 'tools/e2e/cdp.js'));

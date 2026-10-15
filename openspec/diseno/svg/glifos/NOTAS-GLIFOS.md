@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Change | `openspec/changes/rediseno-plancha` (D9, D10; spec `design-system`, «Interfaz sin emojis») |
+| Change | `openspec/changes/archive/2026-10-15-rediseno-plancha` (D9, D10; spec `design-system`, «Interfaz sin emojis») |
 | Rama | `rediseno` |
 | Insumos | `pantallas/comun.md` §8 y §9; `tokens.md` a.1, c.2 y e; `hibrido.html` (flechas, chevron, aspa, tilde, más, menos, practicar, examen, repasar, estadísticas); `REFERENCIAS.md`; `svg/<materia>.svg` |
 | Entrega | 37 archivos `<id>.svg` en esta carpeta (34 de 1.4, `glifo-eliminar` de 1.4b y `glifo-pausar` y `glifo-reanudar` de 3.14b, `BAN-P2`); `glifos-prueba.html` y `glifos-prueba.png` (los 35 de 1.4 y 1.4b); este archivo |
@@ -116,7 +116,7 @@ Orden de §9. «Color» es el de §9; el SVG no lo lleva.
 
 | Chequeo | Comando o método | Resultado |
 |---|---|---|
-| 37 archivos | `fd -e svg . openspec/changes/rediseno-plancha/diseno/svg/glifos \| wc -l` | 37 |
+| 37 archivos | `fd -e svg . openspec/diseno/svg/glifos \| wc -l` | 37 |
 | Nombres contra §9 | Ids de la tabla de §9 contra los nombres de archivo | 37 de 37 coinciden (`glifo-eliminar`, fila de 1.3, dibujado en 1.4b; `glifo-pausar` y `glifo-reanudar`, de 3.14b) |
 | Prohibidos | `rg -l --pcre2 '<text\|<style\|#[0-9a-fA-F]{3,6}\|fill="(?!none)' *.svg` | Vacío |
 | Estructura (C5) | `rg -il '<g[ >]\|<use\|<defs\|transform\|gradient\|filter\|mask' *.svg` | Vacío |

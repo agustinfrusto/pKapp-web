@@ -1,7 +1,7 @@
 // Familia B · Trama: redes de conductos y ramas, con escala al pie.
 // Escribe bcyt-b, anatomia-b, neuro-b, dre-b y ryd-b en la carpeta superior. cyr-b se dibujó a mano.
 // Dibujo paramétrico: la geometría y el rayado se calculan con geo.mjs; el SVG escrito es la fuente de verdad.
-// Uso: node openspec/changes/rediseno-plancha/diseno/svg/variantes/fuentes/familia-b.mjs
+// Uso: node openspec/diseno/svg/variantes/fuentes/familia-b.mjs
 import fs from 'node:fs';
 import nodePath from 'node:path';
 import { fileURLToPath } from 'node:url';

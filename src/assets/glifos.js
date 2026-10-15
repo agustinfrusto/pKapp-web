@@ -1,6 +1,6 @@
 // GENERADO — no editar a mano.
 // Regenerar: node tools/ui/convertir-glifos.mjs
-// Fuente: openspec/changes/rediseno-plancha/diseno/svg/glifos/*.svg
+// Fuente: openspec/diseno/svg/glifos/*.svg
 //
 // Datos de los glifos en el contrato de `Ilustracion` (design.md D2): sin color
 // literal; el trazo se dibuja a 1,5 u en un viewBox de 16 y `Glifo` lo compensa

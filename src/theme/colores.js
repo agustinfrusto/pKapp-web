@@ -4,7 +4,7 @@
 // pueden desincronizarse.
 //
 // Tokens del rediseño (change rediseno-plancha, tarea 1.1). Usos, justificación y
-// pares de contraste: openspec/changes/rediseno-plancha/diseno/tokens.md
+// pares de contraste: openspec/diseno/tokens.md
 //
 // Van planos y con las mismas claves en `claro` y `oscuro`: se lee
 // `plancha[tema].tinta` sin ramificar por token. Ningún nombre choca con una

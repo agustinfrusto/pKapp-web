@@ -1,7 +1,7 @@
 // Pantalla central del quiz: muestra una pregunta a la vez,
 // permite seleccionar respuesta, muestra explicación tras responder,
 // y guarda el resultado en la base de datos.
-// Fichas: openspec/changes/rediseno-plancha/diseno/pantallas/Quiz.md y ExamenEnCurso.md.
+// Fichas: openspec/diseno/pantallas/Quiz.md y ExamenEnCurso.md.
 import React, {
   useState, useEffect, useLayoutEffect, useRef,
 } from 'react';

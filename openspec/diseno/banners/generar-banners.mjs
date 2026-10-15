@@ -20,7 +20,7 @@
 // `design.md` D11 (id, rótulo, glifo, párrafos, contacto, pantallas, descartable). El primero es el
 // texto vigente de la nota del creador (`MateriaSelectScreen.js`); los otros dos son de muestra.
 //
-// Uso: node openspec/changes/rediseno-plancha/diseno/banners/generar-banners.mjs
+// Uso: node openspec/diseno/banners/generar-banners.mjs
 // Sin dependencias. Sin red: las fuentes salen de src/assets/fuentes.
 
 import fs from 'node:fs';
@@ -30,7 +30,7 @@ import { fileURLToPath } from 'node:url';
 
 const AQUI = path.dirname(fileURLToPath(import.meta.url));
 const DISENO = path.resolve(AQUI, '..');
-const RAIZ = path.resolve(AQUI, '..', '..', '..', '..', '..');
+const RAIZ = path.resolve(AQUI, '..', '..', '..');
 const SALIDA = path.join(AQUI, 'banners.html');
 const require = createRequire(import.meta.url);
 

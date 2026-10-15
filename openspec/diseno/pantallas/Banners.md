@@ -470,7 +470,7 @@ El contrato de datos lo fija `design.md` D11: la lista `AVISOS` en `src/avisos/a
 
 ### 3.14.12 Verificación y aceptación observable
 
-`node openspec/changes/rediseno-plancha/diseno/banners/generar-banners.mjs`, luego `capturar-banners.mjs` y `verificar-banners.mjs` (Chrome headless del arnés e2e, sin dependencias). Resultado del 2026-10-11 tras la 3.14b: **75 comprobaciones en verde** (las propias de `BAN-P3` y `BAN-P4` salieron con las propuestas no elegidas; sus pruebas de descartar y de anterior y siguiente pasaron a `BAN-P2`).
+`node openspec/diseno/banners/generar-banners.mjs`, luego `capturar-banners.mjs` y `verificar-banners.mjs` (Chrome headless del arnés e2e, sin dependencias). Resultado del 2026-10-11 tras la 3.14b: **75 comprobaciones en verde** (las propias de `BAN-P3` y `BAN-P4` salieron con las propuestas no elegidas; sus pruebas de descartar y de anterior y siguiente pasaron a `BAN-P2`).
 
 | Grupo | Qué comprueba | Resultado |
 |---|---|---|

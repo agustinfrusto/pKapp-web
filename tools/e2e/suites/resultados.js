@@ -1198,7 +1198,7 @@ const CON_CAPTURA = [1024, 1366, 1920];
 // Capturas de evidencia (solo con PKAPP_CAPTURAS): el viewport de la página ya es el del marco.
 async function capturar(pagina, nombre) {
   if (!process.env.PKAPP_CAPTURAS || !CON_CAPTURA.includes(Number(nombre.split('-')[1]))) return;
-  const dir = path.join(RAIZ, 'openspec', 'changes', 'rediseno-plancha', 'evidencia', 'despues', '3.11f');
+  const dir = path.join(RAIZ, 'tools', 'e2e', 'capturas', '3.11f');
   fs.mkdirSync(dir, { recursive: true });
   await new Promise((r) => setTimeout(r, 400));
   const r = await pagina.enviar('Page.captureScreenshot', { format: 'png' });
