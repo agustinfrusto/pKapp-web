@@ -857,7 +857,14 @@ async function homeCambiarConBarraClasica(_paginaDelArnes, base, t) {
   } finally {
     if (navegador) navegador.cerrar();
     try { proceso.kill('SIGKILL'); } catch { /* ya no está */ }
-    fs.rmSync(perfil, { recursive: true, force: true });
+    // Chrome escribe en el perfil hasta salir: borrar sin esperar su 'exit' da ENOTEMPTY.
+    if (proceso.exitCode === null && proceso.signalCode === null) {
+      await new Promise((listo) => {
+        const tope = setTimeout(listo, 5000);
+        proceso.once('exit', () => { clearTimeout(tope); listo(); });
+      });
+    }
+    fs.rmSync(perfil, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
   }
 }
 
