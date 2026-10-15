@@ -8,7 +8,7 @@
 | Navegador | La barra interna de `Results`, con título «pKapp · Resultados» y sin volver. La revisión no cambia el título |
 | Variantes | Respuesta correcta o incorrecta; con y sin explicación; con y sin filtro (sin respuestas incorrectas no hay filtro); hasta cientos de respuestas |
 | Fuera de alcance | Tarjeta de resultado, trío y botones del resumen (`Results.md`); pedido de donación (`DonationBox.md`; no se muestra en la revisión) |
-| Propuestas | Sección f: `REV-P1`, `REV-P2` y `REV-P3`, aprobadas (usuario, 2026-10-10). Sección f.1: `REV-3` y `REV-4` de la revisión 5.0b (sin «P»: no son `REV-P#`), aprobadas (usuario, 2026-10-12). Sección h: conservado de main (D10). Comunes: `COMUN-P2`. Sección i: cambios de la tarea 5.2 (Diseñador, 2026-10-13) |
+| Propuestas | Sección f: `REV-P1`, `REV-P2` y `REV-P3`, aprobadas (usuario, 2026-10-10). Sección f.1: `REV-3` y `REV-4` de la revisión 5.0b (sin «P»: no son `REV-P#`), aprobadas (usuario, 2026-10-12), y `CC-1` (color de «Reportar pregunta»), aprobada (usuario, 2026-10-14). Sección h: conservado de main (D10). Comunes: `COMUN-P2`. Sección i: cambios de la tarea 5.2 (Diseñador, 2026-10-13) |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P6`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.5 |
 
 ---
@@ -43,7 +43,7 @@
 | 3 | Enunciado | Margen inferior `paso 3` | Texto de la pregunta, en `item` (16/22, 600; `REV-4`): un paso por encima de las opciones |
 | 4 | Opciones | Separación `paso 2.5` entre filas | Una fila por opción (a.4) |
 | 5 | Nota | Margen superior `paso 3`; solo con explicación | Rótulo «Nota / Explicación» con `glifo-explicacion` delante (`REV-P3`) y texto |
-| 6 | «Reportar pregunta» | Margen superior `paso 2`; alto mínimo `paso 11` | K7 con `glifo-reportar` (chico) delante, separado `paso 2`; texto en `cuerpo` (`REV-3`: antes `cuerpo-fuerte`) |
+| 6 | «Reportar pregunta» | Margen superior `paso 2`; alto mínimo `paso 11` | K7 con `glifo-reportar` (chico) delante, separado `paso 2`; texto en `cuerpo` (`REV-3`: antes `cuerpo-fuerte`); texto y glifo en `tintaSec` (`CC-1`: antes `tinta`) |
 
 ### a.4 Interior de una opción
 
@@ -83,13 +83,13 @@
 | Línea de estado de la opción | `acierto` o `error` | `aciertoFondo` o `errorFondo` | — | `rotulo` | — | `glifo-acierto` o `glifo-error` | T12, T16, N11, N14 |
 | Nota de explicación | `tinta` | `superficie` | Izquierdo `acento`, `border-l-3`; resto `filete`, `border` | `cuerpo` | — | `glifo-explicacion` (chico), `acento` | T2, N18 |
 | Rótulo «Nota / Explicación» (`REV-P3`) | `acento` | `superficie` | — | `rotulo` | — | `glifo-explicacion` (chico), delante | T6, N18 |
-| «Reportar pregunta» (K7) | `tinta` | `superficie` | — | `cuerpo` (`REV-3`) | — | `glifo-reportar` (chico), `tinta` | T2, N6 |
+| «Reportar pregunta» (K7) | `tintaSec` (`CC-1`) | `superficie` | — | `cuerpo` (`REV-3`) | — | `glifo-reportar` (chico), `tintaSec` | T4, N20 |
 | «Volver» final (K2) | `tinta` | `fondo` | `linea`, `border` | `cuerpo-fuerte` | — | `glifo-volver` (grande), `tinta` | T1, N1, N5 |
 | «Inicio» (K1) | `fondo` | `tinta` | `tinta`, `border` | `cuerpo-fuerte` | — | — | T7 |
 
 Las opciones se pintan con la misma gramática de estados que el quiz (`Quiz.md` c.2): correcta, incorrecta elegida y apagada. La revisión no tiene estado de reposo, hover ni presionado: sus filas no son controles.
 
-Jerarquía dentro de la tarjeta (revisión 5.0b): el enunciado en `item` (16/22, 600) manda; la opción correcta queda en `cuerpo-fuerte` (15/22, 600), las apagadas en `cuerpo` `tintaSec`, y «Reportar pregunta» en `cuerpo` regular, un escalón por debajo del enunciado que repite en cada tarjeta. Pares sin cambio: T2 17,82 / 14,91 (enunciado y reportar), T4 (apagadas), N6 (glifo).
+Jerarquía dentro de la tarjeta (revisión 5.0b): el enunciado en `item` (16/22, 600) manda; la opción correcta queda en `cuerpo-fuerte` (15/22, 600), las apagadas en `cuerpo` `tintaSec`, y «Reportar pregunta» en `cuerpo` regular y `tintaSec` (`CC-1`), un escalón por debajo del enunciado que repite en cada tarjeta. Pares: T2 17,82 / 14,91 (enunciado), T4 7,91 / 7,01 (apagadas y «Reportar pregunta»), N20 7,91 / 7,01 (glifo de «Reportar pregunta»).
 
 Glifo con texto (estado de la respuesta, línea de estado de la opción, nota, reportar, volver): decorativo, oculto a lectores (`aria-hidden`, `accessibilityElementsHidden`); la palabra es el nombre accesible. Todo control mide al menos `paso 11` de alto y de ancho, con `paso 2` como mínimo entre controles adyacentes.
 
@@ -106,7 +106,7 @@ Hover solo con puntero, por el estado `hovered` de `Pressable`: contorno o borde
 | «Volver» (K2), arriba y al final | Texto y glifo `tinta`; borde `linea`; fondo `fondo` | Contorno web `linea`, `border` | Inversión: fondo `tinta`; texto y glifo `fondo`; borde `tinta` | Contorno `foco`, `border-2`, separado `paso 0.5` | — | — |
 | «Inicio» (K1) | Fondo `tinta`; texto `fondo` | Contorno web `linea`, `border-2` | Inversión: fondo `superficie`; texto `tinta`; borde `linea` | Contorno `foco` | — | — |
 | Opción del filtro (K4) | Borde `borde`; texto `tinta` | Borde `linea` | Inversión: aspecto de seleccionado | Contorno `foco` | Fondo `tinta`; texto `fondo` en `cuerpo-fuerte`; estado accesible seleccionado | — |
-| «Reportar pregunta» (K7) | Texto y glifo `tinta` | Contorno web `linea`, `border` | Inversión total: fondo `tinta`; texto y glifo `fondo` | Contorno `foco` | — | — |
+| «Reportar pregunta» (K7) | Texto y glifo `tintaSec` (T4, N20) | Contorno web `linea`, `border` | Inversión total: fondo `tinta`; texto y glifo `fondo` | Contorno `foco` | — | — |
 | Barra interna | `comun.md` §3 | `comun.md` §3 | `comun.md` §3 | `comun.md` §3 | — | — |
 
 ### c.2 Estado de cada respuesta
@@ -205,14 +205,15 @@ Cambios respecto de `main` que el boceto no dibuja. El usuario los aprobó el 20
 | REV-P2 | «Volver» (a la vista de resumen) también va arriba de la lista, además de los botones del final | La barra interna de `Results` no tiene volver (`headerBackVisible: false`); con decenas de respuestas, el único camino de regreso queda al final del scroll | uso | aprobada (usuario, 2026-10-10) |
 | REV-P3 | La nota de explicación lleva el rótulo «Nota / Explicación» con `glifo-explicacion` delante, como en el quiz (`QUIZ-P6`, aprobada). `main` solo muestra la bombilla y el texto | Mismo componente y mismo rótulo que el quiz: una explicación se lee igual en los dos lugares | visual | aprobada (usuario, 2026-10-10) |
 
-### f.1 Propuestas de la revisión 5.0b (aprobadas por el usuario el 2026-10-12)
+### f.1 Propuestas de la revisión 5.0b (aprobadas por el usuario el 2026-10-12; `CC-1`, el 2026-10-14)
 
-Origen: `diseno/revision-5.0b.md` §3 y §3.3 (`tasks.md` 5.0b.3 y 5.0b.4). Ids `REV-3` y `REV-4`, sin «P»: no son `REV-P#` de esta ficha. Rigen tal como quedaron escritas en a.3 y b; «Sin el cambio» describe la variante descartada (C2). 0 B: componentes y pasos existentes.
+Origen: `diseno/revision-5.0b.md` §3 y §3.3 (`tasks.md` 5.0b.3 y 5.0b.4) y, para `CC-1`, §6 (`tasks.md` 5.0b.12). Ids `REV-3`, `REV-4` y `CC-1`, sin «P»: no son `REV-P#` de esta ficha. Rigen tal como quedaron escritas en a.3 y b; «Sin el cambio» describe la variante descartada (C2). 0 B: componentes y pasos existentes.
 
 | Id | Qué cambia | Sin el cambio | Motivo | Tipo | Estado |
 |---|---|---|---|---|---|
-| `REV-3` | «Reportar pregunta» (K7, a.3 fila 6, b) pasa de `cuerpo-fuerte` a `cuerpo`, en `tinta`; lugar, glifo, estados de c.1 y pares (T2 17,82 / 14,91; N6; hover N2; presionado T7) sin cambio | K7 en `cuerpo-fuerte`, como hasta la 5.0b | En cada tarjeta pesaba más que el enunciado que repite; en regular queda un escalón por debajo, como las demás acciones menores. Conserva E2 y CD-14 (`tinta`); el escalón a `tintaSec` es `CC-1`, pendiente | visual | aprobada (usuario, 2026-10-12) |
+| `REV-3` | «Reportar pregunta» (K7, a.3 fila 6, b) pasa de `cuerpo-fuerte` a `cuerpo`, en `tinta` (hasta `CC-1`, fila siguiente); lugar, glifo, estados de c.1 y pares (T2 17,82 / 14,91; N6, hasta `CC-1`; hover N2; presionado T7) sin cambio | K7 en `cuerpo-fuerte`, como hasta la 5.0b | En cada tarjeta pesaba más que el enunciado que repite; en regular queda un escalón por debajo, como las demás acciones menores. Conservaba E2 y CD-14 (`tinta`); el escalón a `tintaSec` lo fijó `CC-1` (fila siguiente) | visual | aprobada (usuario, 2026-10-12) |
 | `REV-4` | El enunciado de cada tarjeta (a.3 fila 3, b) pasa de `cuerpo` (15/22, 400) a `item` (16/22, 600) en `tinta`; par T2 17,82 / 14,91 sin cambio. La correcta queda en `cuerpo-fuerte` y las apagadas en `cuerpo` `tintaSec` | `cuerpo` en `tinta`: el enunciado se lee igual que una opción apagada | La pregunta no mandaba en su tarjeta; en el quiz va en `titulo` y la revisión es su eco compacto, que necesita un paso por encima de las opciones. `item` es el paso de nombre en lista y título de panel (`tokens.md` b.2) | visual | aprobada (usuario, 2026-10-12) |
+| `CC-1` | «Reportar pregunta» (K7, a.3 fila 6, b, c.1) pasa de `tinta` a `tintaSec`, texto y glifo, en reposo; sobre `superficie`: texto T4 7,91 / 7,01 y glifo N20 7,91 / 7,01. Hover contorno `linea` (N2), presionado inversión total (T7) y foco `foco` (N8), sin cambio | `tinta`, como `REV-3`: T2 17,82 / 14,91 y N6 | Con `tintaSec` la utilidad queda un escalón más abajo que el enunciado que repite en cada tarjeta, como el resto de las acciones menores (descartar, eliminar y quitar: `comun.md` §9). Contradice la letra de E2 y CD-14, no su motivo (no rojo, para no leerse como otro estado de error): se enmiendan en `CONVENCIONES.md` por G-2 | visual (cambio de criterio) | aprobada (usuario, 2026-10-14) |
 
 ---
 

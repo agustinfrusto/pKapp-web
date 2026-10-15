@@ -8,7 +8,7 @@
 | Navegador | Barra propia; sin barra interna: implica `headerShown: false` para `Quiz` en `App.js` (`comun.md` §3). Es la propuesta `QUIZ-P1`, aprobada |
 | Variantes | Origen `exam`, `generated` y `user`; con y sin explicación; con y sin temporizador; última pregunta |
 | Fuera de alcance | Insignia de parcial (distinción de parciales) y quiz sin retroalimentación (`hideFeedback`, examen en curso): su lugar está fijado; sus fichas son `comun.md` §12 y `ExamenEnCurso.md` |
-| Propuestas | Sección f: `QUIZ-P1` y `QUIZ-P4` a `QUIZ-P10`; `QUIZ-P4` enmendada por `B-04` (usuario, 2026-10-13). Sección f.1: `REV-1`, `REV-3`, `REV-8` y `REV-9` de la revisión 5.0b, aprobadas (usuario, 2026-10-12). Sección h: conservado de main (D10). Comunes: `COMUN-P2`. Sección i: cambios de la tarea 5.2 (Diseñador, 2026-10-13), con `B-04` (decisión del usuario) |
+| Propuestas | Sección f: `QUIZ-P1` y `QUIZ-P4` a `QUIZ-P10`; `QUIZ-P4` enmendada por `B-04` (usuario, 2026-10-13). Sección f.1: `REV-1`, `REV-3`, `REV-8` y `REV-9` de la revisión 5.0b, aprobadas (usuario, 2026-10-12), y `CC-1` (cambio de criterio sobre `REV-3`: «Reportar pregunta» en `tintaSec`), aprobada (usuario, 2026-10-14). Sección h: conservado de main (D10). Comunes: `COMUN-P2`. Sección i: cambios de la tarea 5.2 (Diseñador, 2026-10-13), con `B-04` (decisión del usuario) |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P4`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.4 |
 
 ---
@@ -24,7 +24,7 @@
 | 3 | Caja del enunciado | — | `paso 5` | `paso 4` | Relleno interior `paso 3.5` en las cuatro caras (`CONVENCIONES.md` CD-17). Rótulo «Enunciado» (margen inferior `paso 1.5`) y enunciado de la pregunta |
 | 4 | Opciones | — | `paso 5` | `paso 2.5` entre opciones | Una por entrada de `options`, letras A, B, C… |
 | 5 | Nota de explicación | `paso 4` | `paso 5` | — | Solo si respondió, hay retroalimentación y la pregunta tiene `explanation` |
-| 6 | «Reportar pregunta» | `paso 3.5` | Centrado | — | Solo si respondió. K7 sin marco (`REV-3`): `glifo-reportar` chico delante del texto en `cuerpo`; alto mínimo `paso 11`, relleno horizontal `paso 4` |
+| 6 | «Reportar pregunta» | `paso 3.5` | Centrado | — | Solo si respondió. K7 sin marco (`REV-3`): `glifo-reportar` chico delante del texto en `cuerpo`, ambos en `tintaSec` (`CC-1`); alto mínimo `paso 11`, relleno horizontal `paso 4` |
 | 7 | Relleno inferior del scroll | — | — | `paso 24` más área segura inferior | Deja libre la barra inferior |
 | 8 | Barra inferior (fija) | — | Relleno `paso 5` | — | Solo si respondió. Filete superior `linea` a ancho completo |
 
@@ -89,7 +89,7 @@ Medidas que fija la ficha (tarea 5.2, `B-05`, 2026-10-13). Siguen a la maqueta y
 | Línea de estado de la opción | `acierto` o `error` | `aciertoFondo` o `errorFondo` | — | `rotulo` | — | `glifo-acierto` o `glifo-error` | T12, T16, N11, N14 |
 | Nota de explicación | `tinta` | `superficie` | Izquierdo `acento`, `border-l-3`; resto `filete`, `border` | `cuerpo` | — | — | T2, N18 |
 | Rótulo «Nota / Explicación» | `acento` | `superficie` | — | `rotulo` | — | `glifo-explicacion` (chico), delante del texto, `acento` | T6, N18 |
-| «Reportar pregunta» (K7, `REV-3`) | `tinta` | `fondo` (el de la página; sin relleno propio) | — (sin marco) | `cuerpo` | — | `glifo-reportar` (chico), delante del texto, `tinta` | T1, N5 |
+| «Reportar pregunta» (K7, `REV-3`, `CC-1`) | `tintaSec` | `fondo` (el de la página; sin relleno propio) | — (sin marco) | `cuerpo` | — | `glifo-reportar` (chico), delante del texto, `tintaSec` | T3, N19 |
 | Barra inferior | — | `fondo` | Superior `linea`, `border` | — | — | — | N1 |
 | «Siguiente» o «Ver resultados» (K1) | `fondo` | `tinta` | `tinta`, `border` | `cuerpo-fuerte` | — | `glifo-siguiente` | T7 |
 
@@ -122,7 +122,7 @@ Medido en BCYT, examen de 1er parcial (40 preguntas), con temporizador, build 5.
 | Elemento | Reposo | Hover (web) | Presionado | Foco | Seleccionado | Deshabilitado |
 |---|---|---|---|---|---|---|
 | Cerrar (K7) | Glifo `tinta` | Contorno web `linea`, `border` | Inversión: glifo `fondo` sobre `tinta` | Contorno `foco`, `border-2`, separado `paso 0.5` | — | — |
-| «Reportar pregunta» (K7, `REV-3`) | Sin marco; texto y glifo `tinta` sobre `fondo` (T1, N5) | Contorno web `linea`, `border` (N1) | Inversión total: fondo `tinta`; texto y glifo `fondo` (T7) | Contorno `foco`, `border-2`, separado `paso 0.5` (N7) | — | — |
+| «Reportar pregunta» (K7, `REV-3`, `CC-1`) | Sin marco; texto y glifo `tintaSec` sobre `fondo` (T3, N19) | Contorno web `linea`, `border` (N1) | Inversión total: fondo `tinta`; texto y glifo `fondo` (T7) | Contorno `foco`, `border-2`, separado `paso 0.5` (N7) | — | — |
 | «Siguiente» (K1) | Fondo `tinta`; texto y glifo `fondo` | Contorno web `linea`, `border-2` | Inversión: fondo `superficie`; texto `tinta`; borde `linea` | Contorno `foco` | — | — |
 | Opción (K3) | Ver c.2 | Borde `linea` | Inversión total | Contorno `foco` | `ExamenEnCurso.md` c.2 (sin retroalimentación) | Ver c.2: tras responder deja de recibir toque |
 
@@ -283,16 +283,17 @@ Cambios del boceto respecto de `main`, o de `main` respecto del boceto. El usuar
 
 Propuestas comunes que alcanzan esta pantalla: `COMUN-P2` (estados de control).
 
-### f.1 Propuestas de la revisión 5.0b (aprobadas por el usuario el 2026-10-12)
+### f.1 Propuestas de la revisión 5.0b (aprobadas por el usuario el 2026-10-12; `CC-1`, el 2026-10-14)
 
-Origen: `diseno/revision-5.0b.md` §3 (`tasks.md` 5.0b.1, 5.0b.3, 5.0b.8 y 5.0b.9). Rigen tal como quedaron escritas en el cuerpo de la ficha (a a d y «Orden, teclado y foco»); la columna «Sin el cambio» describe la variante descartada (C2). Las implementa el Programador con la spec del Ingeniero.
+Origen: `diseno/revision-5.0b.md` §3 (`tasks.md` 5.0b.1, 5.0b.3, 5.0b.8 y 5.0b.9) y, para `CC-1`, §6 (`tasks.md` 5.0b.12). Rigen tal como quedaron escritas en el cuerpo de la ficha (a a d y «Orden, teclado y foco»); la columna «Sin el cambio» describe la variante descartada (C2). Las implementa el Programador con la spec del Ingeniero.
 
 | Id | Qué cambia | Sin el cambio | Motivo | Tipo | Estado |
 |---|---|---|---|---|---|
 | `REV-1` | Movimiento del quiz (c.5): lo que aparece al responder (líneas de estado, nota, aviso «Resultado oculto», «Reportar pregunta», barra inferior) entra con un fundido de `opacity` de 150 ms; el contenido de la barra suma `translateY` de `paso 2` a 0 y su lámina solo se funde; al pasar de pregunta, el bloque contexto + enunciado + opciones entra con el mismo fundido. La opción tocada cambia en el mismo cuadro. Mecanismo: Web Animations API. Con `prefers-reduced-motion`, nada. ≈ 0,4 KB | Todo aparece de inmediato, como hasta la 5.0b: la respuesta, la nota y la barra se materializan sin orden y la pregunta siguiente parece la misma pantalla con otro texto | Un fundido corto da respuesta al toque y orienta sin demorar nada ni mover el layout; precedente `BAN-P2` (`src/components/RegionAvisos.js:353`); dentro de CD-24 (la opacidad no codifica estado) | visual | aprobada (usuario, 2026-10-12) |
-| `REV-3` | «Reportar pregunta» pasa de K3 (marco `borde`, `cuerpo-fuerte`, sobre `superficie`) a K7 sin marco: `glifo-reportar` chico delante, texto `cuerpo` en `tinta` sobre `fondo`, centrado, alto mínimo `paso 11`, relleno horizontal `paso 4`; hover contorno `linea`, presionado inversión total, foco `foco` (a.1 bloque 6, b, c.1, h `QUIZ-P2`). También en el examen en curso. Pares: T1 16,32 / 15,97; N5; hover N1; presionado T7. 0 B | K3 con marco `borde` y `cuerpo-fuerte`, como `QUIZ-P2` hasta la 5.0b | Reportar es una utilidad ocasional; con marco y negrita pesa como una opción de respuesta. Sin marco y en regular queda un escalón por debajo de las opciones y de «Siguiente», en el mismo escalón que descartar y eliminar (K7 sin marco). Conserva E2 y CD-14 (`tinta`, sin rojo); el escalón a `tintaSec` es `CC-1`, pendiente | visual | aprobada (usuario, 2026-10-12) |
+| `REV-3` | «Reportar pregunta» pasa de K3 (marco `borde`, `cuerpo-fuerte`, sobre `superficie`) a K7 sin marco: `glifo-reportar` chico delante, texto `cuerpo` en `tinta` sobre `fondo` (color y pares superados por `CC-1`: `tintaSec`, T3 y N19), centrado, alto mínimo `paso 11`, relleno horizontal `paso 4`; hover contorno `linea`, presionado inversión total, foco `foco` (a.1 bloque 6, b, c.1, h `QUIZ-P2`). También en el examen en curso. Pares: T1 16,32 / 15,97; N5; hover N1; presionado T7. 0 B | K3 con marco `borde` y `cuerpo-fuerte`, como `QUIZ-P2` hasta la 5.0b | Reportar es una utilidad ocasional; con marco y negrita pesa como una opción de respuesta. Sin marco y en regular queda un escalón por debajo de las opciones y de «Siguiente», en el mismo escalón que descartar y eliminar (K7 sin marco). Conservaba E2 y CD-14 (`tinta`, sin rojo); el escalón a `tintaSec` lo fijó `CC-1` (fila siguiente) | visual | aprobada (usuario, 2026-10-12) |
 | `REV-8` | `QUIZ-P8` adopta lo que hace la app: la meta no tiene tope de líneas ni recorte; si no entra en la fila del contexto pasa a su propia línea, a todo el ancho; con el tema más largo, dos líneas desde 360 px y tres a 320 px (a.4, c.3, f). Solo documentación; la aserción `anchosDelQuiz` de la e2e ya lo afirma y el Programador alinea su comentario | La ficha pedía «hasta dos líneas» y «sin recorte» a la vez, y el código resolvía a favor de «sin recorte» sin que la ficha lo dijera | El Analista de 3.5 mostró que las dos reglas no caben juntas a 320 px; D10 manda (sin recorte desde 320 px) y los nombres de tema nunca se abrevian (`AddQuestion-ADD-P3.md` d.2) | documentación | aprobada (usuario, 2026-10-12) |
 | `REV-9` | Foco tras «Siguiente» con teclado: al desmontarse la barra inferior, el foco pasa a la primera opción de la pregunta nueva (solo web; solo si el foco estaba en la barra o quedó en `body`). ≈ 0,1 KB («Orden, teclado y foco», d.2) | Al activar «Siguiente» con Enter el botón se desmonta y el foco cae en `body`: el siguiente Tab arranca desde el principio de la página | Convención Engram 70 (foco tras quitar un control); WCAG 2.4.3; precedente `TopicSelect.md` f.1 | uso | aprobada (usuario, 2026-10-12) |
+| `CC-1` | «Reportar pregunta» y `glifo-reportar` pasan de `tinta` a `tintaSec` en reposo (a.1 bloque 6, b, c.1, h `QUIZ-P2`): el escalón de descartar, eliminar y quitar (`comun.md` §9, N19 y N20). Sobre `fondo`: texto T3 7,25 / 7,51 y glifo N19 7,25 / 7,51. Hover contorno `linea` (N1), presionado inversión total (T7) y foco `foco` (N7), sin cambio. También en el examen en curso. 0 B | `tinta`, como `REV-3` | Con `tintaSec` la utilidad queda un escalón más abajo que las opciones y que el enunciado, como el resto de las acciones menores. Contradice la letra de E2 y CD-14, no su motivo (no rojo, para no leerse como otro estado de error): se enmiendan en `CONVENCIONES.md` por G-2 | visual (cambio de criterio) | aprobada (usuario, 2026-10-14) |
 
 ---
 
@@ -312,7 +313,7 @@ Elementos de `main` que el boceto omite o dibuja distinto. No son propuestas: `m
 
 | Id | Qué se conserva | Motivo | Tipo |
 |---|---|---|---|
-| QUIZ-P2 | «Reportar pregunta» bajo la explicación, solo tras responder, como botón sin marco (K7: texto `cuerpo` en `tinta`, `glifo-reportar` chico delante; aspecto fijado por `REV-3` el 2026-10-12, antes K3 de marco `borde` en `cuerpo-fuerte`). Función, lugar y condición se conservan; el aspecto es de la ficha (E1). El boceto no lo incluye | Está en uso en `main` y es el único camino para avisar de una pregunta errónea desde el quiz (`reportQuestion`, `src/utils/report.js`) | uso |
+| QUIZ-P2 | «Reportar pregunta» bajo la explicación, solo tras responder, como botón sin marco (K7: texto `cuerpo` en `tintaSec`, `glifo-reportar` chico delante; aspecto fijado por `REV-3` el 2026-10-12, antes K3 de marco `borde` en `cuerpo-fuerte`, y color por `CC-1` el 2026-10-14, antes `tinta`). Función, lugar y condición se conservan; el aspecto es de la ficha (E1). El boceto no lo incluye | Está en uso en `main` y es el único camino para avisar de una pregunta errónea desde el quiz (`reportQuestion`, `src/utils/report.js`) | uso |
 | QUIZ-P3 | Con temporizador activo, la barra muestra `glifo-reloj` y «mm:ss» bajo el contador; con menos de 120 s, texto y glifo pasan a `error` y el bloque lleva marco `error`, `border-2`. El boceto no tiene temporizador | El temporizador se configura en TopicSelect y corta el quiz al llegar a cero (`replace` a Results); la alerta es el aviso de que se acaba el tiempo | uso |
 
 ---

@@ -9,7 +9,7 @@
 | Navegador | Igual que `Quiz.md`: sin barra interna y con barra propia del quiz (`QUIZ-P1`, aprobada) |
 | Variantes | Con y sin temporizador; con y sin parcial; origen examen, generada o propia; última pregunta; sin responder o respondida |
 | Fuera de alcance | Lo que no cambia respecto de `Quiz.md`: barra del quiz, progreso, contador, tiempo, caja del enunciado, chip de origen, salida con confirmación |
-| Propuestas | Sección f: `EXA-P1`, aprobada (usuario, 2026-10-10). Sección f.1: `REV-1` y `REV-3` de la revisión 5.0b, aprobadas (usuario, 2026-10-12), que se fijan en `Quiz.md`. Sección h: conservado de main (D10). Comunes: `COMUN-P2` y `PAR-P1` (`comun.md` §12), aprobadas |
+| Propuestas | Sección f: `EXA-P1`, aprobada (usuario, 2026-10-10). Sección f.1: `REV-1` y `REV-3` de la revisión 5.0b, aprobadas (usuario, 2026-10-12), y `CC-1` (color de «Reportar pregunta»), aprobada (usuario, 2026-10-14), que se fijan en `Quiz.md`. Sección h: conservado de main (D10). Comunes: `COMUN-P2` y `PAR-P1` (`comun.md` §12), aprobadas |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P4`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.4 |
 
 ---
@@ -65,7 +65,7 @@ Solo se listan los que cambian. Los demás son los de `Quiz.md` b.
 | Aviso de resultado oculto | `tintaSec` | `fondo` | — | `rotulo` | — | — | T3 |
 | Insignia de parcial | `comun.md` §12 | | | | | | |
 | Nota de explicación | No se muestra | | | | | | |
-| «Reportar pregunta» (K7, `REV-3`) | Igual que `Quiz.md` b: sin marco, `cuerpo` en `tinta` sobre `fondo`, `glifo-reportar` chico delante (T1, N5) | | | | | | |
+| «Reportar pregunta» (K7, `REV-3`, `CC-1`) | Igual que `Quiz.md` b: sin marco, `cuerpo` en `tintaSec` sobre `fondo`, `glifo-reportar` chico delante, en `tintaSec` (T3, N19) | | | | | | |
 | «Siguiente» o «Ver resultados» (K1) | Igual que `Quiz.md` b | | | | | | |
 
 Glifo con texto (reportar, siguiente): decorativo, oculto a lectores (`aria-hidden`, `accessibilityElementsHidden`). Cerrar (K7) va solo y lleva el nombre accesible de `Quiz.md` e. Todo control mide al menos `paso 11` de alto y de ancho, con `paso 2` como mínimo entre controles adyacentes.
@@ -81,7 +81,7 @@ Hover solo con puntero, por el estado `hovered` de `Pressable`: contorno o borde
 | Elemento | Reposo | Hover (web) | Presionado | Foco | Seleccionado | Deshabilitado |
 |---|---|---|---|---|---|---|
 | Opción (K3) | Ver c.2 | Borde `linea` | Inversión total | Contorno `foco`, `border-2`, separado `paso 0.5` | Ver c.2: elegida | Tras responder deja de recibir toque (c.2) |
-| «Reportar pregunta» (K7, `REV-3`) | Sin marco; texto y glifo `tinta` sobre `fondo` (T1, N5) | Contorno web `linea`, `border` (N1) | Inversión total: fondo `tinta`; texto y glifo `fondo` (T7) | Contorno `foco`, `border-2`, separado `paso 0.5` (N7) | — | — |
+| «Reportar pregunta» (K7, `REV-3`, `CC-1`) | Sin marco; texto y glifo `tintaSec` sobre `fondo` (T3, N19) | Contorno web `linea`, `border` (N1) | Inversión total: fondo `tinta`; texto y glifo `fondo` (T7) | Contorno `foco`, `border-2`, separado `paso 0.5` (N7) | — | — |
 | «Siguiente» (K1) | Fondo `tinta`; texto y glifo `fondo` | Contorno web `linea`, `border-2` | Inversión: fondo `superficie`; texto `tinta`; borde `linea` | Contorno `foco` | — | — |
 | Cerrar (K7) | Glifo `tinta` | Contorno web `linea`, `border` | Inversión: glifo `fondo` sobre `tinta` | Contorno `foco` | — | — |
 
@@ -161,14 +161,15 @@ Cambios respecto de `main` que el boceto no dibuja. El usuario los aprobó el 20
 |---|---|---|---|---|
 | EXA-P1 | Tras responder sin retroalimentación aparece una línea, «Resultado oculto hasta el final», en el lugar donde iría la nota de explicación | Hoy el toque sobre una opción no muestra respuesta alguna y nada explica por qué: quien activó el ajuste semanas atrás puede creer que la app no registró el toque. La línea no agrega gestos | uso | aprobada (usuario, 2026-10-10) |
 
-### f.1 Propuestas de la revisión 5.0b (aprobadas por el usuario el 2026-10-12)
+### f.1 Propuestas de la revisión 5.0b (aprobadas por el usuario el 2026-10-12; `CC-1`, el 2026-10-14)
 
 Se fijan en `Quiz.md` f.1 (mismo componente); acá queda lo que alcanza a este estado. «Sin el cambio» describe la variante descartada (C2).
 
 | Id | Qué cambia en el examen en curso | Sin el cambio | Tipo | Estado |
 |---|---|---|---|---|
 | `REV-1` | El aviso «Resultado oculto hasta el final» (a.2), «Reportar pregunta» y la barra inferior entran con el fundido de `Quiz.md` c.5 al responder; el bloque de la pregunta, al cambiar de pregunta. La opción elegida se rellena en el mismo cuadro | Todo aparece de inmediato, como hasta la 5.0b | visual | aprobada (usuario, 2026-10-12) |
-| `REV-3` | «Reportar pregunta» pasa a K7 sin marco, `cuerpo` en `tinta`, con `glifo-reportar` chico delante (b, c.1) | K3 con marco `borde` y `cuerpo-fuerte` | visual | aprobada (usuario, 2026-10-12) |
+| `REV-3` | «Reportar pregunta» pasa a K7 sin marco, `cuerpo` en `tinta` (hasta `CC-1`, fila siguiente), con `glifo-reportar` chico delante (b, c.1) | K3 con marco `borde` y `cuerpo-fuerte` | visual | aprobada (usuario, 2026-10-12) |
+| `CC-1` | «Reportar pregunta» y `glifo-reportar` pasan de `tinta` a `tintaSec` en reposo (b, c.1; texto T3 y glifo N19, sobre `fondo`); hover, presionado y foco sin cambio. Se fija en `Quiz.md` f.1 | `tinta`, como `REV-3` | visual (cambio de criterio) | aprobada (usuario, 2026-10-14) |
 
 ---
 
