@@ -27,6 +27,7 @@
 | «—» | No aplica |
 | `COMUN-P#`, `MATERIA-P#`, `HOME-P#`, `TOPIC-P#`, `QUIZ-P#`, `RESULTS-P#`, `STATS-P#` | Propuestas aprobadas por el usuario el 2026-10-10 (D10): §11 y sección f de cada ficha; `TOPIC-P6`, `HOME-P4`, `HOME-P5` y `MATERIA-P4` son del 2026-10-11, y `MATERIA-P2` quedó reemplazada por `MATERIA-P4`. Los ids son únicos en todo el change; 1.3 usa sus propios prefijos (`SET-P3` y `VAC-P5` también son del 2026-10-11) |
 | `ESC-P0` a `ESC-P12` | Propuestas de escritorio (tarea 3.10), aprobadas por el usuario el 2026-10-11 (D10), salvo `ESC-P9`, rechazada: §7.2 y la sección «Escritorio» de cada ficha. No están entre las aprobadas del 2026-10-10 de arriba; bajo el corte `escritorio` rige la columna de la propia ficha |
+| `Dialogo.md` | Ficha de `FS-1` (revisión 5.0b, aprobada por el usuario el 2026-10-14), **PENDIENTE de implementación: tarea 6.6, después del merge**. Hasta entonces la app usa los diálogos del navegador y las demás fichas los siguen describiendo como «diálogos del sistema». Es el diálogo modal que reemplazará en web a `window.confirm` y `window.alert` (`src/utils/confirm.js`, 16 llamadas); compone §5.2 (K1, K2, K2 de peligro) y §6 |
 | `ADD-P1`, `ADD-P3` | Selector de tema de AddQuestion: `ADD-P1` rechazada y `ADD-P3` aprobada por el usuario el 2026-10-11 (D10): §5.3 y `AddQuestion.md` f. `ADD-P2` es del 2026-10-10 |
 | `TOPIC-C#`, `RESULTS-C#` y los `-C#` de 1.3 | Lo conservado de `main` (sección h de la ficha). No son propuestas ni pasan por aprobación (D10, base de comparación) |
 
