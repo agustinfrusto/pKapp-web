@@ -13,7 +13,7 @@ import {
   resetStats, getUserQuestions, deleteUserQuestion,
   getSetting, saveSetting,
 } from '../db/database';
-import { confirm, avisar } from '../utils/confirm';
+import { confirm, avisar, AVISO_GUARDADO } from '../utils/confirm';
 import { pickAndImportBackup, downloadBackup } from '../utils/migration';
 import {
   BotonRelleno, BotonMarco, ControlMarco, Segmento, FilaLista, MarcaEstado, RotuloSeccion, Hoja, Regiones,
@@ -75,10 +75,17 @@ export default function SettingsScreen() {
 
   const loadData = useCallback(async () => {
     if (!materiaId) return;
-    const qs = await getUserQuestions(materiaId);
-    setUserQuestions(qs);
-    const hf = await getSetting('hide_feedback', 'false');
-    setHideFeedback(hf === 'true');
+    // Dos lecturas independientes: si una falla, la otra se carga igual.
+    try {
+      setUserQuestions(await getUserQuestions(materiaId));
+    } catch (e) {
+      console.warn('No se pudieron cargar las preguntas propias', e);
+    }
+    try {
+      setHideFeedback((await getSetting('hide_feedback', 'false')) === 'true');
+    } catch (e) {
+      console.warn('No se pudo leer el ajuste hide_feedback', e);
+    }
   }, [materiaId]);
 
   useFocusEffect(
@@ -89,7 +96,12 @@ export default function SettingsScreen() {
 
   async function handleToggleHideFeedback(value) {
     setHideFeedback(value);
-    await saveSetting('hide_feedback', value);
+    try {
+      await saveSetting('hide_feedback', value);
+    } catch (e) {
+      console.warn('No se pudo guardar el ajuste hide_feedback', e);
+      avisar('Error', AVISO_GUARDADO);
+    }
   }
 
   function handleResetStats() {
@@ -109,7 +121,12 @@ export default function SettingsScreen() {
       'Eliminar pregunta',
       '¿Seguro? Esta acción no se puede deshacer.',
       async () => {
-        await deleteUserQuestion(materiaId, id);
+        try {
+          await deleteUserQuestion(materiaId, id);
+        } catch (e) {
+          console.warn('No se pudo guardar la eliminación de la pregunta propia', e);
+          avisar('Error', AVISO_GUARDADO);
+        }
         loadData();
       },
       { confirmLabel: 'Eliminar', destructive: true }

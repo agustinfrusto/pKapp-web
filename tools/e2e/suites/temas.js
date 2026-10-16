@@ -448,6 +448,14 @@ const DATOS_DE_MATERIA = {
 };
 const PROPIAS_UNICAS = 2;   // tras `dedupeQuestions`
 
+// Dos filas corruptas (`options` no es JSON; es JSON pero no un array) junto a una válida: las corruptas se descartan y la válida se ofrece.
+const FILAS_UNA_CORRUPTA = [
+  { id: 'corrupta', topic: 'enzimas', question: 'q', options: '{no es json', correct_index: 0 },
+  { id: 'no-array', topic: 'enzimas', question: 'q', options: '"x"', correct_index: 0 },
+  { id: 'USER-e2e-valida', topic: 'enzimas', question: 'Pregunta propia válida', options: JSON.stringify(['A', 'B']),
+    correct_index: 0, explanation: '', created_at: 1700000000000 },
+];
+
 // Siembra `pkapp_user_questions:<id>` con tres filas (dos únicas y una repetida) y, según
 // `propiaFallada` y `falloDelBanco`, estadísticas con una propia fallada y/o una pregunta
 // fallada del banco. Con `soloEstadisticas` no siembra filas propias (fallo del banco sin propias).
@@ -982,8 +990,8 @@ async function cargaSinSaltos(pagina, base, t) {
   }
 }
 
-// T10: si la carga de las propias falla, el panel no lleva «Fuente» y el filtro es «Todas».
-async function cargaQueFallaSinFuente(pagina, base, t) {
+// T10: una fila propia corrupta se descarta y no tira las demás: «Fuente» sigue en el panel y no hay errores.
+async function filaCorruptaSeDescartaConFuente(pagina, base, t) {
   await pagina.ir(base + '/favicon.png');
   await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
   await pagina.evaluar(LIMPIAR_DATOS);
@@ -994,19 +1002,19 @@ async function cargaQueFallaSinFuente(pagina, base, t) {
     const original = w.Storage.prototype.getItem;
     w.Storage.prototype.getItem = function (clave) {
       if (String(clave).startsWith('pkapp_user_questions:')) {
-        return JSON.stringify([{ id: 'corrupta', topic: 'x', question: 'q', options: '{no es json', correct_index: 0 }]);
+        return ${JSON.stringify(JSON.stringify(FILAS_UNA_CORRUPTA))};
       }
       return original.apply(this, arguments);
     };
   `));
+  const erroresAntes = pagina.errores.length;
   await clicEnMarco(pagina, 'entrena temas');
-  t.ok('practice con carga que rechaza: aparece la mezcla en vez de quedar en blanco',
+  t.ok('practice con una fila corrupta: aparece la mezcla en vez de quedar en blanco',
     await esperarEnMarco(pagina, 'todos los temas mezclados'), true);
   const m = await medirTemas(pagina);
-  t.ok('T10: el panel aparece sin «Fuente», con Parcial y Temporizador',
-    m.fuente === null && m.gruposDelPanel.join('|') === 'parcial|temporizador', true);
-  t.ok('T10: el filtro vale «Todas»: la mezcla es la suma de las filas del banco',
-    conteoDeMezcla(m) > PROPIAS_UNICAS && conteoDeMezcla(m) === sumaDeFilas(m), true);
+  t.ok('T10: la propia válida se ofrece: el panel lleva «Fuente»', m.fuente !== null, true);
+  await new Promise((r) => setTimeout(r, 300));
+  t.ok('T10: sin errores de JS en consola', pagina.errores.length - erroresAntes, 0);
 }
 
 // T18: el copy y el código de la pantalla ya no nombran las fuentes viejas.
@@ -1142,9 +1150,8 @@ async function vaciosCargaYSinParciales(pagina, base, t) {
     m.fuente === null && m.gruposDelPanel.join('|') === 'temporizador' && m.valor === 'Sin límite', true);
 }
 
-// Una carga que rechaza no deja la pantalla en blanco: `failed` resuelve igual y muestra V2.
-// Una pregunta propia con `options` corrupto hace rechazar a `getUserQuestions`.
-async function cargaQueRechazaMuestraV2(pagina, base, t) {
+// Una fila propia corrupta se descarta: `failed` resuelve igual y muestra V2.
+async function filaCorruptaSeDescartaMuestraV2(pagina, base, t) {
   await pagina.ir(base + '/favicon.png');
   await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
   await pagina.evaluar(LIMPIAR_DATOS);
@@ -1155,14 +1162,64 @@ async function cargaQueRechazaMuestraV2(pagina, base, t) {
     const original = w.Storage.prototype.getItem;
     w.Storage.prototype.getItem = function (clave) {
       if (String(clave).startsWith('pkapp_user_questions:')) {
-        return JSON.stringify([{ id: 'corrupta', topic: 'x', question: 'q', options: '{no es json', correct_index: 0 }]);
+        return ${JSON.stringify(JSON.stringify(FILAS_UNA_CORRUPTA))};
       }
       return original.apply(this, arguments);
     };
   `));
+  const erroresAntes = pagina.errores.length;
   await clicEnMarco(pagina, 'repasar fallos');
-  t.ok('failed con carga que rechaza: aparece V2 en vez de quedar en blanco',
+  t.ok('failed con una fila corrupta: aparece V2 en vez de quedar en blanco',
     await esperarEnMarco(pagina, 'sin preguntas falladas'), true);
+  await new Promise((r) => setTimeout(r, 300));
+  t.ok('V2: sin errores de JS en consola', pagina.errores.length - erroresAntes, 0);
+}
+
+// La lista entera guardada como un valor JSON no iterable hace rechazar a `getUserQuestions`.
+const LISTA_QUE_RECHAZA = EN_MARCO(`
+  const original = w.Storage.prototype.getItem;
+  w.Storage.prototype.getItem = function (clave) {
+    if (String(clave).startsWith('pkapp_user_questions:')) return '{"a":1}';
+    return original.apply(this, arguments);
+  };
+`);
+
+// Una carga que rechaza no deja la pantalla en blanco: practice resuelve igual, sin «Fuente» y sin errores.
+async function cargaQueRechazaEnPractica(pagina, base, t) {
+  await pagina.ir(base + '/favicon.png');
+  await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
+  await pagina.evaluar(LIMPIAR_DATOS);
+  t.ok('abrió la app en el marco', await abrirMarco(pagina, base, 390), true);
+  await clicEnMarco(pagina, MATERIA);
+  await esperarEnMarco(pagina, 'repasar fallos');
+  await pagina.evaluar(LISTA_QUE_RECHAZA);
+  const erroresAntes = pagina.errores.length;
+  await clicEnMarco(pagina, 'entrena temas');
+  t.ok('practice con una carga que rechaza: aparece la mezcla en vez de quedar en blanco',
+    await esperarEnMarco(pagina, 'todos los temas mezclados'), true);
+  const m = await medirTemas(pagina);
+  t.ok('practice con una carga que rechaza: el panel no lleva «Fuente»', m.fuente, null);
+  await new Promise((r) => setTimeout(r, 300));
+  t.ok('practice con una carga que rechaza: sin errores de JS en consola', pagina.errores.length - erroresAntes, 0);
+}
+
+// Ídem en `failed`: resuelve a V2, sin «Fuente» y sin errores.
+async function cargaQueRechazaEnFailed(pagina, base, t) {
+  await pagina.ir(base + '/favicon.png');
+  await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
+  await pagina.evaluar(LIMPIAR_DATOS);
+  t.ok('abrió la app en el marco', await abrirMarco(pagina, base, 390), true);
+  await clicEnMarco(pagina, MATERIA);
+  await esperarEnMarco(pagina, 'repasar fallos');
+  await pagina.evaluar(LISTA_QUE_RECHAZA);
+  const erroresAntes = pagina.errores.length;
+  await clicEnMarco(pagina, 'repasar fallos');
+  t.ok('failed con una carga que rechaza: aparece V2 en vez de quedar en blanco',
+    await esperarEnMarco(pagina, 'sin preguntas falladas'), true);
+  const m = await medirTemas(pagina);
+  t.ok('failed con una carga que rechaza: sin «Fuente»', m.fuente, null);
+  await new Promise((r) => setTimeout(r, 300));
+  t.ok('failed con una carga que rechaza: sin errores de JS en consola', pagina.errores.length - erroresAntes, 0);
 }
 
 // V9: un parcial deja temas sin preguntas; esos temas no se listan.
@@ -2131,13 +2188,15 @@ module.exports = [
   { nombre: 'TopicSelect: teclado del filtro de fuente', correr: tecladoDelFiltroDeFuente },
   { nombre: 'TopicSelect: exam y failed con «Solo mías»', correr: modosExamYFailedConSoloMias },
   { nombre: 'TopicSelect: carga sin saltos en los tres modos (R1)', correr: cargaSinSaltos },
-  { nombre: 'TopicSelect: carga que falla, sin «Fuente»', correr: cargaQueFallaSinFuente },
+  { nombre: 'TopicSelect: fila propia corrupta descartada, «Fuente» presente', correr: filaCorruptaSeDescartaConFuente },
   { nombre: 'TopicSelect: copy sin «generadas» (T18)', correr: copySinGeneradas },
   { nombre: 'TopicSelect: mezcla y filas con conteo', correr: mezclaYFilas },
   { nombre: 'TopicSelect: variante exam', correr: varianteExam },
   { nombre: 'TopicSelect: vacío V2', correr: vaciosV2 },
   { nombre: 'TopicSelect: carga sin V2 (VAC-P4) y V11', correr: vaciosCargaYSinParciales },
-  { nombre: 'TopicSelect: carga que rechaza (finally)', correr: cargaQueRechazaMuestraV2 },
+  { nombre: 'TopicSelect: fila propia corrupta descartada en failed (V2)', correr: filaCorruptaSeDescartaMuestraV2 },
+  { nombre: 'TopicSelect: carga que rechaza, practice (catch)', correr: cargaQueRechazaEnPractica },
+  { nombre: 'TopicSelect: carga que rechaza, failed (catch)', correr: cargaQueRechazaEnFailed },
   { nombre: 'TopicSelect: V9, temas sin preguntas fuera de la lista', correr: temasSinPreguntasNoSeListan },
   { nombre: 'TopicSelect: estados K4', correr: estadosDeControl },
   { nombre: 'TopicSelect: marca de parcial en el filtro (B-02, PAR-P2)', correr: marcaDeParcial },

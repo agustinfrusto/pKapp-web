@@ -92,6 +92,8 @@ export default function TopicSelectScreen({ route, navigation }) {
           const failed = await getFailedQuestions(materiaId);
           setFailedIds(new Set(failed.map(f => f.question_id)));
         }
+      } catch (e) {
+        console.warn('No se pudieron cargar las preguntas del banco', e);
       } finally {
         setCargado(true);
       }

@@ -20,6 +20,9 @@ export function confirm(title, message, onConfirm, { confirmLabel = 'Aceptar', c
   ]);
 }
 
+// Aviso cuando un guardado en localStorage falla (cuota llena, modo privado).
+export const AVISO_GUARDADO = 'No se pudo guardar el cambio.';
+
 // Aviso de un solo botón. Usar siempre en lugar de Alert.alert directo.
 export function avisar(title, message = '') {
   if (esWeb) {
