@@ -4,8 +4,6 @@ export const metadata = {
   name:        'Neurobiología',
   shortName:   'Neuro',
   description: 'Preparación para el examen.',
-  icon:        '🧠',
-  image:       require('../../assets/materias/neuro.png'),
   available:   true,
   bancoReducido: true, // muestra el aviso de banco acotado en HomeScreen
 };

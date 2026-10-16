@@ -4,8 +4,6 @@ export const metadata = {
   name:        'Cardiovascular y Respiratorio',
   shortName:   'CyR',
   description: 'Preparación para el examen.',
-  icon:        '🫀',
-  image:       require('../../assets/materias/cyr.png'),
   available:   true,
   bancoReducido: true, // muestra el aviso de banco acotado en HomeScreen
 };

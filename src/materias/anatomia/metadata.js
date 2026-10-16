@@ -4,7 +4,5 @@ export const metadata = {
   name:        'Anatomía',
   shortName:   'Anatomía',
   description: 'Preparación para parciales de Anatomía.',
-  icon:        '🩻',
-  image:       require('../../assets/materias/anatomia.png'),
   available:   true,
 };
