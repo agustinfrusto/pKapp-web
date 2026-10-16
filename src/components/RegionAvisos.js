@@ -72,16 +72,8 @@ function vigentesDe(lista, pantalla) {
     .filter((a) => !descartadosEnSesion.has(claveDe(a)));
 }
 
-// `:focus-visible` como selector: sin soporte (Safari < 15.4) `matches` lanza. `siFalla` es lo que
-// se asume entonces: para la pausa, que el foco de teclado cuente como tal (BAN-Q2); para el
-// contorno, que no (un clic en la nota no debe dibujarlo).
-function esFocoVisible(el, siFalla) {
-  try {
-    return !!el.matches?.(':focus-visible');
-  } catch {
-    return siFalla;
-  }
-}
+// `:focus-visible` existe en todo el piso de navegadores (openspec/config.yaml).
+function esFocoVisible(el) { return !!el.matches?.(':focus-visible'); }
 
 function movimientoReducido() {
   return esWeb && typeof window.matchMedia === 'function'
@@ -190,7 +182,7 @@ export default function RegionAvisos({
     const alSalir = (e) => { if (e.pointerType === 'mouse') setPuntero(false); };
     // Foco de teclado dentro: pausa persistente. Un clic de puntero no la dispara.
     const alEnfocar = (e) => {
-      if (esFocoVisible(e.target, true)) setPausado(true);
+      if (esFocoVisible(e.target)) setPausado(true);
     };
     const alCambiarVisibilidad = () => setOculta(document.hidden);
     el.addEventListener('pointerenter', alEntrar);
@@ -354,7 +346,7 @@ function Nota({
     activa ? 'opacity-100' : 'invisible opacity-0'}`;
 
   function alEnfocar(e) {
-    if (e.target === e.currentTarget && esFocoVisible(e.target, false)) alContornear(true);
+    if (e.target === e.currentTarget && esFocoVisible(e.target)) alContornear(true);
   }
 
   // El botón de cerrar va primero en el DOM y con `zIndex`: sin él, el encabezado (que le sigue) lo tapa.

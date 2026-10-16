@@ -85,16 +85,11 @@ function formatTime(seconds) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-// El foco está en «Siguiente» y llegó ahí con teclado (`:focus-visible`). Sin soporte del
-// selector (Safari < 15.4) se asume teclado: ahí un clic no deja el foco en el botón.
+// El foco está en «Siguiente» y llegó ahí con teclado (`:focus-visible`).
 function focoDeTecladoEnSiguiente() {
   const el = document.activeElement;
   if (!el?.closest?.('[data-testid="boton-siguiente"]')) return false;
-  try {
-    return el.matches(':focus-visible');
-  } catch {
-    return true;
-  }
+  return el.matches(':focus-visible');
 }
 
 export default function QuizScreen({ route, navigation }) {

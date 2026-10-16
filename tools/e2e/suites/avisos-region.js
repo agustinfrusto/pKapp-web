@@ -289,31 +289,6 @@ async function conducta(navegador, base, t) {
     } finally { await p.cerrar(); }
   }
 
-  // 3.14d A2: en un navegador sin `:focus-visible` como selector (`matches` lanza), el foco de
-  // teclado igual pausa (BAN-Q2) y no queda ninguna excepción sin capturar.
-  {
-    const p = await abrir(navegador, base);
-    try {
-      await p.evaluar(`(function () {
-        window.__errores = [];
-        window.addEventListener('error', (e) => window.__errores.push(String(e.message)));
-        const matches = Element.prototype.matches;
-        Element.prototype.matches = function (s) {
-          if (typeof s === 'string' && s.indexOf(':focus-visible') !== -1) {
-            throw new SyntaxError("'" + s + "' is not a valid selector");
-          }
-          return matches.call(this, s);
-        };
-      })()`);
-      t.ok('3.14d A2 · Tab llega a «Pausar avisos»', await tabHasta(p, sel(ELLA + '-pausar'), DESDE_ELLA), true);
-      const e = await leer(p, ELLA);
-      t.ok('3.14d A2 · sin `:focus-visible`, el foco de teclado igual pausa', e.pausar, 'Reanudar avisos');
-      await dormir(OBSERVAR);
-      t.ok('3.14d A2 · y no avanza', (await leer(p, ELLA)).activa, e.activa);
-      t.ok('3.14d A2 · sin excepciones sin capturar', await p.evaluar('window.__errores.join(" | ")'), '');
-    } finally { await p.cerrar(); }
-  }
-
   // 14: anterior y siguiente dan la vuelta y toman el control manual.
   {
     const p = await abrir(navegador, base);

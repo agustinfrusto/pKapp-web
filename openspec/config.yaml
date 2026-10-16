@@ -42,6 +42,7 @@ context: |
   - Compatibilidad de datos hacia atrás: los usuarios no tienen cuenta ni respaldo
     automático, así que romper el formato de localStorage les borra el progreso.
     Todo cambio de forma necesita su migración, al estilo del flag `pkapp_migrated_v0.10`.
+  - Navegadores soportados (decisión del usuario, 2026-10-16): Safari/iOS 15.4+, Chrome/Edge 93+, Firefox 92+ y Samsung Internet 17+. Sin polyfills: el código puede usar todo lo que esas versiones traen (por ejemplo `Object.hasOwn` y `:focus-visible`). Cambiar el piso es una decisión del usuario.
 
   ## Dominio
 
