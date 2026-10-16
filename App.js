@@ -132,7 +132,7 @@ function AppContent() {
         formatter: () => 'pKapp',
       }}
     >
-      <StatusBar style={esOscuro ? 'light' : 'dark'} backgroundColor={chrome.cabecera} />
+      <StatusBar style={esOscuro ? 'light' : 'dark'} />
       <Stack.Navigator
         initialRouteName="MateriaSelect"
         screenOptions={{
