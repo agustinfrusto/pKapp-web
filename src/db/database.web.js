@@ -116,15 +116,31 @@ export async function addUserQuestion(materiaId, question) {
 
 export async function getUserQuestions(materiaId) {
   const questions = load(questionsKey(materiaId)) || [];
-  return questions.map(row => ({
-    id:          row.id,
-    source:      'user',
-    topic:       row.topic,
-    question:    row.question,
-    options:     JSON.parse(row.options),
-    correctIndex: row.correct_index,
-    explanation: row.explanation,
-  }));
+  // Una fila con `options` ilegible o que no es un array se descarta sin tocarla en localStorage: un respaldo puede repararla.
+  const validas = [];
+  for (const row of questions) {
+    let options;
+    try {
+      options = JSON.parse(row.options);
+    } catch {
+      console.warn('Pregunta propia descartada: options ilegible', row && row.id);
+      continue;
+    }
+    if (!Array.isArray(options)) {
+      console.warn('Pregunta propia descartada: options no es un array', row && row.id);
+      continue;
+    }
+    validas.push({
+      id:          row.id,
+      source:      'user',
+      topic:       row.topic,
+      question:    row.question,
+      options,
+      correctIndex: row.correct_index,
+      explanation: row.explanation,
+    });
+  }
+  return validas;
 }
 
 export async function deleteUserQuestion(materiaId, id) {

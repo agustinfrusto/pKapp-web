@@ -7,6 +7,7 @@ import React, { createContext, useContext, useLayoutEffect, useState } from 'rea
 import { Platform } from 'react-native';
 import { useColorScheme } from 'nativewind';
 import { getSettingSync, saveSetting } from '../db/database';
+import { avisar, AVISO_GUARDADO } from '../utils/confirm';
 
 const POR_DEFECTO = 'claro';
 
@@ -51,7 +52,12 @@ export function TemaProvider({ children }) {
   async function setOscuro(valor) {
     setOscuroState(valor);
     aplicar(valor, setColorScheme);
-    await saveSetting('tema', valor ? 'oscuro' : 'claro');
+    try {
+      await saveSetting('tema', valor ? 'oscuro' : 'claro');
+    } catch (e) {
+      console.warn('No se pudo guardar el tema', e);
+      avisar('Error', AVISO_GUARDADO);
+    }
   }
 
   return (

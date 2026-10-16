@@ -880,6 +880,125 @@ async function importarRespaldo(pagina, base, t) {
   }
 }
 
+// AUD-3 y AUD-8: una fila propia corrupta no tira la pantalla y un guardado que falla se avisa.
+const AVISO_GUARDADO = 'Error\n\nNo se pudo guardar el cambio.';
+const SEMBRADO_CORRUPTA = `(function () {
+  localStorage.setItem('pkapp_user_questions:bcyt', JSON.stringify([
+    { id: 'corrupta', topic: 'enzimas', question: 'q', options: '{no es json', correct_index: 0 },
+    { id: 'USER-e2e-1', topic: 'enzimas', question: 'Primera pregunta propia de prueba',
+      options: JSON.stringify(['Opción A', 'Opción B', 'Opción C']), correct_index: 1,
+      explanation: '', created_at: Date.now() },
+  ]));
+  const a = JSON.parse(localStorage.getItem('pkapp_settings') || '{}');
+  a.hide_feedback = 'true';
+  localStorage.setItem('pkapp_settings', JSON.stringify(a));
+})()`;
+const QUITAR_HIDE_FEEDBACK = `(function () {
+  const a = JSON.parse(localStorage.getItem('pkapp_settings') || '{}');
+  delete a.hide_feedback;
+  localStorage.setItem('pkapp_settings', JSON.stringify(a));
+})()`;
+// Desde acá `localStorage.setItem` lanza, como con la cuota llena o en modo privado.
+const GUARDADO_QUE_FALLA = EN_MARCO(`
+  w.Storage.prototype.setItem = function () { throw new w.DOMException('lleno', 'QuotaExceededError'); };
+  return true;
+`);
+
+async function datosCorruptosYGuardadoFallido(pagina, base, t) {
+  const c = (s) => `Ajustes · datos propios · ${s}`;
+  const hayAviso = () => pagina.dialogos.includes(AVISO_GUARDADO);
+  try {
+    // (a) Fila corrupta: se cuenta la válida y `hide_feedback` se carga igual.
+    const erroresA = pagina.errores.length;
+    t.ok(c('llega a /ajustes con una fila corrupta'),
+      await irAAjustes(pagina, base, 390, 'claro', SEMBRADO_CORRUPTA), true);
+    t.ok(c('el segmentado muestra «Sí» con hide_feedback en «Sí»'),
+      await pagina.esperarA(async () => (await pagina.evaluar(LEER_TEXTO('Sí')))?.control?.marcado === 'true'), true);
+    t.ok(c('cuenta solo la propia válida'),
+      await pagina.esperarA(async () => !!(await pagina.evaluar(LEER_TEXTO('1 pregunta propia')))), true);
+    await pausa(300);
+    t.ok(c('sin errores de JS en consola'), pagina.errores.length - erroresA, 0);
+    await pagina.evaluar(QUITAR_HIDE_FEEDBACK);
+    await pagina.evaluar(LIMPIAR);
+
+    // (b) Guardado que falla al tocar «Ocultar resultado».
+    t.ok(c('llega a /ajustes'), await irAAjustes(pagina, base, 390, 'claro'), true);
+    pagina.dialogos.length = 0;
+    const erroresB = pagina.errores.length;
+    await pagina.evaluar(GUARDADO_QUE_FALLA);
+    await clicTexto(pagina, 'Sí');
+    t.ok(c('«Ocultar resultado» sin espacio: aparece «No se pudo guardar el cambio.»'),
+      await pagina.esperarA(hayAviso), true);
+    await pausa(300);
+    t.ok(c('«Ocultar resultado» sin espacio: sin errores de JS en consola'), pagina.errores.length - erroresB, 0);
+
+    // (c) Guardado que falla al eliminar una propia.
+    t.ok(c('llega a /ajustes con dos propias'), await irAAjustes(pagina, base, 390, 'claro', SEMBRADO), true);
+    await clicTexto(pagina, '2 preguntas propias');
+    await pausa();
+    const tarjeta = await pagina.evaluar(LEER_TARJETA('Primera pregunta propia de prueba'));
+    t.ok(c('hay tarjeta con «Eliminar pregunta»'), !!(tarjeta && tarjeta.eliminar), true);
+    if (tarjeta && tarjeta.eliminar) {
+      pagina.dialogos.length = 0;
+      pagina.respuestaDialogo = 'aceptar';
+      const erroresC = pagina.errores.length;
+      await pagina.evaluar(GUARDADO_QUE_FALLA);
+      await pagina.clicEn(Math.round(tarjeta.eliminar.x + tarjeta.eliminar.ancho / 2),
+        Math.round(tarjeta.eliminar.y + tarjeta.eliminar.alto / 2));
+      t.ok(c('eliminar sin espacio: aparece «No se pudo guardar el cambio.»'),
+        await pagina.esperarA(hayAviso), true);
+      await pausa(300);
+      t.ok(c('eliminar sin espacio: sin errores de JS en consola'), pagina.errores.length - erroresC, 0);
+    }
+    pagina.respuestaDialogo = 'cancelar';
+
+    // (d) Guardado que falla al cambiar el tema desde la marca del header.
+    t.ok(c('abre la app en el marco'), !!(await abrirMarco(pagina, base, 390)), true);
+    await esperarEnMarco(pagina, MATERIA);
+    pagina.dialogos.length = 0;
+    const erroresD = pagina.errores.length;
+    await pagina.evaluar(GUARDADO_QUE_FALLA);
+    await clicEnMarco(pagina, 'oscuro');
+    t.ok(c('tema sin espacio: aparece «No se pudo guardar el cambio.»'), await pagina.esperarA(hayAviso), true);
+    await pausa(300);
+    t.ok(c('tema sin espacio: sin errores de JS en consola'), pagina.errores.length - erroresD, 0);
+  } finally {
+    pagina.respuestaDialogo = 'cancelar';
+    await pagina.evaluar(LIMPIAR);
+    await pagina.evaluar(QUITAR_HIDE_FEEDBACK);
+    await volverAClaro(pagina);
+  }
+}
+
+// La lista entera guardada como un valor JSON no iterable hace rechazar a `getUserQuestions`:
+// `hide_feedback` se carga igual (dos lecturas independientes).
+const LISTA_QUE_RECHAZA = EN_MARCO(`
+  const a = JSON.parse(w.localStorage.getItem('pkapp_settings') || '{}');
+  a.hide_feedback = 'true';
+  w.localStorage.setItem('pkapp_settings', JSON.stringify(a));
+  const original = w.Storage.prototype.getItem;
+  w.Storage.prototype.getItem = function (clave) {
+    if (String(clave).startsWith('pkapp_user_questions:')) return '{"a":1}';
+    return original.apply(this, arguments);
+  };
+`);
+
+async function cargaQueRechazaEnAjustes(pagina, base, t) {
+  const c = (s) => `Ajustes · carga que rechaza · ${s}`;
+  try {
+    const errores = pagina.errores.length;
+    t.ok(c('llega a /ajustes con la lista no iterable'),
+      await irAAjustes(pagina, base, 390, 'claro', LISTA_QUE_RECHAZA), true);
+    t.ok(c('el segmentado muestra «Sí» con hide_feedback en «Sí»'),
+      await pagina.esperarA(async () => (await pagina.evaluar(LEER_TEXTO('Sí')))?.control?.marcado === 'true'), true);
+    await pausa(300);
+    t.ok(c('sin errores de JS en consola'), pagina.errores.length - errores, 0);
+  } finally {
+    await pagina.evaluar(LIMPIAR);
+    await pagina.evaluar(QUITAR_HIDE_FEEDBACK);
+  }
+}
+
 // Cero literales visuales en la pantalla (aceptación común, C6): tamaños, ángulos y
 // medidas van por token o por clase, no por número.
 const LITERALES = [
@@ -948,6 +1067,8 @@ module.exports = [
   { nombre: 'Ajustes: con preguntas propias, eliminar y resetear en oscuro', correr: (p, b, t) => conDatos(p, b, t, 'oscuro') },
   { nombre: 'Ajustes: «1 generada» en singular', correr: singularGeneradas },
   { nombre: 'Ajustes: avisos de importar respaldo (E-05)', correr: importarRespaldo },
+  { nombre: 'Ajustes: fila propia corrupta y guardado que falla (AUD-3, AUD-8)', correr: datosCorruptosYGuardadoFallido },
+  { nombre: 'Ajustes: carga de propias que rechaza (AUD-3)', correr: cargaQueRechazaEnAjustes },
   { nombre: 'Ajustes: SettingsScreen.js sin literales visuales', correr: sinLiterales },
   { nombre: 'Ajustes: capturas de la 3.13d (solo con PKAPP_CAPTURAS)', correr: capturasDeLaTrece },
 ];
