@@ -2115,7 +2115,9 @@ async function marcaDeParcial(pagina, base, t) {
 const IDS_ENTEROS = `(function () {
   const original = Array.prototype.map;
   Array.prototype.map = function (...args) {
-    const fuente = this.length === 2 && this[0] && this[0].id === 'primero' && this[1] && this[1].id === 'segundo'
+    const renombra = this.length === 2 && this[0] && this[0].id === 'primero' && this[1] && this[1].id === 'segundo';
+    if (renombra) window.__idsEnterosAplicados = true;
+    const fuente = renombra
       ? [Object.assign({}, this[0], { id: '2' }), Object.assign({}, this[1], { id: '1' })]
       : this;
     return original.apply(fuente, args);
@@ -2127,6 +2129,8 @@ async function marcaDeParcialConIdsEnteros(pagina, base, t) {
   try {
     t.ok('abrió Elegir tema con parciales de id entero',
       await abrirTemas(pagina, base, { ancho: 390, alto: 900 }), true);
+    t.ok('ids enteros: el hook renombró los ids (canario)',
+      await pagina.evaluar(EN_MARCO('return w.__idsEnterosAplicados === true;')), true);
     const m = await pagina.evaluar(MEDIR_MARCAS);
     const radios = m ? m.radios : [];
     t.ok('ids enteros: los radios van en el orden Examen, 1er Parcial, 2do Parcial',
@@ -2136,7 +2140,8 @@ async function marcaDeParcialConIdsEnteros(pagina, base, t) {
     const parciales = ['1er Parcial', '2do Parcial'].map(porTexto).filter(Boolean);
     t.ok('ids enteros: cada parcial lleva la marca con tantas casillas como parciales',
       parciales.map((r) => r.casillas.length).join('|'), '2|2');
-    t.ok('ids enteros: «Examen» queda sin marca y los dos parciales con marca', parciales.length, 2);
+    t.ok('ids enteros: «Examen» queda sin marca y los dos parciales con marca',
+      radios.filter((r) => r.conMarca).length, 2);
     t.ok('ids enteros: la casilla llena es la del lugar del parcial en `parciales[]`',
       parciales.map((r) => r.casillas.map((c) => c.relleno !== 'rgba(0, 0, 0, 0)' ? '1' : '0').join('')).join('|'),
       '10|01');

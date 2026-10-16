@@ -629,6 +629,7 @@ const LEER_DESP = (id) => `(function () {
     nombre: disp.getAttribute('aria-label'),
     expandido: disp.getAttribute('aria-expanded'),
     abierta: !!lista,
+    maxAltura: lista ? getComputedStyle(lista).maxHeight : null,
     opciones: ops.map((o) => o.textContent.trim()),
     deshabilitadas: ops.map((o) => o.getAttribute('aria-disabled') === 'true'),
     elegidas: ops.map((o) => o.getAttribute('aria-selected')),
@@ -774,6 +775,7 @@ async function desplegables(pagina, t, tema, T) {
   t.ok(c('grupos: dos role="group" con su nombre y su rótulo'),
     JSON.stringify(l.grupos.map((g) => `${g.nombre}|${g.rotulo}|${g.opciones}`)),
     JSON.stringify(['Grupo A|Grupo A|2', 'Grupo B|Grupo B|2']));
+  t.ok(c('grupos: la región con rótulos topa en max-h-80 (320 px)'), l.maxAltura, '320px');
   const llena = (g) => g.marca.map((x) => x === TRANSPARENTE ? '0' : '1').join('');
   t.ok(c('grupos: marca de parcial de 3 casillas, la llena es la del índice'),
     JSON.stringify(l.grupos.map((g) => `${g.marca.length}|${llena(g)}|${g.oculta}`)),
