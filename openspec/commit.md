@@ -85,8 +85,9 @@ Convención del operador (2026-10-15), vigente desde que el rediseño se public�
 5. Excepción: `maquina-contenido` (`openspec/pendientes.md` 6.7) nunca se mergea a `main` ni a
    otra rama; solo recibe `main` → `maquina-contenido`. Sin bump ni tag: su trabajo no se publica.
    Antes de cada `main` → `maquina-contenido`: `git merge-tree --write-tree maquina-contenido main`
-   sin conflictos; si los hay, se resuelven en la rama, nunca en `main`. Sin push hasta que
-   Cloudflare Pages excluya la rama de los previews (tarea 0.4 del change `maquina-contenido`).
+   sin conflictos; si los hay, se resuelven en la rama, nunca en `main`. Es PRIVADA: se pushea solo
+   al remoto `contenido` (`agustinfrusto/maquina-contenido-pkapp`, privado, sin Cloudflare;
+   `branch.maquina-contenido.pushRemote = contenido`) y NUNCA a `origin`, que es público.
 
 ## Salida
 
