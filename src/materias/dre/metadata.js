@@ -4,7 +4,5 @@ export const metadata = {
   name:        'Digestivo, Renal y Endócrino',
   shortName:   'DRE',
   description: 'Preparación para el examen.',
-  icon:        '🧪',
-  image:       require('../../assets/materias/dre.png'),
   available:   true,
 };

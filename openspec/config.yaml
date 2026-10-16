@@ -83,7 +83,7 @@ context: |
   - Trabajo multi-agente: cinco roles (Ingeniero, Diseñador, Programador, Investigador, Analista),
     resumen en `CLAUDE.md` y contrato en `openspec/workers.md`. Solo el Ingeniero commitea y pushea, con orden.
   - Build web: `npm run build:web` (`scripts/gen-conteos.mjs` + expo export +
-    `scripts/inject-pwa.js` + `scripts/inject-preload.js`). `dist/` está gitignoreado.
+    `scripts/inject-pwa.js`). `dist/` está gitignoreado.
     `src/materias/conteos.js` es generado y va commiteado: no editarlo a mano.
   - Deploy: Cloudflare Pages conectado al repo. Ver `docs/CLOUDFLARE-MIGRATION.md`.
 

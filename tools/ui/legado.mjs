@@ -10,7 +10,8 @@
 //   - legado de estilo: `colores`/`oscuro` de src/theme/colores.js, las familias de color
 //     legadas y los fontSize xxs…display-lg de tailwind.config.js, src/theme/sombras.js;
 //   - restos del navy y el violeta legados fuera de openspec/ y referencias-diseno/, el
-//     campo `color` de src/materias/*/metadata.js y los pares de contraste del tema legado;
+//     campos `color`, `image` e `icon` de src/materias/*/metadata.js, scripts/inject-preload.js
+//     y los pares de contraste del tema legado;
 //   - símbolos de ícono (flechas, ×, ✕…) dentro de comentarios de src/, App.js y scripts/,
 //     también en los comentarios de bloque de varias líneas sin `*` al inicio de línea;
 //   - claves de app.json que solo sirven a builds nativos: expo.ios, expo.android,
@@ -140,6 +141,10 @@ for (const f of TODOS) {
 for (const f of dentro('src', 'materias').filter((x) => path.basename(x) === 'metadata.js')) {
   if (/^\s*color\s*:/m.test(fs.readFileSync(f, 'utf8'))) fallo(`${rel(f)} conserva el campo color`);
 }
+for (const f of dentro('src', 'materias').filter((x) => path.basename(x) === 'metadata.js')) {
+  if (/^\s*(image|icon)\s*:/m.test(fs.readFileSync(f, 'utf8'))) fallo(`${rel(f)} conserva image o icon (nadie los usa)`);
+}
+if (existe(abs('scripts', 'inject-preload.js'))) fallo('existe scripts/inject-preload.js (precarga PNG que nadie dibuja)');
 
 // --- 5. símbolos de ícono en comentarios ---------------------------------------------------------
 const SIMBOLOS = /[→←↑↓↔↗↘×✕✖✓✔▲▼▶◀⋯]/u;

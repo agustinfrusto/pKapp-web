@@ -4,7 +4,5 @@ export const metadata = {
   name:        'Reproductor y Desarrollo',
   shortName:   'RyD',
   description: 'Preparación para el examen.',
-  icon:        '🤰',
-  image:       require('../../assets/materias/ryd.png'),
   available:   true,
 };

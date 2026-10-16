@@ -139,7 +139,6 @@ pKapp/
 ├── scripts/
 │   ├── gen-conteos.mjs             # Pre-build: genera src/materias/conteos.js
 │   ├── inject-pwa.js               # Post-build: inyecta meta tags PWA, CF Analytics y Umami
-│   ├── inject-preload.js           # Post-build: inyecta el preload de las imágenes de materia
 │   └── capturar-screenshots.js     # Captura las imágenes de este README
 ├── tools/                          # Herramientas de desarrollo (fuera del bundle)
 │   ├── ingesta/                    # Pipeline Python: extraer, validar y enriquecer preguntas

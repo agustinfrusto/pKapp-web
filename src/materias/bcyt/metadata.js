@@ -4,7 +4,5 @@ export const metadata = {
   name:        'Biología Celular y Tisular',
   shortName:   'BCYT',
   description: 'Preparación para 1er y 2do parcial.',
-  icon:        '🧬',
-  image:       require('../../assets/materias/bcyt.png'),
   available:   true, // false = "Próximamente", no se puede entrar
 };

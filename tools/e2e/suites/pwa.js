@@ -382,39 +382,14 @@ async function arranqueConAjustesInvalidos(pagina, base, t) {
   }
 }
 
-// inject-preload.js sobre un dist/ mínimo en el directorio temporal; no toca el dist servido.
-async function preloadDeMaterias(pagina, base, t) {
-  const os = require('os');
-  const { spawnSync } = require('child_process');
-  const correr = (dist) => spawnSync(process.execPath, [path.join(RAIZ, 'scripts', 'inject-preload.js')],
-    { env: { ...process.env, PKAPP_DIST: dist }, encoding: 'utf8' });
-  const crear = (head, materias) => {
-    const dist = fs.mkdtempSync(path.join(os.tmpdir(), 'pkapp-preload-'));
-    fs.writeFileSync(path.join(dist, 'index.html'), `<html><head>${head}</head><body></body></html>`);
-    if (materias.length) {
-      const dir = path.join(dist, 'assets', 'src', 'assets', 'materias');
-      fs.mkdirSync(dir, { recursive: true });
-      for (const f of materias) fs.writeFileSync(path.join(dir, f), '');
-    }
-    return dist;
-  };
-  const cuenta = (html) => html.match(/<link rel="preload" as="image" href="\/assets\/src\/assets\/materias\/[^"]+">/g)?.length || 0;
-  const dirs = [crear('', []), crear('<link rel="preload" as="image" href="/ajeno.png">', ['a.png', 'b.png'])];
-  try {
-    const sinImagenes = correr(dirs[0]);
-    t.ok('sin imágenes de materia, inject-preload.js termina con exit distinto de 0', sinImagenes.status !== 0, true);
-
-    const conAjeno = correr(dirs[1]);
-    t.ok('con un preload as="image" ajeno ya presente, inject-preload.js termina en exit 0', conAjeno.status, 0);
-    const html = fs.readFileSync(path.join(dirs[1], 'index.html'), 'utf8');
-    t.ok('con un preload as="image" ajeno, igual inyecta el de cada imagen de materia', cuenta(html), 2);
-    const segunda = correr(dirs[1]);
-    t.ok('una segunda corrida termina en exit 0', segunda.status, 0);
-    t.ok('tras dos corridas quedan exactamente los preloads de materia, sin duplicar',
-      cuenta(fs.readFileSync(path.join(dirs[1], 'index.html'), 'utf8')), 2);
-  } finally {
-    for (const d of dirs) fs.rmSync(d, { recursive: true, force: true });
-  }
+// El dist servido no precarga imágenes de materia: ninguna tarjeta las dibuja.
+async function sinPreloadDeImagenes(pagina, base, t) {
+  const dist = path.resolve(RAIZ, process.env.PKAPP_DIST || 'dist');
+  const html = fs.readFileSync(path.join(dist, 'index.html'), 'utf8');
+  t.ok('index.html no tiene ningún link rel="preload" as="image"',
+    /<link[^>]*rel="preload"[^>]*as="image"/.test(html), false);
+  t.ok('dist/assets/src/assets/materias/ no existe',
+    fs.existsSync(path.join(dist, 'assets', 'src', 'assets', 'materias')), false);
 }
 
 const FONDO_Y_ESQUEMA = EN_MARCO(`
@@ -482,7 +457,7 @@ module.exports = [
   { nombre: 'PWA: sin cuadro oscuro al cargar con el tema claro', correr: sinCuadroOscuroAlCargar },
   { nombre: 'PWA: el primer cuadro de React ya está en el tema oscuro guardado', correr: primerCuadroEnElTemaGuardado },
   { nombre: 'PWA: arranca en claro con pkapp_settings inválido', correr: arranqueConAjustesInvalidos },
-  { nombre: 'PWA: inject-preload.js inyecta las imágenes de materia y falla sin ellas', correr: preloadDeMaterias },
+  { nombre: 'PWA: el dist no precarga imágenes de materia', correr: sinPreloadDeImagenes },
   { nombre: 'PWA: html lleva fondo y color-scheme del tema activo', correr: fondoYColorSchemeDelDocumento },
   { nombre: 'PWA: el index.html servido trae el <style> del fondo', correr: styleDelHeadServido },
   { nombre: 'PWA: la app no usa Animated (splash retirado)', correr: sinAnimatedEnLaApp },
