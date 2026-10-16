@@ -8,6 +8,7 @@ import { join, resolve } from 'node:path';
 
 const SCRIPT = resolve(import.meta.dirname, '..', '..', 'scripts', 'inject-pwa.js');
 const COLORES = resolve(import.meta.dirname, '..', '..', 'src', 'theme', 'colores.js');
+const GLIFOS = resolve(import.meta.dirname, '..', '..', 'src', 'assets', 'glifos.js');
 const HTML ='<!doctype html><html><head><title>t</title></head><body></body></html>';
 
 function correr(rama, conToken) {
@@ -16,9 +17,11 @@ function correr(rama, conToken) {
     mkdirSync(join(raiz, 'scripts'));
     mkdirSync(join(raiz, 'dist'));
     mkdirSync(join(raiz, 'src', 'theme'), { recursive: true });
+    mkdirSync(join(raiz, 'src', 'assets'), { recursive: true });
     copyFileSync(SCRIPT, join(raiz, 'scripts', 'inject-pwa.js'));
-    // inject-pwa.js lee el theme-color de los tokens: se copia lo que requiere.
+    // inject-pwa.js lee los tokens de color y los glifos: se copia lo que requiere.
     copyFileSync(COLORES, join(raiz, 'src', 'theme', 'colores.js'));
+    copyFileSync(GLIFOS, join(raiz, 'src', 'assets', 'glifos.js'));
     writeFileSync(join(raiz, 'dist', 'index.html'), HTML);
     const env = { ...process.env };
     delete env.CF_PAGES_BRANCH;
