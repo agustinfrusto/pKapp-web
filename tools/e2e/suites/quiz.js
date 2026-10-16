@@ -3,7 +3,7 @@
 const { plancha } = require('../../../src/theme/colores');
 const { GLIFOS } = require('../../../src/assets/glifos');
 const { abrirPagina, conectarNavegador } = require('../cdp');
-const { EN_MARCO, LADO_TACTIL, MATERIA, PASO, TITULO_DEL_QUIZ, abrirMarco, cerrarNota, clicEnMarco, entrarAMateria } = require('./comunes');
+const { EN_MARCO, LADO_TACTIL, MARCO, MATERIA, PASO, TITULO_DEL_QUIZ, abrirMarco, cerrarNota, clicEnMarco, entrarAMateria } = require('./comunes');
 
 // La «X» ya no es un carácter: es `glifo-cerrar` con el nombre accesible «Salir»
 // (Quiz.md e). Se la ubica por ese nombre.
@@ -465,6 +465,12 @@ async function siguiente(pagina) {
   }, { limite: 5000 });
 }
 
+// Ancho de la flecha de «Siguiente» (el último svg del botón); null si el botón no está.
+const anchoDeLaFlecha = (pagina) => pagina.evaluar(EN_MARCO(`
+  const g = visibles('[data-testid="boton-siguiente"] svg');
+  return g.length ? g[g.length - 1].getBoundingClientRect().width : null;
+`));
+
 const cerca = (a, b, tol = 1) => Math.abs(a - b) <= tol;
 
 // ---------------------------------------------------------------------------
@@ -735,11 +741,7 @@ async function probarQuiz(pagina, base, t, navegador, { tema, preguntas }) {
       reportar !== null && reportar.rect.alto >= LADO_TACTIL && reportar.rect.ancho >= LADO_TACTIL
       && reportar.texto.toLowerCase().includes('reportar pregunta'), true);
     const sig = await pagina.evaluar(LEER(sel('boton-siguiente')));
-    const flecha = await pagina.evaluar(EN_MARCO(`
-      const g = visibles('[data-testid="boton-siguiente"] svg');
-      return g.length ? g[g.length - 1].getBoundingClientRect().width : null;
-    `));
-    t.ok(nombre('siguiente: flecha a paso 6 (24 px)'), flecha, 6 * PASO);
+    t.ok(nombre('siguiente: flecha a paso 6 (24 px)'), await anchoDeLaFlecha(pagina), 6 * PASO);
     t.ok(nombre('siguiente: botón K1 `tinta` con texto `fondo`, 44 de alto'),
       sig !== null && sig.fondo === rgb(T.tinta) && sig.rect.alto >= LADO_TACTIL, true);
     const bi = await pagina.evaluar(LEER(sel('barra-inferior')));
@@ -752,7 +754,7 @@ async function probarQuiz(pagina, base, t, navegador, { tema, preguntas }) {
         reposo: { fondo: TRANSPARENTE, textoColor: rgb(T.tintaSec) },
         hover: { fondo: TRANSPARENTE, contorno: { ancho: '1px', color: rgb(T.linea), sep: '0px' } },
         presionado: { fondo: rgb(T.tinta), textoColor: rgb(T.fondo) },
-      }).catch(() => {});
+      });
       await estadosK(ctx, 'Siguiente (K1)', sel('boton-siguiente'), {
         reposo: { fondo: rgb(T.tinta), borde: rgb(T.tinta), textoColor: rgb(T.fondo), glifo: T.fondo },
         hover: { fondo: rgb(T.tinta), contorno: { ancho: '2px', color: rgb(T.linea), sep: '0px' } },
@@ -1012,6 +1014,7 @@ async function examenEnCurso(pagina, base, t) {
     t.ok('«Reportar pregunta» sigue disponible', await existe(pagina, sel('boton-reportar')), true);
     await reportarK7({ pagina, t, T }, 'examen en curso');
     t.ok('«Siguiente» o «Ver resultados» disponible', await existe(pagina, sel('boton-siguiente')), true);
+    t.ok('examen en curso · siguiente: flecha a paso 6 (24 px)', await anchoDeLaFlecha(pagina), 6 * PASO);
 
     // Un solo toque (c.2): la elegida sigue siendo pulsable (`ControlMarco`), así que lo que
     // impide que un segundo toque cambie o duplique la respuesta es la guardia de
@@ -1115,6 +1118,27 @@ async function sinSaltoAlEntrar(pagina, base, t) {
   t.ok('320: arranca con barra continua', await existe(pagina, sel('barra-progreso')), true);
   t.ok('320: ningún commit dibujó casillas desde el montaje',
     await pagina.evaluar(EN_MARCO('return w.__casillasVistas;')), 0);
+}
+
+// B-04: con el quiz abierto, achicar la pantalla pasa de casillas a barra. Sin `onLayout`
+// el ancho del progreso solo se mide al montar y las 40 casillas quedan cortadas en 128 px.
+async function redimensionarElQuiz(pagina, base, t) {
+  t.ok('360 → 320: llegó al quiz',
+    await entrarAlQuiz(pagina, base, { ancho: 360, temporizador: true, parcial: '1er parcial', vigilarCasillas: true }), true);
+  t.ok('360 → 320: a 360 hay 40 casillas y no hay barra',
+    await pagina.evaluar(CONTAR('[data-testid="casilla-llena"], [data-testid="casilla-vacia"]')) === 40
+      && !await existe(pagina, sel('barra-progreso')), true);
+  await pagina.evaluar(`document.getElementById(${JSON.stringify(MARCO)}).style.width = '320px'`);
+  t.ok('360 → 320: aparece la barra continua',
+    await pagina.esperarA(() => existe(pagina, sel('barra-progreso')), { limite: 3000 }), true);
+  t.ok('360 → 320: ya no quedan casillas',
+    await pagina.evaluar(CONTAR('[data-testid="casilla-llena"], [data-testid="casilla-vacia"]')), 0);
+  const medida = await pagina.evaluar(EN_MARCO(`
+    const p = visibles('[data-testid="progreso-quiz"]')[0];
+    const b = visibles('[data-testid="barra-progreso"]')[0];
+    return p && b ? { progreso: p.getBoundingClientRect().right, barra: b.getBoundingClientRect().right } : null;
+  `));
+  t.ok('360 → 320: la barra no pasa del progreso', medida !== null && medida.barra <= medida.progreso + 0.5, true);
 }
 
 async function anchosDelQuiz(pagina, base, t) {
@@ -1813,6 +1837,7 @@ module.exports = [
   { nombre: 'Quiz Plancha: anchos 320, 360 y 768', correr: conNavegador(anchosDelQuiz) },
   { nombre: 'Quiz Plancha: borde de la cuenta de casillas (B-04)', correr: conNavegador(bordeDeLaCuenta) },
   { nombre: 'Quiz Plancha: sin salto de casillas a barra al entrar (B-04)', correr: conNavegador(sinSaltoAlEntrar) },
+  { nombre: 'Quiz Plancha: redimensionar de 360 a 320 px cambia a barra (B-04)', correr: conNavegador(redimensionarElQuiz) },
   { nombre: 'Quiz Plancha: escritorio 1023, 1024, 1280, 1366 y 1920 (lectura)', correr: conNavegadorAncho(escritorioDelQuiz, { ancho: 1920, alto: 1200 }) },
   { nombre: 'Quiz Plancha: examen en curso en escritorio 1024, 1366 y 1920', correr: conNavegadorAncho(escritorioDelExamenEnCurso, { ancho: 1920, alto: 1200 }) },
   { nombre: 'Quiz Plancha: movimiento de entrada (REV-1, c.5)', correr: conNavegador(movimientoDelQuiz) },
