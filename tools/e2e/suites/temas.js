@@ -465,7 +465,11 @@ function sembrarPropias(materia, { propiaFallada = false, falloDelBanco = false,
   ];
   const stats = {};
   if (propiaFallada) stats['USER-e2e-2'] = { times_answered: 1, times_correct: 0, last_answered_at: 1700000000000 };
-  if (falloDelBanco) stats[fallo] = { times_answered: 1, times_correct: 0, last_answered_at: 1700000000000 };
+  if (falloDelBanco) {
+    stats[fallo] = falloDelBanco === true
+      ? { times_answered: 1, times_correct: 0, last_answered_at: 1700000000000 }
+      : falloDelBanco;   // una entrada propia: p. ej. con `racha`
+  }
   return `(function () {
     ${soloEstadisticas ? '' : `localStorage.setItem('pkapp_user_questions:${id}', ${JSON.stringify(JSON.stringify(filas))});`}
     ${Object.keys(stats).length ? `localStorage.setItem('pkapp_question_stats:${id}', ${JSON.stringify(JSON.stringify(stats))});` : ''}
@@ -473,7 +477,7 @@ function sembrarPropias(materia, { propiaFallada = false, falloDelBanco = false,
 }
 
 async function abrirTemas(pagina, base, { ancho = 390, alto = 900, modo = 'practice', oscuro = false, materia = MATERIA,
-  propias = false, propiaFallada = false, falloDelBanco = false } = {}) {
+  propias = false, propiaFallada = false, falloDelBanco = false, sinFallos = false } = {}) {
   await pagina.ir(base + '/favicon.png');
   await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
   await pagina.evaluar(LIMPIAR_DATOS);
@@ -495,7 +499,8 @@ async function abrirTemas(pagina, base, { ancho = 390, alto = 900, modo = 'pract
   if (!await pagina.esperarA(async () =>
     await pagina.evaluar(EN_MARCO('return w.location.pathname;')) === `/temas/${modo}`)) return false;
   // `failed` con fallos no es V2: muestra la mezcla, como `practice`.
-  const conFallos = modo === 'failed' && (propiaFallada || falloDelBanco);
+  // `sinFallos`: se sembró una entrada que ya no cuenta como fallada, así que failed muestra V2.
+  const conFallos = modo === 'failed' && !sinFallos && (propiaFallada || falloDelBanco);
   return esperarEnMarco(pagina, SEÑAL_DE_MODO[conFallos ? 'practice' : modo]);
 }
 
@@ -2118,6 +2123,95 @@ async function fondoDeNavegacionDelTema(pagina, base, t) {
   await verificar('claro de nuevo, sin recargar', 'claro', 'oscuro');
 }
 
+// ---------------------------------------------------------------------------
+// Racha de aciertos (6.10 T11, F-2): una pregunta sale de «falladas» tras 2 aciertos seguidos.
+
+const { QUESTIONS: PREGUNTAS_BCYT } = require('../../../src/materias/bcyt/questions');
+
+const EN_RUTA = (ruta) => (pagina) =>
+  pagina.esperarA(async () => await pagina.evaluar(EN_MARCO('return w.location.pathname;')) === ruta);
+const CLAVE_STATS_BCYT = 'pkapp_question_stats:bcyt';
+
+// Toque por coordenadas sobre un elemento del marco ubicado por su testID.
+async function tocarIdEnMarco(pagina, id) {
+  const punto = () => pagina.evaluar(EN_MARCO(`
+    const n = visibles('[data-testid="${id}"]')[0];
+    if (!n) return null;
+    n.scrollIntoView({ block: 'center' });
+    const r = n.getBoundingClientRect();
+    return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+  `));
+  if (!await punto()) return false;
+  await new Promise((r) => setTimeout(r, 150));
+  const p = await punto();
+  if (!p) return false;
+  await pagina.clicEn(p.x, p.y);
+  return true;
+}
+
+const existeIdEnMarco = (pagina, id) =>
+  pagina.evaluar(EN_MARCO(`return visibles('[data-testid="${id}"]').length > 0;`));
+
+// Desde Elegir tema (failed) a Estadísticas, por Home, y devuelve el texto de la pantalla.
+async function textoDeStatsDesdeTemas(pagina) {
+  await pagina.evaluar(EN_MARCO('w.history.back();'));
+  await EN_RUTA('/inicio')(pagina);
+  await esperarEnMarco(pagina, 'mis estadísticas');
+  await clicEnMarco(pagina, 'mis estadísticas');
+  if (!await EN_RUTA('/estadisticas')(pagina)) return null;
+  await esperarEnMarco(pagina, 'aciertos globales');
+  return (await pagina.evaluar(EN_MARCO('return d.body.innerText;'))).toLowerCase();
+}
+
+async function rachaYFalladas(pagina, base, t) {
+  const preguntaDelFallo = PREGUNTAS_BCYT.find((q) => q.id === DATOS_DE_MATERIA[MATERIA].fallo);
+  t.ok('la pregunta fallada del banco existe', !!preguntaDelFallo, true);
+  const casos = [
+    // [nombre, entrada, ¿sigue fallada?]
+    ['errada 1 vez y acertada 2 seguidas (racha 2)', { times_answered: 3, times_correct: 2, racha: 2, last_answered_at: 1 }, false],
+    ['errada y acertada 1 vez (racha 1)', { times_answered: 2, times_correct: 1, racha: 1, last_answered_at: 1 }, true],
+    ['entrada vieja sin racha, con errores', { times_answered: 3, times_correct: 2, last_answered_at: 1 }, true],
+  ];
+  for (const [nombre, entrada, fallada] of casos) {
+    t.ok(`${nombre}: abrió Repasar fallos`,
+      await abrirTemas(pagina, base, { modo: 'failed', falloDelBanco: entrada, sinFallos: !fallada }), true);
+    const texto = (await medirTemas(pagina)).texto.toLowerCase();
+    t.ok(`${nombre}: ${fallada ? 'sigue en' : 'sale de'} Repasar fallos`, texto.includes('sin preguntas falladas'), !fallada);
+    const stats = await textoDeStatsDesdeTemas(pagina);
+    t.ok(`${nombre}: Estadísticas abrió`, stats !== null, true);
+    t.ok(`${nombre}: ${fallada ? 'sigue en' : 'sale de'} «Más falladas»`, (stats || '').includes('más falladas'), fallada);
+  }
+}
+
+async function rachaEnElQuizReal(pagina, base, t) {
+  const { fallo } = DATOS_DE_MATERIA[MATERIA];
+  const pregunta = PREGUNTAS_BCYT.find((q) => q.id === fallo);
+  t.ok('abrió Repasar fallos con una pregunta errada una vez',
+    await abrirTemas(pagina, base, { modo: 'failed',
+      falloDelBanco: { times_answered: 1, times_correct: 0, last_answered_at: 1700000000000 } }), true);
+
+  for (const ronda of [1, 2]) {
+    t.ok(`ronda ${ronda}: la pregunta sigue en Repasar fallos`, await esperarEnMarco(pagina, 'todos los temas mezclados'), true);
+    await clicEnMarco(pagina, 'todos los temas mezclados');
+    t.ok(`ronda ${ronda}: abrió el quiz`, await EN_RUTA('/quiz')(pagina), true);
+    t.ok(`ronda ${ronda}: respondió bien`, await tocarIdEnMarco(pagina, `opcion-quiz-${pregunta.correctIndex}`), true);
+    t.ok(`ronda ${ronda}: apareció «Siguiente»`,
+      await pagina.esperarA(() => existeIdEnMarco(pagina, 'boton-siguiente'), { limite: 5000 }), true);
+    await tocarIdEnMarco(pagina, 'boton-siguiente');
+    t.ok(`ronda ${ronda}: llegó a Resultados`, await esperarEnMarco(pagina, 'volver a practicar'), true);
+    await clicEnMarco(pagina, 'inicio');
+    t.ok(`ronda ${ronda}: volvió a Home`, await EN_RUTA('/inicio')(pagina), true);
+    await esperarEnMarco(pagina, 'repasar fallos');
+    await clicEnMarco(pagina, 'repasar fallos');
+    t.ok(`ronda ${ronda}: reabrió Repasar fallos`, await EN_RUTA('/temas/failed')(pagina), true);
+  }
+
+  t.ok('tras 2 aciertos seguidos la pregunta sale de Repasar fallos', await esperarEnMarco(pagina, 'sin preguntas falladas'), true);
+  const guardada = JSON.parse(await pagina.evaluar(EN_MARCO(`return w.localStorage.getItem('${CLAVE_STATS_BCYT}');`)) || '{}')[fallo];
+  t.ok('la entrada guardada lleva racha 2 y 3 respuestas, 2 aciertos',
+    guardada && `${guardada.racha}|${guardada.times_answered}|${guardada.times_correct}`, '2|3|2');
+}
+
 module.exports = [
   { nombre: 'Navegación: fondo del contenedor sin el gris de React Navigation (E-07)', correr: fondoDeNavegacionDelTema },
   { nombre: 'HeaderMarca: control Claro | Oscuro', correr: controlDeTema },
@@ -2147,5 +2241,7 @@ module.exports = [
   { nombre: 'TopicSelect escritorio: practice, regiones, columnas y foco', correr: escritorioPractice },
   { nombre: 'TopicSelect escritorio: exam y vacíos en lectura', correr: escritorioExamYVacios },
   { nombre: 'TopicSelect escritorio: sin parciales y página desplazada', correr: escritorioSinParcialesYDesplazado },
+  { nombre: 'TopicSelect: racha de aciertos y falladas (T11)', correr: (pagina, base, t) => limpiando(pagina, () => rachaYFalladas(pagina, base, t)) },
+  { nombre: 'TopicSelect: racha de aciertos en el quiz real (T11)', correr: (pagina, base, t) => limpiando(pagina, () => rachaEnElQuizReal(pagina, base, t)) },
   { nombre: 'TopicSelect: capturas de la 3.13c (solo con PKAPP_CAPTURAS)', correr: capturasDeLaTrece },
 ];

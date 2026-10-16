@@ -59,11 +59,20 @@ export async function initDatabase() {
   migrateIfNeeded();
 }
 
+// Única definición de «fallada»: errada alguna vez y con menos de 2 aciertos seguidos desde el
+// último error. Una entrada sin `racha` (anterior a este campo) sigue la regla vieja.
+export function esFallada(entry) {
+  return entry.times_answered > 0
+    && entry.times_correct < entry.times_answered
+    && (typeof entry.racha !== 'number' || entry.racha < 2);
+}
+
 export async function recordAnswer(materiaId, questionId, isCorrect) {
   const stats = load(statsKey(materiaId)) || {};
   const entry = stats[questionId] || { times_answered: 0, times_correct: 0 };
   entry.times_answered += 1;
   if (isCorrect) entry.times_correct += 1;
+  entry.racha = isCorrect ? (entry.racha ?? 0) + 1 : 0;
   entry.last_answered_at = Date.now();
   stats[questionId] = entry;
   save(statsKey(materiaId), stats);
@@ -94,7 +103,7 @@ export async function getFailedQuestions(materiaId) {
         ? data.times_correct / data.times_answered
         : 1,
     }))
-    .filter(q => q.times_answered > 0 && q.times_correct < q.times_answered)
+    .filter(esFallada)
     .sort((a, b) => a.accuracy - b.accuracy || b.times_answered - a.times_answered);
 }
 

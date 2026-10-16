@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, ScrollView, RefreshControl } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { getAllStats, getUserQuestions } from '../db/database';
+import { esFallada, getAllStats, getUserQuestions } from '../db/database';
 import { useMateria } from '../materia/MateriaContext';
 import { useTema } from '../theme/TemaContext';
 import { plancha } from '../theme/colores';
@@ -100,7 +100,7 @@ export default function StatsScreen({ navigation }) {
 
   // Preguntas más falladas (top 10 con menor accuracy)
   const failedStats = stats
-    .filter(s => s.times_answered > 0 && s.times_correct < s.times_answered)
+    .filter(esFallada)
     .map(s => {
       const q = allQuestions.find(q => q.id === s.question_id);
       return {
