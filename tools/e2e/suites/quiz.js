@@ -409,6 +409,11 @@ async function entrarAlQuiz(pagina, base, {
       if (ms === 1000) { w.__ticks.push(f); if (congelar) return 0; }
       return original(f, ms, ...a);
     };
+    w.__desfase = 0;
+    if (congelar) {
+      const ahora = w.Date.now.bind(w.Date);
+      w.Date.now = () => ahora() + w.__desfase;
+    }
     w.__casillasVistas = 0;
     if (${JSON.stringify(vigilarCasillas)}) {
       new w.MutationObserver(() => {
@@ -834,6 +839,36 @@ async function progresoPorBarra(pagina, base, t) {
 // ---------------------------------------------------------------------------
 // Temporizador (QUIZ-P3): `glifo-reloj` y «mm:ss»; bajo 120 s pasa a `error` con marco.
 
+// El reloj cuenta por plazo y no por ticks (AUD-1): lo que pasa con la página congelada se
+// descuenta igual. El reloj del iframe se desplaza con `w.__desfase` (segundos sumados a Date.now).
+async function relojPorPlazo(pagina, base, t) {
+  const leer = async () => {
+    const l = await pagina.evaluar(LEER(sel('tiempo-quiz')));
+    if (!l) return null;
+    const [m, s] = l.texto.split(':').map(Number);
+    return m * 60 + s;
+  };
+  const sumar = (seg, evento) => pagina.evaluar(EN_MARCO(`
+    w.__desfase += ${seg} * 1000;
+    ${evento ? `d.dispatchEvent(new w.Event('visibilitychange'));` : `const timer = w.__ticks.slice(w.__marca).pop(); if (!timer) return false; timer();`}
+    return true;
+  `));
+  t.ok('relojPorPlazo: llegó al quiz', await entrarAlQuiz(pagina, base, { temporizador: true }), true);
+  const inicial = await leer();
+  t.ok('relojPorPlazo: hay tiempo inicial', inicial !== null && inicial > 300, true);
+  if (inicial === null) return;
+  // Con 0 respuestas Results vuelve al selector (E-04, tarea 6.4): se responde una antes de agotar.
+  t.ok('relojPorPlazo: respondió una pregunta', await responder(pagina, 0), true);
+  t.ok('relojPorPlazo: tick tras 300 s', await sumar(300, false), true);
+  await espera(400);
+  t.ok('relojPorPlazo: un tick descuenta los 300 s transcurridos', await leer(), inicial - 300);
+  t.ok('relojPorPlazo: visibilitychange tras 60 s', await sumar(60, true), true);
+  await espera(400);
+  t.ok('relojPorPlazo: visibilitychange actualiza sin esperar el tick', await leer(), inicial - 360);
+  t.ok('relojPorPlazo: tick tras pasar el total', await sumar(inicial + 10, false), true);
+  t.ok('relojPorPlazo: pasado el total va a /resultados', await esperarRuta(pagina, '/resultados'), true);
+}
+
 async function temporizadorYAlerta(pagina, base, t) {
   const T = plancha.claro;
   t.ok('llegó al quiz con temporizador', await entrarAlQuiz(pagina, base, { temporizador: true }), true);
@@ -853,7 +888,8 @@ async function temporizadorYAlerta(pagina, base, t) {
   const dar = (n) => pagina.evaluar(EN_MARCO(`
     const timer = w.__ticks.slice(w.__marca).pop();
     if (!timer) return false;
-    for (let i = 0; i < ${n}; i++) timer();
+    w.__desfase += ${n} * 1000;
+    timer();
     return true;
   `));
   t.ok('hay un reloj de 1 s que manejar', await dar(faltan), true);
@@ -1772,6 +1808,7 @@ module.exports = [
   { nombre: 'Quiz Plancha: progreso por casillas hasta 40', correr: conNavegador(progresoPorCasillas) },
   { nombre: 'Quiz Plancha: progreso por barra continua con más de 40', correr: conNavegador(progresoPorBarra) },
   { nombre: 'Quiz Plancha: temporizador y alerta bajo 120 s', correr: conNavegador(temporizadorYAlerta) },
+  { nombre: 'Quiz: el reloj cuenta por plazo y no por ticks (AUD-1)', correr: conNavegador(relojPorPlazo) },
   { nombre: 'Quiz Plancha: examen en curso (resultado oculto)', correr: conNavegador(examenEnCurso) },
   { nombre: 'Quiz Plancha: anchos 320, 360 y 768', correr: conNavegador(anchosDelQuiz) },
   { nombre: 'Quiz Plancha: borde de la cuenta de casillas (B-04)', correr: conNavegador(bordeDeLaCuenta) },
