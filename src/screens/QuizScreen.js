@@ -118,6 +118,7 @@ export default function QuizScreen({ route, navigation }) {
   const [timeLeft, setTimeLeft] = useState(timerMinutes ? timerMinutes * 60 : null);
   const answersRef = useRef([]);
   const timerRef = useRef(null);
+  const plazoRef = useRef(null);
   // Marca las salidas legitimas (terminar el quiz o confirmar el abandono) para
   // que el guardia de abajo no vuelva a preguntar.
   const salidaAprobadaRef = useRef(false);
@@ -187,13 +188,32 @@ export default function QuizScreen({ route, navigation }) {
     });
   }, [navigation, sinQuiz]);
 
-  // Countdown timer
+  // Countdown timer: cuenta contra un plazo absoluto fijado al montar, no por ticks. Con la
+  // pantalla bloqueada o la pestaña congelada no hay callbacks y restar 1 s por tick le regalaba
+  // tiempo al alumno. El intervalo solo repinta; al volver a la página se recalcula de inmediato.
   useEffect(() => {
     if (!timerMinutes) return;
-    timerRef.current = setInterval(() => {
-      setTimeLeft(prev => (prev <= 1 ? 0 : prev - 1));
-    }, 1000);
-    return () => clearInterval(timerRef.current);
+    plazoRef.current = Date.now() + timerMinutes * 60000;
+    const recalcular = () => {
+      setTimeLeft(Math.max(0, Math.ceil((plazoRef.current - Date.now()) / 1000)));
+    };
+    timerRef.current = setInterval(recalcular, 1000);
+    const alVolver = () => {
+      if (document.visibilityState === 'visible') recalcular();
+    };
+    if (Platform.OS === 'web') {
+      document.addEventListener('visibilitychange', alVolver);
+      window.addEventListener('focus', recalcular);
+      window.addEventListener('pageshow', recalcular);
+    }
+    return () => {
+      clearInterval(timerRef.current);
+      if (Platform.OS === 'web') {
+        document.removeEventListener('visibilitychange', alVolver);
+        window.removeEventListener('focus', recalcular);
+        window.removeEventListener('pageshow', recalcular);
+      }
+    };
   }, []);
 
   // La navegación por tiempo agotado va en su propio efecto y no dentro del
@@ -249,15 +269,18 @@ export default function QuizScreen({ route, navigation }) {
       console.error('Error guardando respuesta:', err);
     }
     
-    // Agregar al historial
-    setAnswers([
+    // Agregar al historial. La ref se asigna acá además del efecto: si el tiempo llega a 0 en el
+    // mismo commit, el efecto de fin ya leyó `answersRef` antes de que el efecto de sincronía corra.
+    const nuevas = [
       ...answers,
       {
         question: currentQuestion,
         selectedIndex: index,
         isCorrect,
       },
-    ]);
+    ];
+    answersRef.current = nuevas;
+    setAnswers(nuevas);
   }
 
   function handleNext() {
