@@ -837,6 +837,29 @@ const CLAVES_E05 = {
   dosA: 'pkapp_question_stats:e2e-dos-a',
   dosB: 'pkapp_question_stats:e2e-dos-b',
 };
+const SOLO_EXISTE_E05 = `(function () {
+  ${JSON.stringify([CLAVES_E05.uno, CLAVES_E05.dosA, CLAVES_E05.dosB])}.forEach((k) => localStorage.removeItem(k));
+})()`;
+const LEER_CLAVE_E05 = (k) => EN_MARCO(`return w.localStorage.getItem(${JSON.stringify(k)});`);
+// Desde acá `setItem` lanza (cuota llena); `RESTAURAR_GUARDADO` devuelve el original al prototipo.
+const GUARDADO_QUE_FALLA_E05 = EN_MARCO(`
+  w.__setItemOriginal = w.Storage.prototype.setItem;
+  w.Storage.prototype.setItem = function () { throw new w.DOMException('lleno', 'QuotaExceededError'); };
+  return true;
+`);
+// Variante: `setItem` lanza solo para `clave`; el resto se escribe con normalidad.
+const GUARDADO_QUE_FALLA_EN_E05 = (clave) => EN_MARCO(`
+  w.__setItemOriginal = w.Storage.prototype.setItem;
+  w.Storage.prototype.setItem = function (k, v) {
+    if (k === ${JSON.stringify(clave)}) throw new w.DOMException('lleno', 'QuotaExceededError');
+    return w.__setItemOriginal.call(this, k, v);
+  };
+  return true;
+`);
+const RESTAURAR_GUARDADO_E05 = EN_MARCO(`
+  if (w.__setItemOriginal) w.Storage.prototype.setItem = w.__setItemOriginal;
+  return true;
+`);
 const LIMPIAR_E05 = `(function () {
   ${JSON.stringify(Object.values(CLAVES_E05))}.forEach((k) => localStorage.removeItem(k));
 })()`;
@@ -867,14 +890,53 @@ async function importarRespaldo(pagina, base, t) {
     t.ok(c('una versión no soportada (E-05.2)'),
       await importar(respaldo({}, 2)), 'Error\n\nVersión de respaldo no soportada (2).');
     t.ok(c('claves que ya existen: nada nuevo (E-05.3, n = 0)'),
-      await importar(respaldo({ [CLAVES_E05.existe]: '{}' })), 'Listo\n\nNo había datos nuevos para restaurar.');
+      await importar(respaldo({ [CLAVES_E05.existe]: '{}' })), 'Listo\n\nNo se restauró ningún dato; 1 ya existía y se conservó.');
+    t.ok(c('ninguna clave conocida: «No había datos nuevos para restaurar.»'),
+      await importar(respaldo({ 'clave-ajena': 'x' })), 'Listo\n\nNo había datos nuevos para restaurar.');
     t.ok(c('una clave nueva, en singular (E-05.3, n = 1)'),
       await importar(respaldo({ [CLAVES_E05.existe]: '{}', [CLAVES_E05.uno]: '{}' })),
-      'Listo\n\nSe restauró 1 dato.');
+      'Listo\n\nSe restauró 1 dato; 1 ya existía y se conservó.');
     t.ok(c('varias claves nuevas, en plural (E-05.3, n > 1)'),
       await importar(respaldo({ [CLAVES_E05.dosA]: '{}', [CLAVES_E05.dosB]: '{}', 'clave-ajena': 'x' })),
       'Listo\n\nSe restauraron 2 datos.');
+
+    // AUD-5: cada dato se valida y el aviso dice lo que pasó.
+    await pagina.evaluar(SOLO_EXISTE_E05);
+    t.ok(c('(a) un valor que no es texto: se descarta (AUD-5)'),
+      await importar(respaldo({ [CLAVES_E05.uno]: { x: 1 } })),
+      'Listo\n\nNo se restauró ningún dato; 1 no era válido y se descartó.');
+    t.ok(c('(a) el valor descartado no se escribe'), await pagina.evaluar(LEER_CLAVE_E05(CLAVES_E05.uno)), null);
+    t.ok(c('(a) un texto que no es JSON: se descarta'),
+      await importar(respaldo({ [CLAVES_E05.uno]: '{no es json', [CLAVES_E05.dosA]: 'tampoco' })),
+      'Listo\n\nNo se restauró ningún dato; 2 no eran válidos y se descartaron.');
+    t.ok(c('(b) sin versión: «(sin versión)» (E-05.2)'),
+      await importar(JSON.stringify({ data: {} })), 'Error\n\nVersión de respaldo no soportada (sin versión).');
+    await pagina.evaluar(GUARDADO_QUE_FALLA_E05);
+    try {
+      t.ok(c('(c) la cuota rechaza todo: «no se pudieron guardar» (AUD-5)'),
+        await importar(respaldo({ [CLAVES_E05.uno]: '{}', [CLAVES_E05.dosA]: '{}', [CLAVES_E05.dosB]: '{}' })),
+        'Error\n\nNo se restauró ningún dato; 3 no se pudieron guardar.');
+    } finally {
+      await pagina.evaluar(RESTAURAR_GUARDADO_E05);
+    }
+    t.ok(c('(c) nada quedó escrito'), await pagina.evaluar(LEER_CLAVE_E05(CLAVES_E05.uno)), null);
+    t.ok(c('(e) mezcla: restauradas y conservadas'),
+      await importar(respaldo({ [CLAVES_E05.existe]: '{}', [CLAVES_E05.dosA]: '{}', [CLAVES_E05.dosB]: '{}' })),
+      'Listo\n\nSe restauraron 2 datos; 1 ya existía y se conservó.');
+    await pagina.evaluar(SOLO_EXISTE_E05);
+    await pagina.evaluar(GUARDADO_QUE_FALLA_EN_E05(CLAVES_E05.dosB));
+    try {
+      t.ok(c('(e) mezcla: las cuatro partes'),
+        await importar(respaldo({
+          [CLAVES_E05.existe]: '{}', [CLAVES_E05.uno]: '{}', [CLAVES_E05.dosA]: { x: 1 }, [CLAVES_E05.dosB]: '{}',
+        })),
+        'Listo\n\nSe restauró 1 dato; 1 ya existía y se conservó; 1 no se pudo guardar; 1 no era válido y se descartó.');
+    } finally {
+      await pagina.evaluar(RESTAURAR_GUARDADO_E05);
+    }
+    t.ok(c('(e) la clave que falló no quedó escrita'), await pagina.evaluar(LEER_CLAVE_E05(CLAVES_E05.dosB)), null);
   } finally {
+    await pagina.evaluar(RESTAURAR_GUARDADO_E05);
     await pagina.evaluar(LIMPIAR_E05);
     pagina.dialogos.length = 0;
   }

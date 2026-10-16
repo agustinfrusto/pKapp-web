@@ -67,18 +67,37 @@ export function downloadBackup() {
   return true;
 }
 
-// Aviso de una importación lograda: 0, 1 o varios datos restaurados.
-function mensajeDeRestauracion(n) {
-  if (n === 0) return 'No había datos nuevos para restaurar.';
-  if (n === 1) return 'Se restauró 1 dato.';
-  return `Se restauraron ${n} datos.`;
+const plural = (n, uno, varios) => (n === 1 ? uno : varios);
+
+// Aviso de una importación: una oración con las partes que no son cero.
+function mensajeDeRestauracion({ restauradas, conservadas, fallidas, invalidas }) {
+  const partes = [];
+  if (restauradas > 0) partes.push(plural(restauradas, 'Se restauró 1 dato', `Se restauraron ${restauradas} datos`));
+  else if (conservadas + fallidas + invalidas > 0) partes.push('No se restauró ningún dato');
+  else return 'No había datos nuevos para restaurar.';
+  if (conservadas > 0) partes.push(plural(conservadas, '1 ya existía y se conservó', `${conservadas} ya existían y se conservaron`));
+  if (fallidas > 0) partes.push(plural(fallidas, '1 no se pudo guardar', `${fallidas} no se pudieron guardar`));
+  if (invalidas > 0) partes.push(plural(invalidas, '1 no era válido y se descartó', `${invalidas} no eran válidos y se descartaron`));
+  return `${partes.join('; ')}.`;
+}
+
+// Un dato de respaldo es válido si es un texto que parsea como JSON.
+function esJsonEnTexto(value) {
+  if (typeof value !== 'string') return false;
+  try {
+    JSON.parse(value);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
  * Importa un backup desde el contenido (string JSON).
- * Devuelve un resumen { ok, message, restoredKeys }.
+ * Devuelve un resumen { ok, message, restoredKeys, conservadas, fallidas, invalidas }.
  * Si overwrite=false (default), preserva claves ya existentes en el destino.
  * Si overwrite=true, sobrescribe todo (más riesgoso).
+ * ok es false solo si hubo guardados fallidos y ninguno se restauró.
  */
 export function importBackupFromText(text, { overwrite = false } = {}) {
   try {
@@ -88,21 +107,42 @@ export function importBackupFromText(text, { overwrite = false } = {}) {
     }
     if (parsed.version !== VERSION) {
       // Por ahora solo aceptamos v1; en el futuro: migraciones de version
-      return { ok: false, message: `Versión de respaldo no soportada (${parsed.version}).` };
+      const version = parsed.version === undefined ? 'sin versión' : parsed.version;
+      return { ok: false, message: `Versión de respaldo no soportada (${version}).` };
     }
-    const keysWritten = [];
+    const restoredKeys = [];
+    const conservadas = [];
+    const fallidas = [];
+    const invalidas = [];
     Object.entries(parsed.data).forEach(([key, value]) => {
       if (!matchesAnyPattern(key)) return; // ignora claves desconocidas
-      if (!overwrite && localStorage.getItem(key) !== null) return; // no piso lo existente
+      if (!esJsonEnTexto(value)) {
+        invalidas.push(key);
+        return;
+      }
+      if (!overwrite && localStorage.getItem(key) !== null) { // no piso lo existente
+        conservadas.push(key);
+        return;
+      }
       try {
         localStorage.setItem(key, value);
-        keysWritten.push(key);
-      } catch {}
+        restoredKeys.push(key);
+      } catch {
+        fallidas.push(key);
+      }
     });
     return {
-      ok: true,
-      message: mensajeDeRestauracion(keysWritten.length),
-      restoredKeys: keysWritten,
+      ok: fallidas.length === 0 || restoredKeys.length > 0,
+      message: mensajeDeRestauracion({
+        restauradas: restoredKeys.length,
+        conservadas: conservadas.length,
+        fallidas: fallidas.length,
+        invalidas: invalidas.length,
+      }),
+      restoredKeys,
+      conservadas,
+      fallidas,
+      invalidas,
       source: parsed.source,
       exportedAt: parsed.exportedAt,
     };
