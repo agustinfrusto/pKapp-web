@@ -5,11 +5,6 @@
     "version": "1.10.1",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./src/assets/logo.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0b0d10"
-    },
     "web": {
       "favicon": "./src/assets/favicon.png",
       "bundler": "metro",
@@ -23,6 +18,16 @@
       "orientation": "portrait",
       "startUrl": "/"
     },
-    "icon": "./src/assets/icon.png"
+    "icon": "./src/assets/icon.png",
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./src/assets/logo.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#0b0d10"
+        }
+      ]
+    ]
   }
 }

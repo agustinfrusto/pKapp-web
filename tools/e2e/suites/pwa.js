@@ -265,7 +265,9 @@ async function jsonContraTokens(pagina, base, t) {
   const { expo } = leerJson('app.json');
   t.ok('app.json: web.themeColor = manifestTema', expo.web.themeColor, claro.manifestTema);
   t.ok('app.json: web.backgroundColor = manifestFondo', expo.web.backgroundColor, claro.manifestFondo);
-  t.ok('app.json: splash.backgroundColor = manifestFondo', expo.splash.backgroundColor, claro.manifestFondo);
+  const pluginSplash = (expo.plugins || []).find((p) => Array.isArray(p) && p[0] === 'expo-splash-screen');
+  const fondoSplash = pluginSplash && pluginSplash[1] ? pluginSplash[1].backgroundColor : undefined;
+  t.ok('app.json: plugin expo-splash-screen backgroundColor = manifestFondo', fondoSplash, claro.manifestFondo);
   const favicon = path.join(RAIZ, expo.web.favicon);
   const cuerpoFavicon = fs.existsSync(favicon) ? fs.readFileSync(favicon) : Buffer.alloc(0);
   const esPng = cuerpoFavicon.length > 24 && cuerpoFavicon.subarray(1, 4).toString() === 'PNG';
