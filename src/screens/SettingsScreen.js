@@ -109,8 +109,13 @@ export default function SettingsScreen() {
       'Resetear estadísticas',
       '¿Seguro que querés borrar todas las estadísticas? Esto no se puede deshacer.',
       async () => {
-        await resetStats(materiaId);
-        avisar('Listo', 'Estadísticas borradas.');
+        try {
+          await resetStats();
+          avisar('Listo', 'Estadísticas borradas.');
+        } catch (e) {
+          console.warn('No se pudieron borrar las estadísticas', e);
+          avisar('Error', AVISO_GUARDADO);
+        }
       },
       { confirmLabel: 'Borrar', destructive: true }
     );

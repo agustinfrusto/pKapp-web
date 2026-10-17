@@ -1120,6 +1120,72 @@ async function capturasDeLaTrece(pagina, base, t) {
   }
 }
 
+// Resetear estadísticas borra las de todas las materias (6.10 T10, F-4) y nada más.
+const CLAVES_STATS_RESET = ['pkapp_question_stats', 'pkapp_question_stats:bcyt',
+  'pkapp_question_stats:otra', 'pkapp_question_stats:retirada'];
+const CLAVES_AJENAS_RESET = ['pkapp_user_questions:bcyt', 'pkapp_user_questions:otra', 'pkapp_aviso_x',
+  'pkapp_simulacros', 'pkapp_donation_count', 'pkapp_migrated_v0.10', 'otra_clave'];
+const SEMBRAR_RESET = `(function () {
+  ${JSON.stringify(CLAVES_STATS_RESET)}.forEach((k) => localStorage.setItem(k, '{"q":1}'));
+  ${JSON.stringify(CLAVES_AJENAS_RESET)}.forEach((k) => localStorage.setItem(k, 'valor ' + k));
+})()`;
+const LEER_AJENAS_RESET = `JSON.stringify(${JSON.stringify(CLAVES_AJENAS_RESET)}.map(
+  (k) => [k, localStorage.getItem(k)]))`;
+const STATS_RESTANTES = `JSON.stringify(Object.keys(localStorage).filter(
+  (k) => /^pkapp_question_stats(:.+)?$/.test(k)).sort())`;
+const REMOVE_QUE_FALLA_EN = (clave) => EN_MARCO(`
+  w.__removeItemOriginal = w.Storage.prototype.removeItem;
+  w.Storage.prototype.removeItem = function (k) {
+    if (k === ${JSON.stringify(clave)}) throw new w.DOMException('bloqueado', 'SecurityError');
+    return w.__removeItemOriginal.call(this, k);
+  };
+  return true;
+`);
+const RESTAURAR_REMOVE = EN_MARCO(`
+  if (w.__removeItemOriginal) w.Storage.prototype.removeItem = w.__removeItemOriginal;
+  return true;
+`);
+
+async function resetearTodas(pagina, base, t) {
+  const c = (s) => `Ajustes · resetear estadísticas · ${s}`;
+  const resetear = async () => {
+    if (!(await pagina.evaluar(LEER_TEXTO('Resetear estadísticas')))?.control) {
+      await clicTexto(pagina, 'Respaldo y reseteo');
+      await pausa();
+    }
+    pagina.dialogos.length = 0;
+    pagina.respuestaDialogo = 'aceptar';
+    await clicTexto(pagina, 'Resetear estadísticas');
+  };
+  try {
+    // (a) Éxito: ninguna clave de estadísticas, las demás idénticas.
+    t.ok(c('llega a /ajustes con la materia activa'),
+      await irAAjustes(pagina, base, 390, 'claro', SEMBRAR_RESET), true);
+    const antes = await pagina.evaluar(LEER_AJENAS_RESET);
+    await resetear();
+    t.ok(c('avisa «Estadísticas borradas.»'),
+      await pagina.esperarA(() => pagina.dialogos.includes('Listo\n\nEstadísticas borradas.')), true);
+    t.ok(c('no queda ninguna clave pkapp_question_stats*'), await pagina.evaluar(STATS_RESTANTES), '[]');
+    t.ok(c('las demás claves quedan idénticas'), await pagina.evaluar(LEER_AJENAS_RESET), antes);
+
+    // (b) Una clave falla al borrar: las otras se borran igual y se avisa el error.
+    await pagina.evaluar(SEMBRAR_RESET);
+    await pagina.evaluar(REMOVE_QUE_FALLA_EN('pkapp_question_stats:otra'));
+    await resetear();
+    t.ok(c('error: aparece «No se pudo guardar el cambio.»'),
+      await pagina.esperarA(() => pagina.dialogos.includes(AVISO_GUARDADO)), true);
+    t.ok(c('error: solo queda la clave que falló'),
+      await pagina.evaluar(STATS_RESTANTES), '["pkapp_question_stats:otra"]');
+    t.ok(c('error: no avisa «Estadísticas borradas.»'),
+      pagina.dialogos.includes('Listo\n\nEstadísticas borradas.'), false);
+  } finally {
+    pagina.respuestaDialogo = 'cancelar';
+    await pagina.evaluar(RESTAURAR_REMOVE);
+    await pagina.evaluar(`${JSON.stringify([...CLAVES_STATS_RESET, ...CLAVES_AJENAS_RESET])}
+      .forEach((k) => localStorage.removeItem(k))`);
+  }
+}
+
 module.exports = [
   { nombre: 'Ajustes: la pantalla en claro contra su ficha', correr: (p, b, t) => pantalla(p, b, t, 'claro') },
   { nombre: 'Ajustes: la pantalla en oscuro contra su ficha', correr: (p, b, t) => pantalla(p, b, t, 'oscuro') },
@@ -1131,6 +1197,7 @@ module.exports = [
   { nombre: 'Ajustes: avisos de importar respaldo (E-05)', correr: importarRespaldo },
   { nombre: 'Ajustes: fila propia corrupta y guardado que falla (AUD-3, AUD-8)', correr: datosCorruptosYGuardadoFallido },
   { nombre: 'Ajustes: carga de propias que rechaza (AUD-3)', correr: cargaQueRechazaEnAjustes },
+  { nombre: 'Ajustes: resetear estadísticas borra las de todas las materias (T10, F-4)', correr: resetearTodas },
   { nombre: 'Ajustes: SettingsScreen.js sin literales visuales', correr: sinLiterales },
   { nombre: 'Ajustes: capturas de la 3.13d (solo con PKAPP_CAPTURAS)', correr: capturasDeLaTrece },
 ];
