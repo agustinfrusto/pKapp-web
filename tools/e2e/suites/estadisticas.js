@@ -1123,6 +1123,38 @@ async function scrollerConFoco(pagina, base, t) {
   }
 }
 
+// 6.10 T6: `totalQuestions` de cada tema es la cantidad de filas que TopicSelect muestra
+// para él (banco deduplicado). En Anatomía, `snc` trae 64 filas y 59 únicas.
+async function totalSinRepetidas(pagina, base, t) {
+  const { QUESTIONS: ANATOMIA } = require('../../../src/materias/anatomia/questions');
+  const clave = 'pkapp_question_stats:anatomia';
+  await pagina.ir(base + '/favicon.png');
+  await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
+  await pagina.evaluar(`Object.keys(localStorage)
+    .filter((k) => /^pkapp_user_questions/.test(k)).forEach((k) => localStorage.removeItem(k))`);
+  const respondida = ANATOMIA.find((q) => q.topic === 'snc');
+  await pagina.evaluar(`localStorage.setItem(${JSON.stringify(clave)}, ${JSON.stringify(JSON.stringify(
+    { [respondida.id]: { times_answered: 1, times_correct: 1, last_answered_at: 1 } }))})`);
+  try {
+    t.ok('anatomia: abrió Estadísticas',
+      await abrirMarco(pagina, base, 390, 900)
+        && await clicEnMarco(pagina, 'Anatomía')
+        && await esperarEnMarco(pagina, 'mis estadísticas')
+        && await clicEnMarco(pagina, 'mis estadísticas')
+        && await pagina.esperarA(async () => (await leer(pagina)).global !== null, { limite: 10000 }), true);
+    // LEER_STATS lee solo los temas de bcyt: el detalle de `snc` se lee directo.
+    const detalle = await pagina.evaluar(EN_MARCO(`
+      const n = visibles('[data-testid="stats-detalle-snc"]')[0];
+      return n ? n.textContent.trim() : null;
+    `));
+    t.ok('anatomia: snc tiene fila', detalle !== null, true);
+    const total = Number(((detalle && detalle.match(/(\d+) preguntas disponibles/)) || [])[1]);
+    t.ok('anatomia: snc «59 preguntas disponibles» (las filas de TopicSelect, sin repetidas)', total, 59);
+  } finally {
+    await pagina.evaluar(`localStorage.removeItem(${JSON.stringify(clave)})`);
+  }
+}
+
 async function restaurarPerfil(pagina, base, t) {
   await abrirMarco(pagina, base, 390);
   await escribirClave(pagina, previo === undefined ? null : previo);
@@ -1145,5 +1177,6 @@ module.exports = [
   { nombre: 'Estadísticas: escritorio, anclado, recorte de foco y orden de Tab con datos', correr: escritorioAnclaFocoYOrden },
   { nombre: 'Estadísticas: escritorio, foco y orden de Tab en el estado vacío', correr: escritorioVacioFocoYOrden },
   { nombre: 'Estadísticas: foco del contenedor desplazable con datos (E-03)', correr: scrollerConFoco },
+  { nombre: 'Estadísticas: el total por tema excluye las repetidas (6.10 T6)', correr: totalSinRepetidas },
   { nombre: 'Estadísticas: restaura el perfil', correr: restaurarPerfil },
 ];

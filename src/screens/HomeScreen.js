@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import { View, Text, Pressable, ScrollView, Platform, Linking, useWindowDimensions } from 'react-native';
 import { useMateria } from '../materia/MateriaContext';
 import { MATERIA_LIST } from '../materias';
+import { dedupeQuestions } from '../materias/dedupe';
 import HeaderMarca from '../components/HeaderMarca';
 import Glifo from '../components/Glifo';
 import Ilustracion from '../components/Ilustracion';
@@ -62,23 +63,25 @@ export default function HomeScreen({ navigation }) {
   const { materia } = useMateria();
   const { oscuro } = useTema();
   const QUESTIONS = materia?.QUESTIONS;
-  // Conteo por fuente en una sola pasada (memoizado).
+  // Conteo por fuente en una sola pasada (memoizado), sobre el banco sin repetidas: es el
+  // mismo conjunto que TopicSelect ofrece, así que el número de Home coincide con el pool.
   // El memo va antes del early return: React exige que la cantidad de hooks no
   // cambie entre renders, y `materia` puede llegar en un render posterior.
+  const unicas = useMemo(() => dedupeQuestions(QUESTIONS || []), [QUESTIONS]);
   const { examCount, generatedCount } = useMemo(() => {
     let ex = 0, gen = 0;
-    for (const q of QUESTIONS || []) {
+    for (const q of unicas) {
       if (q.source === 'exam') ex++;
       else if (q.source === 'generated') gen++;
     }
     return { examCount: ex, generatedCount: gen };
-  }, [QUESTIONS]);
+  }, [unicas]);
 
   if (!materia) return null; // Aún no se eligió materia (Fase 2)
 
   const tema = oscuro ? plancha.oscuro : plancha.claro;
   const examSize = materia.config?.examSize || 75;
-  const examModeCount = Math.min(examSize, QUESTIONS.length);
+  const examModeCount = Math.min(examSize, unicas.length);
   // Id de la ficha (d.1): id corto y posición en el selector, con dos dígitos.
   const posicion = String(MATERIA_LIST.findIndex((m) => m.id === materia.id) + 1).padStart(2, '0');
 

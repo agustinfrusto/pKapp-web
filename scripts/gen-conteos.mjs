@@ -9,6 +9,7 @@
 import fs from 'fs';
 import path from 'path';
 import { pathToFileURL, fileURLToPath } from 'url';
+import { dedupeQuestions } from '../src/materias/dedupe.js';
 
 const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const materiasDir = path.join(raiz, 'src', 'materias');
@@ -26,7 +27,8 @@ for (const id of ids) {
   if (!fs.existsSync(archivo)) continue;
   const mod = await import(pathToFileURL(archivo).href);
   const preguntas = mod.QUESTIONS || [];
-  conteos[id] = preguntas.length;
+  // Las repetidas no cuentan: es el mismo número que muestra TopicSelect.
+  conteos[id] = dedupeQuestions(preguntas).length;
 }
 
 const bloque = (obj) =>

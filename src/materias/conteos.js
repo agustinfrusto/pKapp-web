@@ -1,7 +1,7 @@
 // GENERADO por scripts/gen-conteos.mjs — no editar a mano.
 // Cantidad de preguntas por materia, para poder mostrarla sin cargar el banco.
 export const CONTEOS = {
-  anatomia: 471,
+  anatomia: 434,
   bcyt: 385,
   cyr: 113,
   dre: 451,

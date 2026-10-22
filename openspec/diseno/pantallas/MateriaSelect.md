@@ -117,7 +117,7 @@ Hoy las seis materias tienen `available` en verdadero; el estado «Próximamente
 | Dato | Origen | Regla |
 |---|---|---|
 | Lista y orden de materias | `MATERIA_LIST` de `src/materias/index.js` | El orden no cambia; esta ficha no lo fija |
-| Conteo de preguntas | `CONTEOS[materia.id]` de `src/materias/conteos.js` (generado por `scripts/gen-conteos.mjs`), expuesto como `materia.preguntas` | Nunca escrito a mano en la ficha ni en la pantalla. Sin rótulo de materia no publicada: `dre` y `ryd` muestran su conteo real como las demás (spec `subject-catalog`) |
+| Conteo de preguntas | `CONTEOS[materia.id]` de `src/materias/conteos.js` (generado por `scripts/gen-conteos.mjs` con `dedupeQuestions` de `src/materias/dedupe.js`: sin repetidas, F-3), expuesto como `materia.preguntas` | Nunca escrito a mano en la ficha ni en la pantalla. Sin rótulo de materia no publicada: `dre` y `ryd` muestran su conteo real como las demás (spec `subject-catalog`) |
 | Id visible | `materia.shortName` y la posición de la materia en `MATERIA_LIST`, con dos dígitos, separados por « · » | Derivado de datos; no es prosa |
 | Nombre | `materia.name` | — |
 | Ilustración | `src/materias/<id>/ilustracion.js` (D3), dibujada por `Ilustracion` con `filamento` | Una por materia registrada |
