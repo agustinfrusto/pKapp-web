@@ -1180,7 +1180,8 @@ async function filaCorruptaSeDescartaMuestraV2(pagina, base, t) {
   t.ok('V2: sin errores de JS en consola', pagina.errores.length - erroresAntes, 0);
 }
 
-// La lista entera guardada como un valor JSON no iterable hace rechazar a `getUserQuestions`.
+// La lista entera guardada como un valor JSON no iterable ya no hace rechazar a `getUserQuestions` (6.10 T9:
+// devuelve [] sin tocarla); el caso se conserva como guarda del `catch` de la pantalla.
 const LISTA_QUE_RECHAZA = EN_MARCO(`
   const original = w.Storage.prototype.getItem;
   w.Storage.prototype.getItem = function (clave) {
@@ -1189,7 +1190,7 @@ const LISTA_QUE_RECHAZA = EN_MARCO(`
   };
 `);
 
-// Una carga que rechaza no deja la pantalla en blanco: practice resuelve igual, sin «Fuente» y sin errores.
+// Con la lista no iterable, practice resuelve igual: la mezcla, sin «Fuente» y sin errores (antes la carga rechazaba).
 async function cargaQueRechazaEnPractica(pagina, base, t) {
   await pagina.ir(base + '/favicon.png');
   await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
@@ -1208,7 +1209,7 @@ async function cargaQueRechazaEnPractica(pagina, base, t) {
   t.ok('practice con una carga que rechaza: sin errores de JS en consola', pagina.errores.length - erroresAntes, 0);
 }
 
-// Ídem en `failed`: resuelve a V2, sin «Fuente» y sin errores.
+// Ídem en `failed`: resuelve a V2, sin «Fuente» y sin errores (la carga ya no rechaza).
 async function cargaQueRechazaEnFailed(pagina, base, t) {
   await pagina.ir(base + '/favicon.png');
   await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });

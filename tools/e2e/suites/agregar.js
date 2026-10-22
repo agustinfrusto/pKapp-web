@@ -1727,6 +1727,100 @@ async function escritorioEnVentanas(pagina, base, t) {
 
 // `abrirAgregar` deja el override de ventana a >900 px: lo restaura siempre, también si la
 // suite falla a la mitad.
+// 6.10 T9: una lista de propias ilegible nunca se pierde. Antes de escribir sobre ella, `addUserQuestion`
+// guarda una copia cruda bajo `pkapp_user_questions:<materia>:ilegible:<ts>`; si la copia falla, no escribe.
+const CRUDOS_ILEGIBLES = ['{"a":1}', 'no-json{'];
+const CLAVE_PROPIAS = 'pkapp_user_questions:bcyt';
+const SEMBRAR_ILEGIBLE = (crudo) => EN_MARCO(`
+  w.localStorage.setItem(${JSON.stringify(CLAVE_PROPIAS)}, ${JSON.stringify(crudo)});
+  return true;
+`);
+const LEER_ILEGIBLE = EN_MARCO(`
+  const copias = {};
+  for (let i = 0; i < w.localStorage.length; i++) {
+    const k = w.localStorage.key(i);
+    if (k.startsWith(${JSON.stringify(CLAVE_PROPIAS + ':ilegible:')})) copias[k] = w.localStorage.getItem(k);
+  }
+  return { cruda: w.localStorage.getItem(${JSON.stringify(CLAVE_PROPIAS)}), copias };
+`);
+const LIMPIAR_ILEGIBLE = EN_MARCO(`
+  const claves = [];
+  for (let i = 0; i < w.localStorage.length; i++) {
+    const k = w.localStorage.key(i);
+    if (k.startsWith(${JSON.stringify(CLAVE_PROPIAS)})) claves.push(k);
+  }
+  claves.forEach((k) => w.localStorage.removeItem(k));
+  return true;
+`);
+const COPIA_QUE_FALLA = EN_MARCO(`
+  w.__setItemOriginal = w.Storage.prototype.setItem;
+  w.Storage.prototype.setItem = function (clave) {
+    if (String(clave).includes(':ilegible:')) throw new w.DOMException('lleno', 'QuotaExceededError');
+    return w.__setItemOriginal.apply(this, arguments);
+  };
+  return true;
+`);
+const RESTAURAR_SETITEM = EN_MARCO(`
+  if (w.__setItemOriginal) w.Storage.prototype.setItem = w.__setItemOriginal;
+  return true;
+`);
+
+async function llenarYGuardar(pagina, enunciado) {
+  await escribir(pagina, PH_ENUNCIADO, enunciado);
+  await escribir(pagina, phOpcion('A'), 'Uno');
+  await escribir(pagina, phOpcion('B'), 'Dos');
+  await tocar(pagina, porNombre(pagina, celda('A')));
+  pagina.dialogos.length = 0;
+  await tocar(pagina, porTexto(pagina, 'Guardar pregunta'));
+  return pagina.esperarA(() => pagina.dialogos.length > 0, { limite: 5000 });
+}
+
+async function listaIlegibleAlAgregar(pagina, base, t) {
+  for (const crudo of CRUDOS_ILEGIBLES) {
+    const c = (s) => `Agregar · lista ilegible ${crudo} · ${s}`;
+    try {
+      t.ok(c('llega a /agregar'), await abrirAgregar(pagina, base, { ancho: 390 }), true);
+      await pagina.evaluar(LIMPIAR_ILEGIBLE);
+      await pagina.evaluar(SEMBRAR_ILEGIBLE(crudo));
+      pagina.respuestaDialogo = 'cancelar';
+      const enunciado = `Pregunta e2e ilegible ${Date.now()}`;
+      await llenarYGuardar(pagina, enunciado);
+      t.ok(c('aviso «¡Pregunta guardada!»'), pagina.dialogos[0], '¡Pregunta guardada!\n\n¿Querés agregar otra?');
+      const leida = await pagina.evaluar(LEER_ILEGIBLE);
+      const copias = Object.values(leida.copias);
+      t.ok(c('hay una sola copia'), copias.length, 1);
+      t.ok(c('la copia parsea al valor crudo'), copias.length === 1 && JSON.parse(copias[0]) === crudo, true);
+      const lista = JSON.parse(leida.cruda || 'null');
+      t.ok(c('la lista queda con solo la nueva'),
+        Array.isArray(lista) && lista.length === 1 && lista[0].question === enunciado, true);
+    } finally {
+      pagina.respuestaDialogo = 'cancelar';
+      await pagina.evaluar(LIMPIAR_ILEGIBLE);
+    }
+  }
+}
+
+async function listaIlegibleConCopiaQueFalla(pagina, base, t) {
+  for (const crudo of CRUDOS_ILEGIBLES) {
+    const c = (s) => `Agregar · lista ilegible ${crudo} · copia que falla · ${s}`;
+    try {
+      t.ok(c('llega a /agregar'), await abrirAgregar(pagina, base, { ancho: 390 }), true);
+      await pagina.evaluar(LIMPIAR_ILEGIBLE);
+      await pagina.evaluar(SEMBRAR_ILEGIBLE(crudo));
+      await pagina.evaluar(COPIA_QUE_FALLA);
+      await llenarYGuardar(pagina, `Pregunta e2e ilegible ${Date.now()}`);
+      t.ok(c('rechaza con «No se pudo guardar la pregunta.»'),
+        pagina.dialogos[0], 'Error\n\nNo se pudo guardar la pregunta.');
+      const leida = await pagina.evaluar(LEER_ILEGIBLE);
+      t.ok(c('la lista cruda queda igual'), leida.cruda, crudo);
+      t.ok(c('no hay copia'), Object.keys(leida.copias).length, 0);
+    } finally {
+      await pagina.evaluar(RESTAURAR_SETITEM);
+      await pagina.evaluar(LIMPIAR_ILEGIBLE);
+    }
+  }
+}
+
 const conViewportRestaurado = (correr) => async (pagina, base, t) => {
   try {
     await correr(pagina, base, t);
@@ -1759,6 +1853,8 @@ module.exports = [
   { nombre: 'Agregar: nombres de tema largos a 320 en las cinco materias', correr: temasLargosA320 },
   { nombre: 'Agregar: validación de campos vacíos, en orden', correr: validaciones },
   { nombre: 'Agregar: guardado, «Agregar otra» y aparición en «Mis preguntas»', correr: guardarYVerEnMisPreguntas },
+  { nombre: 'Agregar: lista ilegible, copia previa y lista con solo la nueva (T9)', correr: listaIlegibleAlAgregar },
+  { nombre: 'Agregar: lista ilegible con copia que falla, no se escribe (T9)', correr: listaIlegibleConCopiaQueFalla },
   { nombre: 'Agregar: sin desborde y 44 × 44 a 320, 360, 390, 768 y 1280 en claro y oscuro', correr: conViewportRestaurado(anchos) },
   { nombre: 'Agregar: escritorio, columna `lectura` a 1024, 1366 y 1920 en claro y oscuro', correr: escritorio },
 ];

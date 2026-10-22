@@ -1032,8 +1032,8 @@ async function datosCorruptosYGuardadoFallido(pagina, base, t) {
   }
 }
 
-// La lista entera guardada como un valor JSON no iterable hace rechazar a `getUserQuestions`:
-// `hide_feedback` se carga igual (dos lecturas independientes).
+// La lista entera guardada como un valor JSON no iterable ya no hace rechazar a `getUserQuestions` (6.10 T9:
+// devuelve [] sin tocarla): `hide_feedback` se carga igual (dos lecturas independientes).
 const LISTA_QUE_RECHAZA = EN_MARCO(`
   const a = JSON.parse(w.localStorage.getItem('pkapp_settings') || '{}');
   a.hide_feedback = 'true';
@@ -1058,6 +1058,72 @@ async function cargaQueRechazaEnAjustes(pagina, base, t) {
   } finally {
     await pagina.evaluar(LIMPIAR);
     await pagina.evaluar(QUITAR_HIDE_FEEDBACK);
+  }
+}
+
+// 6.10 T9: una lista de propias ilegible (valor crudo real en localStorage, sin stub de `getItem`) no se
+// pierde: eliminar no escribe nada y las pantallas cargan sin errores.
+const CRUDOS_ILEGIBLES = ['{"a":1}', 'no-json{'];
+const SEMBRAR_CRUDO = (crudo) => `localStorage.setItem('pkapp_user_questions:bcyt', ${JSON.stringify(crudo)})`;
+const LEER_CRUDO = `JSON.stringify({ cruda: localStorage.getItem('pkapp_user_questions:bcyt'),
+  copias: Object.keys(localStorage).filter((k) => k.startsWith('pkapp_user_questions:bcyt:ilegible:')) })`;
+const LIMPIAR_CRUDO = `(function () {
+  Object.keys(localStorage).filter((k) => k.startsWith('pkapp_user_questions:bcyt'))
+    .forEach((k) => localStorage.removeItem(k));
+})()`;
+
+async function listaIlegibleAlEliminar(pagina, base, t) {
+  for (const crudo of CRUDOS_ILEGIBLES) {
+    const c = (s) => `Ajustes · lista ilegible ${crudo} · eliminar · ${s}`;
+    try {
+      t.ok(c('llega a /ajustes con dos propias'), await irAAjustes(pagina, base, 390, 'claro', SEMBRADO), true);
+      await clicTexto(pagina, '2 preguntas propias');
+      await pausa();
+      const tarjeta = await pagina.evaluar(LEER_TARJETA('Primera pregunta propia de prueba'));
+      t.ok(c('hay tarjeta con «Eliminar pregunta»'), !!(tarjeta && tarjeta.eliminar), true);
+      if (!tarjeta || !tarjeta.eliminar) continue;
+      // La lista se vuelve ilegible con la tarjeta ya en pantalla: la baja encuentra el valor crudo.
+      await pagina.evaluar(EN_MARCO(`w.localStorage.setItem('pkapp_user_questions:bcyt', ${JSON.stringify(crudo)}); return true;`));
+      pagina.dialogos.length = 0;
+      pagina.respuestaDialogo = 'aceptar';
+      const errores = pagina.errores.length;
+      await pagina.clicEn(Math.round(tarjeta.eliminar.x + tarjeta.eliminar.ancho / 2),
+        Math.round(tarjeta.eliminar.y + tarjeta.eliminar.alto / 2));
+      await pausa(600);
+      const leida = JSON.parse(await pagina.evaluar(EN_MARCO(`return ${LEER_CRUDO};`)));
+      t.ok(c('la lista cruda queda igual'), leida.cruda, crudo);
+      t.ok(c('no hay copia'), leida.copias.length, 0);
+      t.ok(c('sin errores de JS en consola'), pagina.errores.length - errores, 0);
+    } finally {
+      pagina.respuestaDialogo = 'cancelar';
+      await pagina.evaluar(EN_MARCO(`${LIMPIAR_CRUDO}; return true;`));
+      await pagina.evaluar(LIMPIAR);
+    }
+  }
+}
+
+async function listaIlegibleCargaPantallas(pagina, base, t) {
+  const c = (s) => `Ajustes · lista {"a":1} real · ${s}`;
+  try {
+    const erroresA = pagina.errores.length;
+    t.ok(c('llega a /ajustes'),
+      await irAAjustes(pagina, base, 390, 'claro', SEMBRAR_CRUDO('{"a":1}')), true);
+    t.ok(c('Ajustes muestra «Cuestionario»'), await esperarEnMarco(pagina, 'Cuestionario'), true);
+    await pausa(300);
+    t.ok(c('Ajustes: sin errores de JS en consola'), pagina.errores.length - erroresA, 0);
+
+    const erroresT = pagina.errores.length;
+    t.ok(c('abre la app en el marco'), !!(await abrirMarco(pagina, base, 390)), true);
+    await pagina.evaluar(SEMBRAR_CRUDO('{"a":1}'));
+    await clicEnMarco(pagina, MATERIA);
+    await esperarEnMarco(pagina, 'repasar fallos');
+    await clicEnMarco(pagina, 'entrena temas');
+    t.ok(c('TopicSelect carga la mezcla'), await esperarEnMarco(pagina, 'todos los temas mezclados'), true);
+    await pausa(300);
+    t.ok(c('TopicSelect: sin errores de JS en consola'), pagina.errores.length - erroresT, 0);
+  } finally {
+    await pagina.evaluar(LIMPIAR_CRUDO);
+    await pagina.evaluar(LIMPIAR);
   }
 }
 
@@ -1131,6 +1197,8 @@ module.exports = [
   { nombre: 'Ajustes: avisos de importar respaldo (E-05)', correr: importarRespaldo },
   { nombre: 'Ajustes: fila propia corrupta y guardado que falla (AUD-3, AUD-8)', correr: datosCorruptosYGuardadoFallido },
   { nombre: 'Ajustes: carga de propias que rechaza (AUD-3)', correr: cargaQueRechazaEnAjustes },
+  { nombre: 'Ajustes: lista ilegible, eliminar no escribe nada (T9)', correr: listaIlegibleAlEliminar },
+  { nombre: 'Ajustes: lista ilegible real, Ajustes y TopicSelect cargan (T9)', correr: listaIlegibleCargaPantallas },
   { nombre: 'Ajustes: SettingsScreen.js sin literales visuales', correr: sinLiterales },
   { nombre: 'Ajustes: capturas de la 3.13d (solo con PKAPP_CAPTURAS)', correr: capturasDeLaTrece },
 ];
