@@ -6,6 +6,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { esFallada, getAllStats, getUserQuestions } from '../db/database';
 import { useMateria } from '../materia/MateriaContext';
 import { useTema } from '../theme/TemaContext';
+import { dedupeQuestions } from '../materias/dedupe';
 import { plancha } from '../theme/colores';
 import Glifo from '../components/Glifo';
 import { GLIFO_CHICO, GLIFO_VACIO } from '../components/plancha/Control';
@@ -79,6 +80,9 @@ export default function StatsScreen({ navigation }) {
 
   // Estadísticas por tema
   const allQuestions = [...QUESTIONS, ...userQuestions];
+  // `totalQuestions` cuenta lo que TopicSelect ofrece (sin repetidas); lo respondido se sigue
+  // calculando contra la lista cruda: una copia descartada puede tener estadísticas viejas.
+  const unicas = dedupeQuestions(allQuestions);
   const statsByTopic = {};
 
   Object.keys(TOPICS).forEach(topicKey => {
@@ -91,7 +95,7 @@ export default function StatsScreen({ navigation }) {
     const correct = topicStats.reduce((sum, s) => sum + s.times_correct, 0);
 
     statsByTopic[topicKey] = {
-      totalQuestions: topicQuestions.length,
+      totalQuestions: unicas.filter(q => q.topic === topicKey).length,
       answered,
       correct,
       accuracy: answered > 0 ? Math.round((correct / answered) * 100) : null,

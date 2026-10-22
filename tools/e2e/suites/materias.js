@@ -371,6 +371,10 @@ async function laminaYTarjetas(pagina, base, t) {
     const cuando = `${m.nombre}`;
     if (x.falta) { t.ok(`${cuando}: la tarjeta existe`, false, true); continue; }
     t.ok(`${cuando}: conteo real «${m.preguntas} preguntas»`, x.texto.includes(`${m.preguntas} preguntas`), true);
+    // Anatomía trae 471 filas pero 434 únicas: el conteo excluye las repetidas (6.10 T6).
+    if (m.id === 'anatomia') {
+      t.ok('Anatomía: «434 preguntas», sin contar las repetidas', x.texto.includes('434 preguntas'), true);
+    }
     t.ok(`${cuando}: id «${m.corto} · ${m.numero}»`, x.idEstilo && x.idEstilo.texto, `${m.corto} · ${m.numero}`.toLowerCase());
     t.ok(`${cuando}: id en rótulo y acento`,
       x.idEstilo && `${x.idEstilo.tamano}|${x.idEstilo.mayusculas}|${x.idEstilo.color}`,
