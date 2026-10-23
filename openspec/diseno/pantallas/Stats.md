@@ -149,7 +149,7 @@ Los cortes 80 y 60 no cambian. La ficha solo traduce el tono de aviso que hoy us
 | Porcentaje global | `Math.round(totalCorrect / totalAnswered * 100)`; 0 si no hay respuestas | — |
 | Temas | `Object.keys(TOPICS)` de la materia | Orden del código; el boceto los ordenaba por porcentaje y no se adopta |
 | Fila por tema | `totalQuestions`, `answered`, `correct`, `accuracy` | Solo se muestra si `totalQuestions > 0`; `accuracy` es `null` si no respondió. `totalQuestions` cuenta sin repetidas (`dedupeQuestions` sobre banco y propias, el mismo conjunto que TopicSelect, F-3); `answered` y `correct` se calculan contra la lista cruda |
-| Más falladas | Respuestas con `times_answered > 0` y `times_correct < times_answered`, ordenadas por acierto ascendente, hasta 10 | Se omiten las preguntas que ya no existen |
+| Más falladas | Respuestas que cumplen `esFallada` (`database.web.js`: errada alguna vez y menos de 2 aciertos seguidos desde el último error; sin `racha`, la regla vieja), ordenadas por acierto ascendente, hasta 10 | Se omiten las preguntas que ya no existen |
 
 ### d.3 Invariantes
 
