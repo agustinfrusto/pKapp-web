@@ -1252,6 +1252,24 @@ async function resetearTodas(pagina, base, t) {
   }
 }
 
+// Banco sin repetidas (6.10 T6b, F-3): Anatomía trae 471 filas y 434 únicas; «Acerca de» y el
+// total cuentan las únicas, como el selector, Home, Stats y TopicSelect.
+async function bancoSinRepetidas(pagina, base, t) {
+  const c = (s) => `Ajustes · banco sin repetidas · ${s}`;
+  await abrirMarco(pagina, base, 390, 900);
+  await clicEnMarco(pagina, 'Anatomía');
+  t.ok(c('entra a Home'), await pagina.esperarA(async () => await pagina.evaluar(RUTA) === '/inicio'), true);
+  await esperarEnMarco(pagina, 'Ajustes');
+  await clicEnMarco(pagina, 'Ajustes');
+  t.ok(c('llega a /ajustes'), await pagina.esperarA(async () => await pagina.evaluar(RUTA) === '/ajustes'), true);
+  await esperarEnMarco(pagina, 'Cuestionario');
+  t.ok(c('«Acerca de»: «{n} de exámenes · 0 tuyas» con las únicas'),
+    !!(await pagina.evaluar(LEER_TEXTO(`${CONTEOS.anatomia} de exámenes · 0 tuyas`))), true);
+  t.ok(c('el total del banco es el de las únicas'),
+    (await pagina.evaluar(TEXTO_PANTALLA)).includes(String(CONTEOS.anatomia)), true);
+  t.ok(c('no aparece el conteo crudo (471)'), (await pagina.evaluar(TEXTO_PANTALLA)).includes('471'), false);
+}
+
 module.exports = [
   { nombre: 'Ajustes: la pantalla en claro contra su ficha', correr: (p, b, t) => pantalla(p, b, t, 'claro') },
   { nombre: 'Ajustes: la pantalla en oscuro contra su ficha', correr: (p, b, t) => pantalla(p, b, t, 'oscuro') },
@@ -1266,6 +1284,7 @@ module.exports = [
   { nombre: 'Ajustes: resetear estadísticas borra las de todas las materias (T10, F-4)', correr: resetearTodas },
   { nombre: 'Ajustes: lista ilegible, eliminar no escribe nada (T9)', correr: listaIlegibleAlEliminar },
   { nombre: 'Ajustes: lista ilegible real, Ajustes y TopicSelect cargan (T9)', correr: listaIlegibleCargaPantallas },
+  { nombre: 'Ajustes: el banco de Anatomía cuenta sin repetidas (T6b, F-3)', correr: bancoSinRepetidas },
   { nombre: 'Ajustes: SettingsScreen.js sin literales visuales', correr: sinLiterales },
   { nombre: 'Ajustes: capturas de la 3.13d (solo con PKAPP_CAPTURAS)', correr: capturasDeLaTrece },
 ];
