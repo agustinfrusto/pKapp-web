@@ -21,8 +21,6 @@ La forma de trabajar en este proyecto está guiada por un enfoque de **Spec Driv
 
 Construido con **Expo / React Native**. Esta es la **versión web** del proyecto: corre en navegadores modernos (versiones mínimas en [Navegadores recomendados](#navegadores-recomendados)) y se puede instalar como **PWA** (Progressive Web App) en escritorio, Android e iOS.
 
-> Si buscás la versión nativa (iOS / Android), está en [pKapp](https://github.com/agustinfrusto/pKapp).
-
 ## Capturas
 
 <p align="center">

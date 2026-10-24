@@ -5,8 +5,7 @@ context: |
 
   App de estudio para alumnos de la Escuela Técnica de Medicina (ESFUNO, Uruguay).
   Banco de preguntas de exámenes reales con quiz, estadísticas y repaso de fallos.
-  Esta es la versión WEB (PWA). Existe un repo nativo aparte: NO es relevante acá,
-  no se sincroniza y no debe condicionar ninguna decisión de diseño.
+  pKapp es solo web (PWA): no hay versión nativa ni builds para iOS o Android.
 
   ## Invariantes (no negociables)
 
@@ -32,11 +31,9 @@ context: |
   - React Navigation (native-stack). Sin TypeScript ni linter configurado. No hay
     tests unitarios; sí un arnés e2e de navegación en `tools/e2e` (`npm run e2e`).
   - Estilos con NativeWind 4 (Tailwind 3 vía `className`). Los tokens de diseño viven
-    en `src/theme/` (`colores.js`, `sombras.js`, `TemaContext.js`). `StyleSheet.create`
-    solo queda en el splash de `App.js` y en `src/theme/sombras.js`.
-  - Capa de datos con dos implementaciones que Metro resuelve por plataforma:
-    `src/db/database.web.js` (localStorage) y `src/db/database.native.js` (SQLite).
-    En web las claves se namespacean por materia: `pkapp_question_stats:<materiaId>`,
+    en `src/theme/` (`colores.js`, `fuentes.web.js`, `TemaContext.js`).
+  - Capa de datos en `src/db/database.web.js` (localStorage). Las claves se namespacean
+    por materia: `pkapp_question_stats:<materiaId>`,
     `pkapp_user_questions:<materiaId>`. Los settings (`pkapp_settings`) son globales
     cross-materia a propósito.
   - Compatibilidad de datos hacia atrás: los usuarios no tienen cuenta ni respaldo
