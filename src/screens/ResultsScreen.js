@@ -9,8 +9,8 @@ import { track } from '../utils/track';
 import { reportQuestion } from '../utils/report';
 import { useMateria } from '../materia/MateriaContext';
 import DonationBox from '../components/DonationBox';
-import { usoTrasTerminar, contarSimulacro } from '../utils/donacion';
 import Glifo from '../components/Glifo';
+import { usoActual, usoTrasTerminar, contarSimulacro } from '../utils/donacion';
 import {
   BotonMarco, BotonRelleno, FilaLista, Hoja, Lamina, MarcaEstado, Regiones, RotuloSeccion, Segmento,
 } from '../components/plancha';
@@ -49,12 +49,38 @@ function shouldShowDonation(percentage) {
   return (count - 1) % DONATION_EVERY === 0;
 }
 
+// Registro de quizzes ya contados: Results se remonta con los mismos params al ir «adelante»
+// del navegador y ese quiz no debe contarse otra vez. `sessionStorage` lo guarda por pestaña
+// (los últimos VISTOS_MAX ids); un Set de módulo hace de respaldo si no existe o lanza.
+const VISTOS_KEY = 'pkapp_resultados_vistos';
+const VISTOS_MAX = 20;
+const vistosEnMemoria = new Set();
+
+// Dice si el quiz ya estaba registrado y, si no, lo registra. Sin `quizId` (entrada de
+// historial anterior a este registro) no hay con qué reconocerlo: cuenta como nuevo.
+function yaRegistrado(quizId) {
+  if (!quizId) return false;
+  let ya = vistosEnMemoria.has(quizId);
+  try {
+    let guardados = null;
+    try { guardados = JSON.parse(sessionStorage.getItem(VISTOS_KEY)); } catch {}
+    const ids = Array.isArray(guardados) ? guardados : [];
+    ya = ya || ids.includes(quizId);
+    if (!ya || !Array.isArray(guardados)) sessionStorage.setItem(VISTOS_KEY, JSON.stringify([...ids, quizId].slice(-VISTOS_MAX)));
+  } catch {}
+  if (!ya) {
+    vistosEnMemoria.add(quizId);
+    if (vistosEnMemoria.size > VISTOS_MAX) vistosEnMemoria.delete(vistosEnMemoria.values().next().value);
+  }
+  return ya;
+}
+
 export default function ResultsScreen({ route, navigation }) {
   const apilado = useWindowDimensions().width < ANCHO_ROTULO_EN_LINEA;
   // Igual que en Quiz: /resultados es una URL alcanzable en frio y ahi no hay
   // respuestas que mostrar. Se calcula sobre una lista vacia para no romper y se
   // sale por el efecto de mas abajo.
-  const { answers, topic, mode } = route.params || {};
+  const { answers, topic, mode, quizId } = route.params || {};
   const respuestas = Array.isArray(answers) ? answers : [];
   const sinResultados = respuestas.length === 0;
   const { materia } = useMateria();
@@ -71,9 +97,17 @@ export default function ResultsScreen({ route, navigation }) {
 
   // Mensaje y marca según el porcentaje (50% suele ser el de aprobación)
   const { message, estado } = getResultFeedback(percentage);
-  const [showDonation] = useState(() => shouldShowDonation(percentage));
-  // Simulacros terminados incluyendo este: se lee antes de que el efecto lo cuente.
-  const [uso] = useState(() => usoTrasTerminar());
+  // Se decide una vez al montar y fuera de un inicializador de `useState`: escribe el contador
+  // de donación, así que no puede correr dos veces (StrictMode). Un quiz ya contado no toca
+  // ningún contador ni muestra el pedido, y su rango de uso es el guardado, sin sumar este quiz.
+  const registro = useRef(null);
+  if (registro.current === null) {
+    const yaContado = !sinResultados && yaRegistrado(quizId);
+    registro.current = yaContado
+      ? { yaContado, showDonation: false, uso: usoActual() }
+      : { yaContado, showDonation: shouldShowDonation(percentage), uso: usoTrasTerminar() };
+  }
+  const { yaContado, showDonation, uso } = registro.current;
   const contado = useRef(false);
   // Una vista por simulacro terminado: sobrevive a Revisar y luego Volver, que remonta el pedido.
   const vistaEnviada = useRef(false);
@@ -84,6 +118,7 @@ export default function ResultsScreen({ route, navigation }) {
       navigation.reset({ index: 0, routes: [{ name: 'MateriaSelect' }] });
       return;
     }
+    if (yaContado) return;
     track('simulacro_terminado', { mode, score: percentage, total });
     if (!contado.current) {
       contado.current = true;
@@ -215,10 +250,11 @@ export default function ResultsScreen({ route, navigation }) {
                     <View className="mb-3">
                       <RotuloSeccion testID="resultados-rotulo">Resultado</RotuloSeccion>
                     </View>
-                    <MarcaDeResultados
+                    <MarcaEstado
                       testID="resultados-porcentaje"
                       estado={estado}
-                      display
+                      paso="display"
+                      separacion="amplia"
                       texto={`${percentage}%`}
                     />
                     <Text
@@ -304,11 +340,12 @@ export default function ResultsScreen({ route, navigation }) {
                       cifra={correctCount}
                       colorCifra="text-acierto dark:text-aciertoD"
                       rotulo={(
-                        <MarcaDeResultados
+                        <MarcaEstado
                           testID="resultados-trio-correctas-rotulo"
                           estado="acierto"
                           texto="Correctas"
-                          apilado={apilado}
+                          colorTexto="tintaSec"
+                          disposicion={apilado ? 'apilada' : 'linea'}
                         />
                       )}
                     />
@@ -318,11 +355,12 @@ export default function ResultsScreen({ route, navigation }) {
                       colorCifra="text-error dark:text-errorD"
                       divisor
                       rotulo={(
-                        <MarcaDeResultados
+                        <MarcaEstado
                           testID="resultados-trio-incorrectas-rotulo"
                           estado="error"
                           texto="Incorrectas"
-                          apilado={apilado}
+                          colorTexto="tintaSec"
+                          disposicion={apilado ? 'apilada' : 'linea'}
                         />
                       )}
                     />
@@ -384,35 +422,6 @@ export default function ResultsScreen({ route, navigation }) {
         </View>
       </Hoja>
     </ScrollView>
-  );
-}
-
-// Marca de estado de esta pantalla (comun.md §4) con las dos medidas que sólo Results fija:
-//   `display`  porcentaje: glifo `paso 6`, separado `paso 2` del texto (Results.md a.2)
-//   `apilado`  rótulo del trío: texto `tintaSec`; en línea, o con el glifo arriba y la
-//              palabra abajo (`paso 1`) bajo 375 px de ventana (C3, sin recorte desde 320 px)
-// `MarcaEstado` conserva su separación `paso 1.5` para el resto de las pantallas.
-const MARCA = {
-  acierto: { glifo: 'glifo-acierto', color: 'acierto', texto: 'text-acierto dark:text-aciertoD' },
-  error: { glifo: 'glifo-error', color: 'error', texto: 'text-error dark:text-errorD' },
-  intermedia: { glifo: 'glifo-intermedia', color: 'intermedia', texto: 'text-intermedia dark:text-intermediaD' },
-};
-
-function MarcaDeResultados({ testID, estado, texto, display, apilado }) {
-  const tema = useTokens();
-  const m = MARCA[estado];
-  const tipografia = display
-    ? 'font-plex-mono-medium text-display'
-    : 'font-plex-mono text-rotulo uppercase';
-  const rotulo = apilado !== undefined;
-  const color = rotulo ? 'text-tintaSec dark:text-tintaSecD' : m.texto;
-  let caja = 'flex-row items-center gap-2';
-  if (rotulo) caja = apilado ? 'flex-col items-center gap-1' : 'flex-row items-center gap-1.5';
-  return (
-    <View testID={testID} className={caja}>
-      <Glifo id={m.glifo} size={display ? GLIFO_GRANDE : GLIFO_CHICO} color={tema[m.color]} />
-      <Text className={`${tipografia} ${color}`}>{texto}</Text>
-    </View>
   );
 }
 

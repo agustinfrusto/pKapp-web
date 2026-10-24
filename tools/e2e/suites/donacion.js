@@ -656,14 +656,214 @@ const IR_A_RESULTADOS = (params) => `(function () {
 
 // Termina un simulacro con `aciertos` de 10: siembra el contador del pedido en 0 (en turno) y
 // los simulacros previos, y abre Results desde Inicio.
-async function terminarSimulacro(pagina, base, { previos, aciertos }) {
+async function terminarSimulacro(pagina, base, { previos, aciertos, quizId }) {
   await pagina.ir(base + '/');
   await pagina.esperarTexto('Tus materias');
   await pagina.evaluar(`localStorage.setItem('pkapp_donation_count', '0');
     localStorage.setItem('pkapp_simulacros', '${previos}')`);
   if (!await entrarAMateria(pagina, base)) return false;
-  await pagina.evaluar(IR_A_RESULTADOS({ answers: respuestasDe(10, aciertos), topic: 'e2e', mode: 'practice' }));
+  await pagina.evaluar(IR_A_RESULTADOS({
+    answers: respuestasDe(10, aciertos), topic: 'e2e', mode: 'practice', ...(quizId ? { quizId } : {}),
+  }));
   return pagina.esperarUrl('/resultados', { limite: 5000 });
+}
+
+// Lo que cuenta un simulacro: contadores del dispositivo y eventos mandados.
+const contadores = async (pagina) => JSON.stringify([
+  await pagina.evaluar(`localStorage.getItem('pkapp_simulacros')`),
+  await pagina.evaluar(`localStorage.getItem('pkapp_donation_count')`),
+  (await eventosDe(pagina, 'simulacro_terminado')).length,
+  (await eventosDe(pagina, 'simulacro_aprobado')).length,
+]);
+
+// Results se remonta con los mismos params al ir «adelante» del navegador: es el mismo quiz.
+// `entradas`: cuántas veces ir «adelante» hasta llegar a Results (tras un quiz real, «Inicio»
+// retrocede por encima de /temas/exam).
+async function remontarConAdelante(pagina, entradas = 1) {
+  let volvio = false;
+  for (let i = 0; i < entradas && !volvio; i++) {
+    await pagina.evaluar('history.forward()');
+    volvio = await pagina.esperarUrl('/resultados', { limite: 5000 });
+  }
+  // Results montado de verdad (con la máquina cargada la URL llega antes que el render).
+  const montado = await pagina.esperarA(
+    () => pagina.evaluar(`!!${VISIBLE(sel('resultados-inicio'))}`), { limite: 15000 });
+  await pausa(800);
+  return volvio && montado;
+}
+
+// AUD-7: un quiz cuenta una sola vez aunque Results se remonte; otro quiz sí cuenta.
+async function resultadosIdempotentes(pagina, base, t) {
+  await conUmami(pagina);
+  t.ok('idempotencia: abrir Results', await terminarSimulacro(pagina, base, { previos: 1, aciertos: 8, quizId: 'quiz-a' }), true);
+  await pausa(400);
+  const primero = await contadores(pagina);
+  t.ok('idempotencia: el primer montaje cuenta (simulacros, donación, terminado, aprobado)',
+    primero, JSON.stringify(['2', '1', 1, 1]));
+
+  for (const vuelta of [1]) {
+    t.ok(`idempotencia ${vuelta}: «Inicio»`, await tocarId(pagina, 'resultados-inicio'), true);
+    t.ok(`idempotencia ${vuelta}: aparece «Cambiar materia»`, await pagina.esperarTexto('Cambiar materia', { limite: 4000 }), true);
+    t.ok(`idempotencia ${vuelta}: adelante vuelve a Results`, await remontarConAdelante(pagina), true);
+    t.ok(`idempotencia ${vuelta}: el remonte no cuenta de nuevo`, await contadores(pagina), primero);
+    t.ok(`idempotencia ${vuelta}: el remonte no muestra el pedido`,
+      await pagina.evaluar(`!${VISIBLE(BLOQUE)}`), true);
+  }
+
+  // Otro quiz, aunque sea justo después: cuenta como segundo.
+  t.ok('idempotencia: «Inicio» antes del segundo quiz', await tocarId(pagina, 'resultados-inicio'), true);
+  t.ok('idempotencia: aparece «Cambiar materia» otra vez', await pagina.esperarTexto('Cambiar materia', { limite: 4000 }), true);
+  await pagina.evaluar(IR_A_RESULTADOS({ answers: respuestasDe(10, 8), topic: 'e2e', mode: 'practice', quizId: 'quiz-b' }));
+  t.ok('idempotencia: abre el segundo quiz', await pagina.esperarUrl('/resultados', { limite: 5000 }), true);
+  await pausa(400);
+  t.ok('idempotencia: dos quizzes distintos cuentan dos',
+    await contadores(pagina), JSON.stringify(['3', '2', 2, 2]));
+}
+
+// El `quizId` de los params de la ruta Results. En la web `history.state` solo guarda un id de
+// entrada (los params viven en el estado de navegación), así que se lee de `navigation.getState()`.
+const QUIZ_ID_EN_RUTA = `(function () {
+  for (const n of Array.from(document.querySelectorAll('*'))) {
+    const k = Object.keys(n).find((x) => x.startsWith('__reactFiber$'));
+    if (!k) continue;
+    for (let f = n[k]; f; f = f.return) {
+      const nav = f.memoizedProps && f.memoizedProps.navigation;
+      if (nav && typeof nav.getState === 'function') {
+        const r = nav.getState().routes.filter((x) => x.name === 'Results').pop();
+        return (r && r.params && r.params.quizId) || '';
+      }
+    }
+  }
+  return '';
+})()`;
+
+// Cambia el reloj de la página (`Date.now`) y retiene los `setInterval` de 1 s del quiz, para
+// agotar el tiempo sin esperarlo. Va en la página ya cargada: el quiz se monta después.
+const RELOJ_CONTROLABLE = `(function () {
+  window.__ticks = [];
+  window.__desfase = 0;
+  const original = window.setInterval.bind(window);
+  window.setInterval = (f, ms, ...a) => {
+    if (ms === 1000) { window.__ticks.push(f); return 0; }
+    return original(f, ms, ...a);
+  };
+  const ahora = Date.now.bind(Date);
+  Date.now = () => ahora() + window.__desfase;
+  window.__marca = window.__ticks.length;
+})()`;
+
+const SUMAR_TIEMPO = `(function () {
+  const tick = window.__ticks.slice(window.__marca).pop();
+  if (!tick) return false;
+  window.__desfase += 24 * 3600 * 1000;
+  tick();
+  return true;
+})()`;
+
+const MAS_TEMPORIZADOR = `(function () {
+  const n = Array.from(document.querySelectorAll('[tabindex]')).find((x) => {
+    const r = x.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && (x.textContent.trim() === '+'
+      || /^(más|mas|sumar|aumentar)/i.test(x.getAttribute('aria-label') || ''));
+  });
+  if (!n) return null;
+  n.scrollIntoView({ block: 'center' });
+  const r = n.getBoundingClientRect();
+  return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+})()`;
+
+// Toca el control visible más chico cuyo texto contiene `texto`, sin distinguir mayúsculas
+// (la mayúscula de un rótulo es presentación por CSS).
+async function tocarTexto(pagina, texto) {
+  const punto = () => pagina.evaluar(`(function (t) {
+    const c = Array.from(document.querySelectorAll('[tabindex]')).filter((n) => {
+      const r = n.getBoundingClientRect();
+      return (n.innerText || '').toLowerCase().includes(t) && r.width > 0 && r.height > 0;
+    }).sort((a, b) => a.innerText.length - b.innerText.length)[0];
+    if (!c) return null;
+    c.scrollIntoView({ block: 'center' });
+    const r = c.getBoundingClientRect();
+    return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+  })(${JSON.stringify(texto.toLowerCase())})`);
+  if (!await punto()) return false;
+  await pausa(300);
+  const p = await punto();
+  if (!p) return false;
+  await pagina.clicEn(p.x, p.y);
+  return true;
+}
+
+// Juega un quiz REAL de modo examen hasta Results, con el contador de pedido en 0 y 1 simulacro
+// previo. `porTiempo` lo cierra agotando el reloj; si no, responde hasta «Ver resultados».
+async function terminarQuizReal(pagina, base, { porTiempo }) {
+  await pagina.ir(base + '/');
+  await pagina.esperarTexto('Tus materias');
+  await pagina.evaluar(`localStorage.setItem('pkapp_donation_count', '0');
+    localStorage.setItem('pkapp_simulacros', '1')`);
+  if (!await entrarAMateria(pagina, base)) return false;
+  if (porTiempo) await pagina.evaluar(RELOJ_CONTROLABLE);
+  await tocarTexto(pagina, 'modo examen');
+  if (!await pagina.esperarUrl('/temas/exam', { limite: 8000 })) return false;
+  if (porTiempo) {
+    const p = await pagina.evaluar(MAS_TEMPORIZADOR);
+    if (!p) return false;
+    await pagina.clicEn(p.x, p.y);
+    await pausa(200);
+    await pagina.evaluar('window.__marca = window.__ticks.length');
+  }
+  await tocarTexto(pagina, 'comenzar examen');
+  if (!await pagina.esperarUrl('/quiz', { limite: 15000 })) return false;
+  const hayOpcion = () => pagina.esperarA(() => pagina.evaluar(`!!${VISIBLE(sel('opcion-quiz-0'))}`), { limite: 20000 });
+  if (!await hayOpcion()) return false;
+
+  if (porTiempo) {
+    if (!await tocarId(pagina, 'opcion-quiz-0')) return false;
+    await pausa(400);
+    if (!await pagina.evaluar(SUMAR_TIEMPO)) return false;
+    return pagina.esperarUrl('/resultados', { limite: 10000 });
+  }
+  for (let i = 0; i < 80; i++) {
+    if (!await hayOpcion() || !await tocarId(pagina, 'opcion-quiz-0')) return false;
+    await pausa(300);
+    const ultima = await pagina.evaluar(
+      `/ver resultados/i.test((${VISIBLE(sel('boton-siguiente'))} || {}).textContent || '')`);
+    const antes = await pagina.texto(4000);
+    if (!await tocarId(pagina, 'boton-siguiente')) return false;
+    if (ultima) return pagina.esperarUrl('/resultados', { limite: 10000 });
+    await pagina.esperarA(async () => (await pagina.texto(4000)) !== antes, { limite: 5000 });
+  }
+  return false;
+}
+
+// Results debe traer el `quizId` que generó Quiz, y no la URL (AUD-7, hallazgos 1 y 2).
+async function quizIdDeResults(pagina, t, via) {
+  t.ok(`${via}: Results montado`, await pagina.esperarA(
+    () => pagina.evaluar(`!!${VISIBLE(sel('resultados-inicio'))}`), { limite: 15000 }), true);
+  t.ok(`${via}: los params de Results traen un quizId no vacío`, await pagina.esperarA(
+    async () => (await pagina.evaluar(QUIZ_ID_EN_RUTA)) !== '', { limite: 5000 }), true);
+  t.ok(`${via}: la URL de Results no lleva query`, await pagina.evaluar('location.search'), '');
+}
+
+// AUD-7 de punta a punta: el id lo genera Quiz y por fin normal el remonte no recuenta.
+async function quizRealPorFinNormal(pagina, base, t) {
+  await conUmami(pagina);
+  t.ok('quiz real (fin normal): llegó a Results', await terminarQuizReal(pagina, base, { porTiempo: false }), true);
+  await quizIdDeResults(pagina, t, 'quiz real (fin normal)');
+  await pausa(400);
+  const primero = await contadores(pagina);
+  t.ok('quiz real (fin normal): el montaje cuenta un simulacro',
+    JSON.parse(primero)[0], '2');
+  t.ok('quiz real (fin normal): «Inicio»', await tocarId(pagina, 'resultados-inicio'), true);
+  t.ok('quiz real (fin normal): aparece «Cambiar materia»', await pagina.esperarTexto('Cambiar materia', { limite: 4000 }), true);
+  t.ok('quiz real (fin normal): adelante vuelve a Results', await remontarConAdelante(pagina, 3), true);
+  t.ok('quiz real (fin normal): el remonte no cuenta de nuevo', await contadores(pagina), primero);
+}
+
+// Ídem por tiempo agotado (el otro `replace` de Quiz).
+async function quizRealPorTiempo(pagina, base, t) {
+  await conUmami(pagina);
+  t.ok('quiz real (tiempo agotado): llegó a Results', await terminarQuizReal(pagina, base, { porTiempo: true }), true);
+  await quizIdDeResults(pagina, t, 'quiz real (tiempo agotado)');
 }
 
 async function embudoEnResultados(pagina, base, t) {
@@ -755,6 +955,9 @@ module.exports = [
   { nombre: 'donacion · embudo: vista, click y uso en el selector de materias', correr: embudoEnMaterias },
   { nombre: 'donacion · embudo: rangos de uso', correr: embudoRangosDeUso },
   { nombre: 'donacion · embudo: vista, click y cierre en resultados', correr: embudoEnResultados },
+  { nombre: 'donacion · resultados idempotentes por quiz (AUD-7)', correr: resultadosIdempotentes },
+  { nombre: 'donacion · quiz real por fin normal: quizId en el historial y remonte sin recuento', correr: quizRealPorFinNormal },
+  { nombre: 'donacion · quiz real por tiempo agotado: quizId en el historial', correr: quizRealPorTiempo },
   {
     nombre: 'donacion · pedido de MateriaSelect en la app real',
     correr: enMateriaSelect,
