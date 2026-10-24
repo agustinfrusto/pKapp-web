@@ -1,6 +1,5 @@
 // Métricas del embudo de donación (Umami). Solo web; `track` es no-op sin Umami.
 import { useEffect, useRef } from 'react';
-import { Platform } from 'react-native';
 import { track } from './track';
 
 const SIMULACROS_KEY = 'pkapp_simulacros';
@@ -57,7 +56,7 @@ export function useDonacionVista(ref, datos, yaEnviada) {
   const enviada = yaEnviada || propia;
 
   useEffect(() => {
-    if (Platform.OS !== 'web' || typeof IntersectionObserver === 'undefined') return undefined;
+    if (typeof IntersectionObserver === 'undefined') return undefined;
     const el = ref.current;
     if (!el || enviada.current) return undefined;
     let timer = null;

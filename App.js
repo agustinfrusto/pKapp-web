@@ -1,7 +1,6 @@
 import './global.css';
 
 import React, { useEffect, useMemo, useRef } from 'react';
-import { Platform } from 'react-native';
 import { DefaultTheme, NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
@@ -104,7 +103,7 @@ function AppContent() {
   // instalada; el inyectado en el build es el del tema claro.
   useEffect(() => {
     injectWebStyles(esOscuro);
-    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    if (typeof document === 'undefined') return;
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', chrome.cabecera);
   }, [chrome.cabecera, esOscuro]);
@@ -138,9 +137,9 @@ function AppContent() {
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: tema.fondo },
-          // En web la transición animada de native-stack agrega ~200ms al INP
-          // sin aportar mucho visualmente. En nativo se mantiene la default.
-          animation: Platform.OS === 'web' ? 'none' : 'default',
+          // La transición animada de native-stack agrega ~200ms al INP
+          // sin aportar mucho visualmente.
+          animation: 'none',
         }}
       >
         <Stack.Screen

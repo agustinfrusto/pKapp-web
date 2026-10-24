@@ -3,7 +3,7 @@
 // Escritorio (ESC-P5, ESC-P6): resumen y revisión comparten la hoja; la región lateral va
 // primero en el DOM, así que queda a la izquierda y el orden de foco es el visual.
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, Platform, useWindowDimensions } from 'react-native';
+import { View, Text, ScrollView, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { track } from '../utils/track';
 import { reportQuestion } from '../utils/report';
@@ -42,7 +42,7 @@ const FILTROS = [
 // Reemplaza el viejo tope de "una vez por día": más impresiones en semana de
 // examen (donde se hacen muchos simulacros) sin aparecer en todos.
 function shouldShowDonation(percentage) {
-  if (Platform.OS !== 'web' || typeof localStorage === 'undefined') return false;
+  if (typeof localStorage === 'undefined') return false;
   if (percentage < DONATION_MIN_SCORE) return false;
   const count = Number(localStorage.getItem(DONATION_COUNT_KEY) || 0) + 1;
   localStorage.setItem(DONATION_COUNT_KEY, String(count));

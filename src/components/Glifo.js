@@ -9,7 +9,7 @@
 // nombre lo da el texto contiguo); con `label` es una imagen con ese nombre.
 // Un `id` inexistente no renderiza nada y avisa en desarrollo.
 import React from 'react';
-import { Platform, View } from 'react-native';
+import { View } from 'react-native';
 import Ilustracion from './Ilustracion';
 import { GLIFOS } from '../assets/glifos';
 
@@ -22,10 +22,7 @@ export function anchoTrazo(size) {
   return (TRAZO_PX * VIEWBOX_GLIFO) / size;
 }
 
-const IMAGEN =
-  Platform.OS === 'web'
-    ? (label) => ({ role: 'img', 'aria-label': label })
-    : (label) => ({ accessible: true, accessibilityRole: 'image', accessibilityLabel: label });
+const IMAGEN = (label) => ({ role: 'img', 'aria-label': label });
 
 export default function Glifo({ id, color, size = 16, label, style }) {
   const datos = Object.hasOwn(GLIFOS, id) ? GLIFOS[id] : undefined;

@@ -12,7 +12,6 @@
 // Sin librerías de animación, cuadro a cuadro en JS ni temporizadores. Efecto de layout: el primer
 // cuadro pintado ya es el keyframe 0, sin destello a opacidad 1.
 import { useLayoutEffect, useRef } from 'react';
-import { Platform } from 'react-native';
 
 const DURACION_MS = 150;
 const CURVA = 'cubic-bezier(0,0,0.2,1)';
@@ -30,7 +29,6 @@ export default function useEntrada(ref, clave, { soloDesplazar = false } = {}) {
       montaje.current = false;
       return undefined;
     }
-    if (Platform.OS !== 'web') return undefined;
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return undefined;
     const el = ref.current;
     if (!el || typeof el.animate !== 'function') return undefined;

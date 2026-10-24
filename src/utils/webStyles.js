@@ -8,7 +8,6 @@
 // Un control que resuelve su hover solo se marca con `dataSet={{ hoverPropio: '' }}`
 // (atributo `data-hover-propio`) y el contorno genérico lo salta.
 
-import { Platform } from 'react-native';
 import { plancha } from '../theme/colores';
 
 const STYLE_ID = 'pkapp-runtime-styles';
@@ -47,7 +46,6 @@ function css(tema) {
 }
 
 export function injectWebStyles(esOscuro = false) {
-  if (Platform.OS !== 'web') return;
   if (typeof document === 'undefined') return;
 
   const contenido = css(esOscuro ? plancha.oscuro : plancha.claro);

@@ -1,7 +1,7 @@
 // Pantalla principal: muestra los modos de uso disponibles.
 // Ficha: openspec/diseno/pantallas/Home.md (y Banners.md).
 import React, { useMemo } from 'react';
-import { View, Text, Pressable, ScrollView, Platform, Linking, useWindowDimensions } from 'react-native';
+import { View, Text, Pressable, ScrollView, Linking, useWindowDimensions } from 'react-native';
 import { useMateria } from '../materia/MateriaContext';
 import { MATERIA_LIST } from '../materias';
 import { dedupeQuestions } from '../materias/dedupe';
@@ -168,15 +168,13 @@ export default function HomeScreen({ navigation }) {
               />
             </View>
 
-            {Platform.OS === 'web' && (
-              <View testID="home-privacidad" className="mx-1 mt-6 items-center">
-                <Text className="text-center font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
-                  Tus estadísticas y preguntas se guardan localmente en tu navegador.
-                  {'\n'}
-                  Se usan analíticas anónimas (sin cookies ni datos personales).
-                </Text>
-              </View>
-            )}
+            <View testID="home-privacidad" className="mx-1 mt-6 items-center">
+              <Text className="text-center font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
+                Tus estadísticas y preguntas se guardan localmente en tu navegador.
+                {'\n'}
+                Se usan analíticas anónimas (sin cookies ni datos personales).
+              </Text>
+            </View>
           </Regiones.Principal>
         </Regiones>
       </Hoja>

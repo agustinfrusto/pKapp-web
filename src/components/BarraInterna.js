@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
-import { View, Pressable, Text, Platform } from 'react-native';
+import { View, Pressable, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTema } from '../theme/TemaContext';
@@ -93,7 +93,7 @@ export default function BarraInterna({
 function useReservaDeScroll(raiz) {
   const [reserva, setReserva] = useState(0);
   useLayoutEffect(() => {
-    if (Platform.OS !== 'web' || typeof ResizeObserver === 'undefined') return undefined;
+    if (typeof ResizeObserver === 'undefined') return undefined;
     const nodo = raiz.current;
     const contenido = nodo && nodo.lastElementChild;
     if (!contenido) return undefined;

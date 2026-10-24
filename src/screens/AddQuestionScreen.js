@@ -1,7 +1,7 @@
 // Pantalla para que el usuario agregue sus propias preguntas al banco.
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import {
-  View, Text, TextInput, ScrollView, KeyboardAvoidingView, Platform,
+  View, Text, TextInput, ScrollView,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { addUserQuestion } from '../db/database';
@@ -34,7 +34,7 @@ function Campo({ className = '', value, ...props }) {
   const ref = useRef(null);
   const ajustar = useCallback(() => {
     const nodo = ref.current;
-    if (Platform.OS !== 'web' || !nodo || !nodo.style) return;
+    if (!nodo || !nodo.style) return;
     nodo.style.height = 'auto';
     const bordes = nodo.offsetHeight - nodo.clientHeight;
     nodo.style.height = `${nodo.scrollHeight + bordes}px`;
@@ -184,10 +184,7 @@ export default function AddQuestionScreen({ navigation }) {
   );
 
   return (
-    <KeyboardAvoidingView
-      className="flex-1 bg-fondo dark:bg-fondoD"
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <View className="flex-1 bg-fondo dark:bg-fondoD">
       <ScrollView className="flex-1" contentContainerClassName="pb-8 pt-4">
         {/* Columna `lectura` desde el corte `escritorio` (AddQuestion.md, Escritorio); `columna` bajo él. */}
         <Columna ancho="lectura">
@@ -298,6 +295,6 @@ export default function AddQuestionScreen({ navigation }) {
         {/* Área segura inferior, a continuación del relleno `paso 8` */}
         <View style={{ height: insets.bottom }} />
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
