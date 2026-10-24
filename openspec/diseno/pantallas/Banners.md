@@ -88,7 +88,6 @@ Hover solo con puntero, por el estado `hovered` de `Pressable`: contorno o borde
 | Mensaje visible | Sin marca en su clave o con siete días o más desde ella (`reaparece: 7`) | El mensaje completo con descartar; con dos o más vigentes, dentro del carrusel `BAN-P2` (3.14.6) |
 | Mensaje oculto | Descartado hace menos de siete días | Nada; descartados los tres, la región desaparece y la lista de materias sube sin dejar hueco |
 | Privacidad visible | `Platform.OS === 'web'` | Las dos oraciones centradas |
-| Privacidad ausente | Nativo | Nada |
 
 Origen de la pregunta, aciertos de rendimiento y estado vacío no aplican (—).
 

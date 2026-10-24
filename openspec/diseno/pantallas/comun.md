@@ -230,7 +230,7 @@ Regla: ningún estado se comunica solo por color (spec `design-system`; `tokens.
 | Objetivo táctil | Todo control interactivo mide como mínimo `paso 11` de alto y de ancho (D10: 44 × 44 pt). Si el trazo visible es menor (un glifo), el control mide `paso 11` igual, con el glifo centrado |
 | Separación táctil | Entre controles adyacentes, al menos `paso 2`; las filas de lista se separan por filete |
 | Hover | Solo bajo `@media (hover: hover)`. Sin transición de tamaño ni de layout. El halo con `rgba` de `webStyles.js` sale al migrar (`tokens.md` a.2) |
-| Presionado | Inversión `tinta`/`fondo` (nativo: callback de estado de `Pressable`; web: `:active`). `activeOpacity` sale: opacidad es transparencia |
+| Presionado | Inversión `tinta`/`fondo` (web: `:active`). `activeOpacity` sale: opacidad es transparencia |
 | Foco | Contorno `foco`, `border-2`, separado `paso 0.5`; visible solo con teclado (`:focus-visible`); no mueve el layout; N7 y N8 |
 | Deshabilitado | Sin hover, presionado ni foco; no recibe toque; borde `filete`; texto y glifo `inactivo` (X4 y X5, exentos). Lleva `accessibilityState={{ disabled: true }}` |
 | Seleccionado | Relleno `tinta` y texto `fondo`; `accessibilityState` con el estado seleccionado |

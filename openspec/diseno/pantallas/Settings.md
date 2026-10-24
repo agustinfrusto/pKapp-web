@@ -6,7 +6,7 @@
 | Boceto | Sin figura: el boceto no dibuja esta pantalla. La ficha extiende su gramática (rótulos de sección en `acento`, paneles de marco `linea`, relleno `tinta` para lo seleccionado) |
 | Comunes | `comun.md`: §3 barra interna, §4 marcas de estado, §5 estados (K1, K2, K3, K4, K7), §7 anchos, §8 dimensiones, §9 glifos |
 | Navegador | Barra interna con título «pKapp · Ajustes» y volver (`comun.md` §3.3) |
-| Variantes | Plegables cerrados o abiertos; con y sin preguntas propias; web (con respaldo) o nativo (sin respaldo) |
+| Variantes | Plegables cerrados o abiertos; con y sin preguntas propias |
 | Fuera de alcance | Diálogos del sistema (`confirm`, `avisar`) y el selector de archivos del navegador: su aspecto no es del sistema visual. El estado vacío de «Mis preguntas» tiene su ficha en `Vacios.md` |
 | Propuestas | Sección f: `SET-P1` y `SET-P2`, aprobadas (usuario, 2026-10-10), y `SET-P3`, aprobada (usuario, 2026-10-11). Sección h: conservado de main (D10). Comunes: `COMUN-P2`. Sección i: cambios de la tarea 5.2 (Diseñador, 2026-10-13) |
 | Escritorio | Sección «Escritorio», al final: propuesta `ESC-P8`, aprobada (usuario, 2026-10-11). Rige desde el corte `escritorio`; bajo el corte rige a.6 |
@@ -49,7 +49,6 @@ Panel con relleno `paso 3.5` en las cuatro caras. Una fila: bloque de texto flex
 | «Mis preguntas», con preguntas | Tarjetas separadas por `paso 2.5`; relleno `paso 3.5`; primera fila con tema a la izquierda y eliminar a la derecha: la fila mide al menos `paso 11` por el objetivo de eliminar, sin márgenes negativos, y el tema (`rotulo`) salta de línea si es largo; enunciado a dos líneas como máximo (margen superior `paso 1.5`); correcta en una línea con `glifo-acierto` (margen superior `paso 1.5`, separación `paso 1.5`: la de toda marca de estado con glifo chico, `comun.md` §4) | Una tarjeta por pregunta propia, en el orden que devuelve `getUserQuestions` |
 | «Mis preguntas», sin preguntas | Ver `Vacios.md` (V3) | Mensaje |
 | «Tus datos», web | Panel con relleno `paso 3.5`; texto con margen inferior `paso 2.5`; botones de ancho completo y alto mínimo `paso 11`, separados `paso 2`; divisor `filete` con margen vertical `paso 3` entre los botones de respaldo y el de reseteo | Texto, «Descargar respaldo», «Importar respaldo», divisor, «Resetear estadísticas» |
-| «Tus datos», nativo | Panel con relleno `paso 3.5` | Solo «Resetear estadísticas» |
 
 ### a.5 Interior del panel «Acerca de»
 
@@ -135,7 +134,6 @@ Hover solo con puntero, por el estado `hovered` de `Pressable`: contorno o borde
 | Una pregunta propia | `userQuestions.length === 1` | Nombre «1 pregunta propia» (singular) |
 | Varias | Dos o más | «{n} preguntas propias» |
 | Web | `Platform.OS === 'web'` | El cuerpo de «Tus datos» incluye el bloque de respaldo |
-| Nativo | Cualquier otro | El cuerpo de «Tus datos» solo trae «Resetear estadísticas» |
 | Plegables | Estado local `showQuestions` y `showData` | Cerrados al abrir la pantalla; no persisten |
 
 Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—); el desglose por origen del banco es dato, no estado (d.1).
@@ -167,7 +165,6 @@ Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—)
 | Resetear estadísticas | `confirm('Resetear estadísticas', '¿Seguro que querés borrar todas las estadísticas? Esto no se puede deshacer.', …, { confirmLabel: 'Borrar', destructive: true })`, luego `resetStats()` y `avisar('Listo', 'Estadísticas borradas.')`. Alcanza a TODAS las materias, también a las retiradas del registro (F-4, T10); si algún borrado falla, `avisar('Error', AVISO_GUARDADO)` |
 | Descargar respaldo | `downloadBackup()`; si devuelve falso, `avisar('Error', 'No se pudo generar el respaldo.')` |
 | Importar respaldo | `pickAndImportBackup(cb)`: `avisar(r.ok ? 'Listo' : 'Error', r.message)` y, si `r.ok`, recarga. No pisa claves existentes (comportamiento de `importBackupFromText`) |
-| Solo web | Descargar e importar respaldo no existen en nativo |
 | Origen visible (D6) | El desglose muestra los orígenes por separado: «exámenes», «generadas» (solo si hay: `SET-P3`) y «tuyas» |
 | Sin emoji, radio ni sombra | Los cuatro emojis, los símbolos de plegado y de salida, `rounded-*`, las píldoras de los enlaces y `activeOpacity` salen de esta pantalla (`comun.md` §9, D9) |
 

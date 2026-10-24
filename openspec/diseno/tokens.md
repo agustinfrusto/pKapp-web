@@ -110,7 +110,7 @@ Simulación con las matrices de Machado et al. (2009), severidad 1,0. ΔE en CIE
 
 | Clave Tailwind | Familia registrada | Familia | Peso | Archivo | Uso |
 |---|---|---|---|---|---|
-| `plex-sans` | `PlexSans-Regular` | IBM Plex Sans | 400 | `ttf` en nativo, `woff2` latin en web | Texto corrido |
+| `plex-sans` | `PlexSans-Regular` | IBM Plex Sans | 400 | `woff2` latin | Texto corrido |
 | `plex-sans-semibold` | `PlexSans-SemiBold` | IBM Plex Sans | 600 | ídem | Títulos, nombres, botones |
 | `plex-mono` | `PlexMono-Regular` | IBM Plex Mono | 400 | ídem | Rótulos, metadatos, contadores |
 | `plex-mono-medium` | `PlexMono-Medium` | IBM Plex Mono | 500 | ídem | Cifras y datos |
@@ -142,8 +142,8 @@ Cada paso es un `text-*` (tamaño, interlineado, espaciado) más un `font-plex-*
 
 | Regla | Detalle |
 |---|---|
-| Peso | No usar `font-bold`, `font-semibold` ni `font-medium`: el peso lo da la familia. En nativo cada peso es un archivo distinto y `fontWeight` no lo sintetiza |
-| Interlineado | En px absolutos: NativeWind no admite interlineados relativos en nativo (`leading-tight` y similares son solo web) |
+| Peso | No usar `font-bold`, `font-semibold` ni `font-medium`: el peso lo da la familia, y cada peso es un archivo distinto (b.1) |
+| Interlineado | En px absolutos (columna «Interlineado» de b.2) |
 | Mayúsculas | Solo `rotulo` y `rotulo-medio`, con `uppercase`; el texto fuente se escribe en caja normal |
 | Estilos | Sin cursiva (no se carga archivo itálico), sin subrayado ni tachado |
 | Carga | Fuente del sistema mientras cargan; sin pantalla vacía ni error visible si falla (D4) |
@@ -290,8 +290,8 @@ Un ancho distinto para escritorio es otro token con nombre propio, no una varian
 
 ```js
 fontFamily: {
-  // Una clave por archivo de fuente. En nativo solo se usa la primera de cada
-  // lista; el resto es la pila de respaldo de web (swap con la del sistema, D4).
+  // Una clave por archivo de fuente. La primera de cada lista es la familia
+  // registrada; el resto es la pila de respaldo (swap con la del sistema, D4).
   'plex-sans':          ['PlexSans-Regular', 'system-ui', 'sans-serif'],
   'plex-sans-semibold': ['PlexSans-SemiBold', 'system-ui', 'sans-serif'],
   'plex-mono':          ['PlexMono-Regular', 'ui-monospace', 'monospace'],
@@ -487,7 +487,7 @@ node -e "const {plancha:p}=require('./src/theme/colores');const l=h=>{const c=[1
 | 6 | Deshabilitado = `--hair` y `--ink2` (`.sq.off`) | Borde `filete`, texto `inactivo` | Estado propio de la matriz |
 | 7 | Tamaños 10,5 · 12 · 12,5 · 13,5 · 14 · 14,5 · 15,5 · 17 · 19 | 11 · 11 · 13 · 13 · 15 · 15 · 16 · 18 · 18 | Escala de enteros, mínimo 11 px |
 | 8 | Porcentaje de resultado en 72 px y 60 px (`.big.am`) | 72 px único | El tamaño no codifica estado |
-| 9 | Interlineado proporcional (1,25 a 1,5) | px absolutos | NativeWind no admite relativos en nativo |
+| 9 | Interlineado proporcional (1,25 a 1,5) | px absolutos | Regla de interlineado de b.3 |
 | 10 | Espaciado de letras .04 a .08 em | +0,66 px (≈ .06 em) | Un valor para todos los rótulos |
 | 11 | Fuentes desde Google Fonts | `expo-font` por plataforma | D4 |
 | 12 | Radio 0 | 0 en todas las claves | D9 |
@@ -502,5 +502,5 @@ node -e "const {plancha:p}=require('./src/theme/colores');const l=h=>{const c=[1
 | Distinción de 1.er y 2.do parcial sin pasteles | 1.3 |
 | Glifos de trazo de 1,5 px | 1.4 |
 | Aplicar los bloques d.1 y d.2 a `tailwind.config.js` y retirar `sombras.js` | 2.3 |
-| `StatusBar`, splash nativo, `meta theme-color` y literales de `App.js` | Tareas de bordes de app (D8) |
+| `StatusBar`, `meta theme-color` y literales de `App.js` | Tareas de bordes de app (D8) |
 | Aplicar c.4 y d.3 (cortes, anchos de escritorio y sus clases) | 3.11 (`ESC-P0` aprobada por el usuario el 2026-10-11) |

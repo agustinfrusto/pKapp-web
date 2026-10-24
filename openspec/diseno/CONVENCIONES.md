@@ -76,7 +76,7 @@ Estado de CD-1 a CD-27: acordada (Ingeniero y Diseñador, 2026-10-10). Reglas tr
 | id | Convención | Vive hoy en | Cómo se verifica |
 |---|---|---|---|
 | CD-1 | Toda superficie interactiva es una clase K1 a K7 de `comun.md` §5.2. Ninguna pantalla define estados propios fuera de esa matriz | `comun.md` §5.2 | Cada control del diff nombra su clase; sus estados coinciden con la fila |
-| CD-2 | Presionado = inversión `tinta`/`fondo` (nativo: callback de `Pressable`; web: `:active`). La opacidad no es un estado | `comun.md` §5.1; COMUN-P2 | `rg -n activeOpacity src App.js` vacío al cierre (hoy 21 líneas) |
+| CD-2 | Presionado = inversión `tinta`/`fondo` (web: `:active`). La opacidad no es un estado | `comun.md` §5.1; COMUN-P2 | `rg -n activeOpacity src App.js` vacío al cierre (hoy 21 líneas) |
 | CD-3 | Hover (web, con puntero) = contorno o borde `linea`. Sin cambio de tamaño ni de layout, sin `box-shadow` ni `rgba` | `comun.md` §5.1; COMUN-P2 | `rg -n 'box-shadow\|rgba' src scripts` sin halos de hover; captura con puntero |
 | CD-4 | Foco = contorno `foco`, `border-2`, separado `paso 0.5`, solo por teclado, sin mover el layout. Si coincide con hover, gana el foco: un solo contorno | `comun.md` §5.1; N7, N8 | Tab en web: el contorno aparece y no desplaza a los vecinos |
 | CD-5 | Deshabilitado = borde `filete`, texto y glifo `inactivo`, sin toque, hover, presionado ni foco, con `accessibilityState={{ disabled: true }}`. Seleccionado = relleno `tinta` y texto `fondo`, con `accessibilityState` de selección; hover y presionado no lo cambian | `comun.md` §5.1, §5.2 | Cada control con estado lleva su `accessibilityState` |

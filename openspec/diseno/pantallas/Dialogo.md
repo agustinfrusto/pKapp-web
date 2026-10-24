@@ -4,13 +4,13 @@
 
 | Campo | Valor |
 |---|---|
-| Componente | `Dialogo` (web): reemplaza a `window.confirm` y `window.alert` en `src/utils/confirm.js`. En nativo `confirm` y `avisar` siguen con `Alert.alert`, sin cambio |
+| Componente | `Dialogo` (web): reemplaza a `window.confirm` y `window.alert` en `src/utils/confirm.js` |
 | Origen | `diseno/revision-5.0b.md` §6, fila `FS-1`, FUERA DE SPEC, aprobada por el usuario el 2026-10-14 (`tasks.md` 5.0b.10). Se implementa en 6.6, después del merge, en un change aparte (decisión del usuario, 2026-10-14; coincide con la recomendación original del Diseñador de dejarla para 6.x) |
 | Boceto | Sin figura: el boceto no dibuja diálogos. La ficha extiende la lámina con marcas de esquina de `comun.md` §6 y los botones de §5.2 |
 | Comunes | `comun.md`: §5.1 reglas generales, §5.2 (K1, K2 y K2 de peligro), §6 lámina, §7 anchos, §8 dimensiones. `tokens.md` a.1, b.2, c.3 y e |
 | Lo usan | Las 16 llamadas de la sección e: 8 en `AddQuestionScreen`, 5 en `SettingsScreen`, 1 en `QuizScreen`, 1 en `TopicSelectScreen`, 1 en `MateriaSelectScreen` |
 | Variantes | Confirmación (K2 «Cancelar» y K1); confirmación de peligro (K2 «Cancelar» y K2 de peligro, `destructive: true`); aviso (un K1 «Aceptar») |
-| Fuera de alcance | El selector de archivos de «Importar respaldo» (sigue siendo del navegador; `tokens.md` a.2, `color-scheme`); el aviso de navegador interno (`Banners.md`, `REV-6`: no es modal y vive fuera de React); nativo |
+| Fuera de alcance | El selector de archivos de «Importar respaldo» (sigue siendo del navegador; `tokens.md` a.2, `color-scheme`); el aviso de navegador interno (`Banners.md`, `REV-6`: no es modal y vive fuera de React) |
 | Propuestas | Ninguna de diseño: `FS-1` es la propuesta y ya está aprobada. Sección e.2: propuestas de copy, aparte, que decide el usuario y no se aplican con esta ficha |
 | Escritorio | Sin sección propia: la lámina mide lo mismo desde 488 px de ventana (a.3). `ESC-P0` no cambia nada acá |
 
@@ -44,7 +44,7 @@ capa          position: fixed; inset: 0; sin pintura (ni velo ni color)
 
 | Aspecto | Regla |
 |---|---|
-| Ejes | La caja va centrada en horizontal y en vertical dentro del viewport visible. Es el lugar de `window.confirm` en escritorio y de `Alert` en nativo (D10: continuidad) |
+| Ejes | La caja va centrada en horizontal y en vertical dentro del viewport visible. Es el lugar de `window.confirm` en escritorio (D10: continuidad) |
 | Capa de apilado | Por encima de todo lo que pinta React, incluida la barra fija del quiz. Mecanismo recomendado: la capa superior del navegador (`<dialog>` con `showModal()`, sección j), que no necesita `z-index` |
 | Teclado virtual | Al abrir, el campo con foco lo pierde (el foco pasa al diálogo) y el teclado se cierra: el diálogo queda centrado en el viewport entero. Al cerrar, el foco vuelve a ese campo (a.6) |
 | Scroll de la página | No se bloquea ni se quita la barra de scroll: quitarla movería el layout en Windows. La página está inerte (a.6) y el diálogo es fijo: si la rueda la desplaza, el diálogo no se mueve |
@@ -229,7 +229,7 @@ Contexto: el temporizador sigue corriendo con el diálogo abierto (no es una pau
 | 11 | `SettingsScreen.js:101` (dentro de `onConfirm` de 10) | Aviso | Listo | Estadísticas borradas. | Aceptar |
 | 12 | `SettingsScreen.js:108` (`handleDeleteUserQuestion`) | Peligro | Eliminar pregunta | ¿Seguro? Esta acción no se puede deshacer. | Eliminar (K2 de peligro) · Cancelar |
 | 13 | `SettingsScreen.js:226` («Descargar respaldo», `!ok`) | Aviso | Error | No se pudo generar el respaldo. | Aceptar |
-| 14 | `SettingsScreen.js:234` («Importar respaldo») | Aviso | Listo (`r.ok`) o Error | `r.message` de `src/utils/migration.js`: «Se restauró 1 dato.», «Se restauraron N datos.», «No había datos nuevos para restaurar.», «Archivo inválido: no parece un respaldo de pKapp.», «Versión de respaldo no soportada (N).», «No se pudo leer el archivo.», «Error leyendo el archivo.», «Solo disponible en navegador.» | Aceptar |
+| 14 | `SettingsScreen.js:234` («Importar respaldo») | Aviso | Listo (`r.ok`) o Error | `r.message` de `src/utils/migration.js`: «Se restauró 1 dato.», «Se restauraron N datos.», «No había datos nuevos para restaurar.», «Archivo inválido: no parece un respaldo de pKapp.», «Versión de respaldo no soportada (N).», «No se pudo leer el archivo.», «Error leyendo el archivo.» | Aceptar |
 | 15 | `QuizScreen.js:172` (guardia `beforeRemove`) | Peligro | Salir del quiz | ¿Seguro que querés salir? Se perderá el progreso de este quiz. | Salir (K2 de peligro) · Cancelar (`onCancel`: `history.go(n)`, d.1) |
 | 16 | `TopicSelectScreen.js:148` (`startQuiz`, V5 de `Vacios.md`) | Aviso | Sin preguntas | No hay preguntas disponibles con los filtros actuales. (`SIN_TEMAS`) | Aceptar |
 
@@ -260,7 +260,6 @@ Sin aprobación, las 16 llamadas conservan su texto. Con aprobación, el copy nu
 | Un callback por respuesta | Exactamente uno de `onConfirm` u `onCancel` corre, una sola vez, después de cerrar y devolver el foco (c.3). Cerrar por desmontaje de la pantalla no corre ninguno (d.2) |
 | Secuencial | Cola de d.3; el guardia del quiz es la excepción (d.1) |
 | Sin `window.confirm` ni `window.alert` en `src/` | Aceptación de `tasks.md` 5.0b.10. El respaldo para un navegador sin `<dialog>` (sección j) vive en `confirm.js`, no en las pantallas |
-| Nativo sin cambio | `Alert.alert` con los mismos textos y el estilo `destructive` del botón |
 | Tema | El diálogo sigue al tema de la app (clase `dark` en `html`), no al del sistema: con `<dialog>` dentro del árbol de React las clases `dark:` resuelven igual que en el resto |
 | Sin velo, sin sombra, sin radio | D9; `tokens.md` a.2 y c.1. La capa no pinta y `::backdrop` queda sin pintura |
 
