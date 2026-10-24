@@ -2,7 +2,10 @@
 // vacía: los avisos se perdían en silencio. Usar siempre `confirm` y `avisar` en lugar de
 // `Alert.alert`. Este módulo se evalúa en Node: `window` solo se toca dentro de las funciones.
 
-export function confirm(title, message, onConfirm, { onCancel } = {}) {
+// `confirmLabel`, `cancelLabel` y `destructive` son el contrato del diálogo de `Dialogo.md`
+// (tarea 6.6): fijan los textos de los botones y la variante de peligro. `window.confirm` no
+// los muestra, pero los llamadores los pasan igual.
+export function confirm(title, message, onConfirm, { confirmLabel = 'Aceptar', cancelLabel = 'Cancelar', destructive = false, onCancel } = {}) {
   const ok = window.confirm(`${title}\n\n${message}`);
   if (ok) onConfirm();
   else if (onCancel) onCancel();
