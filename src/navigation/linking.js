@@ -29,7 +29,7 @@ export const linking = {
       },
       Results: {
         path: 'resultados',
-        stringify: sinQuery(['answers', 'topic', 'mode']),
+        stringify: sinQuery(['answers', 'topic', 'mode', 'quizId']),
       },
       AddQuestion: 'agregar',
       Stats: 'estadisticas',

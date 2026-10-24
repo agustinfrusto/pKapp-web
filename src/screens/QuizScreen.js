@@ -112,6 +112,11 @@ export default function QuizScreen({ route, navigation }) {
   const [answers, setAnswers] = useState([]); // historial para mostrar al final
   const [timeLeft, setTimeLeft] = useState(timerMinutes ? timerMinutes * 60 : null);
   const answersRef = useRef([]);
+  // Identifica este quiz ante Results: un remonte con los mismos params no se cuenta de nuevo.
+  const quizIdRef = useRef(null);
+  if (quizIdRef.current === null) {
+    quizIdRef.current = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  }
   const timerRef = useRef(null);
   const plazoRef = useRef(null);
   // Marca las salidas legitimas (terminar el quiz o confirmar el abandono) para
@@ -224,6 +229,7 @@ export default function QuizScreen({ route, navigation }) {
       answers: answersRef.current,
       mode,
       topic,
+      quizId: quizIdRef.current,
     });
   }, [timeLeft]);
 
@@ -285,6 +291,7 @@ export default function QuizScreen({ route, navigation }) {
         answers: [...answers],
         mode,
         topic,
+        quizId: quizIdRef.current,
       }));
     } else {
       enfocarPrimeraRef.current = Platform.OS === 'web' && focoDeTecladoEnSiguiente();

@@ -22,7 +22,7 @@
 // | Desplegable       | K3+K7 | accessibilityLabel, opciones | grupos, valor, alCambiar, textoDeAyuda, |
 // |                   |       | deshabilitado, className, testID                                      |
 // | Lamina            | —     | children; Lamina.Divisor                                              |
-// | MarcaEstado       | —     | estado, texto, paso, colorTexto                                       |
+// | MarcaEstado       | —     | estado, texto, paso, colorTexto, disposicion, separacion              |
 // | MarcaParcial      | —     | indice, de, color                                                     |
 // | RotuloSeccion     | —     | children, color                                                       |
 // | Columna           | —     | children, ancho, testID                                               |
@@ -53,6 +53,8 @@
 //   amplio (FlujoColumnas)     3 (por defecto) | 2 | 1: columnas desde `amplio` (1440)
 //   paso (MarcaEstado)       rotulo | rotulo-medio | detalle | dato | display (glifo paso 6 solo con display)
 //   colorTexto (MarcaEstado) estado | tintaSec
+//   disposicion (MarcaEstado) linea (por defecto) | apilada
+//   separacion (MarcaEstado) normal (por defecto: gap-1.5 en linea, gap-1 apilada) | amplia (gap-2)
 //   color (MarcaParcial)     tintaSec (por defecto) | tinta | fondo | inactivo. En K4 la marca
 //                   toma el color del glifo del estado de la opción.
 //
