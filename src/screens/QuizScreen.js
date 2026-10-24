@@ -6,7 +6,7 @@ import React, {
   useState, useEffect, useLayoutEffect, useRef,
 } from 'react';
 import {
-  View, Text, ScrollView, Platform,
+  View, Text, ScrollView,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { recordAnswer } from '../db/database';
@@ -169,7 +169,7 @@ export default function QuizScreen({ route, navigation }) {
     return navigation.addListener('beforeRemove', (e) => {
       if (salidaAprobadaRef.current || sinQuiz) return;
       e.preventDefault();
-      const vinoDelNavegador = Platform.OS === 'web' && e.data.action.type === 'RESET';
+      const vinoDelNavegador = e.data.action.type === 'RESET';
       confirm(
         'Salir del quiz',
         '¿Seguro que querés salir? Se perderá el progreso de este quiz.',
@@ -201,18 +201,14 @@ export default function QuizScreen({ route, navigation }) {
     const alVolver = () => {
       if (document.visibilityState === 'visible') recalcular();
     };
-    if (Platform.OS === 'web') {
-      document.addEventListener('visibilitychange', alVolver);
-      window.addEventListener('focus', recalcular);
-      window.addEventListener('pageshow', recalcular);
-    }
+    document.addEventListener('visibilitychange', alVolver);
+    window.addEventListener('focus', recalcular);
+    window.addEventListener('pageshow', recalcular);
     return () => {
       clearInterval(timerRef.current);
-      if (Platform.OS === 'web') {
-        document.removeEventListener('visibilitychange', alVolver);
-        window.removeEventListener('focus', recalcular);
-        window.removeEventListener('pageshow', recalcular);
-      }
+      document.removeEventListener('visibilitychange', alVolver);
+      window.removeEventListener('focus', recalcular);
+      window.removeEventListener('pageshow', recalcular);
     };
   }, []);
 
@@ -242,7 +238,7 @@ export default function QuizScreen({ route, navigation }) {
   // dibuja las casillas y el siguiente la barra (B-04). `onLayout` queda para los cambios de ancho.
   useLayoutEffect(() => {
     const nodo = progresoRef.current;
-    if (Platform.OS !== 'web' || !nodo || !nodo.getBoundingClientRect) return;
+    if (!nodo || !nodo.getBoundingClientRect) return;
     const ancho = nodo.getBoundingClientRect().width;
     if (ancho > 0) setAnchoProgreso(ancho);
   }, []);
@@ -294,7 +290,7 @@ export default function QuizScreen({ route, navigation }) {
         quizId: quizIdRef.current,
       }));
     } else {
-      enfocarPrimeraRef.current = Platform.OS === 'web' && focoDeTecladoEnSiguiente();
+      enfocarPrimeraRef.current = focoDeTecladoEnSiguiente();
       requestAnimationFrame(() => {
         setCurrentIndex(currentIndex + 1);
         setSelectedIndex(null);

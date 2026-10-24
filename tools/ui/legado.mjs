@@ -15,7 +15,13 @@
 //   - símbolos de ícono (flechas, ×, ✕…) dentro de comentarios de src/, App.js y scripts/,
 //     también en los comentarios de bloque de varias líneas sin `*` al inicio de línea;
 //   - claves de app.json que solo sirven a builds nativos: expo.ios, expo.android,
-//     expo.extra.eas y expo.owner.
+//     expo.extra.eas y expo.owner;
+//   - Platform de react-native: ningún import de `Platform` ni uso de `Platform.` en src/,
+//     App.js, index.js y scripts/;
+//   - archivos con sufijo de plataforma (*.native.js, *.ios.js, *.android.js) en ese mismo árbol;
+//   - la palabra nativo/nativa/nativos/nativas en comentarios de ese árbol (no cuentan
+//     React Native, react-native, native-stack, nativeEvent, NativeWind ni
+//     @react-navigation/native).
 //
 // Uso: node tools/ui/legado.mjs
 import fs from 'fs';
@@ -183,6 +189,28 @@ const CON_COMENTARIOS = [...dentro('src'), ...dentro('scripts'), abs('App.js')]
 for (const f of CON_COMENTARIOS) {
   comentariosPorLinea(fs.readFileSync(f, 'utf8')).forEach((c, i) => {
     if (c && SIMBOLOS.test(c)) fallo(`${rel(f)}:${i + 1} símbolo de ícono en un comentario`);
+  });
+}
+
+// --- 6. plataforma nativa en el código de la app -------------------------------------------------
+const DE_LA_APP = [...dentro('src'), ...dentro('scripts'), abs('App.js'), abs('index.js')]
+  .filter((f) => /\.(m?js|cjs)$/.test(f));
+const lineaDe = (texto, indice) => texto.slice(0, indice).split('\n').length;
+const IMPORTA_PLATFORM = /import\s*\{[^}]*\bPlatform\b[^}]*\}\s*from\s*['"]react-native['"]/g;
+const NATIVO = /(?<![\p{L}\p{N}_])nativ[oa]s?(?![\p{L}\p{N}_])/iu;
+for (const f of DE_LA_APP) {
+  const texto = fs.readFileSync(f, 'utf8');
+  for (const m of texto.matchAll(IMPORTA_PLATFORM)) {
+    fallo(`${rel(f)}:${lineaDe(texto, m.index)} importa Platform de react-native`);
+  }
+  texto.split('\n').forEach((l, i) => {
+    if (/\bPlatform\./.test(l)) fallo(`${rel(f)}:${i + 1} usa Platform.`);
+  });
+  if (/\.(native|ios|android)\.js$/.test(f)) fallo(`${rel(f)} archivo con sufijo de plataforma`);
+}
+for (const f of DE_LA_APP.filter((x) => !DATOS.test(x))) {
+  comentariosPorLinea(fs.readFileSync(f, 'utf8')).forEach((c, i) => {
+    if (c && NATIVO.test(c)) fallo(`${rel(f)}:${i + 1} la palabra nativo/a en un comentario`);
   });
 }
 

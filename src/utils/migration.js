@@ -1,9 +1,5 @@
 // Utilidades para exportar/importar el progreso del usuario.
 // Soporta migración entre dominios (ej. de pkapp-web.vercel.app a pkapp.uy).
-//
-// Solo funciona en web (en nativo no hay un caso de uso para migrar).
-
-import { Platform } from 'react-native';
 
 const VERSION = 1;
 
@@ -30,7 +26,7 @@ function matchesAnyPattern(key) {
  * }
  */
 export function buildBackup() {
-  if (Platform.OS !== 'web' || typeof localStorage === 'undefined') return null;
+  if (typeof localStorage === 'undefined') return null;
   const data = {};
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
@@ -50,7 +46,6 @@ export function buildBackup() {
  * Descarga un archivo JSON con el backup. Solo web.
  */
 export function downloadBackup() {
-  if (Platform.OS !== 'web') return false;
   const backup = buildBackup();
   if (!backup) return false;
   const json = JSON.stringify(backup, null, 2);
@@ -156,10 +151,6 @@ export function importBackupFromText(text, { overwrite = false } = {}) {
  * onResult recibe el resumen de importBackupFromText.
  */
 export function pickAndImportBackup(onResult, options) {
-  if (Platform.OS !== 'web') {
-    onResult({ ok: false, message: 'Solo disponible en navegador.' });
-    return;
-  }
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'application/json,.json';
@@ -181,6 +172,6 @@ export function pickAndImportBackup(onResult, options) {
  * Detecta si estamos en el dominio viejo (vercel.app).
  */
 export function isLegacyDomain() {
-  if (Platform.OS !== 'web' || typeof window === 'undefined') return false;
+  if (typeof window === 'undefined') return false;
   return window.location.hostname.includes('vercel.app');
 }

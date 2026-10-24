@@ -3,7 +3,7 @@
 // vacío V3 de Vacios.md.
 import React, { useState, useCallback, useMemo } from 'react';
 import {
-  View, Text, ScrollView, Linking, Platform,
+  View, Text, ScrollView, Linking,
 } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -236,37 +236,35 @@ export default function SettingsScreen() {
               />
               {showData && (
                 <View className={`mt-2.5 ${PANEL}`}>
-                  {Platform.OS === 'web' && (
-                    <>
-                      <Text className="mb-2.5 font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
-                        Descargá un respaldo de tu progreso para no perderlo o pasarlo a otro dispositivo.
-                      </Text>
-                      <ControlMarco
-                        etiqueta="Descargar respaldo"
-                        glifo="glifo-guardar"
-                        className="mb-2 w-full"
-                        onPress={() => {
-                          const ok = downloadBackup();
-                          if (!ok) avisar('Error', 'No se pudo generar el respaldo.');
-                        }}
-                      />
-                      <BotonRelleno
-                        etiqueta="Importar respaldo"
-                        glifo="glifo-importar"
-                        className="w-full"
-                        onPress={() => pickAndImportBackup((r) => {
-                          avisar(r.ok ? 'Listo' : 'Error', r.message);
-                          if (r.ok) loadData();
-                        })}
-                      />
-                      <View
-                        aria-hidden
-                        accessibilityElementsHidden
-                        importantForAccessibility="no-hide-descendants"
-                        className={`my-3 ${FILETE}`}
-                      />
-                    </>
-                  )}
+                  <>
+                    <Text className="mb-2.5 font-plex-sans text-detalle text-tintaSec dark:text-tintaSecD">
+                      Descargá un respaldo de tu progreso para no perderlo o pasarlo a otro dispositivo.
+                    </Text>
+                    <ControlMarco
+                      etiqueta="Descargar respaldo"
+                      glifo="glifo-guardar"
+                      className="mb-2 w-full"
+                      onPress={() => {
+                        const ok = downloadBackup();
+                        if (!ok) avisar('Error', 'No se pudo generar el respaldo.');
+                      }}
+                    />
+                    <BotonRelleno
+                      etiqueta="Importar respaldo"
+                      glifo="glifo-importar"
+                      className="w-full"
+                      onPress={() => pickAndImportBackup((r) => {
+                        avisar(r.ok ? 'Listo' : 'Error', r.message);
+                        if (r.ok) loadData();
+                      })}
+                    />
+                    <View
+                      aria-hidden
+                      accessibilityElementsHidden
+                      importantForAccessibility="no-hide-descendants"
+                      className={`my-3 ${FILETE}`}
+                    />
+                  </>
                   <BotonMarco
                     etiqueta="Resetear estadísticas"
                     tono="peligro"

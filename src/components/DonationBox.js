@@ -11,7 +11,7 @@
 // Se arma sobre `Control`, la base de K1 a K7: la ficha pide en los montos el paso `dato` y en
 // descartar la inversión sobre la banda, y ni K2 ni K7 los admiten por props.
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, Linking, Platform } from 'react-native';
+import { View, Text, Linking } from 'react-native';
 import { track } from '../utils/track';
 import { MP_LINKS, DONATION_AMOUNTS } from '../utils/mercadopago';
 import { usoActual, useDonacionVista } from '../utils/donacion';
@@ -66,7 +66,7 @@ const GROSOR_FOCO = 2; // border-2 (tokens.md c.2), el mismo del foco global
 
 function useFocoSobreBanda(color) {
   useEffect(() => {
-    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    if (typeof document === 'undefined') return;
     let nodo = document.getElementById(ID_ESTILO_FOCO);
     if (!nodo) {
       nodo = document.createElement('style');

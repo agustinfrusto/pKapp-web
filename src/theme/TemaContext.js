@@ -4,7 +4,6 @@
 // app siga al sistema por su cuenta. El default es claro, así que nadie se
 // encuentra la app oscura sin haberlo pedido.
 import React, { createContext, useContext, useLayoutEffect, useState } from 'react';
-import { Platform } from 'react-native';
 import { useColorScheme } from 'nativewind';
 import { getSettingSync, saveSetting } from '../db/database';
 import { avisar, AVISO_GUARDADO } from '../utils/confirm';
@@ -17,7 +16,7 @@ const TemaContext = createContext({ oscuro: false, setOscuro: () => {}, cargado:
 // utilidades se emiten como `.dark\:x:is(.dark *)` y sin ese ancestro no aplican.
 function aplicar(esOscuro, setColorScheme) {
   setColorScheme(esOscuro ? 'dark' : 'light');
-  if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+  if (typeof document === 'undefined') return;
   document.documentElement.classList.toggle('dark', esOscuro);
 }
 
@@ -34,7 +33,7 @@ function temaGuardadoOscuro() {
 
 // En web, SafeAreaProvider monta su contenedor en un commit anterior al de este proveedor:
 // la clase `dark` tiene que estar puesta antes de cualquier commit, no solo antes de este.
-if (Platform.OS === 'web' && typeof document !== 'undefined') {
+if (typeof document !== 'undefined') {
   document.documentElement.classList.toggle('dark', temaGuardadoOscuro());
 }
 

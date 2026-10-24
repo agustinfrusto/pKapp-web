@@ -20,7 +20,7 @@
 //   className solo de layout (margen); por defecto `mb-3`
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  Linking, Platform, Text, View, useWindowDimensions,
+  Linking, Text, View, useWindowDimensions,
 } from 'react-native';
 import {
   AVISOS, avisosVigentes, claveDe, descartarAviso, esperaPorDefecto,
@@ -50,7 +50,7 @@ function almacen() {
   }
 }
 
-const esWeb = Platform.OS === 'web' && typeof document !== 'undefined';
+const esWeb = typeof document !== 'undefined';
 
 // Regiones montadas, cada una con su función de «releer». `native-stack` deja MateriaSelect
 // montada bajo Home: un aviso de varias pantallas vive en más de una región a la vez, y
