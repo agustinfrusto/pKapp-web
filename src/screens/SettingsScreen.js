@@ -1,7 +1,7 @@
 // Pantalla de ajustes: gestión de preguntas custom, reseteo de stats, info.
 // Plancha (change rediseno-plancha, tarea 3.8): openspec/diseno/pantallas/Settings.md y el estado
 // vacío V3 de Vacios.md.
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View, Text, ScrollView, Linking, Platform,
 } from 'react-native';
@@ -9,6 +9,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { useMateria } from '../materia/MateriaContext';
+import { dedupeQuestions } from '../materias/dedupe';
 import {
   resetStats, getUserQuestions, deleteUserQuestion,
   getSetting, saveSetting,
@@ -109,8 +110,13 @@ export default function SettingsScreen() {
       'Resetear estadísticas',
       '¿Seguro que querés borrar todas las estadísticas? Esto no se puede deshacer.',
       async () => {
-        await resetStats(materiaId);
-        avisar('Listo', 'Estadísticas borradas.');
+        try {
+          await resetStats();
+          avisar('Listo', 'Estadísticas borradas.');
+        } catch (e) {
+          console.warn('No se pudieron borrar las estadísticas', e);
+          avisar('Error', AVISO_GUARDADO);
+        }
       },
       { confirmLabel: 'Borrar', destructive: true }
     );
@@ -133,8 +139,9 @@ export default function SettingsScreen() {
     );
   }
 
-  const examCount = QUESTIONS.filter(q => q.source === 'exam').length;
-  const generatedCount = QUESTIONS.filter(q => q.source === 'generated').length;
+  const unicas = useMemo(() => dedupeQuestions(QUESTIONS || []), [QUESTIONS]);
+  const examCount = unicas.filter(q => q.source === 'exam').length;
+  const generatedCount = unicas.filter(q => q.source === 'generated').length;
 
   return (
     <ScrollView

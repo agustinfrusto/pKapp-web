@@ -107,8 +107,28 @@ export async function getFailedQuestions(materiaId) {
     .sort((a, b) => a.accuracy - b.accuracy || b.times_answered - a.times_answered);
 }
 
+// Distingue la lista de propias ausente ([]), legible (el array) e ilegible (`ilegible` con el texto crudo).
+// Ilegible: hay un valor guardado que no parsea o no es un array; nunca se pisa sin copia previa.
+function leerPropias(materiaId) {
+  const crudo = localStorage.getItem(questionsKey(materiaId));
+  if (crudo === null) return { questions: [] };
+  try {
+    const parsed = JSON.parse(crudo);
+    if (Array.isArray(parsed)) return { questions: parsed };
+  } catch {
+    // cae a ilegible
+  }
+  return { ilegible: crudo };
+}
+
 export async function addUserQuestion(materiaId, question) {
-  const questions = load(questionsKey(materiaId)) || [];
+  const { questions: legibles, ilegible } = leerPropias(materiaId);
+  let questions = legibles;
+  if (ilegible !== undefined) {
+    // Si la copia falla, la excepción sale y la lista original queda intacta.
+    localStorage.setItem(`${questionsKey(materiaId)}:ilegible:${Date.now()}`, JSON.stringify(ilegible));
+    questions = [];
+  }
   const id = 'USER-' + Date.now();
   questions.unshift({
     id,
@@ -124,7 +144,11 @@ export async function addUserQuestion(materiaId, question) {
 }
 
 export async function getUserQuestions(materiaId) {
-  const questions = load(questionsKey(materiaId)) || [];
+  const { questions, ilegible } = leerPropias(materiaId);
+  if (ilegible !== undefined) {
+    console.warn('Lista de preguntas propias ilegible: se devuelve vacía sin tocarla', materiaId);
+    return [];
+  }
   // Una fila con `options` ilegible o que no es un array se descarta sin tocarla en localStorage: un respaldo puede repararla.
   const validas = [];
   for (const row of questions) {
@@ -153,12 +177,31 @@ export async function getUserQuestions(materiaId) {
 }
 
 export async function deleteUserQuestion(materiaId, id) {
-  const questions = load(questionsKey(materiaId)) || [];
+  const { questions, ilegible } = leerPropias(materiaId);
+  if (ilegible !== undefined) {
+    console.warn('Lista de preguntas propias ilegible: no se elimina nada', materiaId);
+    return;
+  }
   save(questionsKey(materiaId), questions.filter(q => q.id !== id));
 }
 
-export async function resetStats(materiaId) {
-  localStorage.removeItem(statsKey(materiaId));
+// Borra las estadísticas de todas las materias, también las de una que ya no está en el registro.
+// Intenta todas las claves; si alguna falla, lanza al final.
+export async function resetStats() {
+  const claves = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const clave = localStorage.key(i);
+    if (/^pkapp_question_stats(:.+)?$/.test(clave)) claves.push(clave);
+  }
+  let fallo = null;
+  for (const clave of claves) {
+    try {
+      localStorage.removeItem(clave);
+    } catch (e) {
+      fallo = e;
+    }
+  }
+  if (fallo) throw new Error('No se pudieron borrar todas las estadísticas', { cause: fallo });
 }
 
 // ── Settings: globales, no namespaceados ──────────────────────────────────

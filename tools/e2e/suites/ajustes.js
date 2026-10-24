@@ -1032,8 +1032,8 @@ async function datosCorruptosYGuardadoFallido(pagina, base, t) {
   }
 }
 
-// La lista entera guardada como un valor JSON no iterable hace rechazar a `getUserQuestions`:
-// `hide_feedback` se carga igual (dos lecturas independientes).
+// La lista entera guardada como un valor JSON no iterable ya no hace rechazar a `getUserQuestions` (6.10 T9:
+// devuelve [] sin tocarla): `hide_feedback` se carga igual (dos lecturas independientes).
 const LISTA_QUE_RECHAZA = EN_MARCO(`
   const a = JSON.parse(w.localStorage.getItem('pkapp_settings') || '{}');
   a.hide_feedback = 'true';
@@ -1058,6 +1058,72 @@ async function cargaQueRechazaEnAjustes(pagina, base, t) {
   } finally {
     await pagina.evaluar(LIMPIAR);
     await pagina.evaluar(QUITAR_HIDE_FEEDBACK);
+  }
+}
+
+// 6.10 T9: una lista de propias ilegible (valor crudo real en localStorage, sin stub de `getItem`) no se
+// pierde: eliminar no escribe nada y las pantallas cargan sin errores.
+const CRUDOS_ILEGIBLES = ['{"a":1}', 'no-json{'];
+const SEMBRAR_CRUDO = (crudo) => `localStorage.setItem('pkapp_user_questions:bcyt', ${JSON.stringify(crudo)})`;
+const LEER_CRUDO = `JSON.stringify({ cruda: localStorage.getItem('pkapp_user_questions:bcyt'),
+  copias: Object.keys(localStorage).filter((k) => k.startsWith('pkapp_user_questions:bcyt:ilegible:')) })`;
+const LIMPIAR_CRUDO = `(function () {
+  Object.keys(localStorage).filter((k) => k.startsWith('pkapp_user_questions:bcyt'))
+    .forEach((k) => localStorage.removeItem(k));
+})()`;
+
+async function listaIlegibleAlEliminar(pagina, base, t) {
+  for (const crudo of CRUDOS_ILEGIBLES) {
+    const c = (s) => `Ajustes · lista ilegible ${crudo} · eliminar · ${s}`;
+    try {
+      t.ok(c('llega a /ajustes con dos propias'), await irAAjustes(pagina, base, 390, 'claro', SEMBRADO), true);
+      await clicTexto(pagina, '2 preguntas propias');
+      await pausa();
+      const tarjeta = await pagina.evaluar(LEER_TARJETA('Primera pregunta propia de prueba'));
+      t.ok(c('hay tarjeta con «Eliminar pregunta»'), !!(tarjeta && tarjeta.eliminar), true);
+      if (!tarjeta || !tarjeta.eliminar) continue;
+      // La lista se vuelve ilegible con la tarjeta ya en pantalla: la baja encuentra el valor crudo.
+      await pagina.evaluar(EN_MARCO(`w.localStorage.setItem('pkapp_user_questions:bcyt', ${JSON.stringify(crudo)}); return true;`));
+      pagina.dialogos.length = 0;
+      pagina.respuestaDialogo = 'aceptar';
+      const errores = pagina.errores.length;
+      await pagina.clicEn(Math.round(tarjeta.eliminar.x + tarjeta.eliminar.ancho / 2),
+        Math.round(tarjeta.eliminar.y + tarjeta.eliminar.alto / 2));
+      await pausa(600);
+      const leida = JSON.parse(await pagina.evaluar(EN_MARCO(`return ${LEER_CRUDO};`)));
+      t.ok(c('la lista cruda queda igual'), leida.cruda, crudo);
+      t.ok(c('no hay copia'), leida.copias.length, 0);
+      t.ok(c('sin errores de JS en consola'), pagina.errores.length - errores, 0);
+    } finally {
+      pagina.respuestaDialogo = 'cancelar';
+      await pagina.evaluar(EN_MARCO(`${LIMPIAR_CRUDO}; return true;`));
+      await pagina.evaluar(LIMPIAR);
+    }
+  }
+}
+
+async function listaIlegibleCargaPantallas(pagina, base, t) {
+  const c = (s) => `Ajustes · lista {"a":1} real · ${s}`;
+  try {
+    const erroresA = pagina.errores.length;
+    t.ok(c('llega a /ajustes'),
+      await irAAjustes(pagina, base, 390, 'claro', SEMBRAR_CRUDO('{"a":1}')), true);
+    t.ok(c('Ajustes muestra «Cuestionario»'), await esperarEnMarco(pagina, 'Cuestionario'), true);
+    await pausa(300);
+    t.ok(c('Ajustes: sin errores de JS en consola'), pagina.errores.length - erroresA, 0);
+
+    const erroresT = pagina.errores.length;
+    t.ok(c('abre la app en el marco'), !!(await abrirMarco(pagina, base, 390)), true);
+    await pagina.evaluar(SEMBRAR_CRUDO('{"a":1}'));
+    await clicEnMarco(pagina, MATERIA);
+    await esperarEnMarco(pagina, 'repasar fallos');
+    await clicEnMarco(pagina, 'entrena temas');
+    t.ok(c('TopicSelect carga la mezcla'), await esperarEnMarco(pagina, 'todos los temas mezclados'), true);
+    await pausa(300);
+    t.ok(c('TopicSelect: sin errores de JS en consola'), pagina.errores.length - erroresT, 0);
+  } finally {
+    await pagina.evaluar(LIMPIAR_CRUDO);
+    await pagina.evaluar(LIMPIAR);
   }
 }
 
@@ -1120,6 +1186,90 @@ async function capturasDeLaTrece(pagina, base, t) {
   }
 }
 
+// Resetear estadísticas borra las de todas las materias (6.10 T10, F-4) y nada más.
+const CLAVES_STATS_RESET = ['pkapp_question_stats', 'pkapp_question_stats:bcyt',
+  'pkapp_question_stats:otra', 'pkapp_question_stats:retirada'];
+const CLAVES_AJENAS_RESET = ['pkapp_user_questions:bcyt', 'pkapp_user_questions:otra', 'pkapp_aviso_x',
+  'pkapp_simulacros', 'pkapp_donation_count', 'pkapp_migrated_v0.10', 'otra_clave'];
+const SEMBRAR_RESET = `(function () {
+  ${JSON.stringify(CLAVES_STATS_RESET)}.forEach((k) => localStorage.setItem(k, '{"q":1}'));
+  ${JSON.stringify(CLAVES_AJENAS_RESET)}.forEach((k) => localStorage.setItem(k, 'valor ' + k));
+})()`;
+const LEER_AJENAS_RESET = `JSON.stringify(${JSON.stringify(CLAVES_AJENAS_RESET)}.map(
+  (k) => [k, localStorage.getItem(k)]))`;
+const STATS_RESTANTES = `JSON.stringify(Object.keys(localStorage).filter(
+  (k) => /^pkapp_question_stats(:.+)?$/.test(k)).sort())`;
+const REMOVE_QUE_FALLA_EN = (clave) => EN_MARCO(`
+  w.__removeItemOriginal = w.Storage.prototype.removeItem;
+  w.Storage.prototype.removeItem = function (k) {
+    if (k === ${JSON.stringify(clave)}) throw new w.DOMException('bloqueado', 'SecurityError');
+    return w.__removeItemOriginal.call(this, k);
+  };
+  return true;
+`);
+const RESTAURAR_REMOVE = EN_MARCO(`
+  if (w.__removeItemOriginal) w.Storage.prototype.removeItem = w.__removeItemOriginal;
+  return true;
+`);
+
+async function resetearTodas(pagina, base, t) {
+  const c = (s) => `Ajustes · resetear estadísticas · ${s}`;
+  const resetear = async () => {
+    if (!(await pagina.evaluar(LEER_TEXTO('Resetear estadísticas')))?.control) {
+      await clicTexto(pagina, 'Respaldo y reseteo');
+      await pausa();
+    }
+    pagina.dialogos.length = 0;
+    pagina.respuestaDialogo = 'aceptar';
+    await clicTexto(pagina, 'Resetear estadísticas');
+  };
+  try {
+    // (a) Éxito: ninguna clave de estadísticas, las demás idénticas.
+    t.ok(c('llega a /ajustes con la materia activa'),
+      await irAAjustes(pagina, base, 390, 'claro', SEMBRAR_RESET), true);
+    const antes = await pagina.evaluar(LEER_AJENAS_RESET);
+    await resetear();
+    t.ok(c('avisa «Estadísticas borradas.»'),
+      await pagina.esperarA(() => pagina.dialogos.includes('Listo\n\nEstadísticas borradas.')), true);
+    t.ok(c('no queda ninguna clave pkapp_question_stats*'), await pagina.evaluar(STATS_RESTANTES), '[]');
+    t.ok(c('las demás claves quedan idénticas'), await pagina.evaluar(LEER_AJENAS_RESET), antes);
+
+    // (b) Una clave falla al borrar: las otras se borran igual y se avisa el error.
+    await pagina.evaluar(SEMBRAR_RESET);
+    await pagina.evaluar(REMOVE_QUE_FALLA_EN('pkapp_question_stats:otra'));
+    await resetear();
+    t.ok(c('error: aparece «No se pudo guardar el cambio.»'),
+      await pagina.esperarA(() => pagina.dialogos.includes(AVISO_GUARDADO)), true);
+    t.ok(c('error: solo queda la clave que falló'),
+      await pagina.evaluar(STATS_RESTANTES), '["pkapp_question_stats:otra"]');
+    t.ok(c('error: no avisa «Estadísticas borradas.»'),
+      pagina.dialogos.includes('Listo\n\nEstadísticas borradas.'), false);
+  } finally {
+    pagina.respuestaDialogo = 'cancelar';
+    await pagina.evaluar(RESTAURAR_REMOVE);
+    await pagina.evaluar(`${JSON.stringify([...CLAVES_STATS_RESET, ...CLAVES_AJENAS_RESET])}
+      .forEach((k) => localStorage.removeItem(k))`);
+  }
+}
+
+// Banco sin repetidas (6.10 T6b, F-3): Anatomía trae 471 filas y 434 únicas; «Acerca de» y el
+// total cuentan las únicas, como el selector, Home, Stats y TopicSelect.
+async function bancoSinRepetidas(pagina, base, t) {
+  const c = (s) => `Ajustes · banco sin repetidas · ${s}`;
+  await abrirMarco(pagina, base, 390, 900);
+  await clicEnMarco(pagina, 'Anatomía');
+  t.ok(c('entra a Home'), await pagina.esperarA(async () => await pagina.evaluar(RUTA) === '/inicio'), true);
+  await esperarEnMarco(pagina, 'Ajustes');
+  await clicEnMarco(pagina, 'Ajustes');
+  t.ok(c('llega a /ajustes'), await pagina.esperarA(async () => await pagina.evaluar(RUTA) === '/ajustes'), true);
+  await esperarEnMarco(pagina, 'Cuestionario');
+  t.ok(c('«Acerca de»: «{n} de exámenes · 0 tuyas» con las únicas'),
+    !!(await pagina.evaluar(LEER_TEXTO(`${CONTEOS.anatomia} de exámenes · 0 tuyas`))), true);
+  t.ok(c('el total del banco es el de las únicas'),
+    (await pagina.evaluar(TEXTO_PANTALLA)).includes(String(CONTEOS.anatomia)), true);
+  t.ok(c('no aparece el conteo crudo (471)'), (await pagina.evaluar(TEXTO_PANTALLA)).includes('471'), false);
+}
+
 module.exports = [
   { nombre: 'Ajustes: la pantalla en claro contra su ficha', correr: (p, b, t) => pantalla(p, b, t, 'claro') },
   { nombre: 'Ajustes: la pantalla en oscuro contra su ficha', correr: (p, b, t) => pantalla(p, b, t, 'oscuro') },
@@ -1131,6 +1281,10 @@ module.exports = [
   { nombre: 'Ajustes: avisos de importar respaldo (E-05)', correr: importarRespaldo },
   { nombre: 'Ajustes: fila propia corrupta y guardado que falla (AUD-3, AUD-8)', correr: datosCorruptosYGuardadoFallido },
   { nombre: 'Ajustes: carga de propias que rechaza (AUD-3)', correr: cargaQueRechazaEnAjustes },
+  { nombre: 'Ajustes: resetear estadísticas borra las de todas las materias (T10, F-4)', correr: resetearTodas },
+  { nombre: 'Ajustes: lista ilegible, eliminar no escribe nada (T9)', correr: listaIlegibleAlEliminar },
+  { nombre: 'Ajustes: lista ilegible real, Ajustes y TopicSelect cargan (T9)', correr: listaIlegibleCargaPantallas },
+  { nombre: 'Ajustes: el banco de Anatomía cuenta sin repetidas (T6b, F-3)', correr: bancoSinRepetidas },
   { nombre: 'Ajustes: SettingsScreen.js sin literales visuales', correr: sinLiterales },
   { nombre: 'Ajustes: capturas de la 3.13d (solo con PKAPP_CAPTURAS)', correr: capturasDeLaTrece },
 ];

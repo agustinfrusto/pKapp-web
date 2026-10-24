@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generado por docs/readme/generar.mjs. No editar a mano. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72">
+<rect x=".5" y=".5" width="71" height="71" fill="#ffffff" stroke="#b9bfc6"/>
+<g transform="translate(4 4)" fill="none" stroke="#14181d" stroke-width="1.1" stroke-linejoin="miter" stroke-linecap="square">
+<path d="M14.4 37.3 L16.7 35.1 L21 39.9 L18.7 42Z M10.2 32.5 L12.5 30.5 L16 34.3 L13.7 36.4Z M24.5 24.8 L27.5 24.3 L28.8 32.6 L25.8 33.1Z M23.5 18.2 L26.3 17.7 L27.2 23.3 L24.4 23.7Z M22.7 12.5 L25.4 12.1 L26.1 16.7 L23.4 17.1Z M31.2 22.3 L34.3 22.3 L34.5 31.7 L31.4 31.7Z M31.2 15 L34.1 15 L34.2 21.2 L31.3 21.2Z M31.2 9.1 L34 9.1 L34 13.9 L31.2 13.9Z M38.2 24.6 L41.1 24.9 L40.1 33.5 L37.1 33.1Z M39.1 17.7 L41.9 18.1 L41.2 23.8 L38.4 23.5Z M39.8 12.1 L42.5 12.4 L42 17 L39.3 16.7Z M44 29.9 L46.6 30.7 L44.8 37 L42.2 36.3Z M45.6 24.7 L48.1 25.4 L46.9 29.6 L44.4 28.9Z M47.1 19.8 L49.4 20.4 L48.3 24.3 L46 23.6Z" stroke-width="0.9"/>
+<path d="M26.2 48 L20.7 41.9 M29.4 46.2 L27.5 34.2 M33.2 45.8 L33 33 M37 46.3 L38.4 34.6 M40.4 47.5 L43.2 37.9" stroke-width="0.9"/>
+<path d="M26 47.8 L42 47.8 L40.8 54.4 L27.4 54.4Z" stroke-width="0.9"/>
+<path d="M26.7 51 L41.4 51 M30.2 47.8 L30.4 54.4 M34 47.8 L34 54.4 M37.8 47.8 L37.6 54.4" stroke-width="0.6"/>
+<path d="M27.6 54.4 L30.8 54.4 L30.8 60 L27.6 60Z M36.8 54.4 L40 54.4 L40 60 L36.8 60Z"/>
+<path d="M4 62 H60 M4 59 V62 M60 59 V62" stroke-width="0.6"/>
+</g>
+</svg>

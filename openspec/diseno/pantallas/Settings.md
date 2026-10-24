@@ -164,7 +164,7 @@ Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—)
 | El ajuste vale en todos los modos | Lo lee `TopicSelectScreen` al iniciar cualquier quiz; la ficha no lo limita al modo examen |
 | Eliminar pregunta propia | `confirm('Eliminar pregunta', '¿Seguro? Esta acción no se puede deshacer.', …, { confirmLabel: 'Eliminar', destructive: true })`, luego `deleteUserQuestion(materiaId, id)` y recarga |
 | Efecto en TopicSelect | Eliminar la última pregunta propia de la materia, o importar un respaldo que trae las primeras, cambia si TopicSelect ofrece el filtro «Solo mías» (`TopicSelect.md` f.1, `TOPIC-P6`). TopicSelect lee las propias al abrirse: Ajustes no le avisa |
-| Resetear estadísticas | `confirm('Resetear estadísticas', '¿Seguro que querés borrar todas las estadísticas? Esto no se puede deshacer.', …, { confirmLabel: 'Borrar', destructive: true })`, luego `resetStats(materiaId)` y `avisar('Listo', 'Estadísticas borradas.')`. Alcanza solo a la materia activa |
+| Resetear estadísticas | `confirm('Resetear estadísticas', '¿Seguro que querés borrar todas las estadísticas? Esto no se puede deshacer.', …, { confirmLabel: 'Borrar', destructive: true })`, luego `resetStats()` y `avisar('Listo', 'Estadísticas borradas.')`. Alcanza a TODAS las materias, también a las retiradas del registro (F-4, T10); si algún borrado falla, `avisar('Error', AVISO_GUARDADO)` |
 | Descargar respaldo | `downloadBackup()`; si devuelve falso, `avisar('Error', 'No se pudo generar el respaldo.')` |
 | Importar respaldo | `pickAndImportBackup(cb)`: `avisar(r.ok ? 'Listo' : 'Error', r.message)` y, si `r.ok`, recarga. No pisa claves existentes (comportamiento de `importBackupFromText`) |
 | Solo web | Descargar e importar respaldo no existen en nativo |

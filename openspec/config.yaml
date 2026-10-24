@@ -46,12 +46,13 @@ context: |
 
   ## Dominio
 
-  - MATERIA: unidad de nivel superior (hoy `bcyt`, `anatomia`, `neuro`, `cyr`). Cada una es
-    una carpeta en `src/materias/<id>/` con cinco archivos: `metadata.js` (id, nombre,
-    ícono, color, `available`), `config.js` (`examSize`, `parciales`), `topics.js`,
-    `questions.js` e `index.js` que compone todo. Se registran en `src/materias/index.js`.
-  - PARCIAL: subdivisión del año de una materia. Puede ser `null` (Neurobiología y
-    Cardiovascular y Respiratorio no tienen parciales) y ahí la UI oculta el filtro.
+  - MATERIA: unidad de nivel superior (hoy `bcyt`, `anatomia`, `neuro`, `cyr`, `dre`, `ryd`).
+    Cada una es una carpeta en `src/materias/<id>/` con seis archivos: `metadata.js` (`id`,
+    `name`, `shortName`, `description`, `available`), `ilustracion.js`, `config.js`
+    (`examSize`, `parciales`), `topics.js`, `questions.js` e `index.js` que compone todo. Se
+    registran en `src/materias/index.js`.
+  - PARCIAL: subdivisión del año de una materia. Puede ser `null` (solo BCYT y Anatomía
+    tienen parciales) y ahí la UI oculta el filtro.
   - TOPIC: tema dentro de una materia. Mapa slug → nombre legible en `topics.js`.
   - SOURCE: origen de una pregunta. `exam` = extraída de un examen real; `generated`
     = generada a partir de apuntes (hoy ningún banco publicado tiene generadas); `user` =

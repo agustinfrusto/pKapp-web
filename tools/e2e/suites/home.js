@@ -1,6 +1,6 @@
 // Suite «home» del arnés end-to-end (ver ../README.md).
 
-const { EN_MARCO, LADO_TACTIL, MEDIR_PANTALLA, PASO, TITULO_DEL_QUIZ, abrirMarco, clicEnMarco, entrarAMateria, irAHomeEnMarco } = require('./comunes');
+const { EN_MARCO, LADO_TACTIL, MEDIR_PANTALLA, PASO, TITULO_DEL_QUIZ, abrirMarco, clicEnMarco, entrarAMateria, esperarEnMarco, irAHomeEnMarco } = require('./comunes');
 
 async function atrasDelNavegador(pagina, base, t) {
   await entrarAMateria(pagina, base);
@@ -480,6 +480,27 @@ async function homeTarjetaDeMateria(pagina, base, t) {
     t.ok(`${m.id}: sin imágenes PNG en la pantalla`, h.imagenes, 0);
   }
   t.ok('las seis materias dibujan una ilustración distinta', vistos.size, 6);
+}
+
+// 6.10 T6: «N preguntas reales» de Home es el mismo número que la mezcla de TopicSelect
+// (banco deduplicado). Anatomía trae 471 filas y 434 únicas.
+async function homeConteoCoincideConMezcla(pagina, base, t) {
+  const anatomia = MATERIAS.find((m) => m.id === 'anatomia');
+  await pagina.ir(base + '/favicon.png');
+  await pagina.esperarA(() => pagina.evaluar('!!document.body'), { limite: 5000 });
+  await pagina.evaluar(`Object.keys(localStorage)
+    .filter((k) => /^pkapp_user_questions/.test(k)).forEach((k) => localStorage.removeItem(k))`);
+  t.ok('anatomia: elegir la materia lleva a /inicio', await entrarAHome(pagina, base, 390, anatomia), true);
+  const h = await leerHome(pagina);
+  const reales = Number(((h.tarjeta && h.tarjeta.texto.match(/(\d+) preguntas reales/)) || [])[1]);
+  t.ok('anatomia: Home dice «434 preguntas reales»', reales, 434);
+  t.ok('anatomia: «Entrena Temas/Parciales» lleva a /temas/practice',
+    await tocar(pagina, '[data-testid="home-accion-practicar"]')
+      && await esperarRutaEnMarco(pagina, '/temas/practice'), true);
+  await esperarEnMarco(pagina, 'Todos los temas mezclados');
+  const cuerpo = await pagina.evaluar(EN_MARCO('return d.body.innerText;'));
+  const mezcla = Number(((cuerpo.match(/Todos los temas mezclados\s+(\d+) preguntas/i)) || [])[1]);
+  t.ok('anatomia: «preguntas reales» de Home = mezcla de TopicSelect', mezcla, reales);
 }
 
 async function homeBancoReducido(pagina, base, t) {
@@ -1175,6 +1196,7 @@ async function capturasDeLaTrece(pagina, base, t) {
 
 module.exports = [
   { nombre: 'Home: tarjeta de materia con ilustración, id y conteos separados', correr: homeTarjetaDeMateria },
+  { nombre: 'Home: «preguntas reales» coincide con la mezcla de TopicSelect (6.10 T6)', correr: homeConteoCoincideConMezcla },
   { nombre: 'Home: banner de banco reducido solo en cyr y neuro', correr: homeBancoReducido },
   { nombre: 'Home: rótulo «Plano / Acciones» y seis acciones en orden', correr: homeRotuloYAcciones },
   { nombre: 'Home: navegación de cada acción', correr: homeNavegacion },

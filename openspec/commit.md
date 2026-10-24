@@ -83,7 +83,11 @@ Convención del operador (2026-10-15), vigente desde que el rediseño se public�
 3. La versión se resuelve en `main`, en el commit que sigue al merge (paso 4).
 4. Después del merge y su push, la rama se borra (local y remota) y se quita su worktree.
 5. Excepción: `maquina-contenido` (`openspec/pendientes.md` 6.7) nunca se mergea a `main` ni a
-   otra rama; solo recibe `main` → `maquina-contenido`.
+   otra rama; solo recibe `main` → `maquina-contenido`. Sin bump ni tag: su trabajo no se publica.
+   Antes de cada `main` → `maquina-contenido`: `git merge-tree --write-tree maquina-contenido main`
+   sin conflictos; si los hay, se resuelven en la rama, nunca en `main`. Es PRIVADA: se pushea solo
+   al remoto `contenido` (`agustinfrusto/maquina-contenido-pkapp`, privado, sin Cloudflare;
+   `branch.maquina-contenido.pushRemote = contenido`) y NUNCA a `origin`, que es público.
 
 ## Salida
 
