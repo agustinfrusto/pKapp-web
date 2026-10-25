@@ -106,4 +106,4 @@ El `id` de cada entrada de `parciales[]` en el `config.js` de una materia SHALL 
 #### Scenario: Id numérico
 
 - **WHEN** una materia declara un `id` de parcial que no es una cadena (por ejemplo `1`) y sus preguntas usan `parcial: '1'`
-- **THEN** la materia es inválida: la comparación estricta no las une, el filtro de ese parcial queda vacío y el quiz no muestra su rótulo
+- **THEN** la materia es inválida: la comparación estricta no las une, el filtro de ese parcial queda vacío y el quiz muestra el rótulo de respaldo («2do Parcial», `QuizScreen.js`) en lugar del `label`
