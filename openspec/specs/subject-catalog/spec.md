@@ -93,3 +93,17 @@ El selector de materias SHALL mostrar para cada materia los conteos que surgen d
 
 - **WHEN** el selector muestra la tarjeta de `dre` o de `ryd`
 - **THEN** el conteo es el que genera `scripts/gen-conteos.mjs` para esa materia
+
+### Requirement: Identificador de parcial como cadena
+
+El `id` de cada entrada de `parciales[]` en el `config.js` de una materia SHALL ser una cadena no vacía, única dentro de la materia y distinta de `all` (la clave reservada del filtro «Examen»). El campo `parcial` de cada pregunta de esa materia SHALL usar exactamente esa misma cadena: la app las compara por igualdad estricta, sin conversión de tipo. Una materia sin parciales SHALL declarar `parciales: null`.
+
+#### Scenario: Filtro por parcial
+
+- **WHEN** el usuario elige el filtro de un parcial en una materia con parciales (`bcyt` o `anatomia`, ids `primero` y `segundo`)
+- **THEN** quedan exactamente las preguntas cuyo `parcial` es igual a ese `id`, y el rótulo del filtro y el de la pregunta en el quiz son el `label` de esa entrada
+
+#### Scenario: Id numérico
+
+- **WHEN** una materia declara un `id` de parcial que no es una cadena (por ejemplo `1`) y sus preguntas usan `parcial: '1'`
+- **THEN** la materia es inválida: la comparación estricta no las une, el filtro de ese parcial queda vacío y el quiz no muestra su rótulo
