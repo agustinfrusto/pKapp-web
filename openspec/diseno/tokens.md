@@ -115,7 +115,7 @@ Simulación con las matrices de Machado et al. (2009), severidad 1,0. ΔE en CIE
 | `plex-mono` | `PlexMono-Regular` | IBM Plex Mono | 400 | ídem | Rótulos, metadatos, contadores |
 | `plex-mono-medium` | `PlexMono-Medium` | IBM Plex Mono | 500 | ídem | Cifras y datos |
 
-Un archivo por peso y un nombre registrado por archivo: `expo-font` y `@font-face` usan los mismos nombres de la columna «Familia registrada».
+Un archivo por peso y un nombre registrado por archivo: `@font-face` usa los nombres de la columna «Familia registrada».
 
 ### b.2 Escala
 
@@ -489,7 +489,7 @@ node -e "const {plancha:p}=require('./src/theme/colores');const l=h=>{const c=[1
 | 8 | Porcentaje de resultado en 72 px y 60 px (`.big.am`) | 72 px único | El tamaño no codifica estado |
 | 9 | Interlineado proporcional (1,25 a 1,5) | px absolutos | Regla de interlineado de b.3 |
 | 10 | Espaciado de letras .04 a .08 em | +0,66 px (≈ .06 em) | Un valor para todos los rótulos |
-| 11 | Fuentes desde Google Fonts | `expo-font` por plataforma | D4 |
+| 11 | Fuentes desde Google Fonts | `@font-face` sobre `woff2` propios (`src/theme/fuentes.web.js`) | D4 |
 | 12 | Radio 0 | 0 en todas las claves | D9 |
 
 ---

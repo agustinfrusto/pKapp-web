@@ -4,7 +4,7 @@
 |---|---|
 | Tareas | 1.6 (íconos de la app instalada, 2026-10-10) y 4.2 (favicon de la pestaña, 2026-10-11) de `rediseno-plancha`, rama `rediseno` |
 | Vigente | **Favicon de la pestaña y de favoritos: FAV-P2** (§ «4.2»). **Íconos de la app instalada (PWA): maestra y maskable de la 1.6, sin cambios** |
-| Insumos | `tokens.md` a.1 (`iconoFondo`, `tinta`, `acento`) y e (E4); `CONVENCIONES.md` C2 y C10; `src/assets/fuentes/PlexSans-SemiBold.ttf` (el wordmark «pKapp») |
+| Insumos | `tokens.md` a.1 (`iconoFondo`, `tinta`, `acento`) y e (E4); `CONVENCIONES.md` C2 y C10; `PlexSans-SemiBold.ttf` (el wordmark «pKapp»; retirado en `2ecbfe4`, hoy `src/assets/fuentes/PlexSans-SemiBold.woff2`) |
 
 ## Qué hay vigente
 
@@ -108,7 +108,7 @@ El cableado de la 4.1 no cambia con la 4.2: solo se reemplazan tres archivos, co
 
 | Parte | 16 px · `FAV-P2-16.svg` (píxel, 1 celda = 1 px) | 32 y 48 px · `FAV-P2.svg` (contorno, 1 celda = 1 px a 32 px) |
 |---|---|---|
-| Origen | Dibujo por píxel con las proporciones de Plex Sans SemiBold | «p» y «K» de `src/assets/fuentes/PlexSans-SemiBold.ttf` (IBM Plex Sans, SIL OFL 1.1) como `<path>`; ninguna pieza usa `<text>` ni depende de la fuente. Comprimidas ≈ 25 % en horizontal respecto del wordmark: el par natural mide 1,32:1 y el cuadrado, 1:1 |
+| Origen | Dibujo por píxel con las proporciones de Plex Sans SemiBold | «p» y «K» de `PlexSans-SemiBold.ttf` (IBM Plex Sans, SIL OFL 1.1; retirado en `2ecbfe4`, hoy `src/assets/fuentes/PlexSans-SemiBold.woff2`) como `<path>`; ninguna pieza usa `<text>` ni depende de la fuente. Comprimidas ≈ 25 % en horizontal respecto del wordmark: el par natural mide 1,32:1 y el cuadrado, 1:1 |
 | «p» | 7 × 11: altura x 8, descendente 3, fuste 2, hueco 3 × 4, esquinas derechas del aro cortadas | 14 × 22: altura x 16, descendente 6, fuste 4, hueco 6 × 8, aro de Plex |
 | «K» | 6 × 11: fuste 2, brazo y pierna de 2 a 3 px | 12,4 × 22: fuste 4, brazo y pierna de ≈ 4,2 |
 | Hueco p–K y margen | 1 px y 1 px | 2 px y 2 px (el doble: mismo reparto en ambos tamaños) |

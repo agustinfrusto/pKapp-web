@@ -118,7 +118,7 @@ Las seis acciones no tienen estado deshabilitado en el código actual; ninguna s
 | Conteo de preguntas extra | `QUESTIONS` filtradas por `q.source === 'generated'` (`generatedCount`) | Se muestra solo si es mayor que cero (`HOME-P4`): la condición es del dato, no de la materia ni una constante. Concuerda en número: «1 pregunta extra» y «{n} preguntas extra» (5.2, `A1-03`; «reales» no concuerda: ninguna materia tiene una sola pregunta de examen). Las preguntas del usuario no se cuentan acá (comportamiento actual) |
 | Preguntas del modo examen | `Math.min(materia.config?.examSize \|\| 75, dedupeQuestions(QUESTIONS).length)` (sin repetidas, F-3) | Texto de la descripción del modo examen |
 | Banner | `materia.bancoReducido` | Hoy `cyr` y `neuro` |
-| Nota de privacidad | `Platform.OS === 'web'` | Solo web |
+| Nota de privacidad | Estática | Siempre |
 
 ### d.2 Invariantes
 

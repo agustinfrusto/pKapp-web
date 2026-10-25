@@ -28,7 +28,7 @@
 | 7 | Lista de falladas | — | `paso 5` | — | Hasta 10 (a.4) |
 | 8 | Relleno inferior del scroll | — | — | `paso 8` | Fin del scroll |
 
-La vista conserva el `RefreshControl`, que en web no hace nada: sin gesto ni indicador (c, «Tirar para actualizar en web»); la pantalla se recarga al enfocar (d.2).
+La vista conserva el `RefreshControl`, que en web no hace nada: sin gesto ni indicador (c, «Tirar para actualizar»); la pantalla se recarga al enfocar (d.2).
 
 ### a.2 Interior de la tarjeta global
 
@@ -117,8 +117,7 @@ Las filas de esta pantalla no son controles: no hay hover, presionado, foco, sel
 |---|---|---|---|---|---|---|
 | Botón volver de la barra | `comun.md` §3 | `comun.md` §3 | `comun.md` §3 | `comun.md` §3 | — | — |
 | Contenedor desplazable, con datos (5.2, `E-03`) | Sin contorno | — | — | Contorno `foco`, `border-2`, `outline-offset` −`paso 0.5` (hacia adentro), solo `:focus-visible`; par N7 | — | — |
-| Tirar para actualizar | Sin efecto en web: sin gesto ni indicador (detalle en la fila siguiente) | — | — | — | — | — |
-| (5.0b, sin documentar) Tirar para actualizar en web | Sin efecto: el `RefreshControl` de react-native-web renderiza un `View` sin gesto ni indicador, así que en la única plataforma vigente (web, D10 y retiro de nativo 5.0) el gesto no existe y la pantalla se recarga solo al enfocar (`useFocusEffect`, d.2). Vale igual para V1 de `Vacios.md` (`VAC-C3`). Sin cambio en esta tarea | — | — | — | — | — |
+| Tirar para actualizar | Sin efecto: el `RefreshControl` de react-native-web renderiza un `View` sin gesto ni indicador, así que en la única plataforma vigente (web, D10 y retiro de nativo 5.0) el gesto no existe y la pantalla se recarga solo al enfocar (`useFocusEffect`, d.2). Vale igual para V1 de `Vacios.md` (`VAC-C3`). | — | — | — | — | — |
 
 Origen de la pregunta, banco reducido y acierto o error de una opción no aplican (—).
 

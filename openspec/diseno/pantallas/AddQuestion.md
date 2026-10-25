@@ -26,7 +26,7 @@
 | 4 | Grupo «Opciones de respuesta» | — | `paso 5` | `paso 6` | Rótulo, ayuda de marcado (margen inferior `paso 2.5`), filas de opción y «Agregar opción» |
 | 5 | Grupo «Explicación (opcional)» | — | `paso 5` | `paso 6` | Rótulo (margen inferior `paso 2`) y campo multilínea |
 | 6 | Botón «Guardar pregunta» | — | `paso 5` | — | K1 de ancho completo |
-| 7 | Relleno inferior del scroll | — | — | `paso 8` más área segura inferior | Fin del scroll; con teclado abierto, la vista sube (`KeyboardAvoidingView`, solo iOS, como hoy) |
+| 7 | Relleno inferior del scroll | — | — | `paso 8` más área segura inferior | Fin del scroll |
 
 ### a.2 Interior de los grupos
 
@@ -167,7 +167,7 @@ Origen de la pregunta, aciertos de rendimiento, banco reducido y estado vacío n
 | Estado del formulario | `questionText`, `options` (cuatro vacías), `correctIndex` (`null`), `topic`, `explanation`, `saving` | Estado local; no persiste |
 | Letra de opción | `String.fromCharCode(65 + idx)` | A, B, C… |
 | Color de placeholder | `placeholderTextColor` recibe un solo color: sale del token `tintaSec` del tema activo (`useTema().oscuro`), nunca de un literal | Es un valor por `style`, no por clase |
-| Guardado | `addUserQuestion(materiaId, { topic, question, options, correctIndex, explanation })` de `src/db/database` (módulos por plataforma: `database.web.js` y `database.native.js`) | Enunciado y explicación recortados; opciones vacías descartadas y `correctIndex` recalculado |
+| Guardado | `addUserQuestion(materiaId, { topic, question, options, correctIndex, explanation })` de `src/db/database` (`database.web.js`) | Enunciado y explicación recortados; opciones vacías descartadas y `correctIndex` recalculado |
 
 **Dato que falta: el parcial de cada tema.**
 

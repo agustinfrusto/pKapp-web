@@ -69,7 +69,7 @@ Interior de la lámina, de arriba abajo:
 | 3 | Texto | Margen superior `paso 2`; centrado | Texto del estado |
 | 4 | Acción (`VAC-P2`) | Margen superior `paso 5` y margen inferior `paso 4`; ancho por contenido; relleno horizontal `paso 8`; alto `paso 11` | K2 con el destino de d.2 |
 
-V1 conserva su ScrollView con el `RefreshControl`, que en web no hace nada (sin gesto ni indicador; `Stats.md` c, «Tirar para actualizar en web»): la lámina va dentro del scroll.
+V1 conserva su ScrollView con el `RefreshControl`, que en web no hace nada (sin gesto ni indicador; `Stats.md` c, «Tirar para actualizar»): la lámina va dentro del scroll.
 
 ### a.3 Mensaje compacto (V3)
 
@@ -134,7 +134,7 @@ Hover solo con puntero, por el estado `hovered` de `Pressable`: contorno o borde
 | Lámina vacía | Estática (no es un control) | — | — | — | — | — |
 | Acción (K2) | Texto `tinta`; borde `linea`; fondo `superficie` | Contorno web `linea`, `border` | Inversión: fondo `tinta`; texto `fondo`; borde `tinta` | Contorno `foco`, `border-2`, separado `paso 0.5` | — | — |
 | Mensaje (V3 y V4) | Estático | — | — | — | — | — |
-| Tirar para actualizar (V1) | Sin efecto en web: sin gesto ni indicador (`Stats.md` c) | — | — | — | — | — |
+| Tirar para actualizar (V1) | Sin efecto en web: sin gesto ni indicador (`Stats.md` c, «Tirar para actualizar») | — | — | — | — | — |
 
 | Estado | Condición | Qué se ve |
 |---|---|---|

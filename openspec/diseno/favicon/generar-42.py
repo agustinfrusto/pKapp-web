@@ -21,7 +21,7 @@ AQUI = pathlib.Path(__file__).resolve().parent
 # Tokens (tokens.md a.1): `iconoFondo`, `tinta` y `acento` del tema oscuro, los mismos de los íconos PWA.
 TINTA, PAPEL, TEAL = '#0B0D10', '#E6E9ED', '#5CC3D6'
 
-# «p» y «K» de IBM Plex Sans SemiBold (SIL OFL 1.1), 1000 u/em, tal como salen de src/assets/fuentes/PlexSans-SemiBold.ttf.
+# «p» y «K» de IBM Plex Sans SemiBold (SIL OFL 1.1), 1000 u/em, tal como salen de `PlexSans-SemiBold.ttf` (retirado en `2ecbfe4`; hoy `src/assets/fuentes/PlexSans-SemiBold.woff2`).
 # Son los glifos del wordmark «pKapp» (tokens.md b.2, paso `marca`). Aquí van como datos: el script no lee la fuente.
 PLEX_P = ('M74 522H202V436H206Q220 481 259 507.5Q298 534 350 534Q450 534 502.5 463.5Q555 393 555 262'
           'Q555 130 502.5 59Q450 -12 350 -12Q298 -12 259.5 15Q221 42 206 87H202V-200H74Z'

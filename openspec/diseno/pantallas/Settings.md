@@ -133,7 +133,7 @@ Hover solo con puntero, por el estado `hovered` de `Pressable`: contorno o borde
 | Cero preguntas propias | `userQuestions.length === 0` | Nombre «0 preguntas propias»; abierto, mensaje de `Vacios.md` (V3) |
 | Una pregunta propia | `userQuestions.length === 1` | Nombre «1 pregunta propia» (singular) |
 | Varias | Dos o más | «{n} preguntas propias» |
-| Web | `Platform.OS === 'web'` | El cuerpo de «Tus datos» incluye el bloque de respaldo |
+| Web | Siempre | El cuerpo de «Tus datos» incluye el bloque de respaldo |
 | Plegables | Estado local `showQuestions` y `showData` | Cerrados al abrir la pantalla; no persisten |
 
 Origen de la pregunta, aciertos de rendimiento y banco reducido no aplican (—); el desglose por origen del banco es dato, no estado (d.1).

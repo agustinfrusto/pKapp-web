@@ -256,7 +256,7 @@ Sin aprobación, las 16 llamadas conservan su texto. Con aprobación, el copy nu
 
 | Invariante | Detalle |
 |---|---|
-| Misma firma | `confirm(title, message, onConfirm, { confirmLabel, cancelLabel, destructive, onCancel })` y `avisar(title, message = '')` no cambian: las 16 llamadas no se reescriben para cambiar de aspecto; `confirm.js` cambia su rama web. `destructive` elige la variante de peligro |
+| Misma firma | `confirm(title, message, onConfirm, { confirmLabel, cancelLabel, destructive, onCancel })` y `avisar(title, message = '')` no cambian: las 16 llamadas no se reescriben para cambiar de aspecto; `confirm.js` cambia su implementación. `destructive` elige la variante de peligro |
 | Un callback por respuesta | Exactamente uno de `onConfirm` u `onCancel` corre, una sola vez, después de cerrar y devolver el foco (c.3). Cerrar por desmontaje de la pantalla no corre ninguno (d.2) |
 | Secuencial | Cola de d.3; el guardia del quiz es la excepción (d.1) |
 | Sin `window.confirm` ni `window.alert` en `src/` | Aceptación de `tasks.md` 5.0b.10. El respaldo para un navegador sin `<dialog>` (sección j) vive en `confirm.js`, no en las pantallas |
@@ -301,7 +301,7 @@ Por caso de borde:
 | Pieza | Estimación gzip | Notas |
 |---|---|---|
 | Componente `Dialogo` (lámina, dos disposiciones, cola, foco inicial y atrapado, retorno, Escape, `data-variante`) | ≈ 0,9 KB JS | Reusa `Lamina`, `MarcasEsquina`, `BotonRelleno`, `BotonMarco` (`tono="peligro"`) y `useEntrada`: nada de aspecto nuevo |
-| Rama web de `confirm.js` (puente a la cola) y respaldo a `window.confirm`/`alert` sin `<dialog>` | ≈ 0,2 KB JS | El respaldo es un `typeof HTMLDialogElement` |
+| Puente de `confirm.js` a la cola y respaldo a `window.confirm`/`alert` sin `<dialog>` | ≈ 0,2 KB JS | El respaldo es un `typeof HTMLDialogElement` |
 | Guardia del quiz: conteo de `RESET` y cierre al agotarse el tiempo | ≈ 0,1 KB JS | En `QuizScreen.js` |
 | CSS: reinicio de `dialog` y `::backdrop`, clases ya existentes | ≈ 0,1 KB CSS | Las clases de color, paso y borde ya están en el CSS por otras pantallas |
 | Total | **≈ 1,3 KB gzip** (1,2 a 1,6) | Dentro de la estimación de `FS-1` (1,5 a 2 KB). Contra la holgura de D5 registrada al cerrar la 5.x (`tasks.md` 5.0b.15: 3.833 B antes de `CC-1`, que estima 0 B) quedarían ≈ 2,2 a 2,6 KB; 6.6 lo mide contra la holgura vigente en ese momento con el build (`npm run build:web`) |

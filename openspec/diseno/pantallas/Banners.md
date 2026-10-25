@@ -87,7 +87,7 @@ Hover solo con puntero, por el estado `hovered` de `Pressable`: contorno o borde
 | Banner ausente | Materia sin `bancoReducido` | Nada: el bloque 4 de `Home.md` sube sin dejar hueco |
 | Mensaje visible | Sin marca en su clave o con siete días o más desde ella (`reaparece: 7`) | El mensaje completo con descartar; con dos o más vigentes, dentro del carrusel `BAN-P2` (3.14.6) |
 | Mensaje oculto | Descartado hace menos de siete días | Nada; descartados los tres, la región desaparece y la lista de materias sube sin dejar hueco |
-| Privacidad visible | `Platform.OS === 'web'` | Las dos oraciones centradas |
+| Privacidad visible | Siempre | Las dos oraciones centradas |
 
 Origen de la pregunta, aciertos de rendimiento y estado vacío no aplican (—).
 
@@ -104,7 +104,7 @@ Origen de la pregunta, aciertos de rendimiento y estado vacío no aplican (—).
 | Marca de visto de cada mensaje | `localStorage`, la `clave` del mensaje (D11): `pkapp_aviso_nueva-estetica_visto`, `pkapp_about_seen_at_v3` (`nota-del-creador`; hasta el 2026-10-12, `pkapp_about_seen_at_v2`) y `pkapp_aviso_aviso-contenido_visto` | Valor `Date.now()` como cadena, escrito al descartar; cada clave es independiente de las otras |
 | Intervalo de reaparición | `reaparece: 7` en cada mensaje (D11) | El mensaje reaparece cuando pasaron siete días o más desde su marca |
 | Visibilidad de los mensajes | `avisosVigentes` en el inicializador de `useState`, antes del primer pintado (3.14.10, D11) | Visible si no hay marca o venció el intervalo; sin `localStorage`, nada está descartado |
-| Nota de privacidad | `Platform.OS === 'web'` | Solo web |
+| Nota de privacidad | Estática | Siempre |
 
 ### d.2 Invariantes
 
