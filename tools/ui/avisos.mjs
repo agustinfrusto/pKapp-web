@@ -62,17 +62,17 @@ const local = (a, m, d, h = 12, mi = 0, s = 0, ms = 0) => new Date(a, m - 1, d, 
 // ---- lista real ----
 valida('la lista real AVISOS', AVISOS);
 const POR_ID = (id) => AVISOS.find((a) => a.id === id);
-const estetica = POR_ID('nueva-estetica');
-ok('nueva-estetica existe y va primero', !!estetica && AVISOS[0] === estetica);
-if (estetica) {
-  igual('estetica: clave por defecto', claveDe(estetica), 'pkapp_aviso_nueva-estetica_visto');
-  igual('estetica: rótulo', estetica.rotulo, 'Nota de pKapp');
-  igual('estetica: glifo', estetica.glifo, 'glifo-mensaje');
-  igual('estetica: pantallas', estetica.pantallas, ['materias']);
-  igual('estetica: descartable', estetica.descartable, true);
-  igual('estetica: reaparece', estetica.reaparece, 7);
-  igual('estetica: párrafos', estetica.parrafos,
-    ['¡Hola! Soy pKapp y estrené una nueva estética. No sean malos conmigo: las apps también queremos cambiar de look a veces.']);
+const exito = POR_ID('exito-examenes');
+ok('exito-examenes existe y va primero', !!exito && AVISOS[0] === exito);
+if (exito) {
+  igual('exito: clave por defecto', claveDe(exito), 'pkapp_aviso_exito-examenes_visto');
+  igual('exito: rótulo', exito.rotulo, 'Nota de pKapp');
+  igual('exito: glifo', exito.glifo, 'glifo-mensaje');
+  igual('exito: pantallas', exito.pantallas, ['materias']);
+  igual('exito: descartable', exito.descartable, true);
+  igual('exito: reaparece', exito.reaparece, 7);
+  igual('exito: párrafos', exito.parrafos,
+    ['¡Éxito en los exámenes!']);
 }
 const nota = POR_ID('nota-del-creador');
 ok('nota-del-creador existe y va segunda', !!nota && AVISOS[1] === nota);

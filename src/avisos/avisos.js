@@ -19,12 +19,10 @@
 
 export const AVISOS = [
   {
-    id: 'nueva-estetica',
+    id: 'exito-examenes',
     rotulo: 'Nota de pKapp',
     glifo: 'glifo-mensaje',
-    parrafos: [
-      '¡Hola! Soy pKapp y estrené una nueva estética. No sean malos conmigo: las apps también queremos cambiar de look a veces.',
-    ],
+    parrafos: ['¡Éxito en los exámenes!'],
     pantallas: ['materias'],
     descartable: true,
     reaparece: 7,

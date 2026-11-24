@@ -99,7 +99,7 @@ const SEMILLA_STATS = `(function () {
   localStorage.setItem('pkapp_question_stats:bcyt', JSON.stringify(stats));
   localStorage.setItem('pkapp_donation_count', '2');
   // Marcas de visto de los tres avisos de MateriaSelect (src/avisos/avisos.js).
-  ['pkapp_aviso_nueva-estetica_visto', 'pkapp_about_seen_at_v3', 'pkapp_aviso_aviso-contenido_visto']
+  ['pkapp_aviso_exito-examenes_visto', 'pkapp_about_seen_at_v3', 'pkapp_aviso_aviso-contenido_visto']
     .forEach((k) => localStorage.setItem(k, String(ahora)));
 })()`;
 
