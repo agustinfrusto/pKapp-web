@@ -79,7 +79,8 @@ Convención del operador (2026-10-15), vigente desde que el rediseño se public�
    (`../pKapp-worktrees/<tema>`), y vuelve a `main` con `git merge --no-ff`, con orden del
    operador.
 2. Antes del merge, la compuerta del área corre sobre la rama con `main` al día: si `main`
-   avanzó, se mergea `main` en la rama (sin rebase) y se repite la compuerta.
+   avanzó, se mergea `main` en la rama (sin rebase) y se repite la compuerta. La e2e completa
+   no corre por rama: corre una vez, en la compuerta combinada antes del push de `main`.
 3. La versión se resuelve en `main`, en el commit que sigue al merge (paso 4).
 4. Después del merge y su push, la rama se borra (local y remota) y se quita su worktree.
 5. Excepción: `maquina-contenido` (`openspec/pendientes.md` 6.7) nunca se mergea a `main` ni a

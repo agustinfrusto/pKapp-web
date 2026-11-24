@@ -196,9 +196,14 @@ con la revisión cerrada, y con orden del operador, el Ingeniero commitea.
 | Área tocada | Compuerta |
 |---|---|
 | `tools/ingesta/**` | `python3 tools/ingesta/pruebas/correr_pruebas.py` |
-| `src/**`, `App.js`, `scripts/**` | `npm run build:web && npm run e2e` |
+| `src/**`, `App.js`, `scripts/**` | `npm run build:web && npm run e2e -- --suite <s1> --suite <s2>…`, solo las suites del área que nombra la spec |
 | `tools/e2e/**` salvo `suites/` (el arnés) | `node tools/e2e/pruebas/huerfanos.js && node tools/e2e/pruebas/arnes.js && node tools/e2e/pruebas/paralelo.js && npm run build:web && npm run e2e -- --suite home` |
 | solo docs y specs | revisión estructural del Ingeniero |
+
+**E2e completa** (`npm run e2e` sin `--suite`): una sola vez por publicación, en la compuerta
+combinada del Ingeniero antes del push de `main` (Node 22, `npm ci`, worktree limpio). Ningún
+worker la corre. La spec nombra las suites del área; una suite que falla por timeout con
+carga alta se repite una sola vez (convención del operador, 2026-11-23).
 
 El repo no tiene tests unitarios de la app. En `src/`, el "test que falla primero" del
 Programador es una comprobación del arnés e2e o del build que el cambio vuelve verde.

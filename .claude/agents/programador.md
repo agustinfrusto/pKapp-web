@@ -14,7 +14,9 @@ FLUJO (obligatorio, en orden)
 3. Implementar lo mínimo para que pase.
 4. Correr la compuerta local del área tocada. Todo en verde, o no hay entrega:
    - `tools/ingesta/**` → `python3 tools/ingesta/pruebas/correr_pruebas.py`
-   - `src/**`, `App.js`, `scripts/**` → `npm run build:web && npm run e2e`
+   - `src/**`, `App.js`, `scripts/**` → `npm run build:web && npm run e2e -- --suite <s1> --suite <s2>…`,
+     solo las suites que nombra la spec. Nunca la e2e completa (sin `--suite`): esa la corre
+     el Ingeniero antes de publicar.
    - `tools/e2e/**` salvo `suites/` (el arnés) → `node tools/e2e/pruebas/huerfanos.js && node tools/e2e/pruebas/arnes.js && node tools/e2e/pruebas/paralelo.js && npm run build:web && npm run e2e -- --suite home`
 5. Entregar.
 
