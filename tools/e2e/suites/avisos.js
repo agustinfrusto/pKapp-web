@@ -2,7 +2,7 @@
 // (tarea 3.14c) en el build de producción. Las variantes de la región y su carrusel
 // (`BAN-P2`) se prueban a fondo en la página de prueba de componentes (`avisos-region.js`).
 //
-// Acá: en `materias` hay tres avisos vigentes (el tope), `nueva-estetica`, `nota-del-creador`
+// Acá: en `materias` hay tres avisos vigentes (el tope), `exito-examenes`, `nota-del-creador`
 // y `aviso-contenido`, así que la región es el carrusel BAN-P2 (roles, `aria-roledescription`,
 // anterior/siguiente, pausa). Descartar uno deja dos en el carrusel, con uno solo no hay
 // carrusel, descartar los tres vacía la región, cada uno reaparece a los siete días por su
@@ -14,7 +14,7 @@ const { esperarSelector } = require('./comunes');
 
 const RAIZ = path.resolve(__dirname, '..', '..', '..');
 const CLAVES = {
-  'nueva-estetica': 'pkapp_aviso_nueva-estetica_visto',
+  'exito-examenes': 'pkapp_aviso_exito-examenes_visto',
   'nota-del-creador': 'pkapp_about_seen_at_v3',
   'aviso-contenido': 'pkapp_aviso_aviso-contenido_visto',
 };
@@ -23,7 +23,7 @@ const DIA = 24 * 60 * 60 * 1000;
 const ROTULO = /nota de pkapp/i;
 const CONTACTO = 'pkappsoporte@gmail.com';
 const TEXTOS = {
-  'nueva-estetica': ['¡Hola! Soy pKapp y estrené una nueva estética. No sean malos conmigo: las apps también queremos cambiar de look a veces.'],
+  'exito-examenes': ['¡Éxito en los exámenes!'],
   'nota-del-creador': [
     'Mi creador lleva meses trabajando en mí. ¡Estamos sorprendidos porque miles de personas han usado pKapp!',
     '¡Gracias a todos los que donaron! Sigo gratis y sin publicidad gracias a sus donaciones y aportes.',
@@ -126,9 +126,9 @@ async function carrusel(pagina, base, t) {
   if (!r) return;
   t.ok('carrusel: región `avisos` con rol region y aria-roledescription carrusel',
     `${r.id}|${r.rol}|${r.descripcion}`, 'avisos|region|carrusel');
-  t.ok('carrusel: tres avisos, en orden nueva-estetica, nota-del-creador y aviso-contenido',
+  t.ok('carrusel: tres avisos, en orden exito-examenes, nota-del-creador y aviso-contenido',
     r.grupos.join('|'), IDS.join('|'));
-  t.ok('carrusel: el primer aviso es el que se ve', r.activa, 'nueva-estetica');
+  t.ok('carrusel: el primer aviso es el que se ve', r.activa, 'exito-examenes');
   for (const id of IDS) {
     t.ok(`carrusel: ${id} con su texto tal cual y su rótulo`,
       trae(textoDe(r, id), id) && ROTULO.test(textoDe(r, id)), true);
@@ -171,7 +171,7 @@ async function carrusel(pagina, base, t) {
     ultimo ? ultimo.contactos.join('|') : null, `Escribir a ${CONTACTO}`);
   t.ok('carrusel: el botón de contacto lleva el correo en su texto', !!ultimo && ultimo.texto.includes(CONTACTO), true);
   t.ok('carrusel: «Nota siguiente» da la vuelta al primero', await clic('Nota siguiente'), true);
-  t.ok('carrusel: vuelta a nueva-estetica, «1 de 3»', await estado(), 'nueva-estetica|1 de 3');
+  t.ok('carrusel: vuelta a exito-examenes, «1 de 3»', await estado(), 'exito-examenes|1 de 3');
   t.ok('carrusel: «Nota anterior» da la vuelta al último', await clic('Nota anterior'), true);
   t.ok('carrusel: anterior desde el primero muestra aviso-contenido, «3 de 3»', await estado(), 'aviso-contenido|3 de 3');
 }
@@ -179,15 +179,15 @@ async function carrusel(pagina, base, t) {
 async function descartes(pagina, base, t) {
   // Descartar el primero deja dos en el carrusel; luego uno solo, sin carrusel; luego, vacía.
   await conPerfil(pagina, base);
-  t.ok('descartar: cierra nueva-estetica', await cerrarVisible(pagina), true);
+  t.ok('descartar: cierra exito-examenes', await cerrarVisible(pagina), true);
   let r = await pagina.evaluar(LEER_REGION);
-  t.ok('descartar uno: quedan dos en el carrusel, sin nueva-estetica',
+  t.ok('descartar uno: quedan dos en el carrusel, sin exito-examenes',
     r ? `${r.id}|${r.rol}|${r.descripcion}|${r.grupos.join(',')}` : null,
     'avisos|region|carrusel|nota-del-creador,aviso-contenido');
   t.ok('descartar uno: contador «1 de 2»', r ? (r.contador || '').trim().toLowerCase() : null, '1 de 2');
-  const marcaPrimero = Number(await pagina.evaluar(`localStorage.getItem(${JSON.stringify(CLAVES['nueva-estetica'])})`));
-  t.ok('descartar nueva-estetica guarda Date.now() en su clave', Math.abs(Date.now() - marcaPrimero) < 15000, true);
-  t.ok('descartar nueva-estetica no toca las claves de los otros',
+  const marcaPrimero = Number(await pagina.evaluar(`localStorage.getItem(${JSON.stringify(CLAVES['exito-examenes'])})`));
+  t.ok('descartar exito-examenes guarda Date.now() en su clave', Math.abs(Date.now() - marcaPrimero) < 15000, true);
+  t.ok('descartar exito-examenes no toca las claves de los otros',
     await pagina.evaluar(`[${JSON.stringify(CLAVES['nota-del-creador'])}, ${JSON.stringify(CLAVES['aviso-contenido'])}].map((k) => localStorage.getItem(k)).join('|')`), '|');
   t.ok('descartar: cierra nota-del-creador', await cerrarVisible(pagina), true);
   r = await pagina.evaluar(LEER_REGION);
@@ -207,14 +207,14 @@ async function descartes(pagina, base, t) {
   await recargar(pagina, base);
   t.ok('descartados hace segundos, ninguno vuelve al recargar', await pagina.evaluar(LEER_REGION), null);
 
-  // Descartar el del medio (con «Siguiente») deja nueva-estetica y aviso-contenido.
+  // Descartar el del medio (con «Siguiente») deja exito-examenes y aviso-contenido.
   await conPerfil(pagina, base);
   await pagina.evaluar(`(document.querySelector('[aria-label="Nota siguiente"]') || { click() {} }).click()`);
   await new Promise((r2) => setTimeout(r2, 400));
   t.ok('descartar: cierra nota-del-creador desde el carrusel', await cerrarVisible(pagina), true);
   r = await pagina.evaluar(LEER_REGION);
-  t.ok('descartar el del medio: quedan nueva-estetica y aviso-contenido',
-    r ? `${r.rol}|${r.grupos.join(',')}` : null, 'region|nueva-estetica,aviso-contenido');
+  t.ok('descartar el del medio: quedan exito-examenes y aviso-contenido',
+    r ? `${r.rol}|${r.grupos.join(',')}` : null, 'region|exito-examenes,aviso-contenido');
 }
 
 async function reaparece(pagina, base, t) {

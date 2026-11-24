@@ -38,8 +38,8 @@ async function seisMaterias(pagina, base, t) {
   await pagina.evaluar('localStorage.clear()');
   await pagina.ir(base + '/');
   await esperarSelector(pagina);
-  const nota = await pagina.esperarTexto('estrené una nueva estética');
-  t.ok('el primer aviso anuncia la nueva estética', nota, true);
+  const nota = await pagina.esperarTexto('¡Éxito en los exámenes!');
+  t.ok('el primer aviso es el de éxito en los exámenes', nota, true);
   await cerrarNota(pagina);
   const nombres =['Biología Celular y Tisular', 'Anatomía', 'Neurobiología',
     'Cardiovascular y Respiratorio', 'Digestivo, Renal y Endócrino', 'Reproductor y Desarrollo'];
@@ -494,7 +494,7 @@ const LEER_NOTA = (id, texto) => EN_MARCO(`
 // Los avisos que se miden con la nota a la vista: el primero y el tercero, el más largo
 // (fija el alto de la región) y el único con botón de contacto.
 const AVISOS_MEDIDOS = [
-  { id: 'nueva-estetica', texto: 'nueva estética', pasos: 0, contacto: false },
+  { id: 'exito-examenes', texto: 'Éxito en los exámenes', pasos: 0, contacto: false },
   { id: 'aviso-contenido', texto: 'informático', pasos: 2, contacto: true },
 ];
 
@@ -877,7 +877,7 @@ async function escritorioConNota(pagina, base, t) {
 const MARGEN_DE_FUENTES = 12 * PASO;
 
 // Claves de la marca de visto de los tres avisos de MateriaSelect (src/avisos/avisos.js).
-const CLAVES_NOTA = ['pkapp_aviso_nueva-estetica_visto', 'pkapp_about_seen_at_v3', 'pkapp_aviso_aviso-contenido_visto'];
+const CLAVES_NOTA = ['pkapp_aviso_exito-examenes_visto', 'pkapp_about_seen_at_v3', 'pkapp_aviso_aviso-contenido_visto'];
 
 // Abre la app en un iframe recién creado y, desde el padre, engancha un MutationObserver al
 // documento nuevo en cuanto existe: cada commit de React que cambia el DOM deja una

@@ -121,8 +121,8 @@ async function abrirMarco(pagina, base, ancho, alto = 800) {
     const ajustes = JSON.parse(localStorage.getItem('pkapp_settings') || '{}');
     delete ajustes.tema;
     localStorage.setItem('pkapp_settings', JSON.stringify(ajustes));
-    // Los tres avisos de MateriaSelect (src/avisos/avisos.js): nueva-estetica, nota-del-creador y aviso-contenido.
-    ['pkapp_aviso_nueva-estetica_visto', 'pkapp_about_seen_at_v3', 'pkapp_aviso_aviso-contenido_visto'].forEach((k) => localStorage.setItem(k, String(Date.now())));
+    // Los tres avisos de MateriaSelect (src/avisos/avisos.js): exito-examenes, nota-del-creador y aviso-contenido.
+    ['pkapp_aviso_exito-examenes_visto', 'pkapp_about_seen_at_v3', 'pkapp_aviso_aviso-contenido_visto'].forEach((k) => localStorage.setItem(k, String(Date.now())));
     const marco = document.createElement('iframe');
     marco.id = '${MARCO}';
     marco.src = ${JSON.stringify(base + '/')};
