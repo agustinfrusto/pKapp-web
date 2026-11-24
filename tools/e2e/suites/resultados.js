@@ -1227,7 +1227,20 @@ const FOCO_ACTUAL = EN_MARCO(`
 
 // Recorre el documento con Tab real y devuelve las paradas con su caja medida.
 async function recorrerConTab(pagina, cuantas) {
-  await pagina.evaluar(EN_MARCO('d.activeElement && d.activeElement.blur(); return true;'));
+  // Con foco en nada, el primer Tab sale desde el punto de partida de la navegación secuencial
+  // de Chrome, que queda donde cayó el último clic o desplazamiento: no es el principio del
+  // documento. Un ancla desechable al inicio fija ese punto de partida y el recorrido empieza
+  // siempre en la primera parada.
+  await pagina.evaluar(EN_MARCO(`
+    d.activeElement && d.activeElement.blur();
+    const ancla = d.createElement('span');
+    ancla.tabIndex = -1;
+    d.body.insertBefore(ancla, d.body.firstChild);
+    ancla.focus();
+    ancla.blur();
+    ancla.remove();
+    return true;
+  `));
   const paradas = [];
   for (let i = 0; i < cuantas; i++) {
     await pagina.tecla('Tab');
